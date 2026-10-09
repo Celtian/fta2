@@ -1,0 +1,133 @@
+{
+  "date": "2026-10-09",
+  "status": "passed",
+  "scope": "Numeric keypad input translation and brother selection; development alpha 0.1.4",
+  "cause": "SDL keypad digit keycodes were outside ASCII and reached the game as zero.",
+  "regression": {
+    "original_input_code": "fails the updated runtime digit-translation test",
+    "fixed_input_code": "passes the updated runtime digit-translation test",
+    "public_key_coverage": [
+      "top-row 1-3",
+      "keypad 0-9"
+    ],
+    "gameplay_key_coverage": {
+      "keypad 1": 32768,
+      "keypad 2": 32769,
+      "keypad 3": 32770
+    },
+    "event_path": "SDL_PushEvent -> Platform::pollEvent -> original UI -> character selection"
+  },
+  "linux": {
+    "build": "CMake Release, SDL 3.4.18",
+    "ctest": {
+      "passed": 5,
+      "total": 5
+    },
+    "integration": "tools/integration_test.py --binary build/fta2-native --output .cache/integration-keypad-20261009",
+    "reference_parity": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "windows": {
+    "build": "Zig cross-build, Windows x64 Release, SDL 3.4.18",
+    "runtime": "Native Windows process passed, including digit translation and Alt+Enter checks",
+    "integration": "Native Windows process passed the SDL keypad gameplay scenario with an isolated copy of the original save",
+    "reference_parity": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    },
+    "executable_sha256": "909b08199f84e4f9677c5a3120aa613fa1c3ecc480b893d510ceb77854218b02"
+  },
+  "backends": {
+    "video": "dummy",
+    "audio": "dummy"
+  },
+  "original_files_verified_after_tests": 54,
+  "limitations": [
+    "No manual hardware-keyboard test",
+    "No macOS execution",
+    "Existing ZIP packages were not rebuilt",
+    "Not a complete playthrough"
+  ]
+}

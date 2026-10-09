@@ -376,6 +376,11 @@ bool Platform::pollEvent(Event& out) {
             out.type = EVENT_KEYDOWN;
             out.kbd.flags = getModifierState();
             auto k = ev.key.key;
+            // SDL keypad keycodes are outside ASCII; share the ordinary digit controls.
+            if (k >= SDLK_KP_1 && k <= SDLK_KP_9)
+                k = '1' + (k - SDLK_KP_1);
+            else if (k == SDLK_KP_0)
+                k = '0';
             out.kbd.ascii = k < 128 ? int(k) : 0;
             out.kbd.keycode = out.kbd.ascii;
             if ((out.kbd.flags & KBD_SHIFT) && out.kbd.ascii >= 'a' && out.kbd.ascii <= 'z')

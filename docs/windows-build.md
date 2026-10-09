@@ -20,6 +20,8 @@ Version 0.1.3 starts maximized. Alt+Enter toggles between maximized and restored
 
 Version 0.1.4 replaces maximization with borderless fullscreen by default, without the title bar or Windows taskbar. Alt+Enter switches between fullscreen and a resizable window, preserving its previous size and position. The monitor resolution remains unchanged.
 
+Version 0.1.5 fixes numeric keypad input. Keypad `1`/`2`/`3` now select Julian, Philip and Kevin, matching the top-row number controls. Keypad digits also work in text fields.
+
 The local build was cross-compiled on Linux using Zig 0.16.0 (Clang 21.1.0 and its bundled Windows/C++ runtimes). It links C++ runtime code statically and includes the official SDL 3.4.18 x64 DLL. Apart from SDL, the executable imports Windows system libraries, including the Universal C Runtime. Target Windows 10/11 x64; older Windows releases have not been validated.
 
 ## Reproduce the cross-build
@@ -53,7 +55,7 @@ The native Windows CI build uses MSVC and the regular instructions in the main R
 After generating the Windows engine ZIP:
 
 ```sh
-python3 tools/package_complete.py --engine-package dist/fta2-native-0.1.4-Windows-x86_64.zip --data-dir original-game --output dist/fta2-native-0.1.4-Windows-x86_64-complete.zip
+python3 tools/package_complete.py --engine-package dist/fta2-native-0.1.5-Windows-x86_64.zip --data-dir original-game --output dist/fta2-native-0.1.5-Windows-x86_64-complete.zip
 cpack --config build-windows-x64/CPackSourceConfig.cmake -B dist
 ```
 
@@ -62,7 +64,7 @@ The complete-package tool accepts only the supported eight files, checked agains
 On an actual Windows desktop, validate a complete ZIP with isolated saves and a fresh temporary output directory:
 
 ```powershell
-.\tools\test_complete_windows.ps1 -Package .\dist\fta2-native-0.1.4-Windows-x86_64-complete.zip -OutputDirectory "$env:TEMP\fta2-complete-check" -OriginalSave .\original-game\999.SAV
+.\tools\test_complete_windows.ps1 -Package .\dist\fta2-native-0.1.5-Windows-x86_64-complete.zip -OutputDirectory "$env:TEMP\fta2-complete-check" -OriginalSave .\original-game\999.SAV
 ```
 
 The optional `-OriginalSave` is copied before loading. The script opens and closes only its own test windows, moves the extracted game into a path containing spaces and non-ASCII characters, and verifies startup, data precedence, visible errors and gameplay/save restoration. It writes `validation.json`, screenshots, saves and logs under the test output directory.
@@ -70,7 +72,7 @@ The optional `-OriginalSave` is copied before loading. The script opens and clos
 To validate fullscreen and Alt+Enter against a complete ZIP on the actual Windows desktop:
 
 ```powershell
-.\tools\test_window_windows.ps1 -Package .\dist\fta2-native-0.1.4-Windows-x86_64-complete.zip -OutputDirectory "$env:TEMP\fta2-window-check"
+.\tools\test_window_windows.ps1 -Package .\dist\fta2-native-0.1.5-Windows-x86_64-complete.zip -OutputDirectory "$env:TEMP\fta2-window-check"
 ```
 
 This test sends native keyboard messages only to its own game window, with SDL raw keyboard input disabled for that test process. It checks fullscreen startup by comparing physical window and monitor bounds and checking that the title bar is absent, including coverage beyond the desktop work area occupied by the taskbar. It activates only its own game window using a verified click, restores normal stacking and the cursor position before assertions, and checks both toggle directions, repeat suppression, right Alt with keypad Enter and preservation of a resized window.

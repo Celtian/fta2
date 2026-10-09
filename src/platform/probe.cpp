@@ -32,6 +32,15 @@ void configureSmokeProbe(const Path& output, int frames) {
         auto& s = *state;
         auto vm = Saga2::g_vm;
         ++s.frame;
+        auto keypad = [](SDL_Scancode scancode, SDL_Keycode key) {
+            SDL_Event ev{};
+            ev.type = SDL_EVENT_KEY_DOWN;
+            ev.key.scancode = scancode;
+            ev.key.key = key;
+            ev.key.down = true;
+            if (!SDL_PushEvent(&ev))
+                throw std::runtime_error("Smoke probe: cannot inject keypad input");
+        };
         auto record = [&](const char* phase) {
             auto pos = Saga2::centerActorCoords();
             std::ofstream log(output / "state.jsonl", std::ios::app);
@@ -61,15 +70,12 @@ void configureSmokeProbe(const Path& output, int frames) {
         }
         if (s.frame == 181) {
             Saga2::playSound(MKTAG('C', 'L', 'K', 1));
-            Event ev;
-            ev.type = EVENT_KEYDOWN;
-            ev.kbd.ascii = ev.kbd.keycode = '2';
-            vm->_toolBase->handleKeyStroke(ev);
+            keypad(SDL_SCANCODE_KP_2, SDLK_KP_2);
         }
         if (s.frame == 190) {
             record("switched");
             if (Saga2::getCenterActorID() != 32769)
-                throw std::runtime_error("Smoke probe: key 2 did not select Phillip");
+                throw std::runtime_error("Smoke probe: keypad 2 did not select Phillip");
             g_platform->capture(output / "controlled.ppm");
         }
         if (s.frame == 220) {
@@ -80,11 +86,10 @@ void configureSmokeProbe(const Path& output, int frames) {
             record("saved");
         }
         if (s.frame == 221) {
-            Event ev;
-            ev.type = EVENT_KEYDOWN;
-            ev.kbd.ascii = ev.kbd.keycode = '3';
-            vm->_toolBase->handleKeyStroke(ev);
+            keypad(SDL_SCANCODE_KP_3, SDLK_KP_3);
         }
+        if (s.frame == 222 && Saga2::getCenterActorID() != 32770)
+            throw std::runtime_error("Smoke probe: keypad 3 did not select Kevin");
         if (s.frame == 230) {
             vm->loadGameState(1);
             auto pos = Saga2::centerActorCoords();
@@ -93,6 +98,10 @@ void configureSmokeProbe(const Path& output, int frames) {
                 throw std::runtime_error("Smoke probe: restore changed actor state");
             record("restored");
         }
+        if (s.frame == 235)
+            keypad(SDL_SCANCODE_KP_1, SDLK_KP_1);
+        if (s.frame == 236 && Saga2::getCenterActorID() != 32768)
+            throw std::runtime_error("Smoke probe: keypad 1 did not select Julian");
         if (s.frame == 240) {
             std::unique_ptr<InSaveFile> original(
                 vm->getSaveFileManager()->openForLoading("fta2.002"));

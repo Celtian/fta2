@@ -1,6 +1,6 @@
-# Native alpha 0.1.4 validation status
+# Native alpha 0.1.5 validation status
 
-The result is a standalone C++20 engine using SDL 3.4.18. It was built and run on Linux and the actual Windows host with the original DOS data, without DOSBox or the ScummVM framework. **This is a development alpha; a complete playthrough of the port has not yet been demonstrated.** Version 0.1.4 starts in borderless fullscreen and uses Alt+Enter to switch between fullscreen and a resizable window; the extended stability and sanitizer results below were recorded on 0.1.0.
+The result is a standalone C++20 engine using SDL 3.4.18. It was built and run on Linux and the actual Windows host with the original DOS data, without DOSBox or the ScummVM framework. **This is a development alpha; a complete playthrough of the port has not yet been demonstrated.** Version 0.1.5 fixes numeric keypad input, including brother selection with `1`/`2`/`3`. It retains the borderless fullscreen and Alt+Enter window switching introduced in 0.1.4; the extended stability and sanitizer results below were recorded on 0.1.0.
 
 The reference is a separate SAGA2 build at revision `1a3e816afd5ddc41cc2a5c51a5da292e6d61758c`, modified only by the supplied reference patches. Successful startup with DOS resources was verified before separating the engine. The missing `FTA2WIN.EXE` dependency was resolved by extracting the actual DOS resources.
 
@@ -34,6 +34,8 @@ Complete-package results for 0.1.2 are in [`research/windows-complete-validation
 Native Windows window-state results for 0.1.3 are in [`research/windows-window-validation.json`](../research/windows-window-validation.json). The desktop test uses keyboard messages scoped to its own game HWND, with raw keyboard input disabled for that test process. The separate C++ runtime test runs with native Windows video/audio backends.
 
 Native Windows fullscreen results for 0.1.4 are in [`research/windows-fullscreen-validation.json`](../research/windows-fullscreen-validation.json). The test verifies caption removal, physical monitor bounds and that the game owns points in the taskbar area while active. It activates only its own test window and removes its temporary activation override before fullscreen assertions. The complete-package regression scenario and reference comparisons also passed again.
+
+Numeric keypad regression results are in [`research/keypad-validation.json`](../research/keypad-validation.json). SDL keypad digits now share the ordinary number controls. Public runtime checks cover top-row `1`–`3` and keypad `0`–`9`; the integration scenario sends keypad `1`, `2` and `3` through SDL and verifies all three brother selections. Linux and native Windows runs passed with dummy video/audio backends, including reference image, checkpoint and save-chunk parity. These are automated input checks, not a manual hardware-keyboard test.
 
 Checksums of the compared PPM screens:
 

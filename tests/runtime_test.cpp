@@ -111,6 +111,41 @@ int main() {
         Event nativeEvent;
         while (platform.pollEvent(nativeEvent)) {
         }
+        struct SelectionKey {
+            SDL_Scancode scancode;
+            SDL_Keycode key;
+            int ascii;
+            int selection;
+        };
+        const auto selectionKeys = {SelectionKey{SDL_SCANCODE_1, SDLK_1, '1', '1'},
+                                    SelectionKey{SDL_SCANCODE_2, SDLK_2, '2', '2'},
+                                    SelectionKey{SDL_SCANCODE_3, SDLK_3, '3', '3'},
+                                    SelectionKey{SDL_SCANCODE_KP_1, SDLK_KP_1, '1', '1'},
+                                    SelectionKey{SDL_SCANCODE_KP_2, SDLK_KP_2, '2', '2'},
+                                    SelectionKey{SDL_SCANCODE_KP_3, SDLK_KP_3, '3', '3'},
+                                    SelectionKey{SDL_SCANCODE_KP_4, SDLK_KP_4, '4', '4'},
+                                    SelectionKey{SDL_SCANCODE_KP_5, SDLK_KP_5, '5', '5'},
+                                    SelectionKey{SDL_SCANCODE_KP_6, SDLK_KP_6, '6', '6'},
+                                    SelectionKey{SDL_SCANCODE_KP_7, SDLK_KP_7, '7', '7'},
+                                    SelectionKey{SDL_SCANCODE_KP_8, SDLK_KP_8, '8', '8'},
+                                    SelectionKey{SDL_SCANCODE_KP_9, SDLK_KP_9, '9', '9'},
+                                    SelectionKey{SDL_SCANCODE_KP_0, SDLK_KP_0, '0', '0'}};
+        for (auto input : selectionKeys) {
+            SDL_Event key{};
+            key.type = SDL_EVENT_KEY_DOWN;
+            key.key.windowID = SDL_GetWindowID(window);
+            key.key.scancode = input.scancode;
+            key.key.key = input.key;
+            key.key.down = true;
+            check(SDL_PushEvent(&key), "Cannot inject character selection key");
+        }
+        for (auto input : selectionKeys) {
+            check(platform.pollEvent(nativeEvent) && nativeEvent.type == EVENT_KEYDOWN &&
+                      nativeEvent.kbd.ascii == input.ascii &&
+                      nativeEvent.kbd.keycode == input.selection,
+                  "Character selection key translation or dialog text changed");
+        }
+        check(!platform.pollEvent(nativeEvent), "Unexpected event after digit input");
         for (auto key : {SDLK_RETURN, SDLK_KP_ENTER}) {
             for (bool repeat : {false, true}) {
                 SDL_Event shortcut{};
