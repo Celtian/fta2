@@ -1,0 +1,154 @@
+src/saga2/display.cpp
+  s_2adb1a9ac6dc39::t_a56883a495fe37 119-121
+  s_2adb1a9ac6dc39::t_23cab8a1002bea 130-133
+  s_2adb1a9ac6dc39::t_8984e8da6a374a 114-117
+  s_2adb1a9ac6dc39::t_91c136ac9409e7 34-36,56-107,111-113,118,122-129,134-137
+  s_2adb1a9ac6dc39::t_8cc272022be88e 108-110
+  s_2adb1a9ac6dc39::t_03b676a8e0808e 209,315,339
+src/platform/runtime.cpp
+  s_2adb1a9ac6dc39::t_7dd799cfb4d010 281,285-296,298-362
+  s_2adb1a9ac6dc39::t_23cab8a1002bea 119-120,297
+  s_2adb1a9ac6dc39::t_2ebce8effd7049 262-263,363,417-418,453-454
+tests/runtime_test.cpp
+  s_2adb1a9ac6dc39::t_34bc43bd558dd4 115-116,122,132,197,230,249,368-411
+  s_2adb1a9ac6dc39::t_de74d1ec435ce4 4-5,8,112-114,117-121,123-131,189-196,198-229,231-248,250-264
+src/platform/probe.cpp
+  s_2adb1a9ac6dc39::t_cabe84c1ec201b 166,878
+docs/architecture.md
+  s_2adb1a9ac6dc39::t_71c0a2016aaf41 38,49-50
+  s_2adb1a9ac6dc39::t_4d17d47c3e5743 16,28-35
+src/saga2/dispnode.cpp
+  s_2adb1a9ac6dc39::t_d7944e9a097019 187-190,275,279
+  s_2adb1a9ac6dc39::t_03b676a8e0808e 193,408,410,483,485,512,514,969,971
+src/saga2/saga2.cpp
+  s_2adb1a9ac6dc39::t_03b676a8e0808e 154-156
+CMakeLists.txt
+  s_2adb1a9ac6dc39::t_79a29e6d532343 2
+  s_2adb1a9ac6dc39::t_65bb7e456411cc 21
+src/saga2/display.h
+  s_2adb1a9ac6dc39::t_c3beab05197f28 79-80
+src/platform/probe.h
+  s_2adb1a9ac6dc39::t_65bb7e456411cc 7
+src/main.cpp
+  s_2adb1a9ac6dc39::t_03b676a8e0808e 97-98
+  s_2adb1a9ac6dc39::t_65bb7e456411cc 14,21-22,35-38,116-119
+  s_2adb1a9ac6dc39::t_c6fb8f9b890eeb 56-57
+  s_2adb1a9ac6dc39::t_3fb4a8d761b4f6 70-72,83-84,105-106
+src/saga2/vbacksav.cpp
+  s_2adb1a9ac6dc39::t_03b676a8e0808e 32
+src/platform/widescreen_probe.cpp
+  s_2adb1a9ac6dc39::t_0364e50c2205ae 10,90-91,301-306,310-312,315-318,320,323-324,328-335,338-339,346-353,533,540-542
+  s_2adb1a9ac6dc39::t_9388125a38df81 1-9,13-22,29-86,88,92-94,97,269-277,295-300,314,319,321-322,325-327,361-384,388,390-392,395-409,412-416,419-436,438-467,469-497,499-500,503,508-511,513-516,519-530,532,535-539,543-557
+  s_2adb1a9ac6dc39::t_fef54eb0dbbdc9 11,87,354-360,389
+  s_2adb1a9ac6dc39::t_13432045694cd5 89,342-345,534
+  s_2adb1a9ac6dc39::t_4fc0ab870c0062 385-387,393-394,410-411,417-418
+  s_2adb1a9ac6dc39::t_a56883a495fe37 498,501-502,517-518,531
+  s_2adb1a9ac6dc39::t_d59cf8d0581de2 437
+  s_2adb1a9ac6dc39::t_79a29e6d532343 23-27,95-96,98-146,148-157,159-183,185-262,266-268,278-281,283-291,293-294,468
+  s_2adb1a9ac6dc39::t_8984e8da6a374a 504-507
+  s_2adb1a9ac6dc39::t_35337d9330a05b 340-341
+  s_2adb1a9ac6dc39::t_619aebee8a1478 512
+  s_2adb1a9ac6dc39::t_4ba80c0093e42b 307-309,313,336-337
+  s_2adb1a9ac6dc39::t_a59df2e0200dfe 12,28,147,158,184,263-265,282,292
+research/widescreen-validation.json
+  s_2adb1a9ac6dc39::t_c868819475a7ee 39,55,102-103,170
+  s_2adb1a9ac6dc39::t_b1aad8d7aab8b9 1-38,40-54,56-101,104-169,171-191,193,306
+  s_2adb1a9ac6dc39::t_b0b746fdffecb3 192,194-305
+src/saga2/path.cpp
+  s_2adb1a9ac6dc39::t_03b676a8e0808e 2563-2564
+src/saga2/tile.cpp
+  s_2adb1a9ac6dc39::t_03b676a8e0808e 4360,4363,4391-4392,4434
+  s_2adb1a9ac6dc39::t_91c136ac9409e7 4298-4305
+src/saga2/panel.h
+  s_2adb1a9ac6dc39::t_7d43e12db22249 195,278
+src/saga2/gfx.cpp
+  s_2adb1a9ac6dc39::t_c3beab05197f28 54-55,72-75
+third_party/README.md
+  s_2adb1a9ac6dc39::t_509578e7717161 14-15
+  s_2adb1a9ac6dc39::t_4a9afea1cffca3 39-40
+  s_2adb1a9ac6dc39::t_71c0a2016aaf41 41-42
+research/window-map-validation.json
+  s_2adb1a9ac6dc39::t_9e8e8f897092a6 1-454
+src/saga2/towerfta.cpp
+  s_2adb1a9ac6dc39::t_03b676a8e0808e 278,313
+src/saga2/modal.cpp
+  s_2adb1a9ac6dc39::t_d90baa5ebd6383 79-88
+src/platform/display_layout.h
+  s_2adb1a9ac6dc39::t_7cbbca47df8ea1 1-25
+src/saga2/dispnode.h
+  s_2adb1a9ac6dc39::t_d7944e9a097019 85,101-102
+tools/integration_widescreen.py
+  s_2adb1a9ac6dc39::t_c6fb8f9b890eeb 1-15,58-86,90-94,102-112
+  s_2adb1a9ac6dc39::t_13432045694cd5 87-88,95-100
+  s_2adb1a9ac6dc39::t_ff8b3fc0c9ca93 16-57,89
+  s_2adb1a9ac6dc39::t_35679d7d5c978d 101
+docs/windows-build.md
+  s_2adb1a9ac6dc39::t_d7758670c0719c 109-110
+  s_2adb1a9ac6dc39::t_b0b746fdffecb3 107-108
+  s_2adb1a9ac6dc39::t_9e8e8f897092a6 111-122
+  s_2adb1a9ac6dc39::t_71c0a2016aaf41 60,69,77,96
+src/saga2/tilemode.h
+  s_2adb1a9ac6dc39::t_91c136ac9409e7 54
+src/saga2/uidialog.cpp
+  s_2adb1a9ac6dc39::t_44aba76f3161c4 318-324,975,978-979
+  s_2adb1a9ac6dc39::t_c3beab05197f28 64,976-977,980,1065,1901-1905
+  s_2adb1a9ac6dc39::t_a81b798dfd0172 1906-1908
+src/platform/runtime.h
+  s_2adb1a9ac6dc39::t_23cab8a1002bea 600
+  s_2adb1a9ac6dc39::t_03b676a8e0808e 4,567-572,582
+src/saga2/playmode.cpp
+  s_2adb1a9ac6dc39::t_03b676a8e0808e 139-140,152,184
+src/saga2/tilemode.cpp
+  s_2adb1a9ac6dc39::t_91c136ac9409e7 661-666
+  s_2adb1a9ac6dc39::t_03b676a8e0808e 648,781,783
+src/saga2/intrface.cpp
+  s_2adb1a9ac6dc39::t_d90baa5ebd6383 1679,1683-1689
+  s_2adb1a9ac6dc39::t_7d43e12db22249 920-922
+  s_2adb1a9ac6dc39::t_86bf0048d16bca 1690-1691
+docs/validation.md
+  s_2adb1a9ac6dc39::t_71c0a2016aaf41 1,3
+  s_2adb1a9ac6dc39::t_509578e7717161 72,74,79
+  s_2adb1a9ac6dc39::t_9e8e8f897092a6 63-68
+  s_2adb1a9ac6dc39::t_d7758670c0719c 61-62
+  s_2adb1a9ac6dc39::t_b0b746fdffecb3 71,73
+AGENTS.md
+  s_2adb1a9ac6dc39::t_4d17d47c3e5743 33
+src/saga2/speech.cpp
+  s_2adb1a9ac6dc39::t_03b676a8e0808e 477,481,830-831,1067
+README.md
+  s_2adb1a9ac6dc39::t_4d17d47c3e5743 61
+  s_2adb1a9ac6dc39::t_71c0a2016aaf41 33-35,68
+src/saga2/intrface.h
+  s_2adb1a9ac6dc39::t_7d43e12db22249 91
+src/saga2/mouseimg.cpp
+  s_2adb1a9ac6dc39::t_03b676a8e0808e 332-333
+src/saga2/tile.h
+  s_2adb1a9ac6dc39::t_91c136ac9409e7 38
+src/saga2/floating.cpp
+  s_2adb1a9ac6dc39::t_c3beab05197f28 94-120
+  s_2adb1a9ac6dc39::t_03b676a8e0808e 659,676
+research/options-layout-validation.json
+  s_2adb1a9ac6dc39::t_d7758670c0719c 1-300
+src/saga2/main.cpp
+  s_2adb1a9ac6dc39::t_91c136ac9409e7 296-297
+src/saga2/panel.cpp
+  s_2adb1a9ac6dc39::t_7d43e12db22249 295-307
+src/saga2/gfx.h
+  s_2adb1a9ac6dc39::t_c3beab05197f28 38-39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9e6dfd24f4572790d6bfb68211c88bf2e904eeca",
+  "prompts": {},
+  "sessions": {
+    "s_2adb1a9ac6dc39": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a121a0-0d5a-7240-8278-e82003904d2a",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Celtian <dominik.hladik@seznam.cz>"
+    }
+  }
+}
