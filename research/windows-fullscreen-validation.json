@@ -1,0 +1,159 @@
+{
+  "version": "0.1.4",
+  "date": "2026-10-09",
+  "status": "development-alpha",
+  "executable_sha256": "3dad59e74fd0aa72a289a1d7f06c773a4451775a5f0306ed809071e34271ca52",
+  "dll_sha256": "4659d5a1e240e7d58fb92808f84afeb53395818cec62385d4796b72977a7d859",
+  "window": {
+    "windows": "Microsoft Windows NT 10.0.26200.0",
+    "startup_fullscreen": true,
+    "caption_absent": true,
+    "covers_full_monitor": true,
+    "covers_taskbar_area": true,
+    "startup_bounds": [
+      0,
+      0,
+      1920,
+      1080
+    ],
+    "monitor_bounds": [
+      0,
+      0,
+      1920,
+      1080
+    ],
+    "work_area_bounds": [
+      0,
+      0,
+      1920,
+      1032
+    ],
+    "alt_enter_windowed": true,
+    "alt_enter_fullscreen": true,
+    "repeated_key_ignored": true,
+    "resized_window_then_alt_enter": true,
+    "right_alt_keypad_enter": true,
+    "restored_size": [
+      900,
+      650
+    ],
+    "native_message_injection": "Own HWND only; SDL raw keyboard disabled for the test",
+    "activation": "Temporarily raised for a verified click; normal stacking and cursor position restored before assertions",
+    "always_on_top": false,
+    "exit_code": 0
+  },
+  "native_runtime": {
+    "status": "passed",
+    "video_audio": "Native Windows SDL backends",
+    "shortcut_consumption": true,
+    "ordinary_enter_preserved": true,
+    "mouse_1_to_1": true,
+    "mouse_letterbox_1280x720": true,
+    "fullscreen_startup": true
+  },
+  "linux_ctest": {
+    "passed": 5,
+    "failed": 0
+  },
+  "complete_package": {
+    "windows": "Microsoft Windows NT 10.0.26200.0",
+    "tests": [
+      {
+        "name": "version",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "clean-startup",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "moved-unicode",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "bundled-over-remembered",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "damaged-archive",
+        "finished": true,
+        "exit_code": 1
+      },
+      {
+        "name": "visible-damaged-error",
+        "finished": true,
+        "exit_code": 1
+      },
+      {
+        "name": "explicit-override",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "missing-resource-source",
+        "finished": true,
+        "exit_code": 1
+      }
+    ],
+    "bundled_files_unchanged": 8,
+    "relocated_unicode_path": true,
+    "unrelated_working_directory": true,
+    "data_override_used_for_startup": false,
+    "original_save_import": true
+  },
+  "reference_comparison": {
+    "screenshots": {
+      "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+      "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+    },
+    "simulation": {
+      "initial": {
+        "frame": 1,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12521,
+        "z": 8,
+        "rng": 888809617
+      },
+      "moved": {
+        "frame": 180,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12513,
+        "z": 8,
+        "rng": 1260233905
+      },
+      "switched": {
+        "frame": 190,
+        "actor": 32769,
+        "u": 13249,
+        "v": 12497,
+        "z": 8,
+        "rng": 3004664737
+      },
+      "saved": {
+        "frame": 220,
+        "actor": 32769,
+        "u": 13249,
+        "v": 12497,
+        "z": 8,
+        "rng": 81644917
+      }
+    },
+    "save_chunks": {
+      "fta2.999": 30,
+      "fta2.001": 30
+    }
+  },
+  "original_files_unchanged": 54,
+  "pending": [
+    "MSVC-CI",
+    "full-game-playthrough",
+    "subjective-audio-comparison",
+    "macOS-validation"
+  ]
+}

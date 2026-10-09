@@ -16,6 +16,10 @@ Version 0.1.0 expected `original-game` relative to the working directory when no
 
 Version 0.1.2 adds complete local packages and prioritizes executable-relative bundled data over remembered installations. An explicit `--data-dir` still wins. Incomplete or damaged bundled data reports an error instead of falling back to a different installation.
 
+Version 0.1.3 starts maximized. Alt+Enter toggles between maximized and restored windows and preserves the restored dimensions. Either Alt key and either Enter key work; holding the shortcut does not repeatedly toggle. The game keeps its 4:3 image and nearest-neighbour scaling.
+
+Version 0.1.4 replaces maximization with borderless fullscreen by default, without the title bar or Windows taskbar. Alt+Enter switches between fullscreen and a resizable window, preserving its previous size and position. The monitor resolution remains unchanged.
+
 The local build was cross-compiled on Linux using Zig 0.16.0 (Clang 21.1.0 and its bundled Windows/C++ runtimes). It links C++ runtime code statically and includes the official SDL 3.4.18 x64 DLL. Apart from SDL, the executable imports Windows system libraries, including the Universal C Runtime. Target Windows 10/11 x64; older Windows releases have not been validated.
 
 ## Reproduce the cross-build
@@ -49,7 +53,7 @@ The native Windows CI build uses MSVC and the regular instructions in the main R
 After generating the Windows engine ZIP:
 
 ```sh
-python3 tools/package_complete.py --engine-package dist/fta2-native-0.1.2-Windows-x86_64.zip --data-dir original-game --output dist/fta2-native-0.1.2-Windows-x86_64-complete.zip
+python3 tools/package_complete.py --engine-package dist/fta2-native-0.1.4-Windows-x86_64.zip --data-dir original-game --output dist/fta2-native-0.1.4-Windows-x86_64-complete.zip
 cpack --config build-windows-x64/CPackSourceConfig.cmake -B dist
 ```
 
@@ -58,10 +62,18 @@ The complete-package tool accepts only the supported eight files, checked agains
 On an actual Windows desktop, validate a complete ZIP with isolated saves and a fresh temporary output directory:
 
 ```powershell
-.\tools\test_complete_windows.ps1 -Package .\dist\fta2-native-0.1.2-Windows-x86_64-complete.zip -OutputDirectory "$env:TEMP\fta2-complete-check" -OriginalSave .\original-game\999.SAV
+.\tools\test_complete_windows.ps1 -Package .\dist\fta2-native-0.1.4-Windows-x86_64-complete.zip -OutputDirectory "$env:TEMP\fta2-complete-check" -OriginalSave .\original-game\999.SAV
 ```
 
 The optional `-OriginalSave` is copied before loading. The script opens and closes only its own test windows, moves the extracted game into a path containing spaces and non-ASCII characters, and verifies startup, data precedence, visible errors and gameplay/save restoration. It writes `validation.json`, screenshots, saves and logs under the test output directory.
+
+To validate fullscreen and Alt+Enter against a complete ZIP on the actual Windows desktop:
+
+```powershell
+.\tools\test_window_windows.ps1 -Package .\dist\fta2-native-0.1.4-Windows-x86_64-complete.zip -OutputDirectory "$env:TEMP\fta2-window-check"
+```
+
+This test sends native keyboard messages only to its own game window, with SDL raw keyboard input disabled for that test process. It checks fullscreen startup by comparing physical window and monitor bounds and checking that the title bar is absent, including coverage beyond the desktop work area occupied by the taskbar. It activates only its own game window using a verified click, restores normal stacking and the cursor position before assertions, and checks both toggle directions, repeat suppression, right Alt with keypad Enter and preservation of a resized window.
 
 ## Validation scope
 
@@ -72,3 +84,7 @@ Both screen captures, four simulation checkpoints and all 30 original world chun
 The executable was also launched on the actual Windows host through Windows PowerShell, using a test copy in Windows TEMP. These tests run as Windows processes with native graphics/audio backends, outside WSL and Wine. They cover the new folder-selection flow, cancellation, visible errors, remembered paths and the original-data movement/save/load scenario. See `research/windows-native-validation.json` for the recorded scope. MSVC CI, subjective audio comparison and a full playthrough remain pending.
 
 For 0.1.2, the complete ZIP passed native Windows startup without a data path, relocation into a Unicode path, precedence over remembered installations, explicit overrides, visible archive-error handling and refusal to fall back from an incomplete bundle. Movement, brother selection, save restoration, original-save import, both reference images and all 30 original chunks in each compared save also passed. The eight bundled data files and all 54 original input files remain unchanged. Results are recorded in `research/windows-complete-validation.json`.
+
+Version 0.1.3 passed the same complete-package scenario and reference comparisons. Native Windows checks also passed for maximized startup, both Alt+Enter directions, repeat suppression, manual restoration, right Alt with keypad Enter and restoration to the previous 900 × 650 outer window size. The C++ runtime checks passed with native Windows graphics/audio, including mouse mapping after maximize/restore and resizing. Results are in `research/windows-window-validation.json`.
+
+Version 0.1.4 passed fullscreen startup without a title bar, complete monitor coverage (1920 × 1080, including the taskbar area), Alt+Enter in both directions, repeat suppression and the previous 900 × 650 window size. Native Windows runtime, complete-package regression tests and full reference comparisons passed again. Results are in `research/windows-fullscreen-validation.json`.

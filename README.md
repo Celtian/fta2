@@ -30,7 +30,9 @@ fta2-native --version
 
 Without `--save-dir`, the application uses the user directory returned by SDL. It contains `config.ini`, saves named `fta2.000`–`fta2.999`, and `resources/` with automatically extracted resources and their manifest. Output directories must be outside the game data directory. Slot 999 holds the restart state created by the engine.
 
-The original controls are preserved: use the mouse, `1`/`2`/`3` to switch brothers, `O` or Escape to open options including save/load, and Tab to switch between group and individual control. The 640 × 480 image uses nearest-neighbour scaling and retains its 4:3 aspect ratio.
+The game starts in borderless fullscreen, covering the entire monitor without a title bar or the Windows taskbar. **Alt+Enter** toggles between fullscreen and a resizable window, preserving its previous size and position; either Enter key and either Alt key work. The shortcut is handled by the platform and does not activate game dialogs. The 640 × 480 image uses nearest-neighbour scaling and retains its 4:3 aspect ratio.
+
+The original controls are preserved: use the mouse, `1`/`2`/`3` to switch brothers, `O` or Escape to open options including save/load, and Tab to switch between group and individual control.
 
 ## Game data
 
@@ -54,7 +56,7 @@ cpack --config build/CPackConfig.cmake -C Release
 To create the complete Windows ZIP locally after packaging the Windows engine:
 
 ```sh
-python3 tools/package_complete.py --engine-package dist/fta2-native-0.1.2-Windows-x86_64.zip --data-dir original-game --output dist/fta2-native-0.1.2-Windows-x86_64-complete.zip
+python3 tools/package_complete.py --engine-package dist/fta2-native-0.1.4-Windows-x86_64.zip --data-dir original-game --output dist/fta2-native-0.1.4-Windows-x86_64-complete.zip
 ```
 
 The tool checks all eight data files against their known SHA-256 hashes, excludes original saves and unnecessary DOS files, and records a package manifest. It refuses unknown data, output inside the original installation, and overwriting an existing output ZIP.

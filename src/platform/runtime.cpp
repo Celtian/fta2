@@ -261,7 +261,8 @@ void Platform::initGraphics(int width, int height) {
     _screen.create(width, height, {});
     _rgba.resize(width * height);
     _window = SDL_CreateWindow("Faery Tale Adventure II", width, height,
-                               SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
+                               SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY |
+                                   SDL_WINDOW_FULLSCREEN);
     if (!_window)
         error("Cannot create window: %s", SDL_GetError());
     auto* iconStream = SDL_IOFromConstMem(kApplicationIcon, sizeof(kApplicationIcon));
@@ -361,6 +362,17 @@ bool Platform::pollEvent(Event& out) {
             return true;
         }
         if (ev.type == SDL_EVENT_KEY_DOWN) {
+            if ((ev.key.key == SDLK_RETURN || ev.key.key == SDLK_KP_ENTER) &&
+                (ev.key.mod & SDL_KMOD_ALT)) {
+                // Consume the shortcut, including repeats, before the game UI.
+                if (!ev.key.repeat) {
+                    bool fullscreen = SDL_GetWindowFlags(_window) & SDL_WINDOW_FULLSCREEN;
+                    bool changed = SDL_SetWindowFullscreen(_window, !fullscreen);
+                    if (!changed)
+                        warning("Cannot change window state: %s", SDL_GetError());
+                }
+                continue;
+            }
             out.type = EVENT_KEYDOWN;
             out.kbd.flags = getModifierState();
             auto k = ev.key.key;

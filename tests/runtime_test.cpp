@@ -95,14 +95,48 @@ int main() {
         std::unique_ptr<InSaveFile> restored(platform.saves.openForLoading("fta2.001"));
         check(restored && restored->readUint16LE() == 0xFEDC, "Save directory round trip");
         platform.initGraphics(640, 480);
-        auto point = platform.windowToGame(320, 240);
-        check(point.x == 320 && point.y == 240, "Mouse 1:1 mapping");
         int count = 0;
         auto windows = SDL_GetWindows(&count);
         check(count > 0, "Window handle");
         auto window = windows[0];
         SDL_free(windows);
+        check(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN, "Fullscreen startup");
+        check(SDL_SetWindowFullscreen(window, false), "Leave fullscreen");
+        SDL_SyncWindow(window);
+        SDL_SetWindowSize(window, 640, 480);
+        SDL_SyncWindow(window);
+        SDL_PumpEvents();
+        auto point = platform.windowToGame(320, 240);
+        check(point.x == 320 && point.y == 240, "Mouse 1:1 mapping");
+        Event nativeEvent;
+        while (platform.pollEvent(nativeEvent)) {
+        }
+        for (auto key : {SDLK_RETURN, SDLK_KP_ENTER}) {
+            for (bool repeat : {false, true}) {
+                SDL_Event shortcut{};
+                shortcut.type = SDL_EVENT_KEY_DOWN;
+                shortcut.key.windowID = SDL_GetWindowID(window);
+                shortcut.key.key = key;
+                shortcut.key.mod = SDL_KMOD_RALT;
+                shortcut.key.down = true;
+                shortcut.key.repeat = repeat;
+                check(SDL_PushEvent(&shortcut), "Cannot inject Alt+Enter");
+            }
+        }
+        SDL_Event enter{};
+        enter.type = SDL_EVENT_KEY_DOWN;
+        enter.key.windowID = SDL_GetWindowID(window);
+        enter.key.key = SDLK_RETURN;
+        enter.key.down = true;
+        check(SDL_PushEvent(&enter), "Cannot inject ordinary Enter");
+        check(platform.pollEvent(nativeEvent) && nativeEvent.type == EVENT_KEYDOWN &&
+                  nativeEvent.kbd.ascii == ASCII_RETURN,
+              "Alt+Enter reached the game or ordinary Enter was swallowed");
+        check(!platform.pollEvent(nativeEvent), "Repeated Alt+Enter reached the game");
+        check(SDL_SetWindowFullscreen(window, false), "Leave fullscreen after shortcuts");
+        SDL_SyncWindow(window);
         SDL_SetWindowSize(window, 1280, 720);
+        SDL_SyncWindow(window);
         SDL_PumpEvents();
         point = platform.windowToGame(160, 0);
         check(point.x == 0 && point.y == 0, "Letterbox left edge");

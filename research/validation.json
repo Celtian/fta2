@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "0.1.2",
+  "version": "0.1.4",
   "status": "development-alpha",
   "upstream_revision": "1a3e816afd5ddc41cc2a5c51a5da292e6d61758c",
   "toolchain": {
@@ -191,8 +191,32 @@
       "complete_package_damage_handling": "passed; visible archive error; no fallback",
       "complete_package_bundled_files_unchanged": 8,
       "native_Windows_runtime_test": "passed",
-      "complete_package_evidence": "research/windows-complete-validation.json"
+      "complete_package_evidence": "research/windows-fullscreen-validation.json",
+      "native_maximize_and_alt_enter": "passed on actual Windows",
+      "native_fullscreen_and_alt_enter": "passed on actual Windows"
     },
     "macOS-arm64-x64": "CI configured; not run"
+  },
+  "window_013": {
+    "backend": "Windows",
+    "audio_backend": "native",
+    "startup_maximized": true,
+    "alt_enter_toggles_maximization": true,
+    "repeat_ignored": true,
+    "restored_size_preserved": true,
+    "native_runtime_mouse_mapping": "passed",
+    "evidence": "research/windows-window-validation.json"
+  },
+  "window_014": {
+    "backend": "Windows",
+    "audio_backend": "native",
+    "startup_fullscreen": true,
+    "caption_absent": true,
+    "covers_monitor_and_taskbar_area": true,
+    "alt_enter_toggles_fullscreen": true,
+    "repeat_ignored": true,
+    "restored_size_preserved": true,
+    "native_runtime_mouse_mapping": "passed",
+    "evidence": "research/windows-fullscreen-validation.json"
   }
 }
