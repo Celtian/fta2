@@ -23,6 +23,8 @@ The infrastructure port replaces `Common::` names with `Native::` and removes in
 
 New `MotionTask` instances are value-initialized to make saves reproducible. Cancelled tasks are released after the game step finishes; cancelled pathfinding must not dereference a destroyed owner. The port also fixes resource ownership issues found by sanitizers and handles an empty window list.
 
+The gameplay G shortcut searches only the selected actor's inventory through the original recursive container iterator. For the supported DOS profile, map prototype 320 uses ordinary Inventory class 13 and on-use script 1149; the shortcut schedules `MotionTask::useObject` just like inventory double-click. Original scripts continue to decide whether and where to show the map. Modal input, UI locks and held/dragged objects prevent shortcut activation.
+
 ## Complete packages and startup
 
 The SDL window starts in borderless desktop fullscreen, covering the monitor without changing its display resolution. The title bar and Windows taskbar are covered. Alt+Enter uses SDL fullscreen transitions to switch to a resizable window and back, preserving the last windowed size and position; the initial windowed client size is 640 × 480. Both Enter keys and both Alt keys work. The platform consumes the shortcut before delivering keyboard events to the game UI, and key-repeat events do not toggle the window again. Rendering remains letterboxed at 4:3 with nearest-neighbour sampling; mouse conversion continues through the same SDL logical presentation after either transition.

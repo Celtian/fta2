@@ -22,6 +22,9 @@
 #include "saga2/mouseimg.h"
 #include "saga2/gpointer.h"
 #include "saga2/contain.h"
+#include "saga2/automap.h"
+#include "saga2/motion.h"
+#include "saga2/grabinfo.h"
 namespace Saga2 {
 extern char bookText[];
 extern gTextBox* textBox;
@@ -173,6 +176,7 @@ struct HotKeysProbe {
             if (!cycle)
                 g_platform->capture(output / (pregame ? "pregame-options.ppm" : "options.ppm"));
             phase = 1;
+            key(SDLK_G);
             if (cycle % 2)
                 click(button);
             else
@@ -191,8 +195,8 @@ struct HotKeysProbe {
                 g_platform->capture(output / (pregame ? "pregame-hotkeys.ppm" : "hotkeys.ppm"));
             phase = 2;
             wheelAt(help, 100, 100, -2);
-            for (auto code : {SDLK_3, SDLK_A, SDLK_B, SDLK_TAB, SDLK_I, SDLK_S, SDLK_K, SDLK_M,
-                              SDLK_SPACE, SDLK_O})
+            for (auto code : {SDLK_3, SDLK_A, SDLK_B, SDLK_TAB, SDLK_I, SDLK_S, SDLK_K, SDLK_G,
+                              SDLK_M, SDLK_SPACE, SDLK_O})
                 key(code);
             break;
         case 2:
@@ -817,6 +821,7 @@ struct SpeechFallbackProbe {
         case 2: {
             controls.require(Saga2::speechList.currentActive() == speech && speech->longEnough(),
                              "choice dialogue did not wait for input after its reading timer");
+            HotKeysProbe::key(SDLK_G);
             bool found = false;
             for (int y = 0; y < 480 && !found; y += 2) {
                 for (int x = 0; x < 560; x += 2) {
@@ -978,6 +983,352 @@ struct ContainerEscapeProbe {
         }
     }
 };
+struct MapShortcutProbe {
+    HotKeysProbe controls;
+    std::array<Saga2::GameObject*, 3> maps{};
+    std::array<std::vector<byte>, 3> pages;
+    std::array<Saga2::GameObject*, 3> bags{};
+    std::array<Saga2::Location, 3> mapOrigins{}, bagOrigins{};
+    std::array<uint16, 3> mapFlags{};
+    std::vector<std::function<void()>> actions;
+    size_t action = 0;
+    std::string initialInventory, inventory;
+    Saga2::GameObject* expectedMap = nullptr;
+    int expectedBrother = 0;
+    Saga2::gWindow* game = nullptr;
+    Saga2::gWindow* parent = nullptr;
+    Saga2::AutoMap* map = nullptr;
+    Saga2::GameObject* bag = nullptr;
+    int phase = 0, cycle = 0, modalPhase = 0, ticks = 0;
+    bool seen = false, done = false;
+
+    Saga2::GameObject* firstMap(Saga2::GameObject* owner) {
+        Saga2::RecursiveContainerIterator iter(owner);
+        Saga2::GameObject* item = nullptr;
+        for (auto id = iter.first(&item); id != Saga2::Nothing; id = iter.next(&item))
+            if (item->proto() == Saga2::g_vm->_objectProtos[320])
+                return item;
+        return nullptr;
+    }
+    std::string inventoryState() {
+        std::vector<std::string> entries;
+        for (int brother = 0; brother < 3; ++brother) {
+            Saga2::RecursiveContainerIterator iter(
+                Saga2::getPlayerActorAddress(brother)->getActor());
+            Saga2::GameObject* item = nullptr;
+            for (auto id = iter.first(&item); id != Saga2::Nothing; id = iter.next(&item)) {
+                auto loc = item->getLocation();
+                entries.push_back(String::format("%u:%u:%d:%d:%d:%u;", id, item->_data.parentID,
+                                                 loc.u, loc.v, loc.z, item->_data.objectFlags)
+                                      .c_str());
+            }
+        }
+        std::sort(entries.begin(), entries.end());
+        std::string result;
+        for (const auto& entry : entries)
+            result += entry;
+        return result;
+    }
+    void restoreItems() {
+        for (int i = 0; i < 3; ++i)
+            bags[i]->move(bagOrigins[i]);
+        for (int i = 0; i < 3; ++i) {
+            maps[i]->move(mapOrigins[i]);
+            // The ground fixture acquires the original renderer's visibility flags.
+            maps[i]->_data.objectFlags = mapFlags[i];
+        }
+        controls.require(inventoryState() == initialInventory,
+                         "map fixtures did not restore inventory");
+    }
+    void moveInto(Saga2::GameObject* item, Saga2::GameObject* owner) {
+        Saga2::TilePoint slot;
+        controls.require(owner->getAvailableSlot(item, &slot, false),
+                         "map fixture has no free slot");
+        item->move(Saga2::Location(slot, owner->thisID()));
+    }
+    void openMap(SDL_Keymod modifiers = SDL_KMOD_NONE) {
+        controls.snapshot();
+        inventory = inventoryState();
+        expectedMap = firstMap(Saga2::getCenterActor());
+        controls.require(expectedMap != nullptr, "map fixture has no map");
+        expectedBrother = Saga2::getCenterActorID() - 32768;
+        parent = Saga2::g_vm->_toolBase->topWindow();
+        seen = false;
+        modalPhase = 0;
+        phase = 7;
+        SDL_SetModState(modifiers);
+        HotKeysProbe::key(SDLK_G);
+    }
+    void ignored(SDL_Keymod modifiers = SDL_KMOD_NONE) {
+        actions.push_back([this, modifiers] {
+            SDL_SetModState(modifiers);
+            HotKeysProbe::key(SDLK_G);
+        });
+        for (int i = 0; i < 8; ++i)
+            actions.push_back([this] {
+                controls.require(!Saga2::ModalWindow::_current,
+                                 "blocked map shortcut opened a dialog");
+            });
+        actions.push_back([] { SDL_SetModState(SDL_KMOD_NONE); });
+    }
+    void prepareActions() {
+        actions.push_back([this] { moveInto(maps[0], Saga2::getCenterActor()); });
+        actions.push_back([this] { openMap(SDL_KMOD_LSHIFT); });
+        actions.push_back([this] { restoreItems(); });
+        actions.push_back([this] {
+            bag = bags[0];
+            controls.require(bag->open(Saga2::getCenterActorID()),
+                             "cannot open shortcut parent bag");
+            Saga2::updateContainerWindows();
+            controls.require(bagNode() && bagNode()->getWindow(),
+                             "shortcut parent bag has no window");
+        });
+        actions.push_back([this] { openMap(); });
+        actions.push_back([this] {
+            controls.require(bag->isOpen() &&
+                                 bagNode()->getWindow() == Saga2::g_vm->_toolBase->topWindow(),
+                             "map Escape closed its parent container");
+            HotKeysProbe::key(SDLK_ESCAPE);
+        });
+        actions.push_back([this] {
+            controls.require(!bag->isOpen() && !bagNode() &&
+                                 Saga2::g_vm->_toolBase->topWindow() == game,
+                             "second Escape did not close the parent container");
+        });
+        actions.push_back([this] {
+            moveInto(bags[2], Saga2::getCenterActor());
+            moveInto(bags[0], bags[2]);
+            controls.require(!bags[0]->isOpen() && !bags[2]->isOpen(), "nested bags are open");
+        });
+        actions.push_back([this] { openMap(); });
+        actions.push_back([this] { restoreItems(); });
+        actions.push_back([this] { moveInto(maps[1], bags[0]); });
+        actions.push_back([this] { openMap(); });
+        actions.push_back([this] { restoreItems(); });
+        actions.push_back([this] {
+            auto actor = Saga2::getCenterActor();
+            maps[0]->move(Saga2::Location(actor->getLocation(), actor->_data.parentID));
+            controls.require(!firstMap(actor) &&
+                                 firstMap(Saga2::getPlayerActorAddress(1)->getActor()),
+                             "missing-map fixture still owns a map");
+        });
+        ignored();
+        actions.push_back([this] {
+            Saga2::StatusLine->experationCheck();
+            controls.require(Saga2::StatusLine->getEnabled(),
+                             "missing map did not display status text");
+            g_platform->capture(controls.output / "map-missing.ppm");
+            moveInto(maps[0], bags[1]);
+        });
+        ignored();
+        actions.push_back([] { HotKeysProbe::key(SDLK_2); });
+        actions.push_back([this] { openMap(); });
+        actions.push_back([this] {
+            restoreItems();
+            HotKeysProbe::key(SDLK_1);
+        });
+        ignored(SDL_KMOD_LCTRL);
+        ignored(SDL_KMOD_RALT);
+        actions.push_back([] { Saga2::LockUI(true); });
+        ignored();
+        actions.push_back([] { Saga2::LockUI(false); });
+        actions.push_back([this] {
+            Saga2::g_vm->_mouseInfo->grabObject(maps[1]);
+            controls.require(firstMap(Saga2::getCenterActor()) != nullptr,
+                             "held-object fixture removed the selected brother's map");
+        });
+        ignored();
+        actions.push_back([this] {
+            controls.require(Saga2::g_vm->_mouseInfo->getObject() == maps[1],
+                             "ignored map shortcut replaced the held object");
+            Saga2::g_vm->_mouseInfo->replaceObject();
+            restoreItems();
+        });
+        actions.push_back([this] { controls.mouseAt(game, 4, 475, SDL_EVENT_MOUSE_BUTTON_DOWN); });
+        ignored();
+        actions.push_back([this] { controls.mouseAt(game, 4, 475, SDL_EVENT_MOUSE_BUTTON_UP); });
+        actions.push_back([this] { restoreItems(); });
+        actions.push_back([this] { openMap(); });
+    }
+    Saga2::ContainerNode* bagNode() {
+        return Saga2::g_vm->_cnm->find(bag->thisID(), Saga2::ContainerNode::kPhysicalType);
+    }
+    std::vector<byte> pixels() {
+        auto box = map->getExtent();
+        auto screen = g_platform->lockScreen();
+        std::vector<byte> result;
+        // Compare the map panel above its controls, excluding its translucent bottom shadow.
+        for (int y = box.y; y < box.y + 275; ++y) {
+            auto row = static_cast<byte*>(screen->pixels) + y * screen->pitch + box.x;
+            result.insert(result.end(), row, row + box.width);
+        }
+        g_platform->unlockScreen();
+        return result;
+    }
+    void modalTick() {
+        auto active = Saga2::ModalWindow::_current;
+        controls.require((phase == 3 || phase == 7) && dynamic_cast<Saga2::AutoMap*>(active),
+                         "unexpected dialog during map shortcut scenario");
+        if (modalPhase == 0) {
+            SDL_SetModState(SDL_KMOD_NONE);
+            map = static_cast<Saga2::AutoMap*>(active);
+            controls.require(
+                Saga2::thisThread &&
+                    Saga2::thisThread->_threadArgs.directObject == expectedMap->thisID() &&
+                    Saga2::thisThread->_threadArgs.enactor == Saga2::getCenterActorID(),
+                "map did not use the first carried map through its original script");
+            controls.require(inventoryState() == inventory, "opening map changed inventory");
+            auto pos = Saga2::centerActorCoords();
+            controls.require(map->_trackPos == pos &&
+                                 Saga2::g_vm->_currentMapNum ==
+                                     Saga2::getCenterActor()->getMapNum() &&
+                                 !map->getCheatFlag(),
+                             "map tracks another brother or world, or enables unexplored areas");
+            controls.unchanged(false);
+            if (phase == 3 && cycle % 2 == 0) {
+                pages[expectedBrother] = pixels();
+                g_platform->capture(controls.output /
+                                    String::format("map-brother-%d.ppm", cycle / 2 + 1).c_str());
+            } else if (phase == 3) {
+                g_platform->capture(
+                    controls.output /
+                    String::format("map-click-brother-%d.ppm", cycle / 2 + 1).c_str());
+                controls.require(pixels() == pages[expectedBrother],
+                                 "map shortcut differs from inventory double-click");
+            }
+            seen = true;
+            for (auto key : {SDLK_G, SDLK_G, SDLK_3, SDLK_M, SDLK_O})
+                HotKeysProbe::key(key);
+            modalPhase = 1;
+        } else if (modalPhase == 1) {
+            controls.require(active == map && map->_trackPos == Saga2::centerActorCoords(),
+                             "gameplay input changed the open map or selected brother");
+            controls.unchanged(false);
+            if (phase == 3 && cycle % 2)
+                controls.clickAt(map, 15, 296);
+            else
+                HotKeysProbe::key(SDLK_ESCAPE);
+            modalPhase = 2;
+        }
+    }
+    void tick() {
+        controls.require(
+            ++ticks < 600,
+            String::format("map shortcut scenario timed out (phase=%d cycle=%d)", phase, cycle)
+                .c_str());
+        auto vm = Saga2::g_vm;
+        auto tool = vm->_toolBase;
+        switch (phase) {
+        case 0:
+            game = tool->topWindow();
+            for (int brother = 0; brother < 3; ++brother) {
+                maps[brother] = firstMap(Saga2::getPlayerActorAddress(brother)->getActor());
+                controls.require(maps[brother] != nullptr, "original brother has no carried map");
+                bags[brother] = maps[brother]->parent();
+                mapFlags[brother] = maps[brother]->_data.objectFlags;
+                mapOrigins[brother] =
+                    Saga2::Location(maps[brother]->getLocation(), bags[brother]->thisID());
+                bagOrigins[brother] =
+                    Saga2::Location(bags[brother]->getLocation(), bags[brother]->_data.parentID);
+            }
+            initialInventory = inventoryState();
+            phase = 1;
+            break;
+        case 1:
+            HotKeysProbe::key(SDLK_1 + cycle / 2);
+            phase = 2;
+            break;
+        case 2: {
+            controls.require(Saga2::getCenterActorID() == 32768 + cycle / 2,
+                             "map test did not select its intended brother");
+            controls.snapshot();
+            expectedMap = maps[cycle / 2];
+            expectedBrother = cycle / 2;
+            bag = maps[cycle / 2]->parent();
+            parent = game;
+            seen = false;
+            modalPhase = 0;
+            phase = 3;
+            if (cycle % 2 == 0) {
+                controls.require(!bag->isOpen(), "map bag should initially be closed");
+                HotKeysProbe::key(SDLK_G);
+            } else {
+                controls.require(bag->open(Saga2::getCenterActorID()), "cannot open map bag");
+                Saga2::updateContainerWindows();
+                controls.require(bagNode() && bagNode()->getWindow(), "map bag has no window");
+                parent = bagNode()->getWindow();
+                auto view = bagNode()->getView();
+                auto box = view->getExtent();
+                bool found = false;
+                for (int y = 0; y < box.height && !found; y += 2) {
+                    for (int x = 0; x < box.width; x += 2) {
+                        if (view->pickObjectID(Saga2::Point16(x, y)) == maps[cycle / 2]->thisID()) {
+                            g_platform->delayMillis(400);
+                            controls.clickAt(parent, box.x + x, box.y + y);
+                            controls.clickAt(parent, box.x + x, box.y + y);
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                controls.require(found, "cannot locate map icon for inventory double-click");
+            }
+            inventory = inventoryState();
+            break;
+        }
+        case 3:
+            if (!seen)
+                return;
+            controls.require(modalPhase == 2 && !Saga2::ModalWindow::_current &&
+                                 tool->topWindow() == parent,
+                             "closing the map did not restore its parent window");
+            controls.unchanged(false);
+            controls.require(inventoryState() == inventory, "closing map changed inventory");
+            if (cycle % 2) {
+                controls.require(bag->isOpen(), "closing map also closed its underlying bag");
+                HotKeysProbe::key(SDLK_ESCAPE);
+            }
+            phase = 4;
+            break;
+        case 4:
+            controls.require(!bag->isOpen() && !bagNode() && tool->topWindow() == game,
+                             "map test left a container open");
+            if (++cycle < 6) {
+                phase = 1;
+            } else {
+                HotKeysProbe::key(SDLK_1);
+                phase = 5;
+            }
+            break;
+        case 5:
+            controls.require(Saga2::getCenterActorID() == 32768, "map test did not restore Julian");
+            controls.require(inventoryState() == initialInventory,
+                             "map navigation changed inventory");
+            prepareActions();
+            phase = 6;
+            break;
+        case 6:
+            if (action < actions.size())
+                actions[action++]();
+            else {
+                controls.require(inventoryState() == initialInventory,
+                                 "map fixtures changed inventory");
+                done = true;
+            }
+            break;
+        case 7:
+            if (!seen)
+                return;
+            controls.require(modalPhase == 2 && !Saga2::ModalWindow::_current &&
+                                 tool->topWindow() == parent,
+                             "repeated map closure did not restore its parent");
+            controls.require(inventoryState() == inventory, "repeated map use changed inventory");
+            controls.unchanged(false);
+            phase = 6;
+            break;
+        }
+    }
+};
 } // namespace
 
 void configureSmokeProbe(const Path& output, int frames) {
@@ -994,12 +1345,17 @@ void configureSmokeProbe(const Path& output, int frames) {
         std::unique_ptr<SpeechFallbackProbe> speech;
         std::unique_ptr<DocumentCursorProbe> cursor;
         std::unique_ptr<ContainerEscapeProbe> container;
+        std::unique_ptr<MapShortcutProbe> map;
         bool initialSubtitles = true, speechChecked = false;
     };
     auto state = std::make_shared<State>();
     state->initialSubtitles = ConfMan.getBool("subtitles");
     gameFrameHook = [output, state, frames] {
-        if (state->container && Saga2::ModalWindow::_current) {
+        if (state->map && !state->map->done && Saga2::ModalWindow::_current) {
+            state->map->modalTick();
+            return;
+        }
+        if (state->container && !state->container->done && Saga2::ModalWindow::_current) {
             state->container->modalTick();
             return;
         }
@@ -1290,7 +1646,16 @@ void configureSmokeProbe(const Path& output, int frames) {
             if (s.container->done)
                 record("container-escape-checked");
         }
-        if (s.frame >= frames && s.speechChecked && s.container && s.container->done) {
+        if (s.container && s.container->done && !s.map) {
+            s.map = std::make_unique<MapShortcutProbe>();
+            s.map->controls.output = output;
+        }
+        if (s.map && !s.map->done) {
+            s.map->tick();
+            if (s.map->done)
+                record("map-shortcut-checked");
+        }
+        if (s.frame >= frames && s.speechChecked && s.map && s.map->done) {
             auto [music, effects] = g_platform->getMixer()->sampleCounts();
             std::ofstream audio(output / "audio.json");
             audio << "{\"music_nonzero_samples\":" << music

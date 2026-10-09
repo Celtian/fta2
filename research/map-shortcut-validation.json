@@ -1,0 +1,259 @@
+{
+  "date": "2026-10-09",
+  "version": "0.1.12",
+  "status": "passed",
+  "scope": "G/Shift+G uses the selected brother's carried map through the original on-use script; development alpha",
+  "identification": {
+    "archive": "FTA.HRS",
+    "archive_sha256": "1d4fc56861bdc3f0e1dda1a21f48991e350dd8213fb694484f0f7fa731c7055d",
+    "resource": "LIST/PRO\\0",
+    "resource_offset": 17890,
+    "record_size": 52,
+    "prototype": 320,
+    "record_offset": 34530,
+    "class": 13,
+    "class_name": "Inventory",
+    "script": 1149,
+    "name_index": 617,
+    "original_map_objects": [
+      408,
+      3314,
+      3315
+    ],
+    "original_parent_sacks": [
+      3887,
+      3888,
+      3889
+    ],
+    "detection": "Prototype identity, independently of displayed names and the unused AutoMapProto class."
+  },
+  "implementation": [
+    "Search the selected actor through RecursiveContainerIterator on every accepted G press, including closed and nested bags; use the first map in iterator order.",
+    "Schedule MotionTask::useObject just like inventory double-click; original script conditions, explored map regions and selected-actor/world tracking remain intact.",
+    "Accept Shift+G; ignore Ctrl/Alt combinations, UI locks, modal dialogs, choice dialogue and held/dragged objects.",
+    "Report a missing carried map through the existing status line; items on the ground or carried by another brother do not grant access.",
+    "Add the fourteenth Hot Keys row using 13-pixel row spacing and height inside the unchanged 487 by 320 dialog; M continues to toggle music.",
+    "No new public API, configuration, command-line switch or game-data modification."
+  ],
+  "public_tests": {
+    "passed": 5,
+    "total": 5,
+    "log": ".cache/map-012-ctest-final.log",
+    "new_checks": "Injected SDL G, left/right Shift+G and Ctrl/Alt+G preserve key identity, case and modifier flags."
+  },
+  "integration": {
+    "processes_per_backend": 2,
+    "map_openings_per_process": 12,
+    "checks": [
+      "G opens each of the three original maps from a closed Sack; SDL inventory double-click opens that same map and renders an identical map panel for each brother.",
+      "While the original on-use script is executing, its directObject equals the first recursively carried map and its enactor equals the selected brother.",
+      "Map track position equals the selected actor position; active map world matches the actor world; unexplored-map cheat mode remains off.",
+      "Shift+G opens a map placed directly in inventory. G also works through two closed nested bags and when multiple maps are carried.",
+      "Moving Julian's map onto the ground or into Philip's bag denies Julian access; the missing-map status message renders. Selecting Philip then uses his first carried map.",
+      "Repeated G, actor selection, M and O inside the map are ignored; settings, party flags and inventory snapshots remain unchanged during each modal opening.",
+      "Escape and the original close button restore the prior window. G over an open physical container followed by Escape closes only the map; a second Escape closes its parent.",
+      "Ctrl+G, Alt+G, UI lock, held-object state with a map still available, and a held mouse button block activation. Releasing the item/button permits opening again.",
+      "Options, Hot Keys and dialogue choices ignore G. Both Options layouts retain readable fourteen-row help without scrolling.",
+      "Fixtures restore all original inventory locations and flags; the deliberate ground fixture restores visibility flags set by the original renderer.",
+      "Earlier keypad, save/load, speech preference/restart, music, document cursor/wheel and container Escape regressions continue to pass."
+    ],
+    "pixel_comparison": "Compare the original map panel above local y=275; exclude the controls and translucent bottom shadow, whose background differs when a Sack is open.",
+    "simulation": "Nonmodal test frames retain normal simulation and ambient timing. Actor following and ambient RNG may advance between openings; each map tracks its actual selected actor."
+  },
+  "linux": {
+    "build": "CMake Release, SDL 3.4.18",
+    "integration": ".cache/integration-map-012-final",
+    "reference_comparison": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "memory": {
+    "build": "Debug, -fsanitize=address -fno-omit-frame-pointer",
+    "options": "detect_leaks=1:halt_on_error=1",
+    "integration": ".cache/integration-map-asan-012-final",
+    "result": "AddressSanitizer and LeakSanitizer passed",
+    "environment": "Executed outside the sandbox to permit thread inspection",
+    "reference_comparison": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "windows": {
+    "build": "Zig cross-build, Windows x64 Release, SDL 3.4.18",
+    "execution": "Native Windows processes from the preflight complete ZIP, using bundled-data discovery from an unrelated working directory",
+    "runtime_test": "passed",
+    "integration": ".cache/map-windows-validation",
+    "log": ".cache/map-windows-test.log",
+    "executable_sha256": "af92aa3993c996f2039e7123e5fdf0688a7eb5193336eeb7c2ebeaf08eff2b6c",
+    "reference_comparison": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    },
+    "captures_identical_to_linux_and_asan_in_corresponding_runs": true
+  },
+  "captures": {
+    "output": {
+      "map-brother-1.ppm": "8e5de79e5fe75a5db8919a76ab1d7aedbe68594b7fe5e5cdd44e6f6061867568",
+      "map-brother-2.ppm": "b2fd1e326399587f211f228b21ffd19750526b26c93e858f2950cdc2d527f0ef",
+      "map-brother-3.ppm": "5203caea3e574a06fde2fc9a1e935fbac029c0c106534c4287824738901f3d73",
+      "map-click-brother-1.ppm": "6ec3d9632d7805f987c61e0f908c317c38965ac98693b6841cb5b33801314c72",
+      "map-click-brother-2.ppm": "022e5545243d6dca70cdc954f66de5c111ea43b50c05dab71d6eaa9ed42c5019",
+      "map-click-brother-3.ppm": "776d715fcd34024cc0a6d5fe60400491fcf66211a5535f4e123d28f041d79295",
+      "map-missing.ppm": "70aa4c418c505384948518699bb81741a529f5495e85cf34540bfe77485a1bfd",
+      "hotkeys.ppm": "a28990431af3a88c2f45a36c391ecd891e1022279b7f4ffb463771821c175278",
+      "pregame-hotkeys.ppm": "a28990431af3a88c2f45a36c391ecd891e1022279b7f4ffb463771821c175278"
+    },
+    "restart-output": {
+      "map-brother-1.ppm": "8e5de79e5fe75a5db8919a76ab1d7aedbe68594b7fe5e5cdd44e6f6061867568",
+      "map-brother-2.ppm": "b2fd1e326399587f211f228b21ffd19750526b26c93e858f2950cdc2d527f0ef",
+      "map-brother-3.ppm": "36171bb055a33f674760c584ece3d62ffa8f8dc5dc8f43efb9d564b04da0c703",
+      "map-click-brother-1.ppm": "6ec3d9632d7805f987c61e0f908c317c38965ac98693b6841cb5b33801314c72",
+      "map-click-brother-2.ppm": "6bcea58bc421b0d4066cd0b83715fda01d9af8ff7c476d393d3388f255175581",
+      "map-click-brother-3.ppm": "28c304697e5c33826e64abc2571285048d90a33922ef2553b8ae962136790741",
+      "map-missing.ppm": "9e238bec655c6f7aaf1fa0ced0c1a5df6788fd25c9a22407025f11deff4af379",
+      "hotkeys.ppm": "a28990431af3a88c2f45a36c391ecd891e1022279b7f4ffb463771821c175278",
+      "pregame-hotkeys.ppm": "a28990431af3a88c2f45a36c391ecd891e1022279b7f4ffb463771821c175278"
+    }
+  },
+  "capture_directory": ".cache/integration-map-012-final",
+  "original_files_verified_after_tests": 54,
+  "historical_reports": "Unchanged from the 0.1.11 source ZIP; existing captures and checkpoints were preserved.",
+  "packages": {
+    "engine": "fta2-native-0.1.12-Windows-x86_64.zip",
+    "complete": "fta2-native-0.1.12-Windows-x86_64-complete.zip",
+    "source": "fta2-native-0.1.12-source.zip",
+    "validation": "Final archives preserve the executable and SDL library tested in the preflight complete ZIP; the eight-file allowlist and original input hashes are unchanged."
+  },
+  "backends": {
+    "video": "dummy",
+    "audio": "dummy"
+  },
+  "limitations": [
+    "Injected SDL input without a new physical-keyboard or mouse hardware check.",
+    "The original save places all three brothers in one world; another world and all scripted map conditions were not separately exercised.",
+    "The open-parent regression uses an original-data Sack, which shares ContainerWindow with chests.",
+    "The existing inventory double-click mouse-release path may repaint underlying bag controls over the map; this release preserves that path and tests map pixel parity before that release.",
+    "No new macOS execution, actual-device audio listening check or complete playthrough."
+  ]
+}

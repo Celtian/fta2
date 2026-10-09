@@ -209,6 +209,31 @@ int main() {
                   "Character selection key translation or dialog text changed");
         }
         check(!platform.pollEvent(nativeEvent), "Unexpected event after digit input");
+        for (auto modifiers :
+             {SDL_KMOD_NONE, SDL_KMOD_LSHIFT, SDL_KMOD_RSHIFT, SDL_KMOD_LCTRL, SDL_KMOD_RALT}) {
+            SDL_SetModState(modifiers);
+            SDL_Event key{};
+            key.type = SDL_EVENT_KEY_DOWN;
+            key.key.windowID = SDL_GetWindowID(window);
+            key.key.scancode = SDL_SCANCODE_G;
+            key.key.key = SDLK_G;
+            key.key.mod = modifiers;
+            key.key.down = true;
+            check(SDL_PushEvent(&key), "Cannot inject map shortcut key");
+            bool received = false;
+            for (int attempt = 0; attempt < 4 && !received; ++attempt)
+                received = platform.pollEvent(nativeEvent);
+            const int expectedFlags = (modifiers & SDL_KMOD_SHIFT ? KBD_SHIFT : 0) |
+                                      (modifiers & SDL_KMOD_CTRL ? KBD_CTRL : 0) |
+                                      (modifiers & SDL_KMOD_ALT ? KBD_ALT : 0);
+            const int expectedKey = modifiers & SDL_KMOD_SHIFT ? 'G' : 'g';
+            check(received && nativeEvent.type == EVENT_KEYDOWN &&
+                      nativeEvent.kbd.ascii == expectedKey && nativeEvent.kbd.keycode == 'g' &&
+                      nativeEvent.kbd.flags == expectedFlags,
+                  "Map shortcut translation or modifiers changed");
+        }
+        SDL_SetModState(SDL_KMOD_NONE);
+        check(!platform.pollEvent(nativeEvent), "Unexpected event after map shortcut input");
         for (auto key : {SDLK_RETURN, SDLK_KP_ENTER}) {
             for (bool repeat : {false, true}) {
                 SDL_Event shortcut{};

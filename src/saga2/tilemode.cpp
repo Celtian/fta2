@@ -960,6 +960,27 @@ void TileModeHandleKey(int16 key, int16 qual) {
 		if (uiKeysEnabled)
 			OptionsDialog();
 		break;
+	case 'g': {
+		if (!uiKeysEnabled || (qual & (kQualifierControl | kQualifierAlt))
+		        || g_vm->_mouseInfo->getObject() || leftButtonState() || rightButtonState())
+			break;
+
+		// Supported DOS profile: LIST/PRO\0 entry 320, inventory script 1149.
+		const int mapPrototype = 320;
+		RecursiveContainerIterator iter(a);
+		GameObject *item = nullptr;
+		bool found = false;
+		for (ObjectID id = iter.first(&item); id != Nothing; id = iter.next(&item)) {
+			if (item->proto() == g_vm->_objectProtos[mapPrototype]) {
+				MotionTask::useObject(*a, *item);
+				found = true;
+				break;
+			}
+		}
+		if (!found)
+			StatusMsg("No map carried by the selected brother.");
+		break;
+	}
 
 	//  Keyboard equivalents for mental containers
 	case 'i':

@@ -57,7 +57,7 @@ The native Windows CI build uses MSVC and the regular instructions in the main R
 After generating the Windows engine ZIP:
 
 ```sh
-python3 tools/package_complete.py --engine-package dist/fta2-native-0.1.11-Windows-x86_64.zip --data-dir original-game --output dist/fta2-native-0.1.11-Windows-x86_64-complete.zip
+python3 tools/package_complete.py --engine-package dist/fta2-native-0.1.12-Windows-x86_64.zip --data-dir original-game --output dist/fta2-native-0.1.12-Windows-x86_64-complete.zip
 cpack --config build-windows-x64/CPackSourceConfig.cmake -B dist
 ```
 
@@ -66,7 +66,7 @@ The complete-package tool accepts only the supported eight files, checked agains
 On an actual Windows desktop, validate a complete ZIP with isolated saves and a fresh temporary output directory:
 
 ```powershell
-.\tools\test_complete_windows.ps1 -Package .\dist\fta2-native-0.1.11-Windows-x86_64-complete.zip -OutputDirectory "$env:TEMP\fta2-complete-check" -OriginalSave .\original-game\999.SAV
+.\tools\test_complete_windows.ps1 -Package .\dist\fta2-native-0.1.12-Windows-x86_64-complete.zip -OutputDirectory "$env:TEMP\fta2-complete-check" -OriginalSave .\original-game\999.SAV
 ```
 
 The optional `-OriginalSave` is copied before loading. The script opens and closes only its own test windows, moves the extracted game into a path containing spaces and non-ASCII characters, and verifies startup, data precedence, visible errors and gameplay/save restoration. It writes `validation.json`, screenshots, saves and logs under the test output directory.
@@ -74,7 +74,7 @@ The optional `-OriginalSave` is copied before loading. The script opens and clos
 To validate fullscreen and Alt+Enter against a complete ZIP on the actual Windows desktop:
 
 ```powershell
-.\tools\test_window_windows.ps1 -Package .\dist\fta2-native-0.1.11-Windows-x86_64-complete.zip -OutputDirectory "$env:TEMP\fta2-window-check"
+.\tools\test_window_windows.ps1 -Package .\dist\fta2-native-0.1.12-Windows-x86_64-complete.zip -OutputDirectory "$env:TEMP\fta2-window-check"
 ```
 
 This test sends native keyboard messages only to its own game window, with SDL raw keyboard input disabled for that test process. It checks fullscreen startup by comparing physical window and monitor bounds and checking that the title bar is absent, including coverage beyond the desktop work area occupied by the taskbar. It activates only its own game window using a verified click, restores normal stacking and the cursor position before assertions, and checks both toggle directions, repeat suppression, right Alt with keypad Enter and preservation of a resized window.
@@ -93,7 +93,7 @@ Version 0.1.3 passed the same complete-package scenario and reference comparison
 
 Version 0.1.4 passed fullscreen startup without a title bar, complete monitor coverage (1920 × 1080, including the taskbar area), Alt+Enter in both directions, repeat suppression and the previous 900 × 650 window size. Native Windows runtime, complete-package regression tests and full reference comparisons passed again. Results are in `research/windows-fullscreen-validation.json`.
 
-Version 0.1.7 fixes Options load handling, the visible mandatory Speech Text checkbox and original Credits display. Existing 0.1.6 archives remain available; current package commands above use 0.1.11.
+Version 0.1.7 fixes Options load handling, the visible mandatory Speech Text checkbox and original Credits display. Existing 0.1.6 archives remain available; current package commands above use 0.1.12.
 
 Version 0.1.8 restores the interactive Speech Text preference and remembers it across restarts and sound-setting updates. Missing or muted voice requests fail explicitly so the original unvoiced dialogue fallback remains readable.
 
@@ -102,3 +102,5 @@ Version 0.1.9 refreshes cursor pixels even when a rebuilt bitmap reuses its addr
 Version 0.1.10 adds mouse-wheel page navigation to vertical scrolls and parchment. Wheel input is routed only to the active document under the pointer, with one page per notch and fractional movement accumulated per document.
 
 Version 0.1.11 makes Escape close the frontmost open container before opening Options. The packaged native Windows regression opens and closes an original-data physical container and Ideas/Skills/Memories repeatedly, checks O and modal Escape, and retains all earlier scenarios. Two Windows processes and the public runtime test passed with SDL dummy backends; see `research/container-escape-validation.json`.
+
+Version 0.1.12 adds G/Shift+G for the selected brother's carried map, including closed or nested bags. The public runtime test and two packaged native Windows processes passed with SDL dummy video/audio backends, covering ownership, missing maps, modifiers, modal input and parent-container restoration. Map/help captures and reference images, checkpoints and save chunks match Linux; see `research/map-shortcut-validation.json`. These automated checks do not establish a complete playthrough or physical-device input quality.

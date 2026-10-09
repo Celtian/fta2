@@ -34,7 +34,7 @@ The game starts in borderless fullscreen, covering the entire monitor without a 
 
 The original controls are preserved: use the mouse, `1`/`2`/`3` (top row or numeric keypad) to switch brothers, `O` to open options including save/load, Escape to close the frontmost container (or open Options when none is open), and Tab to switch between group and individual control.
 
-Choose **Hot Keys** in Options (or press **H** while Options is open) for the main keyboard shortcuts. Close the overview with **Close** or Escape to return to Options. **M** toggles music during gameplay, preserving its configured volume; the mute setting is remembered.
+Choose **Hot Keys** in Options (or press **H** while Options is open) for the main keyboard shortcuts. Close the overview with **Close** or Escape to return to Options. **G** uses the selected brother's carried map, including maps in closed or nested bags; Shift+G also works. Escape or the original map button closes it. If that brother has no map, the status line says "No map carried by the selected brother." Gameplay shortcuts are ignored in modal dialogs, and G is ignored while holding or dragging an item. **M** toggles music during gameplay, preserving its configured volume; the mute setting is remembered.
 
 Load shows a harmless message when no player saves exist. Choose Save in Options to create a named game, then select it in Load. Escape or Cancel returns to Options without restarting. Speech Text is an interactive preference remembered across restarts. Unchecking it suppresses text only when usable voice audio is available; unvoiced dialogue and its choices remain readable. Credits displays the original game credits; use the page arrows or click either page to browse, and Escape or the red bookmark to return. The cursor points left or right over the corresponding half of the book and returns to the normal pointer when Credits closes.
 
@@ -62,7 +62,7 @@ cpack --config build/CPackConfig.cmake -C Release
 To create the complete Windows ZIP locally after packaging the Windows engine:
 
 ```sh
-python3 tools/package_complete.py --engine-package dist/fta2-native-0.1.11-Windows-x86_64.zip --data-dir original-game --output dist/fta2-native-0.1.11-Windows-x86_64-complete.zip
+python3 tools/package_complete.py --engine-package dist/fta2-native-0.1.12-Windows-x86_64.zip --data-dir original-game --output dist/fta2-native-0.1.12-Windows-x86_64-complete.zip
 ```
 
 The tool checks all eight data files against their known SHA-256 hashes, excludes original saves and unnecessary DOS files, and records a package manifest. It refuses unknown data, output inside the original installation, and overwriting an existing output ZIP.

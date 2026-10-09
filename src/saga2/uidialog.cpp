@@ -798,6 +798,7 @@ static void showHotKeysDialog() {
 		{"I", "Open Ideas"},
 		{"S", "Open Skills"},
 		{"K", "Open Memories"},
+		{"G", "Use selected brother's map"},
 		{"M", "Toggle music"},
 		{"Space", "Dismiss speech and make selected brother wait"},
 		{"O / Esc", "Options / close container (Esc)"},
@@ -824,10 +825,10 @@ static void showHotKeysDialog() {
 	new CPlaqText(*win, Rect16(18, 44, 108, 17), "Key", &SmallFont, kTextPosLeft, pal, 0, nullptr);
 	new CPlaqText(*win, Rect16(142, 44, 327, 17), "Action", &SmallFont, kTextPosLeft, pal, 0, nullptr);
 	for (uint i = 0; i < ARRAYSIZE(shortcuts); ++i) {
-		int16 y = 64 + i * 14;
-		new CPlaqText(*win, Rect16(18, y, 108, 14), shortcuts[i].key,
+		int16 y = 64 + i * 13;
+		new CPlaqText(*win, Rect16(18, y, 108, 13), shortcuts[i].key,
 		              &SmallFont, kTextPosLeft, pal, 0, nullptr);
-		new CPlaqText(*win, Rect16(142, y, 327, 14), shortcuts[i].action,
+		new CPlaqText(*win, Rect16(142, y, 327, 13), shortcuts[i].action,
 		              &SmallFont, kTextPosLeft, pal, 0, nullptr);
 	}
 	new CPlaqText(*win, Rect16(18, 250, 451, 14), "1 / 2 / 3 also work on the numeric keypad.",
