@@ -1,0 +1,60 @@
+src/saga2/panel.cpp
+  s_379e0511314c43::t_c69e013e7cad0a 35,744-755
+docs/validation.md
+  s_379e0511314c43::t_718a835602fd04 1,3
+  s_379e0511314c43::t_e9608945457c61 48-49
+third_party/README.md
+  s_379e0511314c43::t_718a835602fd04 31-32
+README.md
+  s_379e0511314c43::t_718a835602fd04 41-42,65
+CMakeLists.txt
+  s_379e0511314c43::t_c69e013e7cad0a 2
+src/platform/runtime.cpp
+  s_379e0511314c43::t_c69e013e7cad0a 364-369
+src/saga2/document.cpp
+  s_379e0511314c43::t_c69e013e7cad0a 301,306-321
+  s_379e0511314c43::t_cd6f37228c969e 322-323
+docs/windows-build.md
+  s_379e0511314c43::t_718a835602fd04 60,69,77,96,101-102
+tools/integration_test.py
+  s_379e0511314c43::t_b3fc90acd253bc 48,66,68-75
+src/saga2/main.cpp
+  s_379e0511314c43::t_c69e013e7cad0a 281
+tests/runtime_test.cpp
+  s_379e0511314c43::t_60c2f9462c22e0 127-131,134-145,152,161-164,166,174,243-244
+  s_379e0511314c43::t_f5b016f6301447 132-133,153-154
+  s_379e0511314c43::t_7ce6f8defe8337 146-149
+  s_379e0511314c43::t_3379cc6568c97e 150-151
+  s_379e0511314c43::t_6db0850d15817b 155-160
+src/platform/probe.cpp
+  s_379e0511314c43::t_6db0850d15817b 687-689
+  s_379e0511314c43::t_b3fc90acd253bc 192
+  s_379e0511314c43::t_88ec89fe7f56c8 448
+  s_379e0511314c43::t_da0c19b419e48c 99-117,372,436-437,440-442,445-447,450-453,458-489,494-497,502-512,515-519,523-528,560-566,572-578,639-643,661-666,1099
+  s_379e0511314c43::t_f5b016f6301447 438-439,443-444,454-457,490-493,498-501,513-514,520-522,567-571
+  s_379e0511314c43::t_0ed6d5a8cf02ba 449,657,667,1094
+  s_379e0511314c43::t_3379cc6568c97e 684-686,690
+  s_379e0511314c43::t_2192a4bcbf449c 668
+research/wheel-validation.json
+  s_379e0511314c43::t_f9bded332bf5cc 1-240
+src/saga2/document.h
+  s_379e0511314c43::t_c69e013e7cad0a 78,124-125
+src/platform/runtime.h
+  s_379e0511314c43::t_c69e013e7cad0a 423-424,452
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "da614faadbea213f4be6b6e80ef0f7a42855d430",
+  "prompts": {},
+  "sessions": {
+    "s_379e0511314c43": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12064-37b8-7520-b7a8-9041a183461d",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Celtian <dominik.hladik@seznam.cz>"
+    }
+  }
+}
