@@ -1,0 +1,62 @@
+src/platform/runtime.cpp
+  s_ed68b25d700fb8::t_db2538798ed64d 264,365-368,371-375
+  s_ed68b25d700fb8::t_b68c640e96a559 265
+  s_ed68b25d700fb8::t_876495baadc6a6 369-370
+research/windows-fullscreen-validation.json
+  s_ed68b25d700fb8::t_c9540098879ac8 1-4,6-40,43-159
+  s_ed68b25d700fb8::t_cf21291a96155f 41-42
+  s_ed68b25d700fb8::t_85b7f7a87fca27 5
+CMakeLists.txt
+  s_ed68b25d700fb8::t_876495baadc6a6 2
+research/windows-window-validation.json
+  s_ed68b25d700fb8::t_c6e49c460b1720 1-132
+docs/architecture.md
+  s_ed68b25d700fb8::t_78c47b5a71fede 29
+  s_ed68b25d700fb8::t_6d9caa5144c6a8 28
+docs/windows-build.md
+  s_ed68b25d700fb8::t_14788068639405 87-88
+  s_ed68b25d700fb8::t_78c47b5a71fede 19-20,71-72,74-75
+  s_ed68b25d700fb8::t_6d9caa5144c6a8 21-22,56,65,70,73
+  s_ed68b25d700fb8::t_c9540098879ac8 76,89-90
+  s_ed68b25d700fb8::t_fe3097df26c51b 77
+tests/runtime_test.cpp
+  s_ed68b25d700fb8::t_876495baadc6a6 103-104,136
+  s_ed68b25d700fb8::t_db2538798ed64d 105-135,137,139
+README.md
+  s_ed68b25d700fb8::t_db2538798ed64d 35
+  s_ed68b25d700fb8::t_6d9caa5144c6a8 33,59
+  s_ed68b25d700fb8::t_44b8bc70378543 34
+tools/test_window_windows.ps1
+  s_ed68b25d700fb8::t_6d9caa5144c6a8 13-17,37,41-44,56-57,71,73-74,77,109-111,115,119,122,124-125,130,132,139-142
+  s_ed68b25d700fb8::t_2f3ff34f8ef4be 20-23,26-27,33,105
+  s_ed68b25d700fb8::t_4e5b0a01a1e724 104,106
+  s_ed68b25d700fb8::t_a1defbe820bfb2 12,18,45-52,123,138
+  s_ed68b25d700fb8::t_512b7f0df83fff 107-108,144-145
+  s_ed68b25d700fb8::t_cfff11b843f25e 24-25,28-32
+  s_ed68b25d700fb8::t_9e0a9bfad02054 1-11,38-40,53-55,58-70,72,75-76,78-103,112,114,116-118,120-121,126-129,131,133-137,143,146-154
+  s_ed68b25d700fb8::t_0429ff360d7847 19,34-35,113
+  s_ed68b25d700fb8::t_5348b50f8695bc 36
+docs/validation.md
+  s_ed68b25d700fb8::t_c9540098879ac8 1,3,21,25,35-36
+  s_ed68b25d700fb8::t_dc47320c17da80 34
+  s_ed68b25d700fb8::t_27dfa60e9d4b72 37
+research/validation.json
+  s_ed68b25d700fb8::t_c6e49c460b1720 199-208
+  s_ed68b25d700fb8::t_c9540098879ac8 3,194-196,209-220
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8901d9d65c4aadcacae510716d7fd80fc7a7f99f",
+  "prompts": {},
+  "sessions": {
+    "s_ed68b25d700fb8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a11fa7-c7ae-7820-8ea2-e59f7e06aaeb",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Celtian <dominik.hladik@seznam.cz>"
+    }
+  }
+}
