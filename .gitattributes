@@ -1,0 +1,6 @@
+# Normalize detected text files in future source code to LF.
+* text=auto eol=lf
+
+# Preserve all original DOS game files byte-for-byte, including BAT and INI.
+# The binary macro disables text conversion, textual diffs, and text merges.
+original-game/** binary -eol
