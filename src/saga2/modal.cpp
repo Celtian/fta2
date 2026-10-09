@@ -85,6 +85,7 @@ bool ModalWindow::open() {
 
 	GameMode *gameModes[] = {&PlayMode, &TileMode, &ModalMode};
 	GameMode::SetStack(gameModes, 3);
+	_previousModal = _current;
 	_current = this;
 
 	return gWindow::open();
@@ -92,6 +93,8 @@ bool ModalWindow::open() {
 
 void ModalWindow::close() {
 	gWindow::close();
+	_current = _previousModal;
+	_previousModal = nullptr;
 
 	GameMode::SetStack(_prevModeStackPtr, _prevModeStackCtr);
 	updateWindowSection(_extent);

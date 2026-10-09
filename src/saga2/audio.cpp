@@ -179,9 +179,12 @@ void makeGruntSound(uint8 cs, Location l) {
 bool haveKillerSoundCard() { return true; }
 
 //-----------------------------------------------------------------------
-// unwritten music toggler
+// Toggle music without changing the user's volume or the track's timing.
 
 void toggleMusic() {
+	ConfMan.setBool("music_mute", !ConfMan.getBool("music_mute"));
+	g_vm->syncSoundSettings();
+	g_vm->saveConfig();
 }
 
 /* ===================================================================== *
@@ -321,6 +324,8 @@ void playVoice(uint32 s) {
 // supplemental interface for speech
 
 bool sayVoice(uint32 s[]) {
+	if (!s || !s[0] || !g_vm->_speechVoice || !hResCheckResID(voiceRes, s))
+		return false;
 	debugCN(1, kDebugSound, "sayVoice([%s", tag2strP(s[0]));
 
 	for (uint32 i = 1; s[i]; i++)
@@ -385,6 +390,9 @@ void playSoundAt(uint32 s, Location playAt) {
 // voice playback w/ attenuation
 
 bool sayVoiceAt(uint32 s[], Point32 p) {
+	// Only successful voice requests may suppress text or drive speech completion.
+	if (!s || !s[0] || !g_vm->_speechVoice || !hResCheckResID(voiceRes, s))
+		return false;
 	debugCN(1, kDebugSound, "sayVoiceAt([%s", tag2strP(s[0]));
 
 	for (uint32 i = 1; s[i]; i++)

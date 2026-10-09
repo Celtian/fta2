@@ -52,6 +52,8 @@ namespace Saga2 {
 #define OPTN_DIALOG_BUTTON4 "Quit"
 #define OPTN_DIALOG_BUTTON5 "Credits"
 #define OPTN_DIALOG_BUTTON6 "New Game"
+#define OPTN_DIALOG_HOT_KEYS "Hot Keys"
+#define HOT_KEYS_CLOSE      "Close"
 
 #define VFYX_DIALOG_NAME    "Faery Tale Adventure"
 #define VFYX_DIALOG_CAPTION "Do you really want to quit?"

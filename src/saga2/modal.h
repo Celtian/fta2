@@ -46,6 +46,7 @@ class ModalWindow : public DecoratedWindow {
 
 	GameMode    *_prevModeStackPtr[kMax_Modes];
 	int         _prevModeStackCtr;
+	ModalWindow *_previousModal = nullptr;
 
 public:
 

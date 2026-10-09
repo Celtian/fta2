@@ -217,8 +217,8 @@ INITIALIZER(initResourceHandles) {
 
 		resImports = (ResImportTable *)malloc(sizeof(ResImportTable));
 		resImports->deadActorProto = (int16)stream->readSint16LE();
-		(void)stream->readSint16LE();
-		(void)stream->readSint16LE();
+		resImports->reserved[0] = stream->readSint16LE();
+		resImports->reserved[1] = stream->readSint16LE();
 		resImports->EXP_spellEffect_CreateFireWisp = stream->readSint16LE();
 		resImports->EXP_spellEffect_CreateWindWisp = stream->readSint16LE();
 		resImports->EXP_spellEffect_CreateWraith = stream->readSint16LE();

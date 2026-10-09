@@ -57,6 +57,7 @@ class Music {
     std::vector<byte> _buffer;
     uint32 _trackNumber = 0;
     int _currentVolume = 255;
+    bool _muted = false;
     std::mutex _mutex;
     uint64 _samplesUntilTick = 0;
     void render(float*, int);

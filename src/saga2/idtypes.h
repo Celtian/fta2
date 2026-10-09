@@ -393,13 +393,14 @@ enum {
 
 // Options dialog metrics
 enum {
-	kNumOptionsPanels    = 3,
-	kNumOptionsBtns      = 9,
+	kNumOptionsPanels    = 4,
+	kNumOptionsBtns      = 10,
 	kNumOptionsTexts     = 8,
 
 	kOptBoxXSize = 487,
 	kOptBoxXSzNS = 479,
-	kOptBoxYSize = 230,
+	kOptExtraHeight = 33,
+	kOptBoxYSize = 230 + kOptExtraHeight,
 	kOptBoxX     = (640 - kOptBoxXSize) / 2,
 	kOptBoxY     = (480 - kOptBoxYSize) / 3,
 

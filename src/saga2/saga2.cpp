@@ -223,8 +223,8 @@ Native::Error Saga2Engine::loadGameState(int slot) {
 void Saga2Engine::syncSoundSettings() {
     g_platform->getMixer()->syncSoundSettings();
 
-    // This verified profile has no usable voice archive. Dialog text is mandatory.
-    _speechText = true;
+    _speechText = !ConfMan.hasKey("subtitles") || ConfMan.getBool("subtitles");
+    // Unvoiced dialogue uses the original text fallback, regardless of this preference.
     _speechVoice = false;
 
     if (_audio && _audio->_music)

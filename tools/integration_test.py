@@ -40,6 +40,37 @@ def main():
         states = [json.loads(line) for line in (output / "state.jsonl").read_text().splitlines()]
         assert states[-1]["phase"] == "finished"
         assert any(s["phase"] == "original-save-loaded" for s in states)
+        assert any(s["phase"] == "hotkeys-checked" for s in states)
+        assert any(s["phase"] == "music-toggle-checked" for s in states)
+        assert any(s["phase"] == "options-regressions-checked" for s in states)
+        assert any(s["phase"] == "speech-text-checked" for s in states)
+        assert json.loads((output / "speech-startup.json").read_text())["subtitles"] is True
+        assert "subtitles=false" in (saves / "config.ini").read_text()
+        # A second native process must retain the unchecked preference.
+        restart_saves, restart_output = work / "restart-saves", work / "restart-output"
+        restart_saves.mkdir()
+        restart_output.mkdir()
+        shutil.copyfile(saves / "config.ini", restart_saves / "config.ini")
+        shutil.copyfile(game / "999.SAV", restart_saves / "fta2.002")
+        with (restart_output / "native.log").open("w") as log:
+            subprocess.run([str(binary), "--data-dir", str(game), "--save-dir", str(restart_saves),
+                            "--smoke-test", str(restart_output)], env=env, check=True, timeout=120,
+                           stdout=log, stderr=subprocess.STDOUT)
+        assert json.loads((restart_output / "speech-startup.json").read_text())["subtitles"] is False
+        restart_states = [json.loads(line) for line in (restart_output / "state.jsonl").read_text().splitlines()]
+        assert restart_states[-1]["phase"] == "finished"
+        assert any(s["phase"] == "speech-text-checked" for s in restart_states)
+        for name in ("options.ppm", "hotkeys.ppm", "options-returned.ppm",
+                     "pregame-options.ppm", "pregame-hotkeys.ppm", "pregame-returned.ppm",
+                     "load-empty.ppm", "credits.ppm", "credits-next.ppm",
+                     "save-menu.ppm", "load-saved.ppm", "speech-options-on.ppm",
+                     "speech-options-off.ppm", "speech-pregame-on.ppm", "speech-pregame-off.ppm",
+                     "speech-no-voice.ppm", "speech-missing-voice.ppm"):
+            for capture_dir in (output, restart_output):
+                screenshot = (capture_dir / name).read_bytes()
+                header = b"P6\n640 480\n255\n"
+                assert screenshot.startswith(header) and len(screenshot) == len(header) + 640 * 480 * 3
+        assert (output / "credits.ppm").read_bytes() != (output / "credits-next.ppm").read_bytes()
         saved = next(s for s in states if s["phase"] == "saved")
         restored = next(s for s in states if s["phase"] == "restored")
         assert all(saved[k] == restored[k] for k in ["actor", "u", "v", "z", "rng"])
@@ -66,6 +97,7 @@ def main():
         print(json.dumps({"status": "passed", "original_files_unchanged": len(before),
                           "unknown_exe_rejected": True, "output_inside_originals_rejected": True,
                           "pack_sha256": manifest["pack_sha256"], "states": states,
+                          "speech_preference_restart": {"first_start": True, "second_start": False},
                           "audio": json.loads((output / "audio.json").read_text())}, indent=2))
 
 if __name__ == "__main__":

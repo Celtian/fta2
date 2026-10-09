@@ -1,0 +1,249 @@
+{
+  "date": "2026-10-09",
+  "version": "0.1.7",
+  "status": "passed",
+  "scope": "Options empty Load, mandatory Speech Text checkbox, original Credits and nested modal focus; development alpha",
+  "load": {
+    "empty_state": "Informational Load Game message with Close/Esc; no restart action or deferred load",
+    "empty_state_opens": 3,
+    "invalid_slot": "Malformed fta2.049 is rejected by existing original-chunk validation before save-list use",
+    "save_menu": "SDL mouse click opens Save; SDL keyboard enters Options regression; mouse click writes slot 0",
+    "load_menu": "Slot 0 is listed by name; first opening cancels; second opening confirms with the mouse and restores Julian after changing selection to Philip",
+    "header_regression": "Public runtime test reads a full 40-byte save name without a null terminator; bounded read succeeds",
+    "preservation": "No-save, Credits and cancelled file dialogs preserve actor, position, RNG and settings. Confirmed load restores saved selection and settings; world resumption can advance RNG."
+  },
+  "speech_text": {
+    "cause": "Disabled controls are omitted by the imported panel drawing loop",
+    "fix": "Checked, enabled, ghosted original checkbox stays visible and read-only; explanation states that voice data is absent",
+    "checks": [
+      "enabled and selected control exists",
+      "ghosted control cannot be hit",
+      "click does not change subtitles",
+      "both Options layouts retain Hot Keys regression coverage"
+    ]
+  },
+  "credits": {
+    "cause": "Resource loader discarded both reserved IMPO fields, leaving the credits script identifier uninitialized",
+    "resource": {
+      "file": "FTA.HRS",
+      "file_sha256": "1d4fc56861bdc3f0e1dda1a21f48991e350dd8213fb694484f0f7fa731c7055d",
+      "group": "LIST",
+      "id": "IMPO",
+      "offset": 213256,
+      "size": 20,
+      "resource_sha256": "5c7391b3830a0e045f7ce45ad757d0fd15f87020841216fc4070a21bc27fd969",
+      "fields_int16_le": [
+        0,
+        110,
+        0,
+        1706,
+        1707,
+        1708,
+        1709,
+        1710,
+        1711,
+        1712
+      ]
+    },
+    "script": 110,
+    "text": "Original script-generated credits; obsolete W95 build stamp removed",
+    "opens": 3,
+    "checks": [
+      "opens from Options mouse click and C",
+      "generated text exceeds 100 bytes",
+      "right arrow changes the displayed pages",
+      "red bookmark closes first opening",
+      "Esc closes later openings",
+      "Options modal focus and window state restored"
+    ]
+  },
+  "linux": {
+    "build": "CMake Release, SDL 3.4.18",
+    "public_tests": {
+      "passed": 5,
+      "total": 5,
+      "temporary_directory": ".cache/options-017-ctest-temp"
+    },
+    "integration": ".cache/integration-options-017-final",
+    "reference_parity": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "memory": {
+    "build": "Debug, -fsanitize=address -fno-omit-frame-pointer",
+    "options": "detect_leaks=1:halt_on_error=1",
+    "integration": ".cache/integration-options-asan-017-final",
+    "result": "AddressSanitizer and LeakSanitizer passed repeated Hot Keys, empty Load, Credits, menu save and deferred menu load",
+    "environment": "Executed outside the sandbox to permit LeakSanitizer thread inspection",
+    "reference_parity": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "windows": {
+    "build": "Zig cross-build, Windows x64 Release, SDL 3.4.18",
+    "execution": "Native Windows process from a preflight complete package, bundled-data discovery and unrelated working directory",
+    "version": "fta2-native 0.1.7",
+    "runtime_test": "passed",
+    "integration": ".cache/options-windows-validation",
+    "reference_parity": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    },
+    "new_ui_screens_identical_to_linux": [
+      "options.ppm",
+      "load-empty.ppm",
+      "credits.ppm",
+      "credits-next.ppm",
+      "save-menu.ppm",
+      "load-saved.ppm"
+    ],
+    "executable_sha256": "2a6d908a6b7729613cae52fb797b52543ff725af8161198e93a1cc67ab6fd7a6"
+  },
+  "screenshots": {
+    "options.ppm": "ec16257c899f508882b872507b2f62d3d7e7d0c57e6d1cb68b8466acf4f20bd6",
+    "load-empty.ppm": "0695ce580c073133c26c454576efac2855b3c6ef38089296c2ddda1d91d7cd92",
+    "credits.ppm": "397b5b08ac9dae11e4063eccc5c86c81bc54f2d651060cb30e8cf9033f482ff5",
+    "credits-next.ppm": "d7c2157bd698b1bfe631e4ff0f928e32d7518c8d0735a11cbcb528f5d07f6978",
+    "save-menu.ppm": "f6f0f8f3e9c92e023e50fd8d8e847c300579126cff57ed013a101002ea93a9dd",
+    "load-saved.ppm": "07b9b7d5b364bb3794b32d96dce9571f0f3934c4b1db9af30184095d40e4d038"
+  },
+  "original_files_verified_after_tests": 54,
+  "packages": {
+    "engine": "fta2-native-0.1.7-Windows-x86_64.zip",
+    "complete": "fta2-native-0.1.7-Windows-x86_64-complete.zip",
+    "source": "fta2-native-0.1.7-source.zip",
+    "validation": "Preflight package tested on Windows; final archives retain the identical tested executable and verified allowlisted data"
+  },
+  "backends": {
+    "video": "dummy",
+    "audio": "dummy"
+  },
+  "limitations": [
+    "Automated SDL input; no new manual hardware or desktop test",
+    "No new macOS execution",
+    "No actual-device audio listening test",
+    "Not a complete playthrough"
+  ]
+}

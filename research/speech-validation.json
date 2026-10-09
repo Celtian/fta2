@@ -1,0 +1,237 @@
+{
+  "date": "2026-10-09",
+  "version": "0.1.8",
+  "status": "passed",
+  "scope": "Restore the original Speech Text preference and unvoiced dialogue fallback; development alpha",
+  "speech_text": {
+    "checkbox": "Enabled, interactive original artwork in both Options layouts",
+    "note": "Text remains visible when voice audio is unavailable.",
+    "default_subtitles": true,
+    "restart_subtitles": false,
+    "mouse_toggle_openings_per_process": [
+      {
+        "in_game": 4,
+        "pre_game": 5
+      },
+      {
+        "in_game": 4,
+        "pre_game": 4
+      }
+    ],
+    "checks": [
+      "Mouse toggles update the displayed state and subtitles setting",
+      "Reopening preserves the setting",
+      "A second process loads the unchecked setting",
+      "Volume synchronization and M mute/unmute preserve the setting",
+      "Other Options, Hot Keys, Credits and save/load regression scenarios remain covered"
+    ],
+    "pre_game_scope": "The existing pre-game Options variant is invoked by the integration harness"
+  },
+  "voice_fallback": {
+    "reporting": "Null, empty, muted and missing voice requests return false; a missing resource also returns false when the voice preference is temporarily enabled",
+    "dialogue_tasks_per_process": 4,
+    "scenarios": [
+      "Checked, no sample references",
+      "Unchecked, no sample references",
+      "Checked, missing sample reference with Continue and Wait choices",
+      "Unchecked, missing sample reference with Continue and Wait choices"
+    ],
+    "rendering": "Text bitmap dimensions and all pixels match between checked and unchecked variants; rendered glyphs and both choices are verified",
+    "dismissal": "Actual SDL Space input dismisses plain dialogue; mouse input selects Continue after the reading deadline and clears the active speech list",
+    "saved_speech": "Clear stale saved voice flags before layout when voice playback is disabled",
+    "data_profile": "Unchanged; no voice archive is available or bundled"
+  },
+  "linux": {
+    "build": "CMake Release, SDL 3.4.18",
+    "public_tests": {
+      "passed": 5,
+      "total": 5
+    },
+    "integration": ".cache/integration-speech-018-final",
+    "processes": 2,
+    "reference_parity": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "memory": {
+    "build": "Debug, -fsanitize=address -fno-omit-frame-pointer",
+    "options": "detect_leaks=1:halt_on_error=1",
+    "integration": ".cache/integration-speech-asan-018-final",
+    "processes": 2,
+    "result": "AddressSanitizer and LeakSanitizer passed",
+    "fix": "The new dialogue scenario exposed three unreachable completed Speech allocations (2520 bytes). Speech::dispose now deletes the task after unlinking.",
+    "environment": "Executed outside the sandbox to permit LeakSanitizer thread inspection",
+    "reference_parity": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "windows": {
+    "build": "Zig cross-build, Windows x64 Release, SDL 3.4.18",
+    "execution": "Native Windows processes from a preflight complete ZIP using bundled-data discovery and an unrelated working directory",
+    "version": "fta2-native 0.1.8",
+    "runtime_test": "passed",
+    "integration": ".cache/speech-windows-validation",
+    "processes": 2,
+    "reference_parity": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    },
+    "new_ui_screens_identical_to_linux": [
+      "speech-missing-voice.ppm",
+      "speech-no-voice.ppm",
+      "speech-options-off.ppm",
+      "speech-options-on.ppm",
+      "speech-pregame-off.ppm",
+      "speech-pregame-on.ppm"
+    ],
+    "executable_sha256": "f2ab344506e5164ef5c8d2a5551253db73022a40c941879bf38c6b16419d06c5"
+  },
+  "screenshots": {
+    "speech-missing-voice.ppm": "5988d37af99eb28f8cf1aa34ad8b131c672e8e3785f84bdf09f8ec8e6cb749f7",
+    "speech-no-voice.ppm": "444cc6b7a8ed743bfa80f49bdb987d582024a44932270e89260408452d9ae18d",
+    "speech-options-off.ppm": "5e8975c3519e1e2fbff190a8da02e2a10cdbb3d26c45ea81679d1e5ca5e3878b",
+    "speech-options-on.ppm": "44a824bb4564c34b8fbe01bf035d8b9acc0445ee4ef4dffc6d6a82d863cf2fd1",
+    "speech-pregame-off.ppm": "40e91a5dfade7124af3e0a80e8d9ad6146140bbb3ce020726db72a342f25247a",
+    "speech-pregame-on.ppm": "89279fe49b8dcf4ee2a7b3cbd12e844d10df16be5caa7ada9414ea0a6ec2f249"
+  },
+  "captures": ".cache/integration-speech-018-final/output/ (PPM and PNG)",
+  "original_files_verified_after_tests": 54,
+  "packages": {
+    "engine": "fta2-native-0.1.8-Windows-x86_64.zip",
+    "complete": "fta2-native-0.1.8-Windows-x86_64-complete.zip",
+    "source": "fta2-native-0.1.8-source.zip",
+    "validation": "Preflight package tested on native Windows; final archives retain the identical tested executable. Complete-package verification checks exactly eight baseline-matching allowlisted data files."
+  },
+  "backends": {
+    "video": "dummy",
+    "audio": "dummy"
+  },
+  "limitations": [
+    "Automated SDL input; no new manual hardware or desktop test",
+    "No new macOS execution",
+    "No actual-device audio listening test",
+    "Not a complete playthrough"
+  ]
+}

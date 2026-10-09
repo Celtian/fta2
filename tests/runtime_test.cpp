@@ -2,6 +2,8 @@
 #include "platform/resources.h"
 #include "platform/startup.h"
 #include "saga2/tcoords.h"
+#include "saga2/idtypes.h"
+#include "saga2/saveload.h"
 using namespace Native;
 static void check(bool condition, const char* what) {
     if (!condition)
@@ -39,6 +41,13 @@ int main() {
         check(in.readByte() == 0 && in.eos(), "EOF over-read");
         check(!in.seek(-1), "Negative seek accepted");
         check(in.seek(-1, SEEK_END) && in.readSByte() == -7, "Seek end");
+        std::array<byte, 128> saveHeader;
+        saveHeader.fill('x');
+        memcpy(saveHeader.data(), "FTA2", 4);
+        MemoryReadStream headerInput(saveHeader.data(), saveHeader.size());
+        Saga2::SaveFileHeader header;
+        header.read(&headerInput);
+        check(header.saveName == String(40, 'x'), "Save name must be bounded by its header field");
         std::vector<byte> hrs(39);
         memcpy(hrs.data(), "HRES", 4);
         WRITE_LE_UINT32(hrs.data() + 4, 12);

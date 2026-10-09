@@ -91,6 +91,7 @@ void Music::setVolume(int v) {
 }
 void Music::syncSoundSettings() {
     std::lock_guard lock(_mutex);
+    _muted = ConfMan.getBool("music_mute");
     _driver->syncSoundSettings();
 }
 void Music::render(float* out, int frames) {
@@ -107,7 +108,9 @@ void Music::render(float* out, int frames) {
         _samplesUntilTick -= count;
         offset += count;
     }
-    for (int i = 0; i < frames * 2; ++i)
-        out[i] += float(samples[i]) / 32768;
+    if (!_muted) {
+        for (int i = 0; i < frames * 2; ++i)
+            out[i] += float(samples[i]) / 32768;
+    }
 }
 } // namespace Saga2

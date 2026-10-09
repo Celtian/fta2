@@ -34,11 +34,15 @@ The game starts in borderless fullscreen, covering the entire monitor without a 
 
 The original controls are preserved: use the mouse, `1`/`2`/`3` (top row or numeric keypad) to switch brothers, `O` or Escape to open options including save/load, and Tab to switch between group and individual control.
 
+Choose **Hot Keys** in Options (or press **H** while Options is open) for the main keyboard shortcuts. Close the overview with **Close** or Escape to return to Options. **M** toggles music during gameplay, preserving its configured volume; the mute setting is remembered.
+
+Load shows a harmless message when no player saves exist. Choose Save in Options to create a named game, then select it in Load. Escape or Cancel returns to Options without restarting. Speech Text is an interactive preference remembered across restarts. Unchecking it suppresses text only when usable voice audio is available; unvoiced dialogue and its choices remain readable. Credits displays the original game credits; use the page arrows or click either page to browse, and Escape or the red bookmark to return.
+
 ## Game data
 
 The supported English DOS profile requires `FTA2.EXE`, `FTA.HRS`, `FTADATA.HRS`, `FTAIMAGE.HRS`, `FTASOUND.HRS`, `SCRIPTS.HRS`, and the instrument banks `DRIVERS/SAMPLE.AD` and `DRIVERS/SAMPLE.OPL`. The executable, main archives and banks are checked against SHA-256 hashes. Unknown executables are rejected; Windows executable offsets are never applied to the DOS executable.
 
-This installation's `FTAVOICE.HRS` is a copy of `FTADATA.HRS`. The engine ignores it, keeps dialogue text enabled and skips missing videos. Original and bundled game data are opened read-only. Source and engine-only packages exclude game data; the explicitly requested local complete package includes only the eight required files. The original `FTA2.EXE` supplies embedded resources and is never executed. Game data retains its original copyright and is not relicensed under the engine's GPL.
+This installation's `FTAVOICE.HRS` is a copy of `FTADATA.HRS`. The engine ignores it, preserves the original unvoiced-text fallback and skips missing videos. Original and bundled game data are opened read-only. Source and engine-only packages exclude game data; the explicitly requested local complete package includes only the eight required files. The original `FTA2.EXE` supplies embedded resources and is never executed. Game data retains its original copyright and is not relicensed under the engine's GPL.
 
 You can **copy** the original `999.SAV` to the user save directory, for example as `fta2.002`, and load it through the game menu. New saves preserve the original chunks and add the random generator state; see [architecture](docs/architecture.md).
 
@@ -56,7 +60,7 @@ cpack --config build/CPackConfig.cmake -C Release
 To create the complete Windows ZIP locally after packaging the Windows engine:
 
 ```sh
-python3 tools/package_complete.py --engine-package dist/fta2-native-0.1.5-Windows-x86_64.zip --data-dir original-game --output dist/fta2-native-0.1.5-Windows-x86_64-complete.zip
+python3 tools/package_complete.py --engine-package dist/fta2-native-0.1.8-Windows-x86_64.zip --data-dir original-game --output dist/fta2-native-0.1.8-Windows-x86_64-complete.zip
 ```
 
 The tool checks all eight data files against their known SHA-256 hashes, excludes original saves and unnecessary DOS files, and records a package manifest. It refuses unknown data, output inside the original installation, and overwriting an existing output ZIP.

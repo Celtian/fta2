@@ -83,7 +83,8 @@ static int runGame(int argc, char** argv) {
         Native::resourceDirectory = saves / "resources";
 
         ConfMan.setPath("path", Native::dataDirectory);
-        ConfMan.setBool("subtitles", true);
+        if (!ConfMan.hasKey("subtitles"))
+            ConfMan.setBool("subtitles", true);
         ConfMan.setBool("speech_mute", true);
         for (auto k : {"music_volume", "sfx_volume", "speech_volume"})
             if (!ConfMan.hasKey(k))

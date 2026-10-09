@@ -54,7 +54,7 @@ void fadeDown();
 const ChunkID   gameID = MKTAG('F', 'T', 'A', '2');
 
 void SaveFileHeader::read(Native::InSaveFile *in) {
-	char fileName[SaveFileHeader::kSaveNameSize];
+	char fileName[SaveFileHeader::kSaveNameSize + 1] = {};
 	gameID = in->readUint32BE();
 	in->read(fileName, SaveFileHeader::kSaveNameSize);
 	saveName = fileName;

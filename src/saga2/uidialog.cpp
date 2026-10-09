@@ -24,6 +24,7 @@
  */
 
 #include "platform/runtime.h"
+#include "platform/saves.h"
 
 #include "saga2/saga2.h"
 #include "saga2/intrface.h"
@@ -56,6 +57,7 @@ APPFUNC(cmdOptionsLoadGame);
 APPFUNC(cmdOptionsNewGame);
 APPFUNC(cmdQuitGame);
 APPFUNC(cmdCredits);
+APPFUNC(cmdHotKeys);
 APPFUNC(cmdAutoAggression);
 APPFUNC(cmdAutoWeapon);
 APPFUNC(cmdNight);
@@ -227,11 +229,18 @@ static const StaticRect optMidPanel = {
 
 static const StaticRect optBotPanel = {
 	kOptBoxX,
-	kOptBoxY + kOptTPHeight + kOptMDHeight,
+	kOptBoxY + kOptTPHeight + kOptMDHeight + kOptExtraHeight,
 	kOptBTWidth,
 	kOptBTHeight
 };
 
+// The middle artwork includes slider tracks. Overlap clean bottom artwork instead.
+static const StaticRect optExtraBodyPanel = {
+	kOptBoxX,
+	kOptBoxY + kOptTPHeight + kOptMDHeight,
+	kOptBTWidth,
+	kOptBTHeight
+};
 
 static const StaticRect optResumeRect = {
 	kOptBoxXSzNS - (kPushButtonWidth + 14),
@@ -266,6 +275,13 @@ static const StaticRect optQuitRect = {
 static const StaticRect optCreditsRect = {
 	kOptBoxXSzNS - (kPushButtonWidth + 14),
 	kButtonYOffset + ((kPushButtonHeight * 4) + kButtonSpace * 5),
+	kPushButtonWidth,
+	kPushButtonHeight
+};
+
+static const StaticRect optHotKeysRect = {
+	kOptBoxXSzNS - (kPushButtonWidth + 14),
+	kButtonYOffset + ((kPushButtonHeight * 5) + kButtonSpace * 6),
 	kPushButtonWidth,
 	kPushButtonHeight
 };
@@ -440,6 +456,7 @@ static const StaticRect *optionsTextRects[] = {
 static StaticWindow optionsDecorations[kNumOptionsPanels] = {
 	{optTopPanel, nullptr, optTopPanelResID},
 	{optMidPanel, nullptr, optMidPanelResID},
+	{optExtraBodyPanel, nullptr, optBotPanelResID},
 	{optBotPanel, nullptr, optBotPanelResID}
 };
 
@@ -601,7 +618,13 @@ bool getSaveName(int8 saveNo, SaveFileHeader &header) {
 		return false;
 	}
 
-	header.read(in);
+	try {
+		Native::validateSave(*in);
+		header.read(in);
+	} catch (const std::runtime_error &) {
+		delete in;
+		return false;
+	}
 
 	delete in;
 
@@ -668,12 +691,8 @@ int16 FileDialog(int16 fileProcess) {
 #ifndef ALLOW_BAD_LOADS
 	if (displayOnly && numValid(fieldStrings) == 0) {
 		destroyFileFields(fieldStrings);
-		if (userDialog("Error", "No saved games to load!\n Would you like to start over?", "_Yes", "_No", nullptr) != 1) {
-			deferredLoadFlag = true;
-			deferredLoadID = 999;
-			return typeLoad;
-		}
-		return 0;
+		userDialog(LOAD_DIALOG_NAME, "No saved games yet.\nUse Save in Options to create one.", "Close", nullptr, nullptr);
+		return -1;
 	}
 #endif
 	// init the resource context handle
@@ -690,12 +709,12 @@ int16 FileDialog(int16 fileProcess) {
 	win = new ModalWindow(saveLoadWindowRect, 0, nullptr);
 
 	// make the quit button
-	new GfxCompButton(*win, *saveLoadButtonRects[0], pushBtnIm, kNumBtnImages, btnStrings[stringIndex][0], pal, 0, cmdDialogQuit);
-	//t->_accelKey=0x1B;
+	GfxCompButton *cancel = new GfxCompButton(*win, *saveLoadButtonRects[0], pushBtnIm, kNumBtnImages, btnStrings[stringIndex][0], pal, 0, cmdDialogQuit);
+	cancel->_accelKey = Native::ASCII_ESCAPE;
 
 	// make the Save/Load button
-	new GfxCompButton(*win, *saveLoadButtonRects[1], pushBtnIm, kNumBtnImages, btnStrings[stringIndex][1], pal, fileProcess, fileCommands[fileProcess]);
-	//t->_accelKey=0x0D;
+	GfxCompButton *confirm = new GfxCompButton(*win, *saveLoadButtonRects[1], pushBtnIm, kNumBtnImages, btnStrings[stringIndex][1], pal, fileProcess, fileCommands[fileProcess]);
+	confirm->_accelKey = Native::ASCII_RETURN;
 	// make the up arrow
 	new GfxCompButton(*win, *saveLoadButtonRects[2], arrowUpIm, kNumBtnImages, 0, cmdSaveDialogUp);
 	//t->_accelKey=33+0x80;
@@ -732,6 +751,7 @@ int16 FileDialog(int16 fileProcess) {
 	// remove the window all attatched controls
 	delete win;
 	win = nullptr;
+	textBox = nullptr;
 
 	// unload all image arrays
 	unloadImageRes(arrowUpIm, kNumBtnImages);
@@ -763,6 +783,70 @@ void fadeUp();
 void fadeDown();
 void clearTileAreaPort();
 void displayUpdate();
+
+static void showHotKeysDialog() {
+	static const struct {
+		const char *key;
+		const char *action;
+	} shortcuts[] = {
+		{"1 / 2 / 3", "Select Julian / Philip / Kevin"},
+		{"Tab", "Switch individual / group control panels"},
+		{"A", "Toggle selected brother's aggression"},
+		{"Shift+A", "Set all brothers' aggression from selected brother"},
+		{"B", "Toggle selected brother's party following"},
+		{"Shift+B", "Set all brothers' following from selected brother"},
+		{"I", "Open Ideas"},
+		{"S", "Open Skills"},
+		{"K", "Open Memories"},
+		{"M", "Toggle music"},
+		{"Space", "Dismiss speech and make selected brother wait"},
+		{"O / Esc", "Open Options"},
+		{"Alt+Enter", "Switch fullscreen / window"}
+	};
+	Rect16 windowRect((640 - 487) / 2, (480 - 320) / 2, 487, 320);
+	const StaticWindow decorations[] = {
+		{{windowRect.x, windowRect.y, 487, 39}, nullptr, optTopPanelResID},
+		{{windowRect.x, (int16)(windowRect.y + 39), 487, 101}, nullptr, optBotPanelResID},
+		{{windowRect.x, (int16)(windowRect.y + 99), 487, 101}, nullptr, optBotPanelResID},
+		{{windowRect.x, (int16)(windowRect.y + 159), 487, 101}, nullptr, optBotPanelResID},
+		{{windowRect.x, (int16)(windowRect.y + 219), 487, 101}, nullptr, optBotPanelResID}
+	};
+	textPallete pal(33 + 9, 36 + 9, 41 + 9, 34 + 9, 40 + 9, 43 + 9);
+	requestInfo info;
+	info.result = -1;
+	info.running = true;
+	hResContext *decRes = resFile->newContext(kDialogGroupID, "hot keys dialog resources");
+	void **pushImages = loadButtonRes(decRes, 4, kNumBtnImages);
+	ModalWindow *win = new ModalWindow(windowRect, 0, nullptr);
+
+	new CPlaqText(*win, Rect16(0, 0, 487, 39), OPTN_DIALOG_HOT_KEYS,
+	              &Plate18Font, 0, pal, 0, nullptr);
+	new CPlaqText(*win, Rect16(18, 44, 108, 17), "Key", &SmallFont, kTextPosLeft, pal, 0, nullptr);
+	new CPlaqText(*win, Rect16(142, 44, 327, 17), "Action", &SmallFont, kTextPosLeft, pal, 0, nullptr);
+	for (uint i = 0; i < ARRAYSIZE(shortcuts); ++i) {
+		int16 y = 64 + i * 14;
+		new CPlaqText(*win, Rect16(18, y, 108, 14), shortcuts[i].key,
+		              &SmallFont, kTextPosLeft, pal, 0, nullptr);
+		new CPlaqText(*win, Rect16(142, y, 327, 14), shortcuts[i].action,
+		              &SmallFont, kTextPosLeft, pal, 0, nullptr);
+	}
+	new CPlaqText(*win, Rect16(18, 250, 451, 14), "1 / 2 / 3 also work on the numeric keypad.",
+	              &SmallFont, kTextPosLeft, pal, 0, nullptr);
+	new CPlaqText(*win, Rect16(18, 264, 451, 14), "Gameplay shortcuts may be unavailable during dialogue.",
+	              &SmallFont, kTextPosLeft, pal, 0, nullptr);
+	GfxCompButton *close = new GfxCompButton(*win, Rect16(183, 282, kPushButtonWidth, kPushButtonHeight),
+	                                      pushImages, kNumBtnImages, HOT_KEYS_CLOSE, pal, 0, cmdDialogQuit);
+	close->_accelKey = Native::ASCII_ESCAPE;
+	win->setDecorations(decorations, ARRAYSIZE(decorations), decRes, 'O', 'P', 'T');
+	win->_userData = &info;
+	win->open();
+	EventLoop(info.running, true);
+
+	delete win;
+	unloadImageRes(pushImages, kNumBtnImages);
+	resFile->disposeContext(decRes);
+	mainWindow->invalidate(&windowRect);
+}
 
 int16 OptionsDialog(bool disableSaveResume) {
 	// Save back buffer before opening the dialog
@@ -860,6 +944,10 @@ int16 OptionsDialog(bool disableSaveResume) {
 	                               dialogPushImag, kNumBtnImages, btnStrings[4], pal, 0, cmdCredits);
 	t->_accelKey = 'C';
 
+	t = new GfxCompButton(*win, optHotKeysRect, dialogPushImag, kNumBtnImages,
+	                      OPTN_DIALOG_HOT_KEYS, pal, 0, cmdHotKeys);
+	t->_accelKey = 'H';
+
 	autoAggressBtn = new GfxOwnerSelCompButton(*win, *optionsButtonRects[5],
 	        checkImag, kNumBtnImages, 0, cmdAutoAggression);
 	autoAggressBtn->select(isAutoAggressionSet());
@@ -871,8 +959,6 @@ int16 OptionsDialog(bool disableSaveResume) {
 	speechTextBtn = new GfxOwnerSelCompButton(*win, *optionsButtonRects[7],
 	        checkImag, kNumBtnImages, 0, cmdSpeechText);
 	speechTextBtn->select(g_vm->_speechText);
-	// This DOS profile has no speech audio; subtitles must stay enabled.
-	speechTextBtn->enable(false);
 
 	nightBtn = new GfxOwnerSelCompButton(*win, *optionsButtonRects[8],
 	        checkImag, kNumBtnImages, 0, cmdNight);
@@ -896,6 +982,8 @@ int16 OptionsDialog(bool disableSaveResume) {
 	for (int i = 1; i < kNumOptionsTexts; i++) {
 		new CPlaqText(*win, *optionsTextRects[i], textStrings[i], &SmallFont, kTextPosLeft, pal, 0, nullptr);
 	}
+	new CPlaqText(*win, Rect16(14, 224, 330, 14), "Text remains visible when voice audio is unavailable.",
+	              &SmallFont, kTextPosLeft, pal, 0, nullptr);
 
 	win->setDecorations(optionsDecorations,
 	                    ARRAYSIZE(optionsDecorations),
@@ -1193,6 +1281,8 @@ int16 userDialog(const char *title, const char *msg, const char *bMsg1,
 		t = new GfxCompButton(*win, *messageButtonRects[0],
 		                               dialogPushImag, kNumBtnImages, btnMsg1, pal, 10, cmdDialogQuit);
 		t->_accelKey = k1;
+		if (numBtns == 1)
+			t->_accelKey = Native::ASCII_ESCAPE;
 	}
 
 	// button two
@@ -1768,6 +1858,11 @@ APPFUNC(cmdCredits) {
 	}
 }
 
+APPFUNC(cmdHotKeys) {
+	if (ev.panel && isUserAction(ev) && ev.value)
+		showHotKeysDialog();
+}
+
 APPFUNC(cmdAutoAggression) {
 	if (isUserAction(ev)) {
 		toggleAutoAggression();
@@ -1789,7 +1884,7 @@ APPFUNC(cmdNight) {
 
 APPFUNC(cmdSpeechText) {
 	if (isUserAction(ev)) {
-		g_vm->_speechText = true;
+		g_vm->_speechText = !g_vm->_speechText;
 		speechTextBtn->select(g_vm->_speechText);
 
 		ConfMan.setBool("subtitles", g_vm->_speechText);

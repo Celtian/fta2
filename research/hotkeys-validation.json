@@ -1,0 +1,220 @@
+{
+  "date": "2026-10-09",
+  "version": "0.1.6",
+  "status": "passed",
+  "scope": "Options Hot Keys overview and M music mute; development alpha",
+  "ui": {
+    "options_dimensions": [
+      487,
+      263
+    ],
+    "help_dimensions": [
+      487,
+      320
+    ],
+    "button_dimensions": [
+      121,
+      30
+    ],
+    "options_height_increase": 33,
+    "variants": [
+      "in-game Options",
+      "pre-game Options layout"
+    ],
+    "opens_per_variant": 6,
+    "open_paths": [
+      "H accelerator",
+      "SDL mouse click"
+    ],
+    "close_paths": [
+      "Esc",
+      "SDL click on Close"
+    ],
+    "blocked_gameplay_keys": [
+      "3",
+      "A",
+      "B",
+      "Tab",
+      "I",
+      "S",
+      "K",
+      "M",
+      "Space",
+      "O"
+    ],
+    "preserved": [
+      "selected actor",
+      "actor coordinates",
+      "RNG",
+      "party flags",
+      "volume settings",
+      "auto aggression",
+      "auto weapon",
+      "night",
+      "control panel mode",
+      "music mute",
+      "parent modal focus",
+      "window count"
+    ],
+    "artwork": "Original OPT top and overlapping clean bottom panels; the middle panel contains baked-in slider tracks and cannot provide a clean repeated body.",
+    "screenshots_directory": ".cache/integration-hotkeys-016-final/output",
+    "screenshots": {
+      "hotkeys.ppm": "6c842554b4f7d2946eba01321aefd31cb06c297e9861ef5ddae292b2cabfadb0",
+      "options-returned.ppm": "f224f1b5b89e8f0932c6707c2ec75b1ef18b3d08d300b5031df29fd099b622da",
+      "options.ppm": "e7e68b69cb9797c92c83206c28c045115af54798c78de91552d1b434c23e8565",
+      "pregame-hotkeys.ppm": "6c842554b4f7d2946eba01321aefd31cb06c297e9861ef5ddae292b2cabfadb0",
+      "pregame-options.ppm": "c4ceb0d6f492045f06e2daf460c2849365b24b74247c2a92507c9cc41390a2ec",
+      "pregame-returned.ppm": "7acae70732eb5818f5366f474f9ce438015dc82c7686e12164d212f228a68ca2"
+    }
+  },
+  "music": {
+    "toggle": "M toggles the persisted music_mute configuration value",
+    "checks": [
+      "mute suppresses music samples",
+      "effects still produce samples",
+      "volume changes while muted do not unmute music",
+      "second M restores music at the original volume"
+    ],
+    "timing": "Muted rendering continues synthesis and sample-driven XMIDI ticks under the existing mutex."
+  },
+  "linux": {
+    "build": "CMake Release, SDL 3.4.18",
+    "ctest": {
+      "passed": 5,
+      "total": 5,
+      "temporary_directory": ".cache/hotkeys-ctest-temp"
+    },
+    "integration": ".cache/integration-hotkeys-016-final",
+    "reference_parity": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "memory": {
+    "build": "Debug, -fsanitize=address -fno-omit-frame-pointer",
+    "options": "detect_leaks=1:halt_on_error=1",
+    "integration": ".cache/integration-hotkeys-asan-016-final",
+    "result": "AddressSanitizer and LeakSanitizer passed the complete integration scenario, including twelve nested help lifetimes.",
+    "environment": "Run outside the execution sandbox because LeakSanitizer requires process-thread inspection."
+  },
+  "windows": {
+    "build": "Zig cross-build, Windows x64 Release, SDL 3.4.18",
+    "execution": "Native Windows process; packaged executable and bundled data, unrelated working directory, isolated copy of original save",
+    "version": "fta2-native 0.1.6",
+    "public_runtime_test": "passed",
+    "integration": ".cache/hotkeys-windows-validation",
+    "reference_parity": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    },
+    "executable_sha256": "b888e15e09f82eb7d6233a6c57fe1fbb5a5c814e501d76502454c66bc43d213b"
+  },
+  "packages": {
+    "engine": "fta2-native-0.1.6-Windows-x86_64.zip",
+    "complete": "fta2-native-0.1.6-Windows-x86_64-complete.zip",
+    "source": "fta2-native-0.1.6-source.zip",
+    "complete_data_allowlist": [
+      "FTA2.EXE",
+      "FTA.HRS",
+      "FTADATA.HRS",
+      "FTAIMAGE.HRS",
+      "FTASOUND.HRS",
+      "SCRIPTS.HRS",
+      "DRIVERS/SAMPLE.AD",
+      "DRIVERS/SAMPLE.OPL"
+    ],
+    "native_windows_validation": "Preflight complete package; final package retains the identical tested executable and verified original data."
+  },
+  "backends": {
+    "video": "dummy",
+    "audio": "dummy"
+  },
+  "original_files_verified_after_tests": 54,
+  "limitations": [
+    "Automated SDL input, not a manual hardware-keyboard test",
+    "Pre-game Options layout exercised from the integration harness",
+    "No new macOS execution",
+    "No actual-device listening test",
+    "Not a complete playthrough"
+  ]
+}

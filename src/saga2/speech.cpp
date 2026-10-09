@@ -299,6 +299,10 @@ bool Speech::setupActive() {
 	_textPort.setColor(_penColor);                 // color of letters
 	_textPort.setMode(kDrawModeMatte);             // insure transparency
 
+	// Saved speech may retain a voice flag from another installation.
+	if (!g_vm->_speechVoice)
+		_speechFlags &= ~kSpHasVoice;
+
 	setWidth();
 
 	//  If speech position is off-screen, then skip
@@ -541,6 +545,7 @@ void Speech::dispose() {
 	debugC(1, kDebugTasks, "Speech: Disposing %p for %p (%s) (total = %d)'", (void *)this, (void *)obj, obj->objName(), speechList.speechCount());
 
 	remove();
+	delete this;
 }
 
 //-----------------------------------------------------------------------
