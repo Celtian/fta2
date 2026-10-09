@@ -1,0 +1,71 @@
+src/platform/runtime.cpp
+  s_ed68b25d700fb8::t_b47cd36e53f231 118-119,143,162,165
+  s_ed68b25d700fb8::t_206323e9cff84e 138,160,192,407
+src/platform/startup.h
+  s_ed68b25d700fb8::t_a0bbb2f3c1843b 1-9
+docs/validation.md
+  s_ed68b25d700fb8::t_d1b45d22572100 1,3,25-26,30
+  s_ed68b25d700fb8::t_5a86f212085854 31
+research/validation.json
+  s_ed68b25d700fb8::t_f772bc9cb59067 3,144-145,153-154,166,183-187
+  s_ed68b25d700fb8::t_a6fbd10724fa71 178-182,188
+src/platform/startup.cpp
+  s_ed68b25d700fb8::t_e96c9139850898 32-33
+  s_ed68b25d700fb8::t_a0bbb2f3c1843b 1-31,34-52
+research/windows-native-validation.json
+  s_ed68b25d700fb8::t_f772bc9cb59067 1-178
+CMakeLists.txt
+  s_ed68b25d700fb8::t_a0bbb2f3c1843b 20
+  s_ed68b25d700fb8::t_e96c9139850898 2,31
+src/main.cpp
+  s_ed68b25d700fb8::t_a0bbb2f3c1843b 5,10,12,58-80,85,92-93,110-114
+  s_ed68b25d700fb8::t_b47cd36e53f231 7-9,118-121
+  s_ed68b25d700fb8::t_e96c9139850898 25
+  s_ed68b25d700fb8::t_184b439a929f65 122
+README.md
+  s_ed68b25d700fb8::t_f9d52cda6d9b93 20
+  s_ed68b25d700fb8::t_baccfd1c3b68e4 5,19
+docs/architecture.md
+  s_ed68b25d700fb8::t_baccfd1c3b68e4 8
+research/windows-build.json
+  s_ed68b25d700fb8::t_a6fbd10724fa71 1-151
+third_party/README.md
+  s_ed68b25d700fb8::t_228b8c6564a14b 9
+cmake/toolchains/windows-zig.cmake
+  s_ed68b25d700fb8::t_228b8c6564a14b 1-8
+src/platform/runtime.h
+  s_ed68b25d700fb8::t_b47cd36e53f231 126-128,130-133,355
+docs/windows-build.md
+  s_ed68b25d700fb8::t_f9d52cda6d9b93 1-2,4,7-12,15-45,48
+  s_ed68b25d700fb8::t_baccfd1c3b68e4 3,5-6,13-14,46-47,49
+tests/runtime_test.cpp
+  s_ed68b25d700fb8::t_a0bbb2f3c1843b 3,59-69
+  s_ed68b25d700fb8::t_206323e9cff84e 73
+  s_ed68b25d700fb8::t_b258cd87384885 56-57
+third_party/windows-runtime/LIBCXX-LICENSE.txt
+  s_ed68b25d700fb8::t_fb4dc06392f273 1-311
+third_party/windows-runtime/LIBCXXABI-LICENSE.txt
+  s_ed68b25d700fb8::t_d9c1215cab9b53 1-311
+third_party/windows-runtime/LIBUNWIND-LICENSE.txt
+  s_ed68b25d700fb8::t_799948d006ac35 1-311
+third_party/windows-runtime/MINGW-COPYING.txt
+  s_ed68b25d700fb8::t_80cd55dc0e067e 1-43
+third_party/windows-runtime/ZIG-LICENSE.txt
+  s_ed68b25d700fb8::t_fedb7afb0e7609 1-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7a01429257abaca5973735d894ec8b898d613547",
+  "prompts": {},
+  "sessions": {
+    "s_ed68b25d700fb8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a11fa7-c7ae-7820-8ea2-e59f7e06aaeb",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Celtian <dominik.hladik@seznam.cz>"
+    }
+  }
+}
