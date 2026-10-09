@@ -11,13 +11,15 @@ static int runGame(int argc, char** argv) {
     try {
         Native::Path data, saves;
         bool probe = false;
+        bool widescreenProbe = false;
         int smokeFrames = 260;
         Native::Path probeOutput;
         for (int i = 1; i < argc; ++i) {
             std::string arg = argv[i];
             if (arg == "--help") {
                 puts("fta2-native [--data-dir PATH] [--save-dir PATH]\nNative Faery Tale Adventure "
-                     "II; bundled game data is loaded automatically.\n--help       Show help\n--version    "
+                     "II; bundled game data is loaded automatically.\n--help       Show "
+                     "help\n--version    "
                      "Show version");
                 return 0;
             }
@@ -28,6 +30,10 @@ static int runGame(int argc, char** argv) {
             if (arg == "--smoke-test" && i + 1 < argc) {
                 probe = true;
                 probeOutput = argv[++i];
+                continue;
+            }
+            if (arg == "--smoke-widescreen") {
+                widescreenProbe = true;
                 continue;
             }
             if (arg == "--smoke-frames" && i + 1 < argc) {
@@ -47,6 +53,8 @@ static int runGame(int argc, char** argv) {
             throw std::runtime_error("Unknown or incomplete option: " + arg);
         }
 
+        if (widescreenProbe && !probe)
+            throw std::runtime_error("--smoke-widescreen requires --smoke-test PATH");
         if (saves.empty()) {
             char* p = SDL_GetPrefPath("fta2-native", "fta2-native");
             if (!p)
@@ -59,9 +67,9 @@ static int runGame(int argc, char** argv) {
         ConfMan.load();
         if (data.empty()) {
             const char* base = SDL_GetBasePath();
-            data = Native::discoverGameDirectory(
-                ConfMan.getPath("data_dir"), std::filesystem::current_path(),
-                base ? Native::Path(base) : Native::Path());
+            data = Native::discoverGameDirectory(ConfMan.getPath("data_dir"),
+                                                 std::filesystem::current_path(),
+                                                 base ? Native::Path(base) : Native::Path());
 #ifdef _WIN32
             interactive = !probe;
             if (data.empty() && interactive) {
@@ -72,8 +80,8 @@ static int runGame(int argc, char** argv) {
 #endif
         }
         if (data.empty())
-            throw std::runtime_error(
-                "Game data folder not found. Use --data-dir PATH to select the folder containing FTA2.EXE.");
+            throw std::runtime_error("Game data folder not found. Use --data-dir PATH to select "
+                                     "the folder containing FTA2.EXE.");
         std::error_code ec;
         Native::dataDirectory = std::filesystem::canonical(data, ec);
         if (ec)
@@ -86,14 +94,16 @@ static int runGame(int argc, char** argv) {
         if (!ConfMan.hasKey("subtitles"))
             ConfMan.setBool("subtitles", true);
         ConfMan.setBool("speech_mute", true);
+        if (!ConfMan.hasKey("widescreen"))
+            ConfMan.setBool("widescreen", false);
         for (auto k : {"music_volume", "sfx_volume", "speech_volume"})
             if (!ConfMan.hasKey(k))
                 ConfMan.setInt(k, 192);
         try {
             Native::prepareDosResources();
         } catch (const std::exception& e) {
-            throw std::runtime_error("Game data in " + Native::dataDirectory.toString() +
-                                     ": " + e.what());
+            throw std::runtime_error("Game data in " + Native::dataDirectory.toString() + ": " +
+                                     e.what());
         }
         ConfMan.setPath("data_dir", Native::dataDirectory);
         ConfMan.flushToDisk();
@@ -103,7 +113,10 @@ static int runGame(int argc, char** argv) {
             ConfMan.setBool("native_probe", true);
             ConfMan.setInt("random_seed", 42);
             Native::requireSeparateOutput(Native::dataDirectory, probeOutput);
-            Native::configureSmokeProbe(probeOutput, smokeFrames);
+            if (widescreenProbe)
+                Native::configureWidescreenProbe(probeOutput);
+            else
+                Native::configureSmokeProbe(probeOutput, smokeFrames);
             platform.deterministic = true;
             platform.getMixer()->enableDeterministic();
         }

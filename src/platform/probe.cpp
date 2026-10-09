@@ -163,7 +163,7 @@ struct HotKeysProbe {
         switch (phase) {
         case 0: {
             options = active;
-            require(options && options->getExtent().height == 263, "Options has wrong size");
+            require(options && options->getExtent().height == Saga2::kOptBoxYSize, "Options has wrong size");
             auto button = options->keyTest('H');
             require(button && button->getExtent().width == 121 && button->getExtent().height == 30,
                     "Hot Keys button is missing or resized");
@@ -875,7 +875,7 @@ struct ContainerEscapeProbe {
         modalTicks = 0;
         auto tool = Saga2::g_vm->_toolBase;
         controls.require(tool->topWindow() == Saga2::ModalWindow::_current &&
-                             tool->topWindow()->getExtent().height == 263,
+                             tool->topWindow()->getExtent().height == Saga2::kOptBoxYSize,
                          "expected Options after container navigation");
         HotKeysProbe::key(SDLK_ESCAPE);
         expectingMenu = false;

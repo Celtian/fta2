@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "platform/resources.h"
 #include "platform/startup.h"
-#include "saga2/tcoords.h"
+#include "saga2/gfx.h"
+#include "saga2/gpointer.h"
 #include "saga2/idtypes.h"
 #include "saga2/saveload.h"
-#include "saga2/gpointer.h"
+#include "saga2/tcoords.h"
 using namespace Native;
 static void check(bool condition, const char* what) {
     if (!condition)
@@ -108,6 +109,27 @@ int main() {
               "Executable-adjacent data discovery failed");
         mustFail([&] { requireSeparateOutput(Path(root / "data"), Path(root / "data/cache")); });
         requireSeparateOutput(Path(root / "data"), Path(root / "saves"));
+        {
+            Platform startup;
+            startup.initGraphics(854, 480);
+            SDL_Event shortcut{};
+            shortcut.type = SDL_EVENT_KEY_DOWN;
+            shortcut.key.key = SDLK_KP_ENTER;
+            shortcut.key.mod = SDL_KMOD_RALT;
+            check(SDL_PushEvent(&shortcut), "Cannot inject initial widescreen Alt+Enter");
+            Event event;
+            while (startup.pollEvent(event)) {
+            }
+            int count = 0;
+            auto windows = SDL_GetWindows(&count);
+            check(count == 1, "Initial widescreen window missing");
+            int width, height;
+            SDL_GetWindowSize(windows[0], &width, &height);
+            check(!(SDL_GetWindowFlags(windows[0]) & SDL_WINDOW_FULLSCREEN) && width == 854 &&
+                      height == 480,
+                  "First widescreen return has wrong size");
+            SDL_free(windows);
+        }
         Platform platform;
         platform.saves.directory = root / u8"saves-\u017e-\u4e16";
         std::filesystem::create_directories(platform.saves.directory);
@@ -164,6 +186,82 @@ int main() {
         };
         check(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN, "Fullscreen startup");
         checkWheel(320, 240);
+        auto toggleFullscreen = [&] {
+            SDL_Event event{};
+            event.type = SDL_EVENT_KEY_DOWN;
+            event.key.key = SDLK_RETURN;
+            event.key.mod = SDL_KMOD_ALT;
+            check(SDL_PushEvent(&event), "Cannot inject Alt+Enter");
+            while (platform.pollEvent(nativeEvent)) {
+                check(nativeEvent.type != EVENT_KEYDOWN, "Alt+Enter leaked to the game");
+            }
+            SDL_SyncWindow(window);
+        };
+        auto checkSize = [&](int width, int height) {
+            int actualWidth, actualHeight;
+            check(SDL_GetWindowSize(window, &actualWidth, &actualHeight),
+                  "Cannot read window size");
+            check(actualWidth == width && actualHeight == height,
+                  String::format("Window size %d x %d, expected %d x %d", actualWidth, actualHeight,
+                                 width, height)
+                      .c_str());
+            checkWheel(platform.getWidth() / 2, 240);
+        };
+        toggleFullscreen();
+        checkSize(640, 480);
+        int windowX, windowY;
+        SDL_GetWindowPosition(window, &windowX, &windowY);
+        for (int pass = 0; pass < 2; ++pass) {
+            check(platform.resizeGraphics(854, 480), "Automatic windowed widescreen");
+            checkSize(854, 480);
+            int x, y;
+            SDL_GetWindowPosition(window, &x, &y);
+            check(x == windowX && y == windowY, "Automatic resize moved the window");
+            toggleFullscreen();
+            check(platform.resizeGraphics(640, 480), "Classic mode while fullscreen");
+            toggleFullscreen();
+            checkSize(640, 480);
+            toggleFullscreen();
+            check(platform.resizeGraphics(854, 480), "Wide mode while fullscreen");
+            toggleFullscreen();
+            checkSize(854, 480);
+            check(platform.resizeGraphics(640, 480), "Automatic windowed classic");
+            checkSize(640, 480);
+        }
+        check(SDL_SetWindowMaximumSize(window, 700, 480), "Cannot constrain automatic window size");
+        check(platform.resizeGraphics(854, 480), "Constrained automatic widescreen");
+        checkSize(700, 480);
+        check(platform.resizeGraphics(640, 480), "Automatic size after desktop constraint");
+        checkSize(640, 480);
+        check(SDL_SetWindowMaximumSize(window, 0, 0), "Cannot remove window size constraint");
+        if (std::string(SDL_GetCurrentVideoDriver()) != "dummy") {
+            check(SDL_MaximizeWindow(window) && SDL_SyncWindow(window), "Cannot maximize window");
+            check(SDL_GetWindowFlags(window) & SDL_WINDOW_MAXIMIZED, "Maximize was not applied");
+            check(platform.resizeGraphics(854, 480), "Mode change while maximized");
+            check(SDL_GetWindowFlags(window) & SDL_WINDOW_MAXIMIZED,
+                  "Mode change lost maximization");
+            toggleFullscreen();
+            check(platform.resizeGraphics(640, 480), "Classic mode from maximized fullscreen");
+            toggleFullscreen();
+            check(SDL_GetWindowFlags(window) & SDL_WINDOW_MAXIMIZED, "Alt+Enter lost maximization");
+            check(SDL_RestoreWindow(window) && SDL_SyncWindow(window), "Cannot restore window");
+            checkSize(640, 480);
+        }
+        SDL_SetWindowSize(window, 900, 650);
+        SDL_SyncWindow(window);
+        SDL_GetWindowPosition(window, &windowX, &windowY);
+        check(platform.resizeGraphics(854, 480), "Mode change after manual resize");
+        checkSize(900, 650);
+        toggleFullscreen();
+        check(platform.resizeGraphics(640, 480), "Fullscreen mode after manual resize");
+        toggleFullscreen();
+        checkSize(900, 650);
+        int restoredX, restoredY;
+        SDL_GetWindowPosition(window, &restoredX, &restoredY);
+        check(restoredX == windowX && restoredY == windowY, "Manual window position was lost");
+        check(platform.resizeGraphics(854, 480), "Manual size when widening again");
+        checkSize(900, 650);
+        check(platform.resizeGraphics(640, 480), "Restore classic test framebuffer");
         check(SDL_SetWindowFullscreen(window, false), "Leave fullscreen");
         SDL_SyncWindow(window);
         SDL_SetWindowSize(window, 640, 480);
@@ -267,6 +365,50 @@ int main() {
         check(point.x == 640 && point.y == 480, "Letterbox right edge");
         checkWheel(0, 0);
         checkWheel(320, 240);
+        auto classic = DisplayLayout::forMode(DisplayMode::Classic);
+        auto wide = DisplayLayout::forMode(DisplayMode::Widescreen);
+        check(classic.screenWidth == 640 && classic.mapWidth == 440 && wide.screenWidth == 854 &&
+                  wide.mapWidth == 654 && wide.mapHeight == classic.mapHeight &&
+                  wide.screenWidth - wide.mapX - wide.mapWidth == 180,
+              "Display layout dimensions");
+        Saga2::Renderer backgrounds;
+        const auto windowID = SDL_GetWindowID(window);
+        for (int cycle = 0; cycle < 6; ++cycle) {
+            backgrounds.saveBackBuffer(Saga2::kBeforeOpeningMenu);
+            check(platform.resizeGraphics(854, 480), "Resize to widescreen");
+            backgrounds.restoreSavedBackBuffer(Saga2::kBeforeOpeningMenu);
+            check(!backgrounds.hasSavedBackBuffer(Saga2::kBeforeOpeningMenu),
+                  "Background with old dimensions was restored");
+            check(platform.getWidth() == 854 && platform.lockScreen()->pitch == 854 &&
+                      SDL_GetWindowID(window) == windowID,
+                  "Framebuffer resize recreated the window or kept its old pitch");
+            int width = 0, height = 0;
+            SDL_GetWindowSize(window, &width, &height);
+            check(width == 1280 && height == 720, "Framebuffer resize changed window size");
+            checkWheel(20, 20);
+            checkWheel(670, 435);
+            checkWheel(800, 240);
+            SDL_Event shortcut{};
+            shortcut.type = SDL_EVENT_KEY_DOWN;
+            shortcut.key.key = SDLK_RETURN;
+            shortcut.key.mod = SDL_KMOD_LALT;
+            shortcut.key.down = true;
+            for (int toggle = 0; toggle < 2; ++toggle) {
+                check(SDL_PushEvent(&shortcut), "Cannot inject wide Alt+Enter");
+                while (platform.pollEvent(nativeEvent)) {
+                }
+                checkWheel(427, 240);
+            }
+            platform.fillScreen(Rect(850, 475, 854, 480), 31);
+            platform.updateScreen();
+            backgrounds.saveBackBuffer(Saga2::kBeforeOpeningMenu);
+            check(platform.resizeGraphics(640, 480), "Resize to classic");
+            backgrounds.popSavedBackBuffer(Saga2::kBeforeOpeningMenu);
+            point = platform.windowToGame(160, 0);
+            check(point.x == 0 && point.y == 0, "Classic letterbox after framebuffer resize");
+        }
+        check(!platform.resizeGraphics(0, 480) && platform.getWidth() == 640,
+              "Invalid resize discarded the working framebuffer");
         ConfMan.setInt("random_seed", 42);
         RandomSource rng("test");
         check(rng.getRandomNumber(UINT_MAX) == 1570459262u, "Reference random sequence");

@@ -31,6 +31,9 @@
 #include "saga2/loadmsg.h"
 #include "saga2/grabinfo.h"
 #include "saga2/vpal.h"
+#include "saga2/tile.h"
+#include "saga2/tilemode.h"
+#include "saga2/modal.h"
 
 namespace Saga2 {
 
@@ -50,6 +53,88 @@ bool                        paletteMayHaveChanged = false;
 
 static uint32 displayStatus = kDisGraphicsInit;
 static bool paletteSuspendFlag = false;
+static bool displayModePending = false;
+
+void requestDisplayModeChange() {
+	displayModePending = true;
+}
+
+bool applyPendingDisplayMode() {
+	if (!displayModePending || ModalWindow::_current || !mainWindow ||
+	    !g_vm->_tileDrawMap._data || !g_vm->_gameRunning)
+		return false;
+	displayModePending = false;
+	const auto mode = ConfMan.getBool("widescreen") ? Native::DisplayMode::Widescreen
+	                                               : Native::DisplayMode::Classic;
+	if (mode == Native::activeDisplayMode) return false;
+	const auto layout = Native::DisplayLayout::forMode(mode);
+	const int delta = layout.sidebarOffset - Native::displayLayout().sidebarOffset;
+	const int mapWidth = (layout.mapWidth + kTileWidth - 1) & ~kTileDXMask;
+	const int mapHeight = (layout.mapHeight + kTileWidth - 1) & ~kTileDXMask;
+	std::unique_ptr<uint8[]> screen, map;
+	try {
+		screen = std::make_unique<uint8[]>(layout.screenWidth * layout.screenHeight);
+		map = std::make_unique<uint8[]>(mapWidth * mapHeight);
+	} catch (const std::bad_alloc &) {
+		ConfMan.setBool("widescreen", Native::activeDisplayMode == Native::DisplayMode::Widescreen);
+		ConfMan.flushToDisk();
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Display mode",
+		                        "Cannot allocate the new display buffers.", nullptr);
+		return false;
+	}
+	if (!g_platform->resizeGraphics(layout.screenWidth, layout.screenHeight)) {
+		ConfMan.setBool("widescreen", Native::activeDisplayMode == Native::DisplayMode::Widescreen);
+		ConfMan.flushToDisk();
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Display mode", SDL_GetError(), nullptr);
+		return false;
+	}
+	// All allocations succeeded. No window, world or control is destroyed here.
+	Native::activeDisplayMode = mode;
+	for (int i = 0; i < kMaxBackBufferSources; ++i)
+		g_vm->_renderer->removeSavedBackBuffer(static_cast<BackBufferSource>(i));
+	delete[] g_vm->_mainPort._map->_data;
+	g_vm->_mainPort._map->_data = screen.release();
+	g_vm->_mainPort._map->_size = Point16(layout.screenWidth, layout.screenHeight);
+	g_vm->_mainPort.setMap(g_vm->_mainPort._map);
+	delete[] g_vm->_tileDrawMap._data;
+	g_vm->_tileDrawMap._data = map.release();
+	g_vm->_tileDrawMap._size = Point16(mapWidth, mapHeight);
+	g_vm->_backPort.setMap(&g_vm->_tileDrawMap);
+	mainWindow->setExtent(Rect16(0, 0, layout.screenWidth, layout.screenHeight));
+	layoutUserControls(delta);
+	layoutTileControls();
+	extern gGenericControl *speakButtonPanel;
+	speakButtonPanel->setControlExtent(mainWindow->getExtent());
+	for (auto it = g_vm->_toolBase->bottomWindowIterator();
+	     it != g_vm->_toolBase->topWindowIterator(); ++it) {
+		auto *window = *it;
+		if (window == mainWindow) continue;
+		Rect16 r = window->getExtent();
+		const int oldX = r.x, oldY = r.y;
+		if (mode == Native::DisplayMode::Classic) {
+			r.x = CLIP<int>(r.x, 0, MAX(0, layout.screenWidth - r.width));
+			r.y = CLIP<int>(r.y, 0, MAX(0, layout.screenHeight - r.height));
+		}
+		window->setExtent(r); // Recalculate every window's clip, even if unmoved.
+		// Floating inventory artwork is relative to its window origin.
+		if (auto *decorated = dynamic_cast<DecoratedWindow *>(window);
+		    decorated && !dynamic_cast<FloatingWindow *>(window)) {
+			for (int i = 0; i < decorated->_numDecorations; ++i) {
+				decorated->_decorations[i].extent.x += r.x - oldX;
+				decorated->_decorations[i].extent.y += r.y - oldY;
+			}
+		}
+	}
+	g_vm->_toolBase->leavePanel();
+	layoutMapView(delta);
+	Native::Event mouse;
+	mouse.type = Native::EVENT_MOUSEMOVE;
+	mouse.mouse = g_platform->mousePosition();
+	g_vm->_toolBase->handleMouse(mouse, g_platform->getMillis());
+	reDrawScreen();
+	g_platform->updateScreen();
+	return true;
+}
 
 
 /* ===================================================================== *
@@ -121,7 +206,7 @@ void initBackPanel() {
 		return;
 
 	mainWindow = new BackWindow(
-	                 Rect16(0, 0, kScreenWidth, kScreenHeight),
+	                 Rect16(0, 0, Native::displayLayout().screenWidth, Native::displayLayout().screenHeight),
 	                 0,
 	                 cmdWindowFunc);
 	if (mainWindow == nullptr)
@@ -227,7 +312,7 @@ void externalPaletteIntrusion() {
 
 void reDrawScreen() {
 	//dispMM("refresh");
-	Rect16 r = Rect16(0, 0, 640, 480);
+	Rect16 r = Rect16(0, 0, Native::displayLayout().screenWidth, Native::displayLayout().screenHeight);
 	if (mainWindow && displayEnabled()) {
 		//updateAllUserControls();
 		drawMainDisplay();
@@ -251,7 +336,7 @@ void reDrawScreen() {
 void blackOut() {
 	g_vm->_mainPort._drawMode = kDrawModeReplace;
 	g_vm->_mainPort.setColor(0);            //  fill screen with color
-	g_vm->_mainPort.fillRect(Rect16(0, 0, 640, 480));
+	g_vm->_mainPort.fillRect(Rect16(0, 0, Native::displayLayout().screenWidth, Native::displayLayout().screenHeight));
 	g_vm->_pal->lightsOut();
 }
 

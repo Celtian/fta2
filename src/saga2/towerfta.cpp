@@ -275,7 +275,7 @@ INITIALIZER(initPanelSystem) {
 	initPanels(g_vm->_mainPort);
 	if (g_vm->_mainPort._map == nullptr) {
 		gPixelMap *tmap = new gPixelMap;
-		tmap->_size = Point16(kScreenWidth, kScreenHeight);
+		tmap->_size = Point16(Native::displayLayout().screenWidth, Native::displayLayout().screenHeight);
 		tmap->_data = new uint8[tmap->bytes()];
 		g_vm->_mainPort.setMap(tmap);
 	}
@@ -310,7 +310,7 @@ TERMINATOR(termGUIMessagers) {
 INITIALIZER(initMousePointer) {
 	//pointer.hide();
 	setMouseImage(kMouseArrowImage, 0, 0);
-	return g_vm->_pointer->init(640, 480);
+	return g_vm->_pointer->init(Native::displayLayout().screenWidth, Native::displayLayout().screenHeight);
 }
 
 TERMINATOR(termMousePointer) {

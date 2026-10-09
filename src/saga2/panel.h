@@ -192,6 +192,7 @@ public:
 	Rect16 getExtent() {
 		return _extent;
 	}
+	void setControlExtent(const Rect16 &r) { _extent = r; }
 	bool isSelected() {
 		return _selected != 0;
 	}
@@ -274,6 +275,7 @@ public:
 	gPanel *hitTest(const Point16 &p);
 	gPanel *keyTest(int16 key);
 	void removeControls();
+	void translateControls(int16 dx);
 
 public:
 	void invalidate(Rect16 *area = nullptr);

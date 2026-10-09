@@ -1,0 +1,300 @@
+{
+  "date": "2026-10-09",
+  "version": "0.1.14",
+  "status": "passed",
+  "scope": "Widescreen checkbox alignment and redraw correction; development alpha",
+  "layout": {
+    "options_size": [
+      487,
+      263
+    ],
+    "options_y": 72,
+    "checkbox": [
+      214,
+      160,
+      18,
+      17
+    ],
+    "label": [
+      235,
+      160,
+      95,
+      17
+    ],
+    "label_gap": 3,
+    "footer": [
+      14,
+      224,
+      330,
+      14
+    ],
+    "original_artwork": true
+  },
+  "regression": {
+    "options_openings_per_process": 17,
+    "checkbox_clicks_per_opening": 5,
+    "processes_per_backend": 2,
+    "options_variants": [
+      "game",
+      "pregame"
+    ],
+    "modes": [
+      "classic",
+      "widescreen"
+    ],
+    "checks": [
+      "Widescreen aligns with Night horizontally and Auto-Wield Weapon vertically",
+      "Checkbox uses the full original 18 x 17 input and redraw region",
+      "Real SDL clicks cover center, right, bottom and bottom-right pixels",
+      "Repeated checked and unchecked crops match their initial state pixel for pixel",
+      "Checkbox redraw leaves the label unchanged; original font text fits the 95-pixel column",
+      "All eight layout/state combinations are captured per process",
+      "Existing 17 live mode transitions, restart preference, sidebar/map parity, save/load, original-save import and inventory behavior remain covered"
+    ]
+  },
+  "linux": {
+    "build": ".cache/options-014-linux-build.log",
+    "ctest": {
+      "passed": 5,
+      "total": 5,
+      "log": ".cache/options-014-linux-ctest.log"
+    },
+    "wide_integration": {
+      "status": "passed",
+      "original_files_unchanged": 54,
+      "runs": [
+        {
+          "startup": {
+            "widescreen": false,
+            "width": 640
+          },
+          "checks": {
+            "status": "passed",
+            "toggle_count": 17,
+            "sidebar_pixel_parity": true,
+            "map_overlap_parity": true,
+            "movement_in_expanded_area": true,
+            "original_save_loaded": true,
+            "checkbox_redraw_parity": true,
+            "checkbox_edge_clicks": true,
+            "options_layouts_checked": 4
+          }
+        },
+        {
+          "startup": {
+            "widescreen": true,
+            "width": 854
+          },
+          "checks": {
+            "status": "passed",
+            "toggle_count": 17,
+            "sidebar_pixel_parity": true,
+            "map_overlap_parity": true,
+            "movement_in_expanded_area": true,
+            "original_save_loaded": true,
+            "checkbox_redraw_parity": true,
+            "checkbox_edge_clicks": true,
+            "options_layouts_checked": 4
+          }
+        }
+      ],
+      "backends": {
+        "video": "dummy",
+        "audio": "dummy"
+      }
+    },
+    "wide_output": ".cache/options-014-linux-wide",
+    "classic_output": ".cache/options-014-linux-classic",
+    "classic_status": "passed",
+    "classic_reference_comparison": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "windows": {
+    "build": ".cache/options-014-windows-build.log",
+    "compiler": "Zig 0.16.0 cross-build",
+    "sdl": "Official SDL 3.4.18 x64 DLL",
+    "ctest": {
+      "passed": 5,
+      "total": 5,
+      "log": ".cache/options-014-windows-ctest.log",
+      "execution": "C++ runtime/help/version run as actual Windows processes via PowerShell; portable Python data/package tests run on the Linux build host."
+    },
+    "output": ".cache/options-014-windows-validation",
+    "result": {
+      "status": "passed",
+      "native_windows": true,
+      "version": "0.1.14",
+      "video": "dummy",
+      "audio": "dummy",
+      "bundled_files": 8,
+      "data_unchanged": true,
+      "runtime_passed": true,
+      "classic_passed": true,
+      "supplied_data_path": false,
+      "runs": [
+        {
+          "startup": {
+            "widescreen": false,
+            "width": 640
+          },
+          "checks": {
+            "status": "passed",
+            "toggle_count": 17,
+            "sidebar_pixel_parity": true,
+            "map_overlap_parity": true,
+            "movement_in_expanded_area": true,
+            "original_save_loaded": true,
+            "checkbox_redraw_parity": true,
+            "checkbox_edge_clicks": true,
+            "options_layouts_checked": 4
+          }
+        },
+        {
+          "startup": {
+            "widescreen": true,
+            "width": 854
+          },
+          "checks": {
+            "status": "passed",
+            "toggle_count": 17,
+            "sidebar_pixel_parity": true,
+            "map_overlap_parity": true,
+            "movement_in_expanded_area": true,
+            "original_save_loaded": true,
+            "checkbox_redraw_parity": true,
+            "checkbox_edge_clicks": true,
+            "options_layouts_checked": 4
+          }
+        }
+      ],
+      "executable_sha256": "0C109EA901B517C6B2A233E7204B72B39284E180D0B35158ADBD63496522EBC1"
+    },
+    "classic_reference_comparison": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    },
+    "pixel_comparison": {
+      "0": {
+        "wide-group.ppm": "c1d0f333e4365daa7511d457ec7e18eac16ade26c52a3a8069b1102bad646ced",
+        "wide-individual.ppm": "08e47a59fbb1ddae3dce65789b59acb216c7d423d13faa0cc82e04158ecf90f9",
+        "wide-final.ppm": "f13f64691503a28a048483868bf01b416f2bfa716725408c81f9e50c5fd01ed8",
+        "wide-modal.ppm": "d34d60d5a3380f20fb8556c9bff4ecb2f23f97878ca7c5918d0339eb8447f7d3",
+        "wide-options.ppm": "4c01f2611323ed5d5b59a71fd9b2badf43bb63b11a29da22dc87c6a9f92fba3c",
+        "options-classic-game-checked.ppm": "78c25e10f75c01e9c39b8c4f029262dd61deea939e2eae039a4535ad22a38b87",
+        "options-classic-game-unchecked.ppm": "d3f8d51afab4e2f68faef0e1885a95d9e0a487c9b3db60375d9bcefcac62dc34",
+        "options-classic-pregame-checked.ppm": "627a097b4aff10631bccb89b2f382c868d08c8827b9f704f386196ce65b494e4",
+        "options-classic-pregame-unchecked.ppm": "2897332be4e2f555ffd74424cf80ae8b28525f9e9a10209b05034810392feeff",
+        "options-wide-game-checked.ppm": "e95e721a10125317ef85c29daf429ebfaeb67a3927c6b19a2c51c41b9e77cd25",
+        "options-wide-game-unchecked.ppm": "18c2ab474a396ede6d266a5f9b9de07d52b1fe915674038892389744f49b5241",
+        "options-wide-pregame-checked.ppm": "93df563e86af23866c2ea3c69a771772d7f120f5b0186036f4b2cd699c2d82f6",
+        "options-wide-pregame-unchecked.ppm": "d5fdcb3601523dfcda3938dffb4b2c70529b3e1ddd45555f1022779b555dd671"
+      },
+      "1": {
+        "wide-group.ppm": "c1d0f333e4365daa7511d457ec7e18eac16ade26c52a3a8069b1102bad646ced",
+        "wide-individual.ppm": "08e47a59fbb1ddae3dce65789b59acb216c7d423d13faa0cc82e04158ecf90f9",
+        "wide-final.ppm": "f13f64691503a28a048483868bf01b416f2bfa716725408c81f9e50c5fd01ed8",
+        "wide-modal.ppm": "d34d60d5a3380f20fb8556c9bff4ecb2f23f97878ca7c5918d0339eb8447f7d3",
+        "wide-options.ppm": "4c01f2611323ed5d5b59a71fd9b2badf43bb63b11a29da22dc87c6a9f92fba3c",
+        "options-classic-game-checked.ppm": "78c25e10f75c01e9c39b8c4f029262dd61deea939e2eae039a4535ad22a38b87",
+        "options-classic-game-unchecked.ppm": "d3f8d51afab4e2f68faef0e1885a95d9e0a487c9b3db60375d9bcefcac62dc34",
+        "options-classic-pregame-checked.ppm": "627a097b4aff10631bccb89b2f382c868d08c8827b9f704f386196ce65b494e4",
+        "options-classic-pregame-unchecked.ppm": "2897332be4e2f555ffd74424cf80ae8b28525f9e9a10209b05034810392feeff",
+        "options-wide-game-checked.ppm": "e95e721a10125317ef85c29daf429ebfaeb67a3927c6b19a2c51c41b9e77cd25",
+        "options-wide-game-unchecked.ppm": "18c2ab474a396ede6d266a5f9b9de07d52b1fe915674038892389744f49b5241",
+        "options-wide-pregame-checked.ppm": "93df563e86af23866c2ea3c69a771772d7f120f5b0186036f4b2cd699c2d82f6",
+        "options-wide-pregame-unchecked.ppm": "d5fdcb3601523dfcda3938dffb4b2c70529b3e1ddd45555f1022779b555dd671"
+      }
+    },
+    "validated_executable": "Final ZIP executable must match this native Windows run by SHA-256."
+  },
+  "original_data": {
+    "verified_files": 54
+  },
+  "limitations": [
+    "Integration and runtime checks use SDL dummy video/audio backends and injected input.",
+    "Manual Windows desktop/input checks, macOS execution and a full playthrough remain pending.",
+    "ASan/LSan was not rerun for this UI geometry change; earlier widescreen sanitizer results remain in widescreen-validation.json."
+  ]
+}

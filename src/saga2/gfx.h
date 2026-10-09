@@ -35,6 +35,8 @@ enum BackBufferSource {
 class Renderer : public Native::NonCopyable {
 private:
 	byte *_savedBackBuffers[kMaxBackBufferSources];
+	int _savedWidths[kMaxBackBufferSources] = {};
+	int _savedHeights[kMaxBackBufferSources] = {};
 	
 public:
 	Renderer();

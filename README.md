@@ -30,7 +30,9 @@ fta2-native --version
 
 Without `--save-dir`, the application uses the user directory returned by SDL. It contains `config.ini`, saves named `fta2.000`–`fta2.999`, and `resources/` with automatically extracted resources and their manifest. Output directories must be outside the game data directory. Slot 999 holds the restart state created by the engine.
 
-The game starts in borderless fullscreen, covering the entire monitor without a title bar or the Windows taskbar. **Alt+Enter** toggles between fullscreen and a resizable window, preserving its previous size and position; either Enter key and either Alt key work. The shortcut is handled by the platform and does not activate game dialogs. The 640 × 480 image uses nearest-neighbour scaling and retains its 4:3 aspect ratio.
+The game starts in borderless fullscreen, covering the entire monitor without a title bar or the Windows taskbar. **Alt+Enter** toggles between fullscreen and a resizable window, using a default client size of 640 × 480 or 854 × 480 for the active display mode. Until you resize or maximize the window, changing the mode updates this default immediately in windowed mode or at the next Alt+Enter from fullscreen. A manually resized or maximized window keeps its size and position during subsequent mode changes and fullscreen transitions for the rest of that session; either Enter key and either Alt key work. The shortcut is handled by the platform and does not activate game dialogs. The default 640 × 480 image uses nearest-neighbour scaling and retains its 4:3 aspect ratio. In Options, enable **Widescreen (16:9)** to widen the game view without stretching the graphics. The change takes effect after Options closes and is remembered across restarts. The wide framebuffer is 854 × 480 (16:9 rounded to whole pixels): the map grows from 440 × 420 to 654 × 420, while the 180-pixel sidebar moves right at its original size. Dialogs and documents keep their size and center horizontally on the wider screen. Open inventory windows remain open; returning to 4:3 moves any window that would otherwise fall outside the screen back inside.
+
+Exploration is shared by all three brothers within each world. The original reveal radius remains two metatiles around the selected brother, excluding the four corners, in both display modes. A wider viewport does not increase the exploration or simulation activation radius.
 
 The original controls are preserved: use the mouse, `1`/`2`/`3` (top row or numeric keypad) to switch brothers, `O` to open options including save/load, Escape to close the frontmost container (or open Options when none is open), and Tab to switch between group and individual control.
 
@@ -56,13 +58,14 @@ python3 tools/fta2_data.py verify
 python3 tools/fta2_data.py inventory
 python3 tools/fta2_data.py extract --output .cache/extracted
 python3 tools/integration_test.py --binary build/fta2-native --output .cache/integration
+python3 tools/integration_widescreen.py --binary build/fta2-native --output .cache/integration-widescreen
 cpack --config build/CPackConfig.cmake -C Release
 ```
 
 To create the complete Windows ZIP locally after packaging the Windows engine:
 
 ```sh
-python3 tools/package_complete.py --engine-package dist/fta2-native-0.1.12-Windows-x86_64.zip --data-dir original-game --output dist/fta2-native-0.1.12-Windows-x86_64-complete.zip
+python3 tools/package_complete.py --engine-package dist/fta2-native-0.1.15-Windows-x86_64.zip --data-dir original-game --output dist/fta2-native-0.1.15-Windows-x86_64-complete.zip
 ```
 
 The tool checks all eight data files against their known SHA-256 hashes, excludes original saves and unnecessary DOS files, and records a package manifest. It refuses unknown data, output inside the original installation, and overwriting an existing output ZIP.

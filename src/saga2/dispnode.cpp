@@ -184,11 +184,13 @@ void DisplayNodeList::draw() {
 //	objects or actors which are closest to the center view point.
 
 void DisplayNodeList::buildObjects(bool fromScratch) {
-	GameObject      *sortList[kMaxDisplayed + 1];
-	int16           distList[kMaxDisplayed + 1];
+	GameObject      *sortList[kMaxWideDisplayed + 1];
+	int16           distList[kMaxWideDisplayed + 1];
+	const int maxDisplayed = Native::activeDisplayMode == Native::DisplayMode::Widescreen
+	                       ? kMaxWideDisplayed : kMaxDisplayed;
 	int16           sortCount = 0;
 	int16           i;
-	int16           viewSize = kTileRectHeight;
+	int16           viewSize = Native::displayLayout().mapHeight;
 
 	//  Distance at which characters should be loaded.
 	int16           loadDist = viewSize + viewSize / 2;
@@ -270,11 +272,11 @@ void DisplayNodeList::buildObjects(bool fromScratch) {
 				sortList[i + 1] = sortList[i];
 			}
 
-			if (i < kMaxDisplayed) {
+			if (i < maxDisplayed) {
 				distList[i] = dist;
 				sortList[i] = obj;
 
-				if (sortCount < kMaxDisplayed) sortCount++;
+				if (sortCount < maxDisplayed) sortCount++;
 			}
 		}
 	}
@@ -403,9 +405,9 @@ void DisplayNode::drawObject() {
 
 		//  Reject any sprites which fall off the edge of the screen.
 		if (drawPos.x < -32
-		        || drawPos.x > kTileRectX + kTileRectWidth + 32
+		        || drawPos.x > kTileRectX + Native::displayLayout().mapWidth + 32
 		        || drawPos.y < -32
-		        || drawPos.y > kTileRectY + kTileRectHeight + 100) {
+		        || drawPos.y > kTileRectY + Native::displayLayout().mapHeight + 100) {
 			//  Disable hit-test on the object's box
 			_hitBox.width = -1;
 			_hitBox.height = -1;
@@ -478,9 +480,9 @@ void DisplayNode::drawObject() {
 
 			//  Reject any sprites which fall off the edge of the screen.
 			if (drawPos.x < -maxSpriteWidth
-			        || drawPos.x > kTileRectX + kTileRectWidth + maxSpriteWidth
+			        || drawPos.x > kTileRectX + Native::displayLayout().mapWidth + maxSpriteWidth
 			        || drawPos.y < -maxSpriteBaseLine
-			        || drawPos.y > kTileRectY + kTileRectHeight + maxSpriteHeight) {
+			        || drawPos.y > kTileRectY + Native::displayLayout().mapHeight + maxSpriteHeight) {
 				//  Mark as being off screen
 				a->setOnScreen(false);
 				a->setObscured(false);
@@ -507,9 +509,9 @@ void DisplayNode::drawObject() {
 		} else {
 			//  Reject any sprites which fall off the edge of the screen.
 			if (drawPos.x < -maxSpriteWidth
-			        || drawPos.x > kTileRectX + kTileRectWidth + maxSpriteWidth
+			        || drawPos.x > kTileRectX + Native::displayLayout().mapWidth + maxSpriteWidth
 			        || drawPos.y < -maxSpriteBaseLine
-			        || drawPos.y > kTileRectY + kTileRectHeight + maxSpriteHeight) {
+			        || drawPos.y > kTileRectY + Native::displayLayout().mapHeight + maxSpriteHeight) {
 				//  Disable hit-test on the object's box
 				_hitBox.width = -1;
 				_hitBox.height = -1;
@@ -964,9 +966,9 @@ void Effectron::drawEffect() {
 
 	//  Reject any sprites which fall off the edge of the screen.
 	if (drawPos.x < -32
-	        || drawPos.x > kTileRectX + kTileRectWidth + 32
+	        || drawPos.x > kTileRectX + Native::displayLayout().mapWidth + 32
 	        || drawPos.y < -32
-	        || drawPos.y > kTileRectY + kTileRectHeight + 100) {
+	        || drawPos.y > kTileRectY + Native::displayLayout().mapHeight + 100) {
 		//  Disable hit-test on the object's box
 		_hitBox.width = -1;
 		_hitBox.height = -1;

@@ -88,6 +88,7 @@ bool isBrotherDead(PlayerActorID brotherID);
 void updateIndicators();
 
 void initUIState();
+void layoutUserControls(int16 sidebarDelta);
 void saveUIState(Native::OutSaveFile *outS);
 void loadUIState(Native::InSaveFile *in);
 void cleanupUIState();

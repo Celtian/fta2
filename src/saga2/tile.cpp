@@ -4295,6 +4295,14 @@ bool underSameRoof(GameObject *obj1, GameObject *obj2) {
 
 extern void testSprites();
 
+void layoutMapView(int16 widthDelta) {
+	// Retain the current world-space view center without advancing the game.
+	tileScroll.x -= widthDelta / 2;
+	targetScroll.x -= widthDelta / 2;
+	fineScroll.x = tileScroll.x & kTileDXMask;
+	buildDisplayList();
+}
+
 void updateMainDisplay() {
 	// TODO: updateMainDisplay() for Dino
 	if (g_vm->getGameId() == GID_DINO)
@@ -4349,10 +4357,10 @@ void updateMainDisplay() {
 	//  Convert to XY coordinates.
 	targetScroll.x =
 	    ((trackPos.u - trackPos.v) << 1)
-	    +   curMap->mapHeight - kTileRectWidth / 2;
+	    +   curMap->mapHeight - Native::displayLayout().mapWidth / 2;
 	targetScroll.y =
 	    curMap->mapHeight - (trackPos.u + trackPos.v)
-	    -   trackPos.z - kTileRectHeight / 2 - 32;
+	    -   trackPos.z - Native::displayLayout().mapHeight / 2 - 32;
 	debugC(1, kDebugTiles, "targetScroll = (%d,%d)", targetScroll.x, targetScroll.y);
 
 	//  Compute the delta vector between the current scroll position
@@ -4380,8 +4388,8 @@ void updateMainDisplay() {
 	fineScroll.y = 0;
 
 	//  Compute the center of the screen in (u,v) coords.
-	scrollCenter.x = tileScroll.x + kTileRectWidth  / 2;
-	scrollCenter.y = tileScroll.y + kTileRectHeight / 2;
+	scrollCenter.x = tileScroll.x + Native::displayLayout().mapWidth  / 2;
+	scrollCenter.y = tileScroll.y + Native::displayLayout().mapHeight / 2;
 	viewCenter.set(XYToUV(scrollCenter).u,
 	               XYToUV(scrollCenter).v,
 	               0);
@@ -4423,7 +4431,7 @@ void drawMainDisplay() {
 	//  Render the text if any
 	updateSpeech();
 
-	Rect16 rect(kTileRectX, kTileRectY, kTileRectWidth, kTileRectHeight);
+	Rect16 rect(kTileRectX, kTileRectY, Native::displayLayout().mapWidth, Native::displayLayout().mapHeight);
 
 	//  Render floating windows
 	drawFloatingWindows(g_vm->_backPort,

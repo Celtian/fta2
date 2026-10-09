@@ -474,11 +474,11 @@ bool Speech::calcPosition(StaticPoint16 &p) {
 
 	p.x = clamp(8,
 	            p.x - _bounds.width / 2,
-	            8 + maxWidth - _bounds.width);
+	            8 + maxWidth + Native::displayLayout().sidebarOffset - _bounds.width);
 
 	p.y = clamp(kTileRectY + 8,
 	            p.y - (_bounds.height + actorHeight),
-	            kTileRectHeight - 50 - _bounds.height);
+	            Native::displayLayout().mapHeight - 50 - _bounds.height);
 
 	return true;
 }
@@ -827,8 +827,8 @@ bool isVisible(GameObject *obj) {
 	//For Determining If Object Is Being Displayed
 	//Could We Just Check Display List ???
 	int16           distanceX, distanceY;
-	int16           viewSizeY = kTileRectHeight;
-	int16           viewSizeX = kTileRectWidth;
+	int16           viewSizeY = Native::displayLayout().mapHeight;
+	int16           viewSizeX = Native::displayLayout().mapWidth;
 
 	//I Figure This Differently Than In Dispnode
 	int16           loadDistX = viewSizeX / 2;
@@ -1064,7 +1064,7 @@ APPFUNC(cmdClickSpeech) {
 	case kEventMouseMove:
 	case kEventMouseDrag:
 
-		g_vm->_mouseInfo->setDoable(Rect16(kTileRectX, kTileRectY, kTileRectWidth, kTileRectHeight).ptInside(ev.mouse));
+		g_vm->_mouseInfo->setDoable(Rect16(kTileRectX, kTileRectY, Native::displayLayout().mapWidth, Native::displayLayout().mapHeight).ptInside(ev.mouse));
 		break;
 
 	case kEventMouseDown:

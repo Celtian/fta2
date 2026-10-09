@@ -1,0 +1,306 @@
+{
+  "date": "2026-10-09",
+  "status": "passed",
+  "scope": "Optional 854 x 480 widescreen rendering; development alpha",
+  "layouts": {
+    "default": {
+      "screen": [
+        640,
+        480
+      ],
+      "map": [
+        20,
+        20,
+        440,
+        420
+      ]
+    },
+    "widescreen": {
+      "screen": [
+        854,
+        480
+      ],
+      "map": [
+        20,
+        20,
+        654,
+        420
+      ],
+      "sidebar_offset": 214
+    },
+    "sidebar_width": 180
+  },
+  "build": {
+    "platform": "Linux x64",
+    "configuration": "Release",
+    "compiler": "GCC 15.2",
+    "cmake": "3.31.8",
+    "sdl": "3.4.18",
+    "log": ".cache/wide-build-final.log"
+  },
+  "public_tests": {
+    "passed": 5,
+    "total": 5,
+    "log": ".cache/wide-ctest-final.log",
+    "coverage": [
+      "Layout dimensions",
+      "Repeated framebuffer resize without SDL window recreation or physical size changes",
+      "Reject saved backgrounds with mismatched dimensions",
+      "Mouse and wheel mapping through letterboxing",
+      "Alt+Enter in both layouts",
+      "Invalid framebuffer resize preserves the working framebuffer"
+    ]
+  },
+  "wide_integration": {
+    "output": ".cache/integration-wide-final",
+    "result": {
+      "status": "passed",
+      "original_files_unchanged": 54,
+      "runs": [
+        {
+          "startup": {
+            "widescreen": false,
+            "width": 640
+          },
+          "checks": {
+            "status": "passed",
+            "toggle_count": 17,
+            "sidebar_pixel_parity": true,
+            "map_overlap_parity": true,
+            "movement_in_expanded_area": true,
+            "original_save_loaded": true
+          }
+        },
+        {
+          "startup": {
+            "widescreen": true,
+            "width": 854
+          },
+          "checks": {
+            "status": "passed",
+            "toggle_count": 17,
+            "sidebar_pixel_parity": true,
+            "map_overlap_parity": true,
+            "movement_in_expanded_area": true,
+            "original_save_loaded": true
+          }
+        }
+      ],
+      "backends": {
+        "video": "dummy",
+        "audio": "dummy"
+      }
+    },
+    "additional_checks": [
+      "Both Options variants",
+      "Individual and trio sidebar pixels match after translation",
+      "Map overlap matches after a 107-pixel camera shift",
+      "Each transition preserves actor identity, coordinates, panel selection and RNG",
+      "Deferred Save/Load and New Game before resizing",
+      "Original 999.SAV loaded from copied slot 2",
+      "Automap and credits book centered at original size",
+      "Physical inventory remains open and clamps on shrink without shifting relative artwork",
+      "Expanding preserves a manually positioned inventory partly outside the left screen edge"
+    ]
+  },
+  "classic_integration": {
+    "output": ".cache/integration-wide-classic-final",
+    "status": "passed",
+    "processes": 2,
+    "log": ".cache/wide-classic-final.json"
+  },
+  "reference": {
+    "revision": "1a3e816afd5ddc41cc2a5c51a5da292e6d61758c",
+    "build_log": ".cache/widescreen-reference-build-02.log",
+    "run_log": ".cache/widescreen-reference-run.json",
+    "comparison": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "memory": {
+    "instrumentation": "AddressSanitizer and LeakSanitizer",
+    "configuration": "Debug",
+    "options": "detect_leaks=1:halt_on_error=1",
+    "public_tests": {
+      "passed": 5,
+      "total": 5,
+      "log": ".cache/wide-asan-ctest-host.log"
+    },
+    "wide_integration": ".cache/integration-wide-asan-final-02",
+    "classic_integration": ".cache/integration-wide-classic-asan-host",
+    "status": "passed",
+    "execution": "Outside sandbox: LeakSanitizer cannot inspect process threads under the sandbox tracer."
+  },
+  "original_data": {
+    "verified_files": 54
+  },
+  "capacity_review": {
+    "classic_limit": 100,
+    "wide_limit": 150,
+    "allocated_nodes": 150,
+    "sort_array_entries": 151,
+    "scope": "Reviewed capped insertion and node writes; integrated starting area checked under ASan/LSan. No crowded-scene saturation stress test."
+  },
+  "desktop_attempt": {
+    "backend": "WSLg X11",
+    "result": "Stopped at fullscreen-startup assertion before resize checks",
+    "log": ".cache/wide-x11-runtime-host.log"
+  },
+  "limitations": [
+    "Automated integration uses SDL dummy video/audio backends and injected input.",
+    "Manual Windows widescreen desktop/input checks, macOS execution and a full playthrough remain pending.",
+    "Original gameplay activation distances, save chunks and timing rules are retained; widescreen images are checked separately from classic reference captures."
+  ],
+  "windows": {
+    "version": "0.1.13",
+    "build": "Linux cross-build with Zig 0.16.0, official SDL 3.4.18 x64 DLL",
+    "build_log": ".cache/wide-windows-build.log",
+    "execution": "Actual Windows processes with SDL dummy video/audio backends, isolated saves and bundled data discovery",
+    "output": ".cache/wide-windows-validation-013-v3",
+    "result": {
+      "status": "passed",
+      "native_windows": true,
+      "version": "0.1.13",
+      "video": "dummy",
+      "audio": "dummy",
+      "bundled_files": 8,
+      "data_unchanged": true,
+      "runtime_passed": true,
+      "classic_passed": true,
+      "supplied_data_path": false,
+      "runs": [
+        {
+          "startup": {
+            "widescreen": false,
+            "width": 640
+          },
+          "checks": {
+            "status": "passed",
+            "toggle_count": 17,
+            "sidebar_pixel_parity": true,
+            "map_overlap_parity": true,
+            "movement_in_expanded_area": true,
+            "original_save_loaded": true
+          }
+        },
+        {
+          "startup": {
+            "widescreen": true,
+            "width": 854
+          },
+          "checks": {
+            "status": "passed",
+            "toggle_count": 17,
+            "sidebar_pixel_parity": true,
+            "map_overlap_parity": true,
+            "movement_in_expanded_area": true,
+            "original_save_loaded": true
+          }
+        }
+      ],
+      "executable_sha256": "D3F16E3BC6C6DC7AA7D1B03270FE8AB9969B23503EA7970336ED514097DA06D8"
+    },
+    "classic_reference_comparison": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    },
+    "wide_capture_comparison": {
+      "0": {
+        "wide-group.ppm": "c1d0f333e4365daa7511d457ec7e18eac16ade26c52a3a8069b1102bad646ced",
+        "wide-individual.ppm": "08e47a59fbb1ddae3dce65789b59acb216c7d423d13faa0cc82e04158ecf90f9",
+        "wide-final.ppm": "f13f64691503a28a048483868bf01b416f2bfa716725408c81f9e50c5fd01ed8",
+        "wide-modal.ppm": "d34d60d5a3380f20fb8556c9bff4ecb2f23f97878ca7c5918d0339eb8447f7d3",
+        "wide-options.ppm": "b6dd3eabeb19f242a402af776d5c854f94a3bd60bd9510e32c0133981659b82b"
+      },
+      "1": {
+        "wide-group.ppm": "c1d0f333e4365daa7511d457ec7e18eac16ade26c52a3a8069b1102bad646ced",
+        "wide-individual.ppm": "08e47a59fbb1ddae3dce65789b59acb216c7d423d13faa0cc82e04158ecf90f9",
+        "wide-final.ppm": "f13f64691503a28a048483868bf01b416f2bfa716725408c81f9e50c5fd01ed8",
+        "wide-modal.ppm": "d34d60d5a3380f20fb8556c9bff4ecb2f23f97878ca7c5918d0339eb8447f7d3",
+        "wide-options.ppm": "b6dd3eabeb19f242a402af776d5c854f94a3bd60bd9510e32c0133981659b82b"
+      }
+    },
+    "validated_executable": "Final packages must contain the same executable SHA-256 as this Windows run."
+  }
+}

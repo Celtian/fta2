@@ -293,6 +293,8 @@ void processEventLoop(bool updateScreen) {
 		}
 	}
 	//if(!running) return; // This Is No Tasks Are Done After Saving Game
+	// Options and any nested modal loops have returned; old backgrounds are gone.
+	applyPendingDisplayMode();
 
 	debugC(1, kDebugEventLoop, "EventLoop: timer update");
 	//  Handle the timer events

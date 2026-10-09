@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Small native services used by the preserved SAGA2 simulation.
 #pragma once
+#include "platform/display_layout.h"
 #include <SDL3/SDL.h>
 #include <algorithm>
 #include <array>
@@ -563,6 +564,12 @@ class Platform {
     std::vector<uint32> _rgba;
     std::unique_ptr<Audio::Mixer> _mixer;
     int _mouseX = 0, _mouseY = 0;
+    int _automaticWidth = 0, _automaticHeight = 0;
+    bool _customWindowSize = false;
+    void observeWindowSize();
+    void applyAutomaticWindowSize();
+    void refreshMousePosition();
+    void toggleFullscreen();
 
   public:
     bool quitting = false, deterministic = false;
@@ -572,6 +579,7 @@ class Platform {
     Platform();
     ~Platform();
     void initGraphics(int, int);
+    bool resizeGraphics(int width, int height);
     int getWidth() const { return _screen.w; }
     int getHeight() const { return _screen.h; }
     Surface* lockScreen() { return &_screen; }
@@ -589,6 +597,7 @@ class Platform {
     void fillScreen(const Rect&, uint32);
     void updateScreen();
     Point windowToGame(float, float) const;
+    Point mousePosition() const { return {int16(_mouseX), int16(_mouseY)}; }
     void capture(const Path&);
 };
 } // namespace Native

@@ -645,7 +645,7 @@ void TileModeSetup() {
 	mainWindow->draw();
 
 	//  Create a control covering the map area.
-	tileMapControl = new gStickyDragControl(*playControls, Rect16(kTileRectX, kTileRectY, kTileRectWidth, kTileRectHeight), 0, cmdClickTileMap);
+	tileMapControl = new gStickyDragControl(*playControls, Rect16(kTileRectX, kTileRectY, Native::displayLayout().mapWidth, Native::displayLayout().mapHeight), 0, cmdClickTileMap);
 
 	//Enable Tile Mode Specific Controls
 	tileControls->enable(true);
@@ -656,6 +656,12 @@ void TileModeSetup() {
 
 	setCurrentWorld(WorldBaseID);
 	setCurrentMap(currentWorld->_mapNum);
+}
+
+void layoutTileControls() {
+	if (tileMapControl)
+		tileMapControl->setControlExtent(Rect16(kTileRectX, kTileRectY,
+		    Native::displayLayout().mapWidth, Native::displayLayout().mapHeight));
 }
 
 //-----------------------------------------------------------------------
@@ -772,9 +778,9 @@ void TileModeHandleTask() {
 
 			//  If mouse is near edge of screen, then run.
 			runFlag =       lastMousePos.x < runThreshhold
-			                ||  lastMousePos.x >= kTileRectWidth - runThreshhold
+			                ||  lastMousePos.x >= Native::displayLayout().mapWidth - runThreshhold
 			                ||  lastMousePos.y < runThreshhold
-			                ||  lastMousePos.y >= kTileRectHeight - runThreshhold;
+			                ||  lastMousePos.y >= Native::displayLayout().mapHeight - runThreshhold;
 
 			//  Calculate the mouse's position on the tile map.
 			if (runFlag) {

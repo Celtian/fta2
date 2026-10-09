@@ -35,6 +35,7 @@
 #include "saga2/tcoords.h"
 
 namespace Saga2 {
+void layoutMapView(int16 widthDelta);
 
 /* ===================================================================== *
    Tile ID's and associated functions

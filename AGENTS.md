@@ -30,7 +30,7 @@ Use English for all project documentation, code comments, identifiers, tool outp
 - `third_party/`: licences and source provenance for imported code.
 - `tests/` and `.github/workflows/`: synthetic public tests and desktop build/package automation.
 
-Preserve 640 × 480 rendering, 4:3 presentation, nearest-neighbour scaling, correct mouse mapping, original simulation timing and deterministic RNG behaviour. Keep native RNG save metadata optional so original saves remain loadable. Keep resource loading, simulation and presentation boundaries suitable for later DE work.
+Preserve 640 × 480 rendering and 4:3 presentation as the default compatible mode. The optional Widescreen (16:9) setting uses 854 × 480 rendering, expands only the main map horizontally and retains the original sidebar size. Preserve nearest-neighbour scaling, correct mouse mapping, original simulation timing and deterministic RNG behaviour in both modes. Keep native RNG save metadata optional so original saves remain loadable. Keep resource loading, simulation and presentation boundaries suitable for later DE work.
 
 Use `.clang-format` for new native C++ code. Follow the surrounding style in imported files and avoid unrelated reformatting. Keep pinned dependency versions and checksums unless an upgrade is explicitly part of the task. Preserve imported licence headers and record provenance changes in `third_party/`.
 

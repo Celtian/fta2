@@ -2560,8 +2560,8 @@ TilePoint selectNearbySite(
 				//  If the point is on-screen, then reject it.
 				//  (We want the monsters to walk in from off-screen,
 				//  not 'pop in').
-				if (screenCoords.x >= -16 && screenCoords.x <= kTileRectWidth + 16
-				        &&  screenCoords.y >= -16 && screenCoords.y <= kTileRectHeight + 80) {
+				if (screenCoords.x >= -16 && screenCoords.x <= Native::displayLayout().mapWidth + 16
+				        &&  screenCoords.y >= -16 && screenCoords.y <= Native::displayLayout().mapHeight + 80) {
 					cellOK = false;
 				}
 			}

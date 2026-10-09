@@ -116,7 +116,8 @@ Path resolveDataFile(const Path& name) {
             bool matched = false;
             if (std::filesystem::is_directory(current))
                 for (const auto& entry : std::filesystem::directory_iterator(current)) {
-                    if (Path(entry.path().filename()).toString()
+                    if (Path(entry.path().filename())
+                            .toString()
                             .equalsIgnoreCase(Path(component).toString())) {
                         current = entry.path();
                         matched = true;
@@ -258,8 +259,8 @@ Platform::~Platform() {
     g_platform = nullptr;
 }
 void Platform::initGraphics(int width, int height) {
-    _screen.create(width, height, {});
-    _rgba.resize(width * height);
+    _automaticWidth = width;
+    _automaticHeight = height;
     _window = SDL_CreateWindow("Faery Tale Adventure II", width, height,
                                SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY |
                                    SDL_WINDOW_FULLSCREEN);
@@ -277,12 +278,88 @@ void Platform::initGraphics(int width, int height) {
     if (!_renderer)
         error("Cannot create renderer: %s", SDL_GetError());
     SDL_SetRenderLogicalPresentation(_renderer, width, height, SDL_LOGICAL_PRESENTATION_LETTERBOX);
-    _texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING,
-                                 width, height);
-    if (!_texture)
+    if (!resizeGraphics(width, height))
         error("Cannot create framebuffer: %s", SDL_GetError());
-    SDL_SetTextureScaleMode(_texture, SDL_SCALEMODE_NEAREST);
     SDL_HideCursor();
+}
+bool Platform::resizeGraphics(int width, int height) {
+    if (width <= 0 || height <= 0 || width > 32767 || height > 32767)
+        return SDL_SetError("Invalid framebuffer dimensions");
+    Surface screen;
+    std::vector<uint32> rgba;
+    try {
+        screen.create(width, height, {});
+        rgba.resize(size_t(width) * height);
+    } catch (const std::bad_alloc&) {
+        return SDL_SetError("Cannot allocate framebuffer");
+    }
+    auto* texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA32,
+                                      SDL_TEXTUREACCESS_STREAMING, width, height);
+    if (!texture)
+        return false;
+    if (!SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST) ||
+        !SDL_SetRenderLogicalPresentation(_renderer, width, height,
+                                          SDL_LOGICAL_PRESENTATION_LETTERBOX)) {
+        SDL_DestroyTexture(texture);
+        return false;
+    }
+    observeWindowSize();
+    SDL_DestroyTexture(_texture);
+    _texture = texture;
+    _screen = std::move(screen);
+    _rgba = std::move(rgba);
+    applyAutomaticWindowSize();
+    refreshMousePosition();
+    return true;
+}
+void Platform::observeWindowSize() {
+    if (SDL_GetWindowFlags(_window) & SDL_WINDOW_FULLSCREEN)
+        return;
+    if (!SDL_SyncWindow(_window))
+        warning("Cannot synchronize window state: %s", SDL_GetError());
+    int width, height;
+    if (!SDL_GetWindowSize(_window, &width, &height)) {
+        warning("Cannot read window size: %s", SDL_GetError());
+        return;
+    }
+    if ((SDL_GetWindowFlags(_window) & SDL_WINDOW_MAXIMIZED) || width != _automaticWidth ||
+        height != _automaticHeight)
+        _customWindowSize = true;
+}
+void Platform::applyAutomaticWindowSize() {
+    if (_customWindowSize || (SDL_GetWindowFlags(_window) & SDL_WINDOW_FULLSCREEN))
+        return;
+    if (!SDL_SetWindowSize(_window, _screen.w, _screen.h)) {
+        warning("Cannot resize window: %s", SDL_GetError());
+        return;
+    }
+    if (!SDL_SyncWindow(_window))
+        warning("Cannot synchronize window size: %s", SDL_GetError());
+    // Desktop constraints may accept a different size. Compare future user
+    // changes against the accepted dimensions, never fullscreen monitor bounds.
+    if (!SDL_GetWindowSize(_window, &_automaticWidth, &_automaticHeight))
+        warning("Cannot read resized window size: %s", SDL_GetError());
+}
+void Platform::toggleFullscreen() {
+    const bool fullscreen = SDL_GetWindowFlags(_window) & SDL_WINDOW_FULLSCREEN;
+    if (!fullscreen)
+        observeWindowSize();
+    if (!SDL_SetWindowFullscreen(_window, !fullscreen)) {
+        warning("Cannot change window state: %s", SDL_GetError());
+        return;
+    }
+    if (!SDL_SyncWindow(_window))
+        warning("Cannot synchronize window state: %s", SDL_GetError());
+    if (fullscreen)
+        applyAutomaticWindowSize();
+    refreshMousePosition();
+}
+void Platform::refreshMousePosition() {
+    float x, y;
+    SDL_GetMouseState(&x, &y);
+    auto mouse = windowToGame(x, y);
+    _mouseX = mouse.x;
+    _mouseY = mouse.y;
 }
 void Platform::copyRectToScreen(const void* src, int stride, int x, int y, int width, int height) {
     auto b = static_cast<const byte*>(src);
@@ -337,6 +414,8 @@ bool Platform::pollEvent(Event& out) {
     SDL_Event ev;
     while (SDL_PollEvent(&ev)) {
         out = {};
+        if (ev.type == SDL_EVENT_WINDOW_RESIZED || ev.type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED)
+            refreshMousePosition();
         if (ev.type == SDL_EVENT_QUIT) {
             quitting = true;
             out.type = EVENT_QUIT;
@@ -371,12 +450,8 @@ bool Platform::pollEvent(Event& out) {
             if ((ev.key.key == SDLK_RETURN || ev.key.key == SDLK_KP_ENTER) &&
                 (ev.key.mod & SDL_KMOD_ALT)) {
                 // Consume the shortcut, including repeats, before the game UI.
-                if (!ev.key.repeat) {
-                    bool fullscreen = SDL_GetWindowFlags(_window) & SDL_WINDOW_FULLSCREEN;
-                    bool changed = SDL_SetWindowFullscreen(_window, !fullscreen);
-                    if (!changed)
-                        warning("Cannot change window state: %s", SDL_GetError());
-                }
+                if (!ev.key.repeat)
+                    toggleFullscreen();
                 continue;
             }
             out.type = EVENT_KEYDOWN;

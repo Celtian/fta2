@@ -1,0 +1,454 @@
+{
+  "date": "2026-10-09",
+  "version": "0.1.15",
+  "status": "passed",
+  "development_status": "development-alpha",
+  "scope": "Aspect-aware automatic window dimensions and isolated verification of original exploration rules",
+  "window_policy": {
+    "default_client_sizes": {
+      "classic": [
+        640,
+        480
+      ],
+      "wide": [
+        854,
+        480
+      ]
+    },
+    "automatic_windowed_update": "immediate",
+    "automatic_fullscreen_update": "on next Alt+Enter to windowed",
+    "manual_size_and_maximization": "preserved for the session",
+    "additional_config_keys": 0,
+    "fullscreen_monitor_size_counts_as_manual": false,
+    "accepted_desktop_constrained_size_is_baseline": true,
+    "english_failure_messages": true,
+    "mouse_mapping_refreshed": true
+  },
+  "public_window_checks": [
+    "Cold startup in both ratios and first windowed return",
+    "Repeated automatic changes in both directions while windowed and fullscreen",
+    "Automatic wide size constrained to 700 x 480 followed by successful automatic classic sizing",
+    "Manual 900 x 650 size and position preserved through mode/fullscreen changes",
+    "Maximization as the first user size override, followed by restore (native Windows video only)",
+    "Both Enter keys, right Alt and repeated-shortcut suppression",
+    "Mouse/wheel mapping and nearest-neighbour letterboxing in both modes"
+  ],
+  "exploration_rules": {
+    "storage": "Shared visited bits per world, not a separate map for each brother",
+    "radius_metatiles": 2,
+    "clamped_rectangle_corners_excluded": true,
+    "gameplay_algorithm_changed": false,
+    "save_format_changed": false,
+    "route_offsets_within_starting_metatile": [
+      [
+        0,
+        0
+      ],
+      [
+        127,
+        0
+      ],
+      [
+        0,
+        127
+      ],
+      [
+        127,
+        127
+      ],
+      [
+        128,
+        128
+      ]
+    ],
+    "separated_brother_start_positions": [
+      [
+        768,
+        768
+      ],
+      [
+        1792,
+        1792
+      ],
+      [
+        2816,
+        2816
+      ]
+    ],
+    "worlds_checked": [
+      0,
+      1
+    ],
+    "matching_footprints_per_process": 16,
+    "map_dialog_openings_per_process": 14,
+    "opaque_map_interiors_compared_between_ratios_per_process": 7,
+    "fixture_restoration": "Temporary native checkpoint restores every brother position/world, selection, all world visited bits and RNG; AMAP and NRNG chunks compared before/after",
+    "coverage_result": "No uncovered ground-plane pixels in any of the 30 centered viewport samples per process; this includes 1,348,200 samples in the new wide side bands",
+    "coverage_limits": "Samples normalize camera smoothing to the settled centered view on the actor ground plane. They do not establish coverage during camera panning or for terrain occlusion/elevated viewpoints. The original radius is unchanged."
+  },
+  "linux": {
+    "release_build_log": ".cache/window-map-015-linux-build5.log",
+    "build_type": "Release",
+    "ctest": {
+      "passed": 5,
+      "total": 5,
+      "log": ".cache/window-map-015-linux-ctest-final.log"
+    },
+    "wide_integration": {
+      "status": "passed",
+      "output": ".cache/window-map-015-wide-final",
+      "runs": [
+        {
+          "startup": {
+            "widescreen": false,
+            "width": 640
+          },
+          "options_checks": {
+            "status": "passed",
+            "toggle_count": 17,
+            "sidebar_pixel_parity": true,
+            "map_overlap_parity": true,
+            "movement_in_expanded_area": true,
+            "original_save_loaded": true,
+            "checkbox_redraw_parity": true,
+            "checkbox_edge_clicks": true,
+            "options_layouts_checked": 4
+          },
+          "exploration": {
+            "status": "passed",
+            "footprints_compared": 16,
+            "brother_maps_checked": 14,
+            "shared_world_exploration": true,
+            "world_switches_checked": 2,
+            "radius_metatiles": 2,
+            "corners_excluded": true,
+            "fixture_restored": true,
+            "map_interior_parity": true,
+            "map_interiors_compared": 7,
+            "centered_ground_plane_samples": 30,
+            "maximum_uncovered_viewport_pixels": 0,
+            "maximum_uncovered_side_pixels": 0,
+            "wide_side_pixels_per_sample": 89880,
+            "wide_side_pixel_samples": 1348200
+          }
+        },
+        {
+          "startup": {
+            "widescreen": true,
+            "width": 854
+          },
+          "options_checks": {
+            "status": "passed",
+            "toggle_count": 17,
+            "sidebar_pixel_parity": true,
+            "map_overlap_parity": true,
+            "movement_in_expanded_area": true,
+            "original_save_loaded": true,
+            "checkbox_redraw_parity": true,
+            "checkbox_edge_clicks": true,
+            "options_layouts_checked": 4
+          },
+          "exploration": {
+            "status": "passed",
+            "footprints_compared": 16,
+            "brother_maps_checked": 14,
+            "shared_world_exploration": true,
+            "world_switches_checked": 2,
+            "radius_metatiles": 2,
+            "corners_excluded": true,
+            "fixture_restored": true,
+            "map_interior_parity": true,
+            "map_interiors_compared": 7,
+            "centered_ground_plane_samples": 30,
+            "maximum_uncovered_viewport_pixels": 0,
+            "maximum_uncovered_side_pixels": 0,
+            "wide_side_pixels_per_sample": 89880,
+            "wide_side_pixel_samples": 1348200
+          }
+        }
+      ]
+    },
+    "classic_integration": {
+      "status": "passed",
+      "output": ".cache/window-map-015-classic"
+    },
+    "reference_comparison": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "windows": {
+    "release_build_log": ".cache/window-map-015-windows-build-final.log",
+    "build_type": "Release",
+    "ctest": {
+      "passed": 5,
+      "total": 5,
+      "log": ".cache/window-map-015-windows-ctest.log",
+      "execution": "Windows C++ binaries run as native Windows processes through PowerShell; portable Python tests run on the Linux host"
+    },
+    "result": {
+      "status": "passed",
+      "native_windows": true,
+      "version": "0.1.15",
+      "video": "dummy",
+      "audio": "dummy",
+      "bundled_files": 8,
+      "data_unchanged": true,
+      "runtime_passed": true,
+      "native_video_runtime_passed": true,
+      "classic_passed": true,
+      "supplied_data_path": false,
+      "executable_sha256": "9A929081CB8B77432D2F8F7938006D111CD163DADEE6CB35887EF74929B30E0D"
+    },
+    "wide_runs": [
+      {
+        "startup": {
+          "widescreen": false,
+          "width": 640
+        },
+        "options_checks": {
+          "status": "passed",
+          "toggle_count": 17,
+          "sidebar_pixel_parity": true,
+          "map_overlap_parity": true,
+          "movement_in_expanded_area": true,
+          "original_save_loaded": true,
+          "checkbox_redraw_parity": true,
+          "checkbox_edge_clicks": true,
+          "options_layouts_checked": 4
+        },
+        "exploration": {
+          "status": "passed",
+          "footprints_compared": 16,
+          "brother_maps_checked": 14,
+          "shared_world_exploration": true,
+          "world_switches_checked": 2,
+          "radius_metatiles": 2,
+          "corners_excluded": true,
+          "fixture_restored": true,
+          "map_interior_parity": true,
+          "map_interiors_compared": 7,
+          "centered_ground_plane_samples": 30,
+          "maximum_uncovered_viewport_pixels": 0,
+          "maximum_uncovered_side_pixels": 0,
+          "wide_side_pixels_per_sample": 89880,
+          "wide_side_pixel_samples": 1348200
+        }
+      },
+      {
+        "startup": {
+          "widescreen": true,
+          "width": 854
+        },
+        "options_checks": {
+          "status": "passed",
+          "toggle_count": 17,
+          "sidebar_pixel_parity": true,
+          "map_overlap_parity": true,
+          "movement_in_expanded_area": true,
+          "original_save_loaded": true,
+          "checkbox_redraw_parity": true,
+          "checkbox_edge_clicks": true,
+          "options_layouts_checked": 4
+        },
+        "exploration": {
+          "status": "passed",
+          "footprints_compared": 16,
+          "brother_maps_checked": 14,
+          "shared_world_exploration": true,
+          "world_switches_checked": 2,
+          "radius_metatiles": 2,
+          "corners_excluded": true,
+          "fixture_restored": true,
+          "map_interior_parity": true,
+          "map_interiors_compared": 7,
+          "centered_ground_plane_samples": 30,
+          "maximum_uncovered_viewport_pixels": 0,
+          "maximum_uncovered_side_pixels": 0,
+          "wide_side_pixels_per_sample": 89880,
+          "wide_side_pixel_samples": 1348200
+        }
+      }
+    ],
+    "output": ".cache/window-map-015-windows-validation",
+    "native_video": {
+      "status": "passed",
+      "video": "windows",
+      "audio": "dummy",
+      "log": ".cache/window-map-015-windows-validation/runtime-native-video.stdout.log",
+      "runtime_test_sha256": "bc6d97bf10b221d53051c267a67a18ebaec8ffa6156d1416a35769204e16ec08",
+      "automated_injected_input": true
+    },
+    "reference_comparison": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "cross_backend_pixels": {
+    "status": "passed",
+    "matching_images": 54,
+    "hashes": {
+      "run-0/exploration-classic-0-0.ppm": "03e9540dfcbd6fb78eb6b86f5c8ee7ad8a3ebfb0373faa7b645cc1bf15b30ca1",
+      "run-0/exploration-classic-0-4.ppm": "0828a9df6cb315131e05b8b7147d2a0ebb5d093e6d93869e31fea5dbcee552e6",
+      "run-0/exploration-classic-1-0.ppm": "8f323fde780ed367f5b9b127c08b14f62f138f07d4174ddb0c84881338035a74",
+      "run-0/exploration-classic-1-4.ppm": "b838817db97436da89c23af0957786c7274afb46641ce426a547df737118f682",
+      "run-0/exploration-classic-2-0.ppm": "72c3f49770278bb6788e22abecc090b983054472de49c1eae9669065fe0bbc9c",
+      "run-0/exploration-classic-2-4.ppm": "468cd4f02880890a9d630f067f83be4ffe822388cfef869ababecb6f00015d2e",
+      "run-0/exploration-classic-2-5.ppm": "2ded2b6c122bd42effeeafe25910e3c8040fda002adf0cbf11775feaa9b7ad41",
+      "run-0/exploration-wide-0-0.ppm": "d6f29c59c31499a8791b10ee2f17aa7bf4a10a4ed1b8a007f997f95946f98669",
+      "run-0/exploration-wide-0-4.ppm": "1f667ff74c5a019234099de3cc48b75721f0e6a2524dcc786d4be9e3a8a8d3b2",
+      "run-0/exploration-wide-1-0.ppm": "1a0b5a36b048ab407cd146d80c6e9e900052080e7367129113eda039f0e8532a",
+      "run-0/exploration-wide-1-4.ppm": "fb407d440ec6aa5f1ba94cbe3babf84b4edf97bfb99143aeb3e32c47e3be72a1",
+      "run-0/exploration-wide-2-0.ppm": "38a34eecde659bcacb9abcb67e5af4a01af2a67ed85ec84a0f341fc980a96659",
+      "run-0/exploration-wide-2-4.ppm": "6e9297e59bf3fb4ca8a9d5138edf35c2db54b4a51d355baa63506942397025fe",
+      "run-0/exploration-wide-2-5.ppm": "7b6bd20b13c03d2e11071a4f1eb898a71aa8f6767902d5d8cc3febde56fa179c",
+      "run-0/options-classic-game-checked.ppm": "78c25e10f75c01e9c39b8c4f029262dd61deea939e2eae039a4535ad22a38b87",
+      "run-0/options-classic-game-unchecked.ppm": "d3f8d51afab4e2f68faef0e1885a95d9e0a487c9b3db60375d9bcefcac62dc34",
+      "run-0/options-classic-pregame-checked.ppm": "627a097b4aff10631bccb89b2f382c868d08c8827b9f704f386196ce65b494e4",
+      "run-0/options-classic-pregame-unchecked.ppm": "2897332be4e2f555ffd74424cf80ae8b28525f9e9a10209b05034810392feeff",
+      "run-0/options-wide-game-checked.ppm": "e95e721a10125317ef85c29daf429ebfaeb67a3927c6b19a2c51c41b9e77cd25",
+      "run-0/options-wide-game-unchecked.ppm": "18c2ab474a396ede6d266a5f9b9de07d52b1fe915674038892389744f49b5241",
+      "run-0/options-wide-pregame-checked.ppm": "93df563e86af23866c2ea3c69a771772d7f120f5b0186036f4b2cd699c2d82f6",
+      "run-0/options-wide-pregame-unchecked.ppm": "d5fdcb3601523dfcda3938dffb4b2c70529b3e1ddd45555f1022779b555dd671",
+      "run-0/wide-final.ppm": "f13f64691503a28a048483868bf01b416f2bfa716725408c81f9e50c5fd01ed8",
+      "run-0/wide-group.ppm": "c1d0f333e4365daa7511d457ec7e18eac16ade26c52a3a8069b1102bad646ced",
+      "run-0/wide-individual.ppm": "08e47a59fbb1ddae3dce65789b59acb216c7d423d13faa0cc82e04158ecf90f9",
+      "run-0/wide-modal.ppm": "d34d60d5a3380f20fb8556c9bff4ecb2f23f97878ca7c5918d0339eb8447f7d3",
+      "run-0/wide-options.ppm": "4c01f2611323ed5d5b59a71fd9b2badf43bb63b11a29da22dc87c6a9f92fba3c",
+      "run-1/exploration-classic-0-0.ppm": "03e9540dfcbd6fb78eb6b86f5c8ee7ad8a3ebfb0373faa7b645cc1bf15b30ca1",
+      "run-1/exploration-classic-0-4.ppm": "0828a9df6cb315131e05b8b7147d2a0ebb5d093e6d93869e31fea5dbcee552e6",
+      "run-1/exploration-classic-1-0.ppm": "8f323fde780ed367f5b9b127c08b14f62f138f07d4174ddb0c84881338035a74",
+      "run-1/exploration-classic-1-4.ppm": "b838817db97436da89c23af0957786c7274afb46641ce426a547df737118f682",
+      "run-1/exploration-classic-2-0.ppm": "72c3f49770278bb6788e22abecc090b983054472de49c1eae9669065fe0bbc9c",
+      "run-1/exploration-classic-2-4.ppm": "468cd4f02880890a9d630f067f83be4ffe822388cfef869ababecb6f00015d2e",
+      "run-1/exploration-classic-2-5.ppm": "2ded2b6c122bd42effeeafe25910e3c8040fda002adf0cbf11775feaa9b7ad41",
+      "run-1/exploration-wide-0-0.ppm": "d6f29c59c31499a8791b10ee2f17aa7bf4a10a4ed1b8a007f997f95946f98669",
+      "run-1/exploration-wide-0-4.ppm": "1f667ff74c5a019234099de3cc48b75721f0e6a2524dcc786d4be9e3a8a8d3b2",
+      "run-1/exploration-wide-1-0.ppm": "1a0b5a36b048ab407cd146d80c6e9e900052080e7367129113eda039f0e8532a",
+      "run-1/exploration-wide-1-4.ppm": "fb407d440ec6aa5f1ba94cbe3babf84b4edf97bfb99143aeb3e32c47e3be72a1",
+      "run-1/exploration-wide-2-0.ppm": "38a34eecde659bcacb9abcb67e5af4a01af2a67ed85ec84a0f341fc980a96659",
+      "run-1/exploration-wide-2-4.ppm": "6e9297e59bf3fb4ca8a9d5138edf35c2db54b4a51d355baa63506942397025fe",
+      "run-1/exploration-wide-2-5.ppm": "7b6bd20b13c03d2e11071a4f1eb898a71aa8f6767902d5d8cc3febde56fa179c",
+      "run-1/options-classic-game-checked.ppm": "78c25e10f75c01e9c39b8c4f029262dd61deea939e2eae039a4535ad22a38b87",
+      "run-1/options-classic-game-unchecked.ppm": "d3f8d51afab4e2f68faef0e1885a95d9e0a487c9b3db60375d9bcefcac62dc34",
+      "run-1/options-classic-pregame-checked.ppm": "627a097b4aff10631bccb89b2f382c868d08c8827b9f704f386196ce65b494e4",
+      "run-1/options-classic-pregame-unchecked.ppm": "2897332be4e2f555ffd74424cf80ae8b28525f9e9a10209b05034810392feeff",
+      "run-1/options-wide-game-checked.ppm": "e95e721a10125317ef85c29daf429ebfaeb67a3927c6b19a2c51c41b9e77cd25",
+      "run-1/options-wide-game-unchecked.ppm": "18c2ab474a396ede6d266a5f9b9de07d52b1fe915674038892389744f49b5241",
+      "run-1/options-wide-pregame-checked.ppm": "93df563e86af23866c2ea3c69a771772d7f120f5b0186036f4b2cd699c2d82f6",
+      "run-1/options-wide-pregame-unchecked.ppm": "d5fdcb3601523dfcda3938dffb4b2c70529b3e1ddd45555f1022779b555dd671",
+      "run-1/wide-final.ppm": "f13f64691503a28a048483868bf01b416f2bfa716725408c81f9e50c5fd01ed8",
+      "run-1/wide-group.ppm": "c1d0f333e4365daa7511d457ec7e18eac16ade26c52a3a8069b1102bad646ced",
+      "run-1/wide-individual.ppm": "08e47a59fbb1ddae3dce65789b59acb216c7d423d13faa0cc82e04158ecf90f9",
+      "run-1/wide-modal.ppm": "d34d60d5a3380f20fb8556c9bff4ecb2f23f97878ca7c5918d0339eb8447f7d3",
+      "run-1/wide-options.ppm": "4c01f2611323ed5d5b59a71fd9b2badf43bb63b11a29da22dc87c6a9f92fba3c"
+    },
+    "exploration_reports_equal": true
+  },
+  "sanitizers": {
+    "status": "passed",
+    "asan": true,
+    "lsan": true,
+    "processes": 2,
+    "output": ".cache/window-map-015-wide-asan-final",
+    "video": "dummy",
+    "audio": "dummy",
+    "note": "Initial sandbox attempt reached LeakSanitizer thread-inspection restrictions; both processes passed when rerun outside the sandbox."
+  },
+  "original_data": {
+    "verified_files": 54,
+    "unchanged": true,
+    "verification_log": ".cache/window-map-015-data-verify-final.json"
+  },
+  "reference_baseline": {
+    "revision": "1a3e816afd5ddc41cc2a5c51a5da292e6d61758c",
+    "output": ".cache/reference/output",
+    "saves": ".cache/reference/saves",
+    "note": "Existing pinned development reference artifacts were reused for both fresh classic comparisons."
+  },
+  "limitations": [
+    "No full playthrough",
+    "No new macOS execution or Linux desktop-window validation",
+    "Native Windows video checks use injected input and dummy audio; no new physical keyboard or device-audio test"
+  ]
+}

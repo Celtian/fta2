@@ -76,6 +76,16 @@ bool ModalWindow::isModal() {
 }
 
 bool ModalWindow::open() {
+	// Original positions are retained in classic mode. Wide dialogs keep their
+	// artwork size and vertical position while centering on the wider screen.
+	if (Native::activeDisplayMode == Native::DisplayMode::Widescreen) {
+		Rect16 r = getExtent();
+		int16 dx = (Native::displayLayout().screenWidth - r.width) / 2 - r.x;
+		r.x += dx;
+		setExtent(r);
+		for (int i = 0; i < _numDecorations; ++i)
+			_decorations[i].extent.x += dx;
+	}
 	g_vm->_mouseInfo->replaceObject();
 	g_vm->_mouseInfo->clearGauge();
 	g_vm->_mouseInfo->setText(nullptr);

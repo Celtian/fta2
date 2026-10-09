@@ -76,6 +76,8 @@ bool paletteChangesEnabled();
 void delayedDisplayEnable();
 void externalPaletteIntrusion();
 void reDrawScreen();
+void requestDisplayModeChange();
+bool applyPendingDisplayMode();
 void showLoadMessage();
 
 // ------------------------------------------------------------------------

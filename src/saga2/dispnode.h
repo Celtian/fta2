@@ -82,6 +82,7 @@ public:
 //  the screen.
 
 const int           kMaxDisplayed = 100;
+const int           kMaxWideDisplayed = 150;
 
 class DisplayNodeList {
 	friend ObjectID pickObject(const StaticPoint32 &mouse, StaticTilePoint &objPos);
@@ -97,8 +98,8 @@ public:
 		_count = 0;
 	}
 	DisplayNodeList() {
-		_displayList = (DisplayNode *)malloc(sizeof(DisplayNode) * kMaxDisplayed);
-		init(kMaxDisplayed);
+		_displayList = (DisplayNode *)malloc(sizeof(DisplayNode) * kMaxWideDisplayed);
+		init(kMaxWideDisplayed);
 		_count = 0;
 	}
 	~DisplayNodeList() {

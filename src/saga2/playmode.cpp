@@ -136,8 +136,8 @@ hResContext         *imageRes;              // image resource handle
 bool checkTileAreaPort() {
 	if (g_vm->_gameRunning && g_vm->_tileDrawMap._data == nullptr) {
 		//  Allocate back buffer for tile rendering
-		g_vm->_tileDrawMap._size.x = (kTileRectWidth + kTileWidth - 1) & ~kTileDXMask;
-		g_vm->_tileDrawMap._size.y = (kTileRectHeight + kTileWidth - 1) & ~kTileDXMask;
+		g_vm->_tileDrawMap._size.x = (Native::displayLayout().mapWidth + kTileWidth - 1) & ~kTileDXMask;
+		g_vm->_tileDrawMap._size.y = (Native::displayLayout().mapHeight + kTileWidth - 1) & ~kTileDXMask;
 		g_vm->_tileDrawMap._data = new uint8[g_vm->_tileDrawMap.bytes()]();
 	}
 
@@ -149,7 +149,7 @@ void clearTileAreaPort() {
 		_FillRect(g_vm->_tileDrawMap._data, g_vm->_tileDrawMap._size.x, g_vm->_tileDrawMap._size.x, g_vm->_tileDrawMap._size.y, 0);
 	}
 
-	Rect16 rect(0, 0, 640, 480);
+	Rect16 rect(0, 0, Native::displayLayout().screenWidth, Native::displayLayout().screenHeight);
 	mainWindow->invalidate(&rect);
 }
 
@@ -181,7 +181,7 @@ void PlayModeSetup() {
 
 	//  Create a control covering the map area.
 	speakButtonPanel = new gGenericControl(*speakButtonControls,
-	                   Rect16(0, 0, kScreenWidth, kScreenHeight),
+	                   Rect16(0, 0, Native::displayLayout().screenWidth, Native::displayLayout().screenHeight),
 	                   0,
 	                   cmdClickSpeech);
 	speakButtonControls->enable(false);

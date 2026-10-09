@@ -61,6 +61,7 @@ APPFUNC(cmdHotKeys);
 APPFUNC(cmdAutoAggression);
 APPFUNC(cmdAutoWeapon);
 APPFUNC(cmdNight);
+APPFUNC(cmdWidescreen);
 APPFUNC(cmdSpeechText);
 
 // volume control functions
@@ -312,6 +313,13 @@ static const StaticRect optNightRect = {
 	98 + kOptTPHeight,
 	18,
 	17
+};
+
+static const StaticRect optWidescreenRect = {
+	optNightRect.x,
+	optWeaponRect.y,
+	optNightRect.width,
+	optNightRect.height
 };
 
 static const StaticRect optTopSliderRect = {
@@ -964,6 +972,12 @@ int16 OptionsDialog(bool disableSaveResume) {
 	nightBtn = new GfxOwnerSelCompButton(*win, *optionsButtonRects[8],
 	        checkImag, kNumBtnImages, 0, cmdNight);
 	nightBtn->select(g_vm->_showNight);
+	GfxOwnerSelCompButton *wide = new GfxOwnerSelCompButton(*win, optWidescreenRect,
+	        checkImag, kNumBtnImages, 0, cmdWidescreen);
+	wide->select(ConfMan.getBool("widescreen"));
+	new CPlaqText(*win, Rect16(optWidescreenRect.x + optWidescreenRect.width + 3,
+	              optWidescreenRect.y, kTextPixelLen - kSmallTextOffset, 17), "Widescreen (16:9)",
+	              &SmallFont, kTextPosLeft, pal, 0, nullptr);
 
 	new GfxSlider(*win, optTopSliderRect, optTopFaceRect, 0,
 	                       Audio::Mixer::kMaxMixerVolume, slideFaceImag, numSlideFace, ConfMan.getInt("sfx_volume"),
@@ -1048,6 +1062,7 @@ int16 OptionsDialog(bool disableSaveResume) {
 
 	// Pop back buffer
 	g_vm->_renderer->popSavedBackBuffer(kBeforeOpeningMenu);
+	requestDisplayModeChange();
 
 	// return the result code
 	return rInfo.result;
@@ -1880,6 +1895,14 @@ APPFUNC(cmdNight) {
 	if (isUserAction(ev)) {
 		g_vm->_showNight = !g_vm->_showNight;
 		nightBtn->select(g_vm->_showNight);
+	}
+}
+
+APPFUNC(cmdWidescreen) {
+	if (ev.panel && isUserAction(ev)) {
+		const bool wide = !ConfMan.getBool("widescreen");
+		ConfMan.setBool("widescreen", wide);
+		ev.panel->select(wide);
 	}
 }
 

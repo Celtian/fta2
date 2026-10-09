@@ -51,6 +51,8 @@ void Renderer::saveBackBuffer(BackBufferSource source) {
 		int size = surf->w * surf->h;
 
 		_savedBackBuffers[source] = new byte[size];
+		_savedWidths[source] = surf->w;
+		_savedHeights[source] = surf->h;
 		memcpy(_savedBackBuffers[source], surf->getPixels(), size);
 
 		g_platform->unlockScreen();
@@ -67,6 +69,10 @@ void Renderer::restoreSavedBackBuffer(BackBufferSource source) {
 		if (_savedBackBuffers[source]) {
 			uint w = g_platform->getWidth();
 			uint h = g_platform->getHeight();
+			if (w != _savedWidths[source] || h != _savedHeights[source]) {
+				removeSavedBackBuffer(source);
+				return;
+			}
 			g_platform->copyRectToScreen(_savedBackBuffers[source], w, 0, 0, w, h);
 		}
 	}

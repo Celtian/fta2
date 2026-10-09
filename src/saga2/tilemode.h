@@ -51,6 +51,7 @@ void loadTileModeState(Native::InSaveFile *in);
 inline void cleanupTileModeState() { /* do nothing */ }
 
 void TileModeSetup();                        // alloc tile resources
+void layoutTileControls();
 void TileModeCleanup();                      // free tile resources
 
 void noStickyMap();

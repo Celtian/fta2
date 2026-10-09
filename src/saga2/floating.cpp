@@ -91,6 +91,33 @@ void DecoratedWindow::drawClipped(
 			//  For each "decorative panel" within the frame of the window
 
 			for (dec = _decorations, i = 0; i < _numDecorations; i++, dec++) {
+				const int extra = Native::displayLayout().sidebarOffset;
+				if (isBackdrop() && extra) {
+					// Extend only the horizontal frame's map section. The right
+					// end and all sidebar panels retain their original pixels.
+					Rect16 savedClip = port._clip;
+					auto piece = [&](Rect16 destination, int imageX) {
+						Rect16 section = intersect(destination, clipRect);
+						section.x -= offset.x;
+						section.y -= offset.y;
+						port.setClip(intersect(savedClip, section));
+						drawCompressedImage(port, Point16(imageX - offset.x,
+						                    dec->extent.y - offset.y), dec->image);
+					};
+					if (dec->extent.width == 640) {
+						piece(Rect16(0, dec->extent.y, 440, dec->extent.height), 0);
+						for (int x = 440; x < 440 + extra; x += 32)
+							piece(Rect16(x, dec->extent.y, MIN(32, 440 + extra - x),
+							             dec->extent.height), x - 408);
+						piece(Rect16(440 + extra, dec->extent.y, 200, dec->extent.height), extra);
+					} else {
+						Rect16 r = dec->extent;
+						if (r.x >= 460) r.x += extra;
+						piece(r, r.x);
+					}
+					port.setClip(savedClip);
+					continue;
+				}
 				//  If the decorative panel overlaps the area we are
 				//  rendering
 
@@ -629,7 +656,7 @@ void updateWindowSection(const Rect16 &r) {
 	//  Since the floating windows can be dragged partly offscreen
 	//  we should make sure we're rendering only to on-screen pixels.
 
-	clip = intersect(r, Rect16(0, 0, kScreenWidth, kScreenHeight));
+	clip = intersect(r, Rect16(0, 0, Native::displayLayout().screenWidth, Native::displayLayout().screenHeight));
 
 	//  Allocate a temporary pixel map and gPort
 
@@ -646,7 +673,7 @@ void updateWindowSection(const Rect16 &r) {
 	//  rectangle. If they overlap, then copy part of the animated
 	//  area into the temporary bitmap.
 
-	animClip = intersect(Rect16(kTileRectX, kTileRectY, kTileRectWidth, kTileRectHeight), clip);
+	animClip = intersect(Rect16(kTileRectX, kTileRectY, Native::displayLayout().mapWidth, Native::displayLayout().mapHeight), clip);
 	if (!animClip.empty() && !allPlayerActorsDead) {
 		//  Compute which pixel on the animated pixel map is the
 		//  upper left corner of the clip area

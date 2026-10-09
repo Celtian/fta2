@@ -917,7 +917,9 @@ Rect16 CManaIndicator::getManaRegionRect(int8 nRegion) {
 		Rect16(kAreaX + boxSizeX * 2, kAreaY + boxSizeY, boxSizeX, boxSizeY)
 	};
 
-	return manaRegionRects[nRegion];
+	Rect16 r = manaRegionRects[nRegion];
+	r.x = _extent.x + (r.x - kAreaX);
+	return r;
 }
 
 void CManaIndicator::draw() {
@@ -1674,7 +1676,17 @@ void SetupUserControls() {
 	//The controls need to be enabled but undrawn at startup
 	//if ( displayEnabled() )
 	//  g_vm->_userControlsSetup = true;
+	layoutUserControls(Native::displayLayout().sidebarOffset);
 	updateAllUserControls();
+}
+
+void layoutUserControls(int16 sidebarDelta) {
+	trioControls->translateControls(sidebarDelta);
+	indivControls->translateControls(sidebarDelta);
+	if (StatusLine)
+		StatusLine->setControlExtent(Rect16(49, 445, 407 + Native::displayLayout().sidebarOffset, 15));
+	if (enchDisp)
+		enchDisp->setControlExtent(Rect16(0, 0, Native::displayLayout().screenWidth - 10, 18));
 }
 
 void enableUserControls() {

@@ -292,6 +292,19 @@ void gPanelList::removeControls() {
 	}
 }
 
+void gPanelList::translateControls(int16 dx) {
+	// Child extents use window coordinates, including nested panel lists.
+	for (auto *ctl : _contents) {
+		if (auto *list = dynamic_cast<gPanelList *>(ctl)) {
+			list->translateControls(dx);
+		} else {
+			Rect16 r = ctl->getExtent();
+			r.x += dx;
+			ctl->setControlExtent(r);
+		}
+	}
+}
+
 //  enable/disable gPanelList and all it's children
 void gPanelList::enable(bool abled) {
 	gPanel::enable(abled);

@@ -151,7 +151,9 @@ Saga2Engine::~Saga2Engine() {
 
 Native::Error Saga2Engine::run() {
     // Initialize graphics using following:
-    g_platform->initGraphics(640, 480);
+    Native::activeDisplayMode = ConfMan.getBool("widescreen")
+                                    ? Native::DisplayMode::Widescreen : Native::DisplayMode::Classic;
+    g_platform->initGraphics(Native::displayLayout().screenWidth, Native::displayLayout().screenHeight);
 
     _console = new Console(this);
 
