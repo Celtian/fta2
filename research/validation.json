@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "version": "0.1.0",
+  "status": "development-alpha",
+  "upstream_revision": "1a3e816afd5ddc41cc2a5c51a5da292e6d61758c",
+  "toolchain": {
+    "system": "Ubuntu 26.04 LTS",
+    "architecture": "x86_64",
+    "compiler": "GCC 15.2.0",
+    "cmake": "3.31.8",
+    "SDL": "3.4.18",
+    "language": "C++20"
+  },
+  "ctest": {
+    "passed": 4,
+    "failed": 0
+  },
+  "integration": {
+    "status": "passed",
+    "original_files_unchanged": 54,
+    "unknown_exe_rejected": true,
+    "output_inside_originals_rejected": true,
+    "pack_sha256": "f77094a250eae904073bd21b8f2c1c208d10f8ab9d56830893aed7acd62c765e",
+    "states": [
+      {
+        "phase": "initial",
+        "frame": 1,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12521,
+        "z": 8,
+        "rng": 888809617
+      },
+      {
+        "phase": "moved",
+        "frame": 180,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12513,
+        "z": 8,
+        "rng": 1260233905
+      },
+      {
+        "phase": "switched",
+        "frame": 190,
+        "actor": 32769,
+        "u": 13249,
+        "v": 12497,
+        "z": 8,
+        "rng": 3004664737
+      },
+      {
+        "phase": "saved",
+        "frame": 220,
+        "actor": 32769,
+        "u": 13249,
+        "v": 12497,
+        "z": 8,
+        "rng": 81644917
+      },
+      {
+        "phase": "restored",
+        "frame": 230,
+        "actor": 32769,
+        "u": 13249,
+        "v": 12497,
+        "z": 8,
+        "rng": 81644917
+      },
+      {
+        "phase": "original-save-loaded",
+        "frame": 240,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12521,
+        "z": 8,
+        "rng": 135530414
+      },
+      {
+        "phase": "finished",
+        "frame": 260,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12521,
+        "z": 8,
+        "rng": 808685479
+      }
+    ],
+    "audio": {
+      "music_nonzero_samples": 276278,
+      "effects_nonzero_samples": 8322
+    }
+  },
+  "reference_comparison": {
+    "screenshots": {
+      "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+      "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+    },
+    "simulation": {
+      "initial": {
+        "frame": 1,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12521,
+        "z": 8,
+        "rng": 888809617
+      },
+      "moved": {
+        "frame": 180,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12513,
+        "z": 8,
+        "rng": 1260233905
+      },
+      "switched": {
+        "frame": 190,
+        "actor": 32769,
+        "u": 13249,
+        "v": 12497,
+        "z": 8,
+        "rng": 3004664737
+      },
+      "saved": {
+        "frame": 220,
+        "actor": 32769,
+        "u": 13249,
+        "v": 12497,
+        "z": 8,
+        "rng": 81644917
+      }
+    },
+    "save_chunks": {
+      "fta2.999": 30,
+      "fta2.001": 30
+    }
+  },
+  "soak": {
+    "frames": 10000,
+    "exit_code": 0,
+    "audio": {
+      "music_nonzero_samples": 9552866,
+      "effects_nonzero_samples": 8322
+    }
+  },
+  "sanitizers": {
+    "address": true,
+    "leaks": true,
+    "frames": 10000,
+    "exit_code": 0,
+    "errors": 0,
+    "original_save_import": true
+  },
+  "window": {
+    "backend": "X11",
+    "exit_code": 0,
+    "audio_backend": "dummy"
+  },
+  "pending": [
+    "full-game-playthrough",
+    "doors-dialogue-inventory-combat-magic-map-area-transition-regressions",
+    "real-device-audio-comparison",
+    "all-fonts-and-cursors-in-UI",
+    "Windows-x64-CI-and-manual-package-test",
+    "macOS-arm64-x64-CI-and-manual-package-test"
+  ],
+  "known_diagnostics": [
+    "Sector::getSector invalid sector warnings during extended initial-area simulation"
+  ],
+  "distribution": {
+    "Linux-x64": {
+      "packaged_integration": "passed",
+      "bundled_SDL_resolved_via_relative_rpath": true,
+      "X11_window_probe_exit_code": 0
+    },
+    "Windows-x64": "CI configured; not run",
+    "macOS-arm64-x64": "CI configured; not run"
+  }
+}

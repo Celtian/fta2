@@ -1,0 +1,182 @@
+diff --git a/backends/graphics/null/null-graphics.h b/backends/graphics/null/null-graphics.h
+index 3308a9e0..75409b4a 100644
+--- a/backends/graphics/null/null-graphics.h
++++ b/backends/graphics/null/null-graphics.h
+@@ -23,10 +23,13 @@
+ #define BACKENDS_GRAPHICS_NULL_H
+ 
+ #include "backends/graphics/graphics.h"
++#include "common/config-manager.h"
++#include "common/file.h"
++#include "graphics/surface.h"
+ 
+ class NullGraphicsManager : public GraphicsManager {
+ public:
+-	virtual ~NullGraphicsManager() {}
++	virtual ~NullGraphicsManager() { _screen.free(); }
+ 
+ 	bool hasFeature(OSystem::Feature f) const override { return false; }
+ 	void setFeatureState(OSystem::Feature f, bool enable) override {}
+@@ -53,6 +56,7 @@ public:
+ 		_width = width;
+ 		_height = height;
+ 		_format = format ? *format : Graphics::PixelFormat::createFormatCLUT8();
++		_screen.create(width, height, _format);
+ 	}
+ 
+ 	int getScreenChangeID() const override { return 0; }
+@@ -62,14 +66,25 @@ public:
+ 
+ 	int16 getHeight() const override { return _height; }
+ 	int16 getWidth() const override { return _width; }
+-	void setPalette(const byte *colors, uint start, uint num) override {}
+-	void grabPalette(byte *colors, uint start, uint num) const override {}
+-	void copyRectToScreen(const void *buf, int pitch, int x, int y, int w, int h) override {}
+-	Graphics::Surface *lockScreen() override { return NULL; }
++	void setPalette(const byte *colors, uint start, uint num) override { memcpy(_palette + start * 3, colors, num * 3); }
++	void grabPalette(byte *colors, uint start, uint num) const override { memcpy(colors, _palette + start * 3, num * 3); }
++	void copyRectToScreen(const void *buf, int pitch, int x, int y, int w, int h) override {
++		for (int row = 0; row < h; ++row) memcpy(_screen.getBasePtr(x, y + row), (const byte *)buf + row * pitch, w * _format.bytesPerPixel);
++	}
++	Graphics::Surface *lockScreen() override { return &_screen; }
+ 	void unlockScreen() override {}
+-	void fillScreen(uint32 col) override {}
+-	void fillScreen(const Common::Rect &r, uint32 col) override {}
+-	void updateScreen() override {}
++	void fillScreen(uint32 col) override { _screen.fillRect(Common::Rect(_width, _height), col); }
++	void fillScreen(const Common::Rect &r, uint32 col) override { _screen.fillRect(r, col); }
++	void updateScreen() override {
++		if (++_frames % 30) return;
++		if (!ConfMan.hasKey("native_capture") || _format.bytesPerPixel != 1) return;
++		Common::DumpFile out;
++		if (!out.open(ConfMan.getPath("native_capture"), true)) return;
++		Common::String header = Common::String::format("P6\n%u %u\n255\n", _width, _height);
++		out.write(header.c_str(), header.size());
++		for (uint y = 0; y < _height; ++y)
++			for (uint x = 0; x < _width; ++x) out.write(_palette + *(byte *)_screen.getBasePtr(x, y) * 3, 3);
++	}
+ 	void setShakePos(int shakeXOffset, int shakeYOffset) override {}
+ 	void setFocusRectangle(const Common::Rect& rect) override {}
+ 	void clearFocusRectangle() override {}
+@@ -91,6 +106,9 @@ public:
+ 
+ private:
+ 	uint _width, _height;
++	Graphics::Surface _screen;
++	byte _palette[768] = {};
++	uint _frames = 0;
+ 	Graphics::PixelFormat _format;
+ 	bool _overlayVisible;
+ };
+diff --git a/backends/platform/null/null.cpp b/backends/platform/null/null.cpp
+index abc4a4d5..33297621 100644
+--- a/backends/platform/null/null.cpp
++++ b/backends/platform/null/null.cpp
+@@ -48,6 +48,7 @@ typedef void (*sighandler_t)(int);
+ 
+ #if defined(USE_NULL_DRIVER)
+ #include "common/events.h"
++#include "common/config-manager.h"
+ 
+ #include "backends/modular-backend.h"
+ #include "backends/mutex/null/null-mutex.h"
+@@ -104,10 +105,12 @@ private:
+ 	DWORD _startTime;
+ #endif
+ 	bool _silenceLogs;
++ uint32 _nativeClock = 0;
+ };
+ 
+ OSystem_NULL::OSystem_NULL(bool silenceLogs) :
+ 	_silenceLogs(silenceLogs) {
++
+ 	#if defined(__amigaos4__)
+ 		_fsFactory = new AmigaOSFilesystemFactory();
+ 	#elif defined(__MORPHOS__)
+@@ -162,6 +165,7 @@ void OSystem_NULL::initBackend() {
+ }
+ 
+ bool OSystem_NULL::pollEvent(Common::Event &event) {
++
+ #ifndef NULL_DRIVER_USE_FOR_TEST
+ 	((DefaultTimerManager *)getTimerManager())->checkTimers();
+ 	((NullMixerManager *)_mixerManager)->update(1);
+@@ -193,6 +197,7 @@ Common::MutexInternal *OSystem_NULL::createMutex() {
+ }
+ 
+ uint32 OSystem_NULL::getMillis(bool skipRecord) {
++ if (ConfMan.getBool("native_fixed_clock")) return _nativeClock;
+ #ifdef POSIX
+ 	timeval curTime;
+ 
+@@ -208,6 +213,12 @@ uint32 OSystem_NULL::getMillis(bool skipRecord) {
+ }
+ 
+ void OSystem_NULL::delayMillis(uint msecs) {
++ if (ConfMan.getBool("native_fixed_clock")) {
++  _nativeClock += msecs;
++  if (_timerManager) ((DefaultTimerManager *)_timerManager)->checkTimers();
++  return;
++ }
++	if (_timerManager) ((DefaultTimerManager *)_timerManager)->checkTimers();
+ #ifdef POSIX
+ 	usleep(msecs * 1000);
+ #elif defined(WIN32)
+diff --git a/engines/saga2/main.cpp b/engines/saga2/main.cpp
+index 5bc60644..63e6ee7a 100644
+--- a/engines/saga2/main.cpp
++++ b/engines/saga2/main.cpp
+@@ -29,6 +29,9 @@
+ 
+ #include "engines/advancedDetector.h"
+ 
++#include "common/config-manager.h"
++#include "graphics/surface.h"
++#include "graphics/paletteman.h"
+ #include "saga2/detection.h"
+ #include "saga2/saga2.h"
+ #include "saga2/setup.h"
+@@ -48,6 +51,7 @@
+ #include "saga2/modal.h"
+ #include "saga2/msgbox.h"
+ #include "saga2/grabinfo.h"
++#include "saga2/annoy.h"
+ 
+ namespace Saga2 {
+ 
+@@ -254,6 +258,35 @@ void EventLoop(bool &running, bool) {
+ void dumpGBASE(char *msg);
+ 
+ void processEventLoop(bool updateScreen) {
++ if (ConfMan.getBool("native_probe")) {
++  static int frame = 0;
++  static bool active = false;
++  if (!active) {
++   active = true;
++   ++frame;
++   const char *phase = frame==1 ? "initial" : frame==180 ? "moved" : frame==190 ? "switched" : frame==220 ? "saved" : nullptr;
++   if (phase) {
++    TilePoint p = centerActorCoords();
++    warning("REFERENCE_PROBE %s frame=%d actor=%u u=%d v=%d z=%d rng=%u", phase, frame, getCenterActorID(), p.u,p.v,p.z,g_vm->_rnd->getSeed());
++   }
++   if (frame==1 || frame==190) {
++    Common::DumpFile out;
++    Common::Path filename = ConfMan.getPath("native_output").appendComponent(frame==1 ? "initial.ppm" : "controlled.ppm");
++    if (!out.open(filename)) error("Cannot open reference capture");
++    const char header[]="P6\n640 480\n255\n";
++    out.write(header, sizeof(header)-1);
++    byte palette[768];g_system->getPaletteManager()->grabPalette(palette,0,256);
++    const Graphics::Surface *screen=g_system->lockScreen();
++    for(int y=0;y<480;++y)for(int x=0;x<640;++x)out.write(palette+3*(*(const byte*)screen->getBasePtr(x,y)),3);
++    g_system->unlockScreen();out.close();
++   }
++   if(frame==20||frame==21||frame==100){Common::Event ev;ev.mouse.x=380;ev.mouse.y=330;ev.type=frame==20?Common::EVENT_MOUSEMOVE:frame==21?Common::EVENT_LBUTTONDOWN:Common::EVENT_LBUTTONUP;g_vm->_toolBase->handleMouse(ev,g_system->getMillis());}
++   if(frame==181){playSound(MKTAG('C','L','K',1));Common::Event ev;ev.type=Common::EVENT_KEYDOWN;ev.kbd.ascii='2';ev.kbd.keycode=Common::KEYCODE_2;g_vm->_toolBase->handleKeyStroke(ev);}
++   if(frame==220)g_vm->saveGameState(1,"Native round trip",false);
++   if(frame==260)endGame();
++   active=false;
++  }
++ }
+ 
+ 	debugC(1, kDebugEventLoop, "EventLoop: starting event loop");
+ 

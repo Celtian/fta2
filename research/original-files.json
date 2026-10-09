@@ -1,0 +1,221 @@
+{
+  "schema_version": 1,
+  "files": {
+    "999.SAV": {
+      "size": 323592,
+      "sha256": "688329705e8253e8704a1491a12968ac122941a30868ae09e0a5c0aa8b38d379"
+    },
+    "DRIVERS/ADLIB.MDI": {
+      "size": 15003,
+      "sha256": "2f43d945d9388619adf90dc2e2e9d0027d5c9773d660b90ead10d4db21d8baa9"
+    },
+    "DRIVERS/ADLIBG.MDI": {
+      "size": 16394,
+      "sha256": "1d09fb6f34d5e07c928b34fbb11aedc000d7e7027ba75beb15f48e3935b094d4"
+    },
+    "DRIVERS/ADRV688.DIG": {
+      "size": 11278,
+      "sha256": "294a7de77d88a7f38f58b32fc7166ced87a4c44e6c9be760f78b1724744d7161"
+    },
+    "DRIVERS/DIG.INI": {
+      "size": 198,
+      "sha256": "15ed9fc77298d7925595db23dc1c05be53d84a8e27da893a90d24e1a50726008"
+    },
+    "DRIVERS/ESFM.MDI": {
+      "size": 15896,
+      "sha256": "4da7be521dd048f7f82c2c178496463353fe373c2eedde5ee38a252fe3225a43"
+    },
+    "DRIVERS/IWAV.DIG": {
+      "size": 2585,
+      "sha256": "428f537c47b82c09ae17d6de0c02dbb913aaee0c12c5c17b62b2ffc991b92524"
+    },
+    "DRIVERS/IWAV.MDI": {
+      "size": 2149,
+      "sha256": "5b82cbec55215695cf58358ce0c0f37f3b00a74229dd8beb868a12646cc00275"
+    },
+    "DRIVERS/JAMMER.DIG": {
+      "size": 3219,
+      "sha256": "cca38c28eabe00b88e4bddd627fa68a68b2559029098b777129ca00201831a9c"
+    },
+    "DRIVERS/MDI.INI": {
+      "size": 186,
+      "sha256": "acb43df58dfe92ce9f87ced94b500e652e5b48bb016d273d976d7cc69cc1b84b"
+    },
+    "DRIVERS/MPU401.MDI": {
+      "size": 1932,
+      "sha256": "d811675b4e0ed8ee5099161e2a82a5773da54659e3485d1450acb8c1938a8f25"
+    },
+    "DRIVERS/MSSDRVR.LST": {
+      "size": 20434,
+      "sha256": "e2ba3baf5fc5026b2deabb4b1b63d5c5af7bc9a48fdff2dfa87d4ea916ea7e03"
+    },
+    "DRIVERS/MT32MPU.MDI": {
+      "size": 6948,
+      "sha256": "90a78622000df7099980f8c818b32a12816bbb5b62c490eeda346c5d6510f20a"
+    },
+    "DRIVERS/NULL.MDI": {
+      "size": 1626,
+      "sha256": "9a3fbeb9883ad72ff86e367ed9712df1e82aa9d7f317b2602cbd1b4e2054393c"
+    },
+    "DRIVERS/NVDIG.DIG": {
+      "size": 1715,
+      "sha256": "e0713d34dc68bc99ef5b7c49654679ff156d087adb3b402ea0307e4fb6379622"
+    },
+    "DRIVERS/NVMPU.MDI": {
+      "size": 1957,
+      "sha256": "3d76d829e05989ea60547a9337edb3022b6c8a3044ca266e2afc88a4293045bc"
+    },
+    "DRIVERS/OPL3.MDI": {
+      "size": 16404,
+      "sha256": "8203751ec1ee2c35529c59765054f6adc251f542e57e70dccf02ba356e8605cd"
+    },
+    "DRIVERS/PAS.MDI": {
+      "size": 15442,
+      "sha256": "0f7cd54e728eb77769f46e0172a9565fdde313fe1c4ba8dd223feea217177734"
+    },
+    "DRIVERS/PASPLUS.MDI": {
+      "size": 16475,
+      "sha256": "865a1409cb0c8fc5bff9498944158b48827804c2945dce60e8a8c8889504dc2d"
+    },
+    "DRIVERS/PCSPKR.MDI": {
+      "size": 4722,
+      "sha256": "7c91c3c2048353e8ff9c20414e99abc5bda430e1b6a175876b7fc322346497ff"
+    },
+    "DRIVERS/PROAUDIO.DIG": {
+      "size": 2144,
+      "sha256": "8e5ab4871a45846d9e482a71fac1cdf9f754aff8cab86719f99e50e8250a6816"
+    },
+    "DRIVERS/RAP10.DIG": {
+      "size": 2866,
+      "sha256": "31d4ac396e60dec2d1ade9f05e0fed63b4f34066d724ba4fe65ae6eca79e29bd"
+    },
+    "DRIVERS/SAMPLE.AD": {
+      "size": 3622,
+      "sha256": "5044c392ad31b42a8218614c53172dd48ac01855aa5c683ae9d31466f33b50b1"
+    },
+    "DRIVERS/SAMPLE.BNK": {
+      "size": 10780,
+      "sha256": "0cf6052cbbde9c2e969d5ec09d22d3e8d27490fed9c55f6bcc00c6ba77b83b0f"
+    },
+    "DRIVERS/SAMPLE.CAT": {
+      "size": 10484,
+      "sha256": "33a5b6021359ec6d884a28fea25edfb4cd09f6a9cc95291f8214e1c1937e9977"
+    },
+    "DRIVERS/SAMPLE.OPL": {
+      "size": 3622,
+      "sha256": "5044c392ad31b42a8218614c53172dd48ac01855aa5c683ae9d31466f33b50b1"
+    },
+    "DRIVERS/SB16.DIG": {
+      "size": 2853,
+      "sha256": "b43c31fdda680dea80a58aed02cf6dd63fdf7fe213379e039bbf7f2e9de154f0"
+    },
+    "DRIVERS/SBAWE32.MDI": {
+      "size": 31326,
+      "sha256": "fd423c238b9424bcc2ab583d365bcaa01a16d70b84f738b7f157665a05707cc2"
+    },
+    "DRIVERS/SBLASTER.DIG": {
+      "size": 3142,
+      "sha256": "8cc8da65a917aee2e41956154d998ade6a286a11f86382616fd400436a1f6a90"
+    },
+    "DRIVERS/SBLASTER.MDI": {
+      "size": 15135,
+      "sha256": "ca58feb076eb441c10f70538b926d737248a18c79308531ea91a0ac8b988c427"
+    },
+    "DRIVERS/SBPRO.DIG": {
+      "size": 2801,
+      "sha256": "435cba044eb49c0362b131ece5d1172a85088c6664d6d247c08dd83903276baf"
+    },
+    "DRIVERS/SBPRO1.MDI": {
+      "size": 15488,
+      "sha256": "faeed6bb2dfd5fe605a4ffbcec19e9d72592b99672b70db13f6ea0078d318a63"
+    },
+    "DRIVERS/SBPRO2.MDI": {
+      "size": 16558,
+      "sha256": "5ad27a800465bf7e63d07bf26f8c8df6a63934c2cea4d22f750e569aac5be4ee"
+    },
+    "DRIVERS/SNDSCAPE.DIG": {
+      "size": 4171,
+      "sha256": "a1459763f2fdcb1ada4f9fc6d28c9ea33077c00dad91b5809ee899f5a1b6c05c"
+    },
+    "DRIVERS/SNDSCAPE.MDI": {
+      "size": 2971,
+      "sha256": "f541a45fc4f5c4c9a5f68c6addcd451a261b0b4b20a00239d4c8e47320ff31c0"
+    },
+    "DRIVERS/SNDSYS.DIG": {
+      "size": 3349,
+      "sha256": "41e2fd3f5fd152a02378542e8544a9fab1317d0b97a92d589232251edb79537e"
+    },
+    "DRIVERS/TANDY.MDI": {
+      "size": 5027,
+      "sha256": "7d99bae4fb46a8915a3017611974950edeb0e8fae263056dc301c55d56bd9a76"
+    },
+    "DRIVERS/ULTRA.DIG": {
+      "size": 9478,
+      "sha256": "4e63a94e272f37907910cc2a73120d2d21f3651a66bd06fcac7e80c93af55478"
+    },
+    "DRIVERS/ULTRA.MDI": {
+      "size": 49672,
+      "sha256": "e7034fb38cd05821bb0960537745db75348c193c7a9889373bbcc86eb1cac17f"
+    },
+    "FTA.HRS": {
+      "size": 213376,
+      "sha256": "1d4fc56861bdc3f0e1dda1a21f48991e350dd8213fb694484f0f7fa731c7055d"
+    },
+    "FTA2.EXE": {
+      "size": 2223710,
+      "sha256": "a7413ddf57df2ec649e3cb401cfc6b3d0b0141cc840161dbd6b3029e381837c2"
+    },
+    "FTA2.INI": {
+      "size": 304,
+      "sha256": "f2c321ce38c67b5c6df2b2e1297561c859023d64295440e264b686ede86dcf54"
+    },
+    "FTA2.PIF": {
+      "size": 967,
+      "sha256": "f7ad7f85430f3cb54e85503f4a1a30b05f17d3a4a33c313c01a2d816ece4f1a6"
+    },
+    "FTADATA.HRS": {
+      "size": 15042,
+      "sha256": "3b6d0475b1187e28d4387750391ce1d2a7791ab0fd7e706c1040ff16576cb0b5"
+    },
+    "FTAIMAGE.HRS": {
+      "size": 21127397,
+      "sha256": "e8f0cf92507a11c1c6ec0bf790fa054a883d421689f5f3abd9b4e2c8f9172bec"
+    },
+    "FTASOUND.HRS": {
+      "size": 12403350,
+      "sha256": "7eb5cc6a582abcfe91ab6b50d343c95cdc68be1fa439e464592fed9f7cbcfbf8"
+    },
+    "FTAVOICE.HRS": {
+      "size": 15042,
+      "sha256": "3b6d0475b1187e28d4387750391ce1d2a7791ab0fd7e706c1040ff16576cb0b5"
+    },
+    "MSSW95.EXE": {
+      "size": 8029,
+      "sha256": "49958efbebdbcf14158fbe9b217058c86875c4c413fc5bc304f5206cd47ce250"
+    },
+    "PHQGHUME.AYL": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "PHQGHUME.SWP": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "SCRIPTS.HRS": {
+      "size": 1041948,
+      "sha256": "ddb3747ed47e1d6a420165d28e1d7f3e66abd64e1323690c11620b910dd05317"
+    },
+    "SETSOUND.EXE": {
+      "size": 358239,
+      "sha256": "dcd7c5f17210a97e9a1d711c0edf5db6a8f4b169e5265cffa081d2e1bc610249"
+    },
+    "START.BAT": {
+      "size": 185,
+      "sha256": "1cd0cd6951fc2554f58bbd345ca5168a899fe3542d29def3cd4660b677c0621b"
+    },
+    "START.PIF": {
+      "size": 967,
+      "sha256": "aaae6d20b1da046d20983afc6327b857484f39920c78efd6637571c0909215cb"
+    }
+  }
+}

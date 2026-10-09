@@ -1,0 +1,46 @@
+{
+  "archives": {
+    "FTA.HRS": {
+      "size": 213376,
+      "sha256": "1d4fc56861bdc3f0e1dda1a21f48991e350dd8213fb694484f0f7fa731c7055d",
+      "groups": 1,
+      "resources": 7,
+      "external_resources": 0
+    },
+    "FTADATA.HRS": {
+      "size": 15042,
+      "sha256": "3b6d0475b1187e28d4387750391ce1d2a7791ab0fd7e706c1040ff16576cb0b5",
+      "groups": 4,
+      "resources": 293,
+      "external_resources": 0
+    },
+    "FTAIMAGE.HRS": {
+      "size": 21127397,
+      "sha256": "e8f0cf92507a11c1c6ec0bf790fa054a883d421689f5f3abd9b4e2c8f9172bec",
+      "groups": 15,
+      "resources": 767,
+      "external_resources": 0
+    },
+    "FTASOUND.HRS": {
+      "size": 12403350,
+      "sha256": "7eb5cc6a582abcfe91ab6b50d343c95cdc68be1fa439e464592fed9f7cbcfbf8",
+      "groups": 4,
+      "resources": 159,
+      "external_resources": 0
+    },
+    "FTAVOICE.HRS": {
+      "size": 15042,
+      "sha256": "3b6d0475b1187e28d4387750391ce1d2a7791ab0fd7e706c1040ff16576cb0b5",
+      "groups": 4,
+      "resources": 293,
+      "external_resources": 0
+    },
+    "SCRIPTS.HRS": {
+      "size": 1041948,
+      "sha256": "ddb3747ed47e1d6a420165d28e1d7f3e66abd64e1323690c11620b910dd05317",
+      "groups": 1,
+      "resources": 324,
+      "external_resources": 0
+    }
+  }
+}

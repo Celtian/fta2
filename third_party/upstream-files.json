@@ -1,0 +1,805 @@
+{
+  "revision": "1a3e816afd5ddc41cc2a5c51a5da292e6d61758c",
+  "files": {
+    "audio/mididrv.h": {
+      "size": 21288,
+      "sha256": "e8baebc4a64308680b7d86c8eb8b1f4ac59f21ec2b98453cf415382b2236ad40"
+    },
+    "audio/midiparser.cpp": {
+      "size": 21468,
+      "sha256": "a61f0bd05de9213054070abe8a28d4e112569148712458774d907014aee0e9b0"
+    },
+    "audio/midiparser.h": {
+      "size": 24134,
+      "sha256": "5edd4132a98a60b0223b60f4278f465e6a0877209ae33f2268bcb4360d87bdde"
+    },
+    "audio/midiparser_xmidi.cpp": {
+      "size": 15978,
+      "sha256": "b2fac120ca7a6d44fb2f9c0238c5113807e26579a0d325343a682df0f4cd4923"
+    },
+    "audio/miles.h": {
+      "size": 11358,
+      "sha256": "9f0356b8e4f58d6b40de122ae64d7a426552db176028e1612ae44d2be00681b2"
+    },
+    "audio/miles_adlib.cpp": {
+      "size": 51005,
+      "sha256": "2f56f17ca6d73f75f448defcc5d92c71fa04fa7412b137247d2d4fedcb2b3596"
+    },
+    "audio/softsynth/opl/nuked.cpp": {
+      "size": 53855,
+      "sha256": "eca5a1800d2a972338f4b31b63c5ed6eddf71c7db5fccedc914ca6929eb37343"
+    },
+    "audio/softsynth/opl/nuked.h": {
+      "size": 6630,
+      "sha256": "abf6e601d6a6cfbc940f6bb3a3d1708847306155337c33c79c1ecff6b9a4424a"
+    },
+    "audio/softsynth/opl/nuked_wf_rom.h": {
+      "size": 74516,
+      "sha256": "4ac73f8da856f2c77e240404d8875591438eca68a6c663444fe8b6c3d8f2e891"
+    },
+    "common/random.cpp": {
+      "size": 2601,
+      "sha256": "91a03eeffac02b5537ef2b2005f7c3e832825133a5a97684b7202c7a3ceab2ba"
+    },
+    "engines/saga2/actor.cpp": {
+      "size": 106013,
+      "sha256": "70fb79f7d71e0aba7bd174a6ed02ed60e3d71d4846e05ac6216a91bdd6e8626e"
+    },
+    "engines/saga2/actor.h": {
+      "size": 34020,
+      "sha256": "be73eb01f45dccd6e14b5e66369509634fa5d38a0a9e0bc5b3ae73adc627c0b6"
+    },
+    "engines/saga2/annoy.h": {
+      "size": 3210,
+      "sha256": "057d45525ffd9c505440fa27d1c47331eed8f7dfe3d922ba9586b79418051ccc"
+    },
+    "engines/saga2/assign.cpp": {
+      "size": 24213,
+      "sha256": "8d14afa3ac3a20ad26dc63bd38e61d5f947e139adbdd15568e5324bb7ac92db5"
+    },
+    "engines/saga2/assign.h": {
+      "size": 13300,
+      "sha256": "46915466a297f64a219b9a5d43f8411cd4366dec86fece0f1b61ff5a20fe8df6"
+    },
+    "engines/saga2/audio.cpp": {
+      "size": 18716,
+      "sha256": "a52a0fb676639ea2c03dffd74d528e34cc40790c9078d34adf6d2eaf150a3a98"
+    },
+    "engines/saga2/audio.h": {
+      "size": 2707,
+      "sha256": "960e797be4db107afbfd36cfb3f3de6695fb1211511cdf4323263bdd97d2708a"
+    },
+    "engines/saga2/automap.cpp": {
+      "size": 20008,
+      "sha256": "56fe07c3a6600c22fe86457fc74b18a5d692fa27d9a3f1d93d47635ed5f6cbe6"
+    },
+    "engines/saga2/automap.h": {
+      "size": 2693,
+      "sha256": "3eba75cea9f7207c3a7d624cb462bfe8d83f3afb374ae34575c2b559d36f9b86"
+    },
+    "engines/saga2/band.cpp": {
+      "size": 8594,
+      "sha256": "b43ffb3ec663b9502edda7ffa228eb7eb3c4949ea128613fd70481fd056f6da6"
+    },
+    "engines/saga2/band.h": {
+      "size": 4252,
+      "sha256": "9e52b0a88f958e59111470c8b4f0c09479574eb2ed132f0590e954aca014e849"
+    },
+    "engines/saga2/beegee.cpp": {
+      "size": 12473,
+      "sha256": "38fd135a32d7652a967e3e96a14488faa72da42afc208b46f957eabf62801416"
+    },
+    "engines/saga2/beegee.h": {
+      "size": 2699,
+      "sha256": "b2a15b54f70561db2e309ab7147e080d51bc397fc61ddeb8056debf67999d8e2"
+    },
+    "engines/saga2/blitters.cpp": {
+      "size": 9127,
+      "sha256": "1911255e12d92c708fc637199cdd25266c522d2f9543fe35f8bc1476327ee46c"
+    },
+    "engines/saga2/blitters.h": {
+      "size": 2259,
+      "sha256": "bace38abc4696c0e75e84d3acfacd4bd1761c9fb96354684a69f04188031f801"
+    },
+    "engines/saga2/button.cpp": {
+      "size": 25686,
+      "sha256": "c3d93b5c685bc1f97f8c48de05f7abb66a70c8f5b3e5544a61bc2dfbdcf9c721"
+    },
+    "engines/saga2/button.h": {
+      "size": 12383,
+      "sha256": "1c9dc31e2df1217bcbbca067304cd8f94a161f49610b5408a7ce95a62eb9be4d"
+    },
+    "engines/saga2/calendar.cpp": {
+      "size": 8543,
+      "sha256": "c9f5fd30eb847197280a6e29719a858dedb5fe4d831f7a555748c3d801c845e5"
+    },
+    "engines/saga2/calendar.h": {
+      "size": 3137,
+      "sha256": "18264ce3b1fc957bf4ffb49842fd903a7d8feda70f5abed8f0f7b81bbaf10467"
+    },
+    "engines/saga2/cmisc.h": {
+      "size": 1396,
+      "sha256": "96462958d1f98cdd9d75490d68ae6a685603be930fb5851e6347461f06e1631b"
+    },
+    "engines/saga2/code.h": {
+      "size": 12153,
+      "sha256": "705f07b03260ddc723a38fafd95bfbbc4d949f84b18d7c0eed8c75cb539c0b18"
+    },
+    "engines/saga2/combat.h": {
+      "size": 1215,
+      "sha256": "ecca478ee183c5e3a67226ec309649b6bee18042236d2aa892d64417fb105420"
+    },
+    "engines/saga2/console.h": {
+      "size": 4264,
+      "sha256": "2cd7c7404a1f010643895721366eb6fdf0e7680d60a90f22bcd013592e01d0ea"
+    },
+    "engines/saga2/contain.cpp": {
+      "size": 56710,
+      "sha256": "c5f6f0a5bc6a89ad66f2536e5f74918056f000ab27fe9d58f1f915ecbf4efaa1"
+    },
+    "engines/saga2/contain.h": {
+      "size": 15937,
+      "sha256": "838afc4eb5ca9cd6c96f345f904eca16ba2457a1fe6695780456bd01160ee550"
+    },
+    "engines/saga2/detection.h": {
+      "size": 1535,
+      "sha256": "d781e4213a4c1ae05502ad1566bfba4aa03c68935a2cbaa10b52566218f3b87d"
+    },
+    "engines/saga2/dice.h": {
+      "size": 1693,
+      "sha256": "1576ac39d18237012662abe4af0c40f9791a3aa4ac1151c191ab2ddb692151ab"
+    },
+    "engines/saga2/display.cpp": {
+      "size": 7616,
+      "sha256": "4ffc26684cb56e9cc719bbc5f2aa90b071dcef0500b2dcc3c9ffb073a78401fc"
+    },
+    "engines/saga2/display.h": {
+      "size": 2969,
+      "sha256": "1eb447d284cbc316c6ac6bc7303fd326f4262651b418e0b0b85c354b880bd134"
+    },
+    "engines/saga2/dispnode.cpp": {
+      "size": 29844,
+      "sha256": "3fe0c7d525b6a44e0d882e44cd3e7f882ba9433bb6be6cb35279b179b430a083"
+    },
+    "engines/saga2/dispnode.h": {
+      "size": 3780,
+      "sha256": "b8d21e9b2fdc8b9944e5148fc7eac4af021696c96d4d78724050e727abf13553"
+    },
+    "engines/saga2/document.cpp": {
+      "size": 22955,
+      "sha256": "970dce12cf0eb41b0495cbe42ec7b0ad1f3330e555582bd02e25010e4e081d2e"
+    },
+    "engines/saga2/document.h": {
+      "size": 4923,
+      "sha256": "4548e2a922486e1af117f1777731347855055270f85b4b7e195281946106f2f9"
+    },
+    "engines/saga2/effects.cpp": {
+      "size": 14904,
+      "sha256": "969da1e3a6c27fd72d05575f24e3b98743bc36240e300000d6314cce9e51b883"
+    },
+    "engines/saga2/effects.h": {
+      "size": 17565,
+      "sha256": "98d25ebb8e27e82f6b1caa76e327532cf070398ee0cd4ff6e6543f3b005d51b6"
+    },
+    "engines/saga2/enchant.cpp": {
+      "size": 8713,
+      "sha256": "9e38f56b5d336ca2bf392c969881d0df7b5186d3b703cc2a2ef7f925b475cd8c"
+    },
+    "engines/saga2/enchant.h": {
+      "size": 2837,
+      "sha256": "ad73c74b1ace4ece536d7433d39fa6a2ed0dbd0b66471193ea920de1d4ac7aee"
+    },
+    "engines/saga2/floating.cpp": {
+      "size": 20871,
+      "sha256": "1d6a3f705630800f14f84e49f282382cb4edba35c54d8f1a611eb47985135943"
+    },
+    "engines/saga2/floating.h": {
+      "size": 9959,
+      "sha256": "9c24ccd539ae55a4989d3cbcb2b2fa3bb3c7bf143af4f6ceb15d7f762db2e27e"
+    },
+    "engines/saga2/fontlib.h": {
+      "size": 1835,
+      "sha256": "7c1bad67ffd4a378e6a1e6557995fc5d70f742380369dffa644661591c8740ec"
+    },
+    "engines/saga2/fta.h": {
+      "size": 7661,
+      "sha256": "e8c171b974640b7c0f534c424324e40b9b505bbf6c62ad58291482bd10ce0330"
+    },
+    "engines/saga2/gamemode.cpp": {
+      "size": 3806,
+      "sha256": "272dc0c18a0f4efc67874906b295c515c235909216e7de50bd2577bc48e75794"
+    },
+    "engines/saga2/gamerate.h": {
+      "size": 5424,
+      "sha256": "b79002f10d3f766cab9ef2c890f73af5d9ef686dbe7e02f4ef28b34e13532749"
+    },
+    "engines/saga2/gbevel.h": {
+      "size": 2948,
+      "sha256": "b6a4f3d68fe84ae9eb64c41e71f1511cd3342c44759e65234840c231c138557f"
+    },
+    "engines/saga2/gblitter.h": {
+      "size": 1919,
+      "sha256": "8d3da5a75727764185003508e9f309dfbce701abd15b01d371da4d75448a3e75"
+    },
+    "engines/saga2/gdraw.cpp": {
+      "size": 27653,
+      "sha256": "d70a07e1f017956a32330d8187b2199e87335bd2dc2240e16a4863c780235661"
+    },
+    "engines/saga2/gdraw.h": {
+      "size": 12695,
+      "sha256": "90e154dc699484129f75382c6a36e613385cbb2d69c5801d9e83d1ff182e10db"
+    },
+    "engines/saga2/gfx.cpp": {
+      "size": 2531,
+      "sha256": "ebc8ac2b5b0b0d8d130c0fe6bf42be8129e0aa94485ea8aa46826978d26f6f81"
+    },
+    "engines/saga2/gfx.h": {
+      "size": 1511,
+      "sha256": "f9e4e8be77dc73c6989855701acc9320178e2da939be0ad5efe6382a3978399a"
+    },
+    "engines/saga2/gpointer.cpp": {
+      "size": 4183,
+      "sha256": "f502019d0630a4cef23d15334fd28f17aa3535d3a007329dc1f37bf1b455e568"
+    },
+    "engines/saga2/gpointer.h": {
+      "size": 2824,
+      "sha256": "e1d8e2975cffb732bfa75c663c865b14c979535c45f85ddaa7c4f37399fb4a4d"
+    },
+    "engines/saga2/grabinfo.cpp": {
+      "size": 10449,
+      "sha256": "0e726f48fdc6696c03b152683b0e151e5df4cb4de549efd18f42d5a31dd43e6a"
+    },
+    "engines/saga2/grabinfo.h": {
+      "size": 3934,
+      "sha256": "685fa5c00980df68917d6e116aae5ad406397e1208d9f12a9b12f95155615f68"
+    },
+    "engines/saga2/grequest.cpp": {
+      "size": 10798,
+      "sha256": "b217b323eaa946df9b208596b2483dc8f3fa458077fa9e148cb021562dde0588"
+    },
+    "engines/saga2/grequest.h": {
+      "size": 1655,
+      "sha256": "e3ddf951ea4ad8125125dcea5d08ab07c7a2e294142f26ca624f13fdf7a0a5da"
+    },
+    "engines/saga2/gtext.cpp": {
+      "size": 26243,
+      "sha256": "65dcfa08e0f5e2ee1806892fcf61cc3e78dc5132dadde918b61791ee1d6626ce"
+    },
+    "engines/saga2/gtextbox.cpp": {
+      "size": 30188,
+      "sha256": "c80a183fecda541a4292e075827be76dce9b3e240e93adddd469bae7ca0aec6c"
+    },
+    "engines/saga2/gtextbox.h": {
+      "size": 5870,
+      "sha256": "b4a7bff21de069b208046a9c9c9d5c24c3a94c49511852b9ccda4a1d790005bd"
+    },
+    "engines/saga2/hresmgr.cpp": {
+      "size": 9643,
+      "sha256": "d97c85e803f19e18ded284af5805cb4dc8d900a62e1692bfaf7c8fe96703dd8b"
+    },
+    "engines/saga2/hresmgr.h": {
+      "size": 4595,
+      "sha256": "93bbd356f3f3992c902953f6ba95dd5e2fce6796def50d5ebc75f8dade48c182"
+    },
+    "engines/saga2/idtypes.h": {
+      "size": 11345,
+      "sha256": "ebb08da653c3d463defe32bcdcdbe1f594c860914300385237f884dfc8e1b6a2"
+    },
+    "engines/saga2/imagcach.cpp": {
+      "size": 4751,
+      "sha256": "894bf6fac1e35ab8f32b0cb72ea53e4bfcd725b13aafddc68b3a9cbda5953740"
+    },
+    "engines/saga2/imagcach.h": {
+      "size": 2284,
+      "sha256": "f01dbef7b3ef3cc35316229533ac904b436024b9c76ba420e2f6471b58778ee4"
+    },
+    "engines/saga2/input.h": {
+      "size": 1496,
+      "sha256": "5754a59eac621433c6a698b96bd8829c8a1d763733d6d09b56617cb9fd7c6258"
+    },
+    "engines/saga2/interp.cpp": {
+      "size": 55550,
+      "sha256": "277c6a67b56fbad4a936c65e5604b764ba5b347a19c6e6f188e138aac6de757d"
+    },
+    "engines/saga2/intrface.cpp": {
+      "size": 89604,
+      "sha256": "d82053836ff092e11c94de8307663db588e90490b20cc340da7297b5b9bb303a"
+    },
+    "engines/saga2/intrface.h": {
+      "size": 16343,
+      "sha256": "61c64d487b191750776931f5ec7725ab00f6958b36a9f722539b60dafd1c6464"
+    },
+    "engines/saga2/loadmsg.cpp": {
+      "size": 2048,
+      "sha256": "ee70c220f1c16cde257842bfa5b33a872e71563a898bf7b8a776e766555b5f93"
+    },
+    "engines/saga2/loadmsg.h": {
+      "size": 1192,
+      "sha256": "258b987ae527eead8f963feb8bb4f7d18cb21047e87cf9d8f8afa1d3badad242"
+    },
+    "engines/saga2/localize.h": {
+      "size": 4592,
+      "sha256": "abe97d3043c9bce7be4e097344cd674d914fe880e6e4d49f7c381f7ac1fdf95b"
+    },
+    "engines/saga2/magic.cpp": {
+      "size": 12884,
+      "sha256": "d324567de3b5058311398d4a8911270fe717cc2c21d769b803d718600e9b4880"
+    },
+    "engines/saga2/magic.h": {
+      "size": 3825,
+      "sha256": "cdb19390e4449047d6591f89839169e6e09796f8e7f57a9049eb81c7a652e1fa"
+    },
+    "engines/saga2/main.cpp": {
+      "size": 26955,
+      "sha256": "6134a20c976dfcfb493b74bdcac3ec0f8c0fa5c03e3b003bbdb5e18201e30967"
+    },
+    "engines/saga2/mainmap.cpp": {
+      "size": 1671,
+      "sha256": "8ca27e66412fd8149ec9fc04466260c43d84ddeb8dba22efea0c04585e897f3e"
+    },
+    "engines/saga2/mainmap.h": {
+      "size": 1587,
+      "sha256": "d76a89e72d4681ba0b8b916f78d0f4916bf8d330aea984fee1f36c0bfb17fc27"
+    },
+    "engines/saga2/mapfeatr.cpp": {
+      "size": 15898,
+      "sha256": "a70d84a0a0dae01b79b2c4c1608ebe90b932c5c8183ae0f5b8b76d1688cfe6c5"
+    },
+    "engines/saga2/mapfeatr.h": {
+      "size": 3872,
+      "sha256": "310fe1d4f48ea665d1eac106d3225cbfd6dddf62b5b00600fe6a4a359fa6369e"
+    },
+    "engines/saga2/messager.cpp": {
+      "size": 3068,
+      "sha256": "9f941a1a56c3062a6bea34909c0ac457008ff7be6f46e5e0914e50a0486138ad"
+    },
+    "engines/saga2/messager.h": {
+      "size": 3444,
+      "sha256": "9bad7fa5d4a00df8bad1c78396347f3aa152dbd9142c3249d19cc29ff66dbe9d"
+    },
+    "engines/saga2/methods.r": {
+      "size": 2687,
+      "sha256": "302a6811fcb2b09cb345bf7437642228cca169a1b729467dabdf61fcedff47f0"
+    },
+    "engines/saga2/mission.cpp": {
+      "size": 8918,
+      "sha256": "2df2165f30ce57981a5a53fe99c691894eb00271204a32e87ee7df0c42c825c9"
+    },
+    "engines/saga2/mission.h": {
+      "size": 3564,
+      "sha256": "8654b3de12bb9912aa292f4be5eeee0fac991e94a3145ba239407b99d0730abb"
+    },
+    "engines/saga2/modal.cpp": {
+      "size": 2798,
+      "sha256": "7e3b86d67bacd8a7ca406e7111135b61b81f3c2b65ac231e07759bf29ed0b2fc"
+    },
+    "engines/saga2/modal.h": {
+      "size": 1832,
+      "sha256": "4f17fa5153a0957198b01314f74e25e5ff82ce81481aad8a3b5404f003cdc5b3"
+    },
+    "engines/saga2/motion.cpp": {
+      "size": 137820,
+      "sha256": "1e380999bb1a4af33a5d40189cd00c76dc186a3e7b789819224805412996b48f"
+    },
+    "engines/saga2/motion.h": {
+      "size": 20561,
+      "sha256": "96c4673e4d72c125db2ec95af3edd396f4895945dcc892b8e92f1964529aefc1"
+    },
+    "engines/saga2/mouseimg.cpp": {
+      "size": 11796,
+      "sha256": "460e11bc434d39fe7feb0ea7f303eafe7bd823cf74fc2f2688307838ca58a477"
+    },
+    "engines/saga2/mouseimg.h": {
+      "size": 2004,
+      "sha256": "aa2357c530c9b2ef2c0fd63d898ea8e75f5beec9a4aec9e0731a790dc9b15b97"
+    },
+    "engines/saga2/msgbox.cpp": {
+      "size": 12011,
+      "sha256": "3558b4e80c3e1195097869a49a3414ec8225213b649218d104d925cede3ce4e9"
+    },
+    "engines/saga2/msgbox.h": {
+      "size": 3368,
+      "sha256": "0fc73f50d3f20c08ee6041775739e5e847a7cbae2d1db88fd77e6caa5caccf07"
+    },
+    "engines/saga2/music.cpp": {
+      "size": 4391,
+      "sha256": "2484f66ce7114211f7d992148241e37658c14d147f048054c5cfc24f4e5de1e5"
+    },
+    "engines/saga2/music.h": {
+      "size": 1837,
+      "sha256": "84a2ee4f88bad28e467baac467c74a580592afe05cdbc86a47dfce3b56c7d5d6"
+    },
+    "engines/saga2/objects.cpp": {
+      "size": 136363,
+      "sha256": "89f2322d472dd7edbcea4f57d202dc4d127bb937aafdd838cae6a65bc11985ec"
+    },
+    "engines/saga2/objects.h": {
+      "size": 41008,
+      "sha256": "685f735a30649184ea97f99c6d24a48c5d7f9e4d427f0b365b1134bf5d627afb"
+    },
+    "engines/saga2/objproto.cpp": {
+      "size": 85997,
+      "sha256": "204ded9647e26bba9e877787ddfffdf8f1d84af6b052e2d86a94a046152ed243"
+    },
+    "engines/saga2/objproto.h": {
+      "size": 53624,
+      "sha256": "09f1a23955b9b081ad93a1db4c7fd3f48e342577515b144bcaf5e88b82f83dc2"
+    },
+    "engines/saga2/oncall.h": {
+      "size": 1725,
+      "sha256": "5e42381c645d639eb031401524705ce37ec1ef992f509530146b818e8cec787f"
+    },
+    "engines/saga2/palette.h": {
+      "size": 1754,
+      "sha256": "81649b8320255f3eaf1bc2fd4210b0be1f09f0e9e412caaec0804972fe4c86db"
+    },
+    "engines/saga2/panel.cpp": {
+      "size": 29261,
+      "sha256": "1ad8c06c98c516a39606376654b4fe56e94b7eb67fda8e81ef8d845ea69a247e"
+    },
+    "engines/saga2/panel.h": {
+      "size": 17709,
+      "sha256": "f64f7cb34071bf1536666e0dc60b8d6352225294a574bf5e393223fb58591032"
+    },
+    "engines/saga2/path.cpp": {
+      "size": 86567,
+      "sha256": "06e964c23b377c6bd9c8e133ce80604f9a826917bd1284fe601c4b6cd584d5ed"
+    },
+    "engines/saga2/patrol.cpp": {
+      "size": 8283,
+      "sha256": "6efb78010e716c02720c1e5a926c6c851841ee9c524d50bbc70aee4d5ba46e6a"
+    },
+    "engines/saga2/patrol.h": {
+      "size": 5645,
+      "sha256": "f75343c57cece948b3ae37bd773c227cac864768747cb3475b190bf930e14896"
+    },
+    "engines/saga2/pclass.r": {
+      "size": 1900,
+      "sha256": "3565287273aa455c4858c08a843935335090231b47d5939a2787558ecbf8ccdf"
+    },
+    "engines/saga2/player.cpp": {
+      "size": 31893,
+      "sha256": "41801b47eb3b8884338319e2b751098f18c51ca54dd47674bd745f3164d01c6e"
+    },
+    "engines/saga2/player.h": {
+      "size": 9251,
+      "sha256": "9984e4014f450fef5a70e8d8c052779436763764c328b34c23fd514db3e27adc"
+    },
+    "engines/saga2/playmode.cpp": {
+      "size": 10657,
+      "sha256": "de81f68bce38fc242a1173111bcd7f5f7a282a87b2e68950300c94e783305ff3"
+    },
+    "engines/saga2/priqueue.h": {
+      "size": 3206,
+      "sha256": "5aa5526190be36474268b582a0946827c46cff49347ee87d167c97e91b196ef0"
+    },
+    "engines/saga2/program.h": {
+      "size": 1942,
+      "sha256": "33db8fbc11da60a847108559f362affe7cd2ad7db21ee62148212f4ec27c248f"
+    },
+    "engines/saga2/property.cpp": {
+      "size": 7859,
+      "sha256": "aaf30cd142813996ce2d08b0bee815b90c112b135075ad3500206f9ded05d124"
+    },
+    "engines/saga2/property.h": {
+      "size": 12299,
+      "sha256": "b33f79d522aff7a42d67e2681ac63163fc952fa37088d84ff6b465c6d606f63c"
+    },
+    "engines/saga2/pt2angle.cpp": {
+      "size": 5797,
+      "sha256": "cd21891f70cf40df305c72961bb4c47b74ac0e44d270ae9db50d09b27085a23b"
+    },
+    "engines/saga2/rect.cpp": {
+      "size": 2815,
+      "sha256": "f06e154fab8e5b206143da604b82e7ddfc68db1ede1fa834161b5cad25e62a16"
+    },
+    "engines/saga2/rect.h": {
+      "size": 8323,
+      "sha256": "4af873219ea928b5d5fdb1f73c631829d1d98c187b242eb49a4159f1d7a0fc8a"
+    },
+    "engines/saga2/saga2.cpp": {
+      "size": 10454,
+      "sha256": "8ed37255d3e7453d7a8a13a81a978727e53bfe87091bbfb568e5050c4fcbf3c2"
+    },
+    "engines/saga2/saga2.h": {
+      "size": 5460,
+      "sha256": "ac098ea5c10e2a133793a3e16b2ca9944bc12fb8ebad3e8e8bd80f7325a991da"
+    },
+    "engines/saga2/sagafunc.cpp": {
+      "size": 109667,
+      "sha256": "a655f8d924af1ef09ffda68731cf6a94b34248c13a71e4af6fc384ab0c319d31"
+    },
+    "engines/saga2/saveload.cpp": {
+      "size": 14635,
+      "sha256": "959a99726ca3f8767665685c3aeabdde2bbcb186ea0b38b261bbba6c28272eae"
+    },
+    "engines/saga2/saveload.h": {
+      "size": 2415,
+      "sha256": "81985081f3462376acd1530ba1821447479934f733c0da49c340d9dcd326665a"
+    },
+    "engines/saga2/script.h": {
+      "size": 10988,
+      "sha256": "37b3a3d4dcc2b77a28d4ee5902700e4cb0f602286c0a0934a3e6ccb1f1d6a797"
+    },
+    "engines/saga2/sensor.cpp": {
+      "size": 25152,
+      "sha256": "d8740f3ec6e626acdc836dab5eae72c0be297ac7c23e860170e274b90195ee5a"
+    },
+    "engines/saga2/sensor.h": {
+      "size": 12714,
+      "sha256": "247d89964b2c580e8a8b8000d749f34b68cbb420bce7cb4659a2c65385675c03"
+    },
+    "engines/saga2/setup.h": {
+      "size": 2108,
+      "sha256": "687711b5c1010e5db95c13e7f3b02a55c9b41da135608496ea754dd3252d2b7a"
+    },
+    "engines/saga2/shorten.cpp": {
+      "size": 15225,
+      "sha256": "af299c717d3ac694d1779390da66803fc3780b6a2fc1c25e2c864ef172b69929"
+    },
+    "engines/saga2/shorten.h": {
+      "size": 1678,
+      "sha256": "b540ba88ab891fd095e88f23c7c299fb70c475f60b825aad6d181b52a720a0f4"
+    },
+    "engines/saga2/speech.cpp": {
+      "size": 34120,
+      "sha256": "a46d2ae620ae35924462ad74ab49d5c873a55bbdf90e7a7f4c24de813495f2fa"
+    },
+    "engines/saga2/speech.h": {
+      "size": 6385,
+      "sha256": "f5052feb8e6bd1c16307d0b5ea82d4a5f8067fb05dc6c8ffcb426872042e1d14"
+    },
+    "engines/saga2/spelcast.cpp": {
+      "size": 29182,
+      "sha256": "c0fe930371e3d2f4b518a8353999ad28bab194fc9339fbff25dcb0aa1ba25e6c"
+    },
+    "engines/saga2/speldata.cpp": {
+      "size": 10251,
+      "sha256": "5f585b88baf3a45ed85007803636d27c1d8b7c32e6ea8a6de62b688d89549afa"
+    },
+    "engines/saga2/speldefs.h": {
+      "size": 9730,
+      "sha256": "81e9c6c5043e2a861e9dcc3577f57ff292380ed1fd36a106adcf783511a0e221"
+    },
+    "engines/saga2/speldraw.cpp": {
+      "size": 7605,
+      "sha256": "f9b6e4ae7044f445033b3fe4fd98480742a6d8f1b825bb063b69a36c8a7ca6c6"
+    },
+    "engines/saga2/spellbuk.h": {
+      "size": 6470,
+      "sha256": "6a8c58a1be14a8678cf2e78acdd4a285b2750683833ccc57ca65ab2e1afd11ac"
+    },
+    "engines/saga2/spellini.cpp": {
+      "size": 10530,
+      "sha256": "bcb1e794e97574a5f4464ae2fb06ac71f2b0300abed4dc9aa4c1f9f0bb818c45"
+    },
+    "engines/saga2/spellio.cpp": {
+      "size": 15783,
+      "sha256": "6d29cf4f0e932fdd769ca83409ac5f19a8ef3584a141a6ba044baf730719b249"
+    },
+    "engines/saga2/spellio.h": {
+      "size": 6342,
+      "sha256": "53680767d5c3fd423c1e1e70752b05dfb2f3abbc4c17db406f09e2ca6d119894"
+    },
+    "engines/saga2/spellloc.cpp": {
+      "size": 4465,
+      "sha256": "77fd53fcbb43c344635fa5e77c87c8c1208b544fdf11b5378dc31bb891d72080"
+    },
+    "engines/saga2/spells.h": {
+      "size": 3690,
+      "sha256": "c6b17b4fb230db11abd0dabdce1da68b2792bafc586b6989f8a24adbcc0e6bb7"
+    },
+    "engines/saga2/spellsiz.cpp": {
+      "size": 1791,
+      "sha256": "ab734898ab5ddba478ee67fd28cd929c77d2983e41a55855c9c39c64d3e79adf"
+    },
+    "engines/saga2/spellspr.cpp": {
+      "size": 5487,
+      "sha256": "dbbec4d31fbd899fba676055d23c4d5c00924b890abd3c2882b51a61fb06c214"
+    },
+    "engines/saga2/spellsta.cpp": {
+      "size": 3820,
+      "sha256": "1f1a0dbc1f3b08431c8d59b2364018d3c5aad70a601e34a8b95fbcf3106d84b2"
+    },
+    "engines/saga2/spelshow.h": {
+      "size": 14488,
+      "sha256": "b70761b503b48e25d5f18f4cbbe186d141a16fe99ca7a6ceeb187aaf77d67d0d"
+    },
+    "engines/saga2/spelvals.h": {
+      "size": 3780,
+      "sha256": "ff9cd8ac71714a34ad2b095db23626e9cd68033946c717a2784634393bf96b57"
+    },
+    "engines/saga2/sprite.cpp": {
+      "size": 25613,
+      "sha256": "6e078e14fe9b43831a5fd3811b7f78f1111113322be12ef9a8f9148bd65618dc"
+    },
+    "engines/saga2/sprite.h": {
+      "size": 12192,
+      "sha256": "5f1c9570018961dd7017d65da61e38ef24aa8df7166d8a99ef5076daaa75b4a7"
+    },
+    "engines/saga2/stimtype.h": {
+      "size": 3300,
+      "sha256": "7517a54bb090adcc3a1273c8ac10adef29313a2fbdb6c65b97ab478e68fbe199"
+    },
+    "engines/saga2/tagnoise.h": {
+      "size": 1286,
+      "sha256": "812091759520668bc552267ac8eb6eafd5c731a362fddab9e4cb660a7424b40f"
+    },
+    "engines/saga2/target.cpp": {
+      "size": 39674,
+      "sha256": "2ebe6e955f2683a34d96dc2682d60799ec3af748455e206869cf4512c326fe95"
+    },
+    "engines/saga2/target.h": {
+      "size": 19469,
+      "sha256": "14f624ae6da2c60bdb10364e8f8ddbf8d79bf7bc8f6e382edfea17d4969b2993"
+    },
+    "engines/saga2/task.cpp": {
+      "size": 118619,
+      "sha256": "5c325feffbe851e7a21e424343c8c57ad5573ab69bbaba25a3c8fbd4053df61f"
+    },
+    "engines/saga2/task.h": {
+      "size": 41101,
+      "sha256": "dcf84bf0d80b6db53a9507b90259290ff3c25cd09e93065489890b5197358e1b"
+    },
+    "engines/saga2/tcoords.h": {
+      "size": 8459,
+      "sha256": "8b0ae281814b1e149a0f1d948c77c6de0e34348729f17329ff29511481045abd"
+    },
+    "engines/saga2/terrain.cpp": {
+      "size": 26148,
+      "sha256": "56def4da31e04f6c65d937ff8ffe3ae9e1071ad0010d10f2d6046204c4697ce5"
+    },
+    "engines/saga2/terrain.h": {
+      "size": 5972,
+      "sha256": "05336c9eef31d2672dc2d6df0ad269e3ce96c49bbb2f23fc8535c02711a900e9"
+    },
+    "engines/saga2/tile.cpp": {
+      "size": 130953,
+      "sha256": "4f275c575a593cc91795ed1824cdf808a25a9626af262b1f9b7657c1a1ec6c17"
+    },
+    "engines/saga2/tile.h": {
+      "size": 33067,
+      "sha256": "927386b2038898600c8ccbcbb8bd92d24d00e825f9c4b17768af864bd87ea841"
+    },
+    "engines/saga2/tileline.cpp": {
+      "size": 3275,
+      "sha256": "bc52491bdb06814d1b34ad470c6180e88f6257264d76a9de51ee72f3773a826e"
+    },
+    "engines/saga2/tileline.h": {
+      "size": 1549,
+      "sha256": "8faab96fb067252f2ccf2eab4c7bdc19ac39dbab67adad290f0a31dedf993837"
+    },
+    "engines/saga2/tileload.cpp": {
+      "size": 3884,
+      "sha256": "bc05b86690f3da0c6266a160bd91555e2b5536a9a14b701f85b75866b3f0b61e"
+    },
+    "engines/saga2/tileload.h": {
+      "size": 4933,
+      "sha256": "bd90bc234164a549ed40a583451a6bad84afffc7db475960a6ad00a7338c6376"
+    },
+    "engines/saga2/tilemode.cpp": {
+      "size": 42119,
+      "sha256": "8296778dfd44a0b15616d458aaaf47ae75556554ad640f205826a2c6793b76cf"
+    },
+    "engines/saga2/tilemode.h": {
+      "size": 1963,
+      "sha256": "ce21b80eacd23709b6b2ceb336601af34fae75ac65535dbe06ddbc065efd6a51"
+    },
+    "engines/saga2/tilevect.h": {
+      "size": 4241,
+      "sha256": "8ee7b39062ac461e34c6a03c36481ae576e8b040b364e047cd9898bc2903da12"
+    },
+    "engines/saga2/timers.cpp": {
+      "size": 9153,
+      "sha256": "ccf1b518660cdf7445aaa2c2b2eddff7560486ed2f2c89d3c75aeb643b9a3457"
+    },
+    "engines/saga2/timers.h": {
+      "size": 3239,
+      "sha256": "c973435d7d05f9b316450f72910c333ec710562ebada2414a6657632f3f5e18b"
+    },
+    "engines/saga2/tower.cpp": {
+      "size": 4161,
+      "sha256": "871adcf4566a3f615da0b2075242a35ce2ea95193eaf5066f91e32d5b53ab9b0"
+    },
+    "engines/saga2/tower.h": {
+      "size": 3013,
+      "sha256": "e6b3aa49e3b986c28d53c10ddb64638d40b8a84920fc5b8f858cead4f52d0466"
+    },
+    "engines/saga2/towerfta.cpp": {
+      "size": 12941,
+      "sha256": "57a245878b3eaefeb9d781d03d7ec81e7578a0df5deab8660ad5939fb3b03aa8"
+    },
+    "engines/saga2/towerfta.h": {
+      "size": 2750,
+      "sha256": "a294eca4d6adf1f37a1575d974495651ac0f716cb3f785937a36a9f441324b04"
+    },
+    "engines/saga2/towerwin.h": {
+      "size": 2073,
+      "sha256": "988adb0e77d3ae76a716d32f87936dd18ad7f7385249be28abe40aa4bd8c5113"
+    },
+    "engines/saga2/transit.cpp": {
+      "size": 3638,
+      "sha256": "01e59c7733639431183793253bfe882d0285784a49d010bf199b7c80ce4afb38"
+    },
+    "engines/saga2/transit.h": {
+      "size": 1202,
+      "sha256": "6c4a6f55564b860d7994bb1c36070262e4f9010d047230169f627ea8186e666c"
+    },
+    "engines/saga2/tromode.cpp": {
+      "size": 6412,
+      "sha256": "852f8356ad1154a7a637425b2075daa2d8848499d5d0411ed4c80926e2a5ada4"
+    },
+    "engines/saga2/tromode.h": {
+      "size": 1283,
+      "sha256": "b88d352557fbfa4b157ef99de323c597e092be9636904950f18eb9d825f9841c"
+    },
+    "engines/saga2/uidialog.cpp": {
+      "size": 41909,
+      "sha256": "32d52ec230af360801f0e12ae9641811bfb106395473d2b53df059fa94152d0e"
+    },
+    "engines/saga2/uidialog.h": {
+      "size": 3785,
+      "sha256": "3389e571001be0a7cd1154d6c3a51e47aaa11d52294148e91611e821af19df11"
+    },
+    "engines/saga2/uimetrcs.h": {
+      "size": 1931,
+      "sha256": "efabf1e94f942adc67dd37935b3fbd96571237acf5016e3cf2e94220c42b01e4"
+    },
+    "engines/saga2/uitext.h": {
+      "size": 2127,
+      "sha256": "71c911e396a57dc32a19dc5603189417ad77bc91643d196557865dc678fc2eff"
+    },
+    "engines/saga2/vbacksav.cpp": {
+      "size": 2111,
+      "sha256": "58d37790a71ac1947fa9eedeff707169576cd5046991d5942c289a9fa3fc8734"
+    },
+    "engines/saga2/vbacksav.h": {
+      "size": 1734,
+      "sha256": "6e1d4db82f20bd1d084b56f5ce3bbe78c6e4adb5cde8415663b90e851e74f844"
+    },
+    "engines/saga2/vdraw.h": {
+      "size": 1850,
+      "sha256": "aa36bacb38f53a307810ab8044bdcb4beae47bd876ea102070057cf409c04d55"
+    },
+    "engines/saga2/version.h": {
+      "size": 1616,
+      "sha256": "6067b00aa86392008cd3336b83ddcc6a888e1733cdc4f9b0b4d2c5dce9f6e622"
+    },
+    "engines/saga2/video.cpp": {
+      "size": 2284,
+      "sha256": "0b308d08bde457950b78fecaf5d60b58023f2d77988d1ffd7cca7bb6fd4471d8"
+    },
+    "engines/saga2/videobox.cpp": {
+      "size": 4908,
+      "sha256": "9fbc5bb3ab085b9c70def339d1f9d18db474db5789b602f7a26c30ed2387a12b"
+    },
+    "engines/saga2/videobox.h": {
+      "size": 2747,
+      "sha256": "80250c7b13555c75c5c8d9b38cbc07e7a8858dc7b71fdc17f358f040f2f6d45a"
+    },
+    "engines/saga2/vpage.h": {
+      "size": 2344,
+      "sha256": "f2855644dc1648cd4a8b44e93da873a57d597a7204bea930ffc25119fb27bc2f"
+    },
+    "engines/saga2/vpal.cpp": {
+      "size": 10021,
+      "sha256": "ba5999bdbc33d30531a95240196cd46c753a290aa56c48531adf34bfbfd6e8ca"
+    },
+    "engines/saga2/vpal.h": {
+      "size": 2742,
+      "sha256": "64f113ccb13f305f6f4b820cb0d3555f0a9db335910fa2de8e7385ccecd11741"
+    },
+    "engines/saga2/vwdraw.cpp": {
+      "size": 11656,
+      "sha256": "b518edce459d4af4bcb04775e5ef0f3fd0c957b469140283bd5c08546e6b060a"
+    },
+    "engines/saga2/weapons.cpp": {
+      "size": 8449,
+      "sha256": "66419356b23ce7be68c80f2bfde7ef42284f634e8119b99acabd0e2c1af8d6b3"
+    },
+    "engines/saga2/weapons.h": {
+      "size": 3319,
+      "sha256": "30f0a92dc15b4dfbc5f370727a1dae0b2e6f20c72726f4557009d6bcdc834b26"
+    }
+  }
+}
