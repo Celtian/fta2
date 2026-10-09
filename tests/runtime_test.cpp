@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "platform/resources.h"
+#include "platform/startup.h"
 #include "saga2/tcoords.h"
 using namespace Native;
 static void check(bool condition, const char* what) {
@@ -52,12 +53,24 @@ int main() {
         mustFail([&] { validateHrs(hrs.data(), hrs.size()); });
         auto root =
             std::filesystem::temp_directory_path() /
-            String::format("fta2-test-%llu", static_cast<unsigned long long>(SDL_GetTicksNS()));
+            String::format("fta2-test-%llu", static_cast<unsigned long long>(SDL_GetTicksNS()))
+                .c_str();
         std::filesystem::create_directories(root / "data");
+        std::filesystem::create_directories(root / "package/bin");
+        std::filesystem::create_directories(root / "package/original-game");
+        check(discoverGameDirectory({}, root / "data", root / "package/bin").empty(),
+              "Missing installation accepted by discovery");
+        std::ofstream(root / "package/original-game/FTA2.EXE").put('x');
+        check(discoverGameDirectory({}, root / "data", root / "package/bin") ==
+                  root / "package/original-game",
+              "Package-relative game discovery failed");
+        std::ofstream(root / "data/FTA2.EXE").put('x');
+        check(discoverGameDirectory(root / "data", root, root / "package/bin") == root / "data",
+              "Remembered installation was not preferred");
         mustFail([&] { requireSeparateOutput(Path(root / "data"), Path(root / "data/cache")); });
         requireSeparateOutput(Path(root / "data"), Path(root / "saves"));
         Platform platform;
-        platform.saves.directory = root / "saves";
+        platform.saves.directory = root / u8"saves-\u017e-\u4e16";
         std::filesystem::create_directories(platform.saves.directory);
         check(platform.saves.openForSaving("../data/999.SAV") == nullptr,
               "Save traversal accepted");

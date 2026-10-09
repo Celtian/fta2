@@ -1,0 +1,151 @@
+{
+  "version": "0.1.0",
+  "status": "development-alpha",
+  "target": "Windows-x64",
+  "host": "Linux",
+  "toolchain": {
+    "zig": "0.16.0",
+    "clang": "21.1.0",
+    "cmake": "3.31.8",
+    "target": "x86_64-windows-gnu"
+  },
+  "SDL": {
+    "version": "3.4.18",
+    "source": "https://github.com/libsdl-org/SDL/releases/download/release-3.4.18/SDL3-devel-3.4.18-mingw.tar.gz",
+    "archive_sha256": "049b9dd711e3fb3f8d84feb998dfec54a75e17cf539c4a80ff4d058d839771cf"
+  },
+  "executable_sha256": "726be248fea245189e189cd2d5e180b614b17b86feeb423b5a48bc8ad677b4c4",
+  "dll_sha256": "4659d5a1e240e7d58fb92808f84afeb53395818cec62385d4796b72977a7d859",
+  "validation_environment": "Wine 10.0; isolated prefix; SDL dummy video/audio",
+  "ctest": {
+    "passed": 4,
+    "failed": 0,
+    "unicode_save_path": true
+  },
+  "integration": {
+    "status": "passed",
+    "original_files_unchanged": 54,
+    "unknown_exe_rejected": true,
+    "output_inside_originals_rejected": true,
+    "pack_sha256": "f77094a250eae904073bd21b8f2c1c208d10f8ab9d56830893aed7acd62c765e",
+    "states": [
+      {
+        "phase": "initial",
+        "frame": 1,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12521,
+        "z": 8,
+        "rng": 888809617
+      },
+      {
+        "phase": "moved",
+        "frame": 180,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12513,
+        "z": 8,
+        "rng": 1260233905
+      },
+      {
+        "phase": "switched",
+        "frame": 190,
+        "actor": 32769,
+        "u": 13249,
+        "v": 12497,
+        "z": 8,
+        "rng": 3004664737
+      },
+      {
+        "phase": "saved",
+        "frame": 220,
+        "actor": 32769,
+        "u": 13249,
+        "v": 12497,
+        "z": 8,
+        "rng": 81644917
+      },
+      {
+        "phase": "restored",
+        "frame": 230,
+        "actor": 32769,
+        "u": 13249,
+        "v": 12497,
+        "z": 8,
+        "rng": 81644917
+      },
+      {
+        "phase": "original-save-loaded",
+        "frame": 240,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12521,
+        "z": 8,
+        "rng": 135530414
+      },
+      {
+        "phase": "finished",
+        "frame": 260,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12521,
+        "z": 8,
+        "rng": 808685479
+      }
+    ],
+    "audio": {
+      "music_nonzero_samples": 276278,
+      "effects_nonzero_samples": 8322
+    }
+  },
+  "reference_comparison": {
+    "screenshots": {
+      "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+      "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+    },
+    "simulation": {
+      "initial": {
+        "frame": 1,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12521,
+        "z": 8,
+        "rng": 888809617
+      },
+      "moved": {
+        "frame": 180,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12513,
+        "z": 8,
+        "rng": 1260233905
+      },
+      "switched": {
+        "frame": 190,
+        "actor": 32769,
+        "u": 13249,
+        "v": 12497,
+        "z": 8,
+        "rng": 3004664737
+      },
+      "saved": {
+        "frame": 220,
+        "actor": 32769,
+        "u": 13249,
+        "v": 12497,
+        "z": 8,
+        "rng": 81644917
+      }
+    },
+    "save_chunks": {
+      "fta2.999": 30,
+      "fta2.001": 30
+    }
+  },
+  "pending": [
+    "manual-Windows-10-11-test",
+    "real-Windows-audio-video-device-test",
+    "MSVC-CI",
+    "complete-game-playthrough"
+  ]
+}

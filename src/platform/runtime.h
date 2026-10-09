@@ -123,9 +123,14 @@ using U32String = std::u32string;
 class Path : public std::filesystem::path {
   public:
     using std::filesystem::path::path;
-    Path(const String& s) : std::filesystem::path(std::string(s)) {}
+    Path(const std::string& s) : std::filesystem::path(std::u8string(s.begin(), s.end())) {}
+    Path(const char* s) : Path(std::string(s)) {}
+    Path(const String& s) : Path(std::string(s)) {}
     Path(const std::filesystem::path& s) : std::filesystem::path(s) {}
-    String toString(char = '/') const { return generic_string(); }
+    String toString(char = '/') const {
+        auto utf8 = generic_u8string();
+        return String(utf8.begin(), utf8.end());
+    }
 };
 template <class T> using Array = std::vector<T>;
 template <class T> using List = std::list<T>;
@@ -347,7 +352,7 @@ class Config {
     }
     void setBool(const std::string& key, bool b) { _values[key] = b ? "true" : "false"; }
     void setInt(const std::string& key, int n) { _values[key] = std::to_string(n); }
-    void setPath(const std::string& key, const Path& p) { _values[key] = p.string(); }
+    void setPath(const std::string& key, const Path& p) { _values[key] = p.toString(); }
     void load();
     void flushToDisk();
 };

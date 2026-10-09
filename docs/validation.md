@@ -1,6 +1,6 @@
-# Native alpha 0.1.0 validation status
+# Native alpha 0.1.1 validation status
 
-The result is a standalone C++20 engine using SDL 3.4.18. It was built and run on the local Linux system with the original DOS data, without DOSBox or the ScummVM framework. **This is a development alpha; a complete playthrough of the port has not yet been demonstrated.**
+The result is a standalone C++20 engine using SDL 3.4.18. It was built and run on Linux and the actual Windows host with the original DOS data, without DOSBox or the ScummVM framework. **This is a development alpha; a complete playthrough of the port has not yet been demonstrated.** Version 0.1.1 changes startup and directory selection; the extended stability and sanitizer results below were recorded on 0.1.0.
 
 The reference is a separate SAGA2 build at revision `1a3e816afd5ddc41cc2a5c51a5da292e6d61758c`, modified only by the supplied reference patches. Successful startup with DOS resources was verified before separating the engine. The missing `FTA2WIN.EXE` dependency was resolved by extracting the actual DOS resources.
 
@@ -22,9 +22,12 @@ The reference is a separate SAGA2 build at revision `1a3e816afd5ddc41cc2a5c51a5d
 | Stability | A deterministic run of 10,000 game steps, including saving and loading. This is a limited scenario in the starting area, not extended gameplay through the entire game. |
 | Memory | AddressSanitizer and LeakSanitizer checks; leaks fixed in motion-task cancellation, pathfinding, world loading and resource cleanup. |
 | Missing media | All local runs use the profile without voice data or videos. Dialogue text cannot be disabled in the options menu. |
-| Packages | Linux x64 package with bundled SDL and licences; the source ZIP excludes original game data. CI is configured for Windows x64 and macOS arm64/x64, but has not been run remotely. |
+| Windows startup | Version 0.1.1 runs on Windows NT 10.0.26200.0 with native video/audio backends. Folder selection opens the game, the path is remembered, cancellation exits cleanly and invalid selections show an error dialog. Runtime, movement/save/load and reference parity checks pass on the actual Windows host. |
+| Packages | Linux x64 and cross-compiled Windows x64 packages with bundled SDL and licences; the source ZIP excludes original game data. The earlier Windows PE executable passed public and integration/parity checks under Wine 10. Native Windows/macOS CI has not been run remotely. |
 
 Machine-readable results are in [`research/validation.json`](../research/validation.json). Baseline installation checksums are in [`research/original-files.json`](../research/original-files.json). Game images, saves and extracted graphics remain in development output directories and are excluded from the source package.
+
+Windows cross-build details and the distinction between Wine checks and native Windows testing are documented in [Windows build and validation](windows-build.md). Earlier Wine results are in [`research/windows-build.json`](../research/windows-build.json); actual Windows results for 0.1.1 are in [`research/windows-native-validation.json`](../research/windows-native-validation.json).
 
 Checksums of the compared PPM screens:
 

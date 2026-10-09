@@ -2,7 +2,7 @@
 
 A standalone C++20 engine based on SAGA2, serving as the foundation for a future Definitive Edition. It runs the original DOS game data directly, without DOSBox or a ScummVM installation. The code is licensed under GPL-3.0-or-later.
 
-**Status: development alpha.** Startup, controls, audio generation, new saves and loading an original save have been verified on Linux. Two captured scenes and all 30 world-state chunks match the reference. A full playthrough and manual Windows/macOS validation are still pending; see [validation status](docs/validation.md).
+**Status: development alpha.** Startup, controls, audio generation, new saves and loading an original save have been verified on Linux and the actual Windows host. Two captured scenes and all 30 world-state chunks match the reference. A full playthrough and macOS validation are still pending; see [validation status](docs/validation.md).
 
 ## Build and run
 
@@ -15,6 +15,8 @@ cmake --build build --config Release --parallel 4
 ```
 
 On Windows, the default generator places the executable at `build/Release/fta2-native.exe`. On macOS, pass `-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"` to build a universal binary. [CI](.github/workflows/build.yml) is configured for Linux x64, Windows x64 and both macOS architectures.
+
+The Windows x64 package includes `bin/fta2-native.exe` and `bin/SDL3.dll`. Extract the entire ZIP and double-click `bin/fta2-native.exe`. On first launch, select the original game folder containing `FTA2.EXE`; the application remembers it for future launches. Startup errors appear in a visible dialog. You can also run `.\bin\fta2-native.exe --data-dir "C:\Games\FTA2"` from PowerShell. See [Windows build and validation](docs/windows-build.md).
 
 ```sh
 fta2-native --data-dir /path/to/game --save-dir /path/to/new/saves

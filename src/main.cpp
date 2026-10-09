@@ -2,10 +2,14 @@
 #include "platform/probe.h"
 #include "platform/resources.h"
 #include "platform/runtime.h"
+#include "platform/startup.h"
 #include "saga2/saga2.h"
-int main(int argc, char** argv) {
+#define SDL_MAIN_HANDLED
+#include <SDL3/SDL_main.h>
+static int runGame(int argc, char** argv) {
+    bool interactive = argc == 1;
     try {
-        Native::Path data = "original-game", saves;
+        Native::Path data, saves;
         bool probe = false;
         int smokeFrames = 260;
         Native::Path probeOutput;
@@ -18,7 +22,7 @@ int main(int argc, char** argv) {
                 return 0;
             }
             if (arg == "--version") {
-                puts("fta2-native 0.1.0 (SAGA2 1a3e816a; GPL-3.0-or-later)");
+                puts("fta2-native " FTA2_VERSION " (SAGA2 1a3e816a; GPL-3.0-or-later)");
                 return 0;
             }
             if (arg == "--smoke-test" && i + 1 < argc) {
@@ -50,21 +54,43 @@ int main(int argc, char** argv) {
             saves = p;
             SDL_free(p);
         }
-        Native::dataDirectory = std::filesystem::canonical(data);
         saves = std::filesystem::absolute(saves).lexically_normal();
+        ConfMan.file = saves / "config.ini";
+        ConfMan.load();
+        if (data.empty()) {
+            const char* base = SDL_GetBasePath();
+            data = Native::discoverGameDirectory(
+                ConfMan.getPath("data_dir"), std::filesystem::current_path(),
+                base ? Native::Path(base) : Native::Path());
+#ifdef _WIN32
+            interactive = !probe;
+            if (data.empty() && interactive) {
+                data = Native::chooseGameDirectory();
+                if (data.empty())
+                    return 0;
+            }
+#endif
+        }
+        if (data.empty())
+            throw std::runtime_error(
+                "Game data folder not found. Use --data-dir PATH to select the folder containing FTA2.EXE.");
+        std::error_code ec;
+        Native::dataDirectory = std::filesystem::canonical(data, ec);
+        if (ec)
+            throw std::runtime_error("Cannot open game data folder: " + data.toString());
         Native::requireSeparateOutput(Native::dataDirectory, saves);
         std::filesystem::create_directories(saves);
         Native::resourceDirectory = saves / "resources";
 
-        ConfMan.file = saves / "config.ini";
-        ConfMan.load();
-        ConfMan.setPath("path", data);
+        ConfMan.setPath("path", Native::dataDirectory);
         ConfMan.setBool("subtitles", true);
         ConfMan.setBool("speech_mute", true);
         for (auto k : {"music_volume", "sfx_volume", "speech_volume"})
             if (!ConfMan.hasKey(k))
                 ConfMan.setInt(k, 192);
         Native::prepareDosResources();
+        ConfMan.setPath("data_dir", Native::dataDirectory);
+        ConfMan.flushToDisk();
         Native::Platform platform;
         platform.saves.directory = saves;
         if (probe) {
@@ -81,6 +107,16 @@ int main(int argc, char** argv) {
         return 0;
     } catch (const std::exception& e) {
         fprintf(stderr, "fta2-native: %s\n", e.what());
+#ifdef _WIN32
+        if (interactive)
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Faery Tale Adventure II", e.what(),
+                                     nullptr);
+#endif
         return 1;
     }
+}
+
+int main(int argc, char** argv) {
+    // SDL supplies UTF-8 command-line arguments on Windows.
+    return SDL_RunApp(argc, argv, runGame, nullptr);
 }

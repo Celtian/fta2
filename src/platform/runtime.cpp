@@ -115,8 +115,8 @@ Path resolveDataFile(const Path& name) {
             bool matched = false;
             if (std::filesystem::is_directory(current))
                 for (const auto& entry : std::filesystem::directory_iterator(current)) {
-                    if (String(entry.path().filename().string())
-                            .equalsIgnoreCase(component.string())) {
+                    if (Path(entry.path().filename()).toString()
+                            .equalsIgnoreCase(Path(component).toString())) {
                         current = entry.path();
                         matched = true;
                         break;
@@ -135,12 +135,12 @@ Path resolveDataFile(const Path& name) {
 bool File::open(const Path& name) {
     close();
     auto path = resolveDataFile(name);
-    std::ifstream in(path, std::ios::binary | std::ios::ate);
+    std::ifstream in(path.c_str(), std::ios::binary | std::ios::ate);
     if (!in)
         return false;
     auto n = in.tellg();
     if (n < 0 || n > INT_MAX)
-        throw std::runtime_error("Invalid file size: " + path.string());
+        throw std::runtime_error("Invalid file size: " + path.toString());
     _storage.resize(size_t(n));
     in.seekg(0);
     if (n && !in.read(reinterpret_cast<char*>(_storage.data()), n))
@@ -157,12 +157,12 @@ void OutSaveFile::finalize() {
     auto temporary = _path;
     temporary += ".tmp";
     {
-        std::ofstream out(temporary, std::ios::binary | std::ios::trunc);
+        std::ofstream out(temporary.c_str(), std::ios::binary | std::ios::trunc);
         if (!out.write(reinterpret_cast<const char*>(_bytes.data()), _bytes.size()) || !out.flush())
-            throw std::runtime_error("Cannot write save: " + _path.string());
+            throw std::runtime_error("Cannot write save: " + _path.toString());
     }
     // SDL implements replacement atomically on supported desktop systems.
-    if (!SDL_RenamePath(temporary.string().c_str(), _path.string().c_str()))
+    if (!SDL_RenamePath(temporary.toString().c_str(), _path.toString().c_str()))
         throw std::runtime_error("Cannot finalize save: " + std::string(SDL_GetError()));
 }
 InSaveFile* SaveFileManager::openForLoading(const String& name) {
@@ -189,7 +189,7 @@ OutSaveFile* SaveFileManager::openForSaving(const String& name, bool) {
     return new OutSaveFile(Path(directory / std::string(name)));
 }
 void Config::load() {
-    std::ifstream in(file);
+    std::ifstream in(file.c_str());
     std::string line;
     while (std::getline(in, line)) {
         auto pos = line.find('=');
@@ -404,7 +404,7 @@ void Platform::delayMillis(uint32 n) {
     timers.checkTimers();
 }
 void Platform::capture(const Path& p) {
-    std::ofstream out(p, std::ios::binary);
+    std::ofstream out(p.c_str(), std::ios::binary);
     out << "P6\n" << _screen.w << ' ' << _screen.h << "\n255\n";
     for (int y = 0; y < _screen.h; ++y)
         for (int x = 0; x < _screen.w; ++x) {

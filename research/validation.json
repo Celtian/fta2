@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "status": "development-alpha",
   "upstream_revision": "1a3e816afd5ddc41cc2a5c51a5da292e6d61758c",
   "toolchain": {
@@ -141,7 +141,8 @@
     "audio": {
       "music_nonzero_samples": 9552866,
       "effects_nonzero_samples": 8322
-    }
+    },
+    "tested_version": "0.1.0"
   },
   "sanitizers": {
     "address": true,
@@ -149,7 +150,8 @@
     "frames": 10000,
     "exit_code": 0,
     "errors": 0,
-    "original_save_import": true
+    "original_save_import": true,
+    "tested_version": "0.1.0"
   },
   "window": {
     "backend": "X11",
@@ -161,7 +163,7 @@
     "doors-dialogue-inventory-combat-magic-map-area-transition-regressions",
     "real-device-audio-comparison",
     "all-fonts-and-cursors-in-UI",
-    "Windows-x64-CI-and-manual-package-test",
+    "Windows-x64-MSVC-CI-and-extended-manual-test",
     "macOS-arm64-x64-CI-and-manual-package-test"
   ],
   "known_diagnostics": [
@@ -173,7 +175,17 @@
       "bundled_SDL_resolved_via_relative_rpath": true,
       "X11_window_probe_exit_code": 0
     },
-    "Windows-x64": "CI configured; not run",
+    "Windows-x64": {
+      "cross_build": "Zig 0.16.0; x86_64-windows-gnu",
+      "Wine10_ctest_passed": 4,
+      "Wine10_integration": "passed",
+      "Wine10_reference_parity": "passed",
+      "native_Windows_manual_test": "extended UI and full playthrough pending",
+      "MSVC_CI": "not run",
+      "native_Windows_startup_test": "passed; Windows NT 10.0.26200.0",
+      "native_Windows_integration": "passed; native video/audio backends",
+      "native_Windows_reference_parity": "passed"
+    },
     "macOS-arm64-x64": "CI configured; not run"
   }
 }

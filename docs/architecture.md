@@ -5,6 +5,7 @@ The product consists of `fta2-native`, its own platform layer and the imported S
 | Component | Responsibility |
 |---|---|
 | `src/main.cpp` | CLI, user paths, data validation and direct game startup |
+| `src/platform/startup.*` | Game-directory discovery and the Windows folder picker |
 | `src/platform/resources.*` | SHA-256, HRES bounds checks, the supported DOS profile and deterministic extraction |
 | `src/platform/runtime.*` | Standard containers and streams, files, configuration, timers, SDL window/input/palette and PCM mixing |
 | `src/platform/saves.*` | Original chunk-format validation and optional native metadata |
