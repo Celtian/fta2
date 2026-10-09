@@ -114,7 +114,7 @@ void prepareDosResources() {
     requireSeparateOutput(dataDirectory, resourceDirectory);
     File exe;
     if (!exe.open("FTA2.EXE"))
-        throw std::runtime_error("FTA2.EXE is missing from --data-dir");
+        throw std::runtime_error("Required resource source is missing: FTA2.EXE");
     std::vector<byte> bytes(exe.size());
     exe.read(bytes.data(), bytes.size());
     auto checksum = sha256(bytes.data(), bytes.size());
@@ -128,7 +128,12 @@ void prepareDosResources() {
                                      profile.name);
         std::vector<byte> buffer(file.size());
         file.read(buffer.data(), buffer.size());
-        validateHrs(buffer.data(), buffer.size());
+        try {
+            validateHrs(buffer.data(), buffer.size());
+        } catch (const std::exception& e) {
+            throw std::runtime_error(std::string("Invalid game archive ") + profile.name +
+                                     ": " + e.what());
+        }
         if (sha256(buffer.data(), buffer.size()) != profile.hash)
             throw std::runtime_error(std::string("Unsupported or damaged game archive: ") +
                                      profile.name);

@@ -2,10 +2,29 @@
 #include "platform/startup.h"
 namespace Native {
 Path discoverGameDirectory(const Path& remembered, const Path& working, const Path& executable) {
+    // SDL_GetBasePath includes a trailing separator; parent_path must operate
+    // on the directory itself rather than on its empty final component.
+    Path executableDirectory = executable;
+    if (executableDirectory.filename().empty())
+        executableDirectory = executableDirectory.parent_path();
+    // A bundled data directory is authoritative even when incomplete or damaged.
+    // Validation must report the problem instead of selecting another installation.
+    if (!executableDirectory.empty()) {
+        for (const auto& bundled : {Path(executableDirectory / "data"),
+                                    Path(executableDirectory.parent_path() / "data")}) {
+            std::error_code ec;
+            bool exists = std::filesystem::exists(bundled, ec);
+            if (ec)
+                throw std::runtime_error("Cannot inspect bundled game data: " +
+                                         bundled.toString() + ": " + ec.message());
+            if (exists)
+                return bundled;
+        }
+    }
     for (const auto& candidate : {remembered, Path(working / "original-game"),
-                                  Path(executable / "original-game"),
-                                  Path(executable.parent_path() / "original-game"), working,
-                                  executable}) {
+                                  Path(executableDirectory / "original-game"),
+                                  Path(executableDirectory.parent_path() / "original-game"),
+                                  working, executableDirectory}) {
         std::error_code ec;
         if (!candidate.empty() && std::filesystem::is_regular_file(candidate / "FTA2.EXE", ec))
             return candidate;

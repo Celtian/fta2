@@ -6,6 +6,7 @@ The product is GPL-3.0-or-later. Original game data is neither relicensed nor in
 * `src/audio/midiparser.{h,cpp}`, `midiparser_xmidi.cpp`, `miles_adlib.cpp`: selected portable MIDI algorithms from that same ScummVM revision, GPL-3.0-or-later. `midi.h` provides a new one-source native interface, with MIDI constants from upstream `audio/mididrv.h` and Miles constants from `audio/miles.h`.
 * `src/audio/nuked.{h,cpp}`, `nuked_wf_rom.h`: Nuked-OPL3-fast 1.8-fast.2 as distributed in that revision, LGPL-2.1-or-later, Nuke.YKT and Tony Gies. See `NUKED-LGPL-2.1`; original notices are retained. Only the chip algorithms remain; the ScummVM audio-chip adapter was removed.
 * SDL 3.4.18: zlib licence, `SDL-LICENSE.txt`. Fetched as a checksum-pinned release archive, or provided by the builder. Bundled as a shared runtime library.
+* `assets/fta2.png` and `assets/fta2.ico`: the ScummVM community game icon and its converted Windows sizes. See `APP-ICON.md` for pinned source, contributors, checksums and the supplied upstream GPL version 2 text. The icon is bundled explicitly; it is not verified as the original Windows release icon.
 * The Windows cross-build uses Zig 0.16.0 and its statically linked C++/compiler runtimes. Notices for libc++, libc++abi and libunwind (Apache-2.0 with LLVM exceptions), MinGW-w64 (its supplied COPYING notice), and Zig compiler runtime code (MIT) are preserved in `windows-runtime/`. These build-runtime components are separate from the imported SAGA2 code.
 
 ## Changes to imported code

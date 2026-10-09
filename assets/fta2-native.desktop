@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Faery Tale Adventure II
+Comment=Native engine for the original Faery Tale Adventure II game data
+Exec=fta2-native
+Icon=fta2-native
+Terminal=false
+Categories=Game;RolePlaying;

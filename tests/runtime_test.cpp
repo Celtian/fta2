@@ -67,6 +67,21 @@ int main() {
         std::ofstream(root / "data/FTA2.EXE").put('x');
         check(discoverGameDirectory(root / "data", root, root / "package/bin") == root / "data",
               "Remembered installation was not preferred");
+        std::filesystem::create_directories(root / "package/data");
+        check(discoverGameDirectory(root / "data", root, root / "package/bin") ==
+                  root / "package/data",
+              "Incomplete bundled data silently fell back to another installation");
+        std::ofstream(root / "package/data/FTA2.EXE").put('x');
+        check(discoverGameDirectory(root / "data", root, root / "package/bin") ==
+                  root / "package/data",
+              "Bundled data did not take precedence over remembered data");
+        check(discoverGameDirectory(root / "data", root, root / "package/bin/") ==
+                  root / "package/data",
+              "SDL base path with a trailing separator did not find bundled data");
+        std::filesystem::create_directories(root / "package/bin/data");
+        check(discoverGameDirectory(root / "data", root, root / "package/bin") ==
+                  root / "package/bin/data",
+              "Executable-adjacent data discovery failed");
         mustFail([&] { requireSeparateOutput(Path(root / "data"), Path(root / "data/cache")); });
         requireSeparateOutput(Path(root / "data"), Path(root / "saves"));
         Platform platform;

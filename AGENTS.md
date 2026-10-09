@@ -15,7 +15,7 @@ Use English for all project documentation, code comments, identifiers, tool outp
 - Treat `original-game/` as immutable input. Never modify, rename, delete or write files there, including the original `999.SAV`.
 - Put configuration, new saves, extracted resources and test output outside the original installation. Use `.cache/` for local development output or an external temporary directory; normal gameplay uses the SDL user directory unless `--save-dir` is supplied.
 - Copy original saves before testing them. Verify the original installation with `python3 tools/fta2_data.py verify` after changes involving data access or extraction.
-- Keep original game data, extracted graphics, screenshots and saves out of source and runtime distribution packages. Do not download replacement game data as part of development.
+- Keep original game data, extracted graphics, screenshots and saves out of source and engine-only runtime packages. The explicitly requested local complete Windows package may include only the eight verified input files selected by `tools/package_complete.py`, under `data/`. Do not include original saves, voice archives or other DOS components. Do not download replacement game data as part of development.
 - Reject unknown executable profiles with a clear error. Never apply Windows executable offsets to the DOS executable. Record recovered offsets, source hashes and extraction provenance.
 - This DOS profile has no usable voice archive or videos. Keep dialogue text enabled and ensure missing media cannot block progress.
 
@@ -67,6 +67,6 @@ See `docs/validation.md` for stability and sanitizer commands. Use AddressSaniti
 
 The engine is GPL-3.0-or-later; Nuked OPL3 retains its LGPL-2.1-or-later notices and SDL its zlib licence. Original game data is not relicensed. Keep all required notices, licences and source provenance available in distributions.
 
-Runtime packages are generated with `cpack --config build/CPackConfig.cmake -C Release`; corresponding source packages use `build/CPackSourceConfig.cmake`. Check package contents for accidental inclusion of original data or development outputs.
+Engine-only runtime packages are generated with `cpack --config build/CPackConfig.cmake -C Release`; corresponding source packages use `build/CPackSourceConfig.cmake`. Local complete Windows packages are produced by `tools/package_complete.py` from an engine ZIP and the supported local data. Public CI continues to build without proprietary data. Check that complete packages contain exactly the eight allowlisted data files and that other packages contain no original data or development outputs.
 
 Report what was changed, which checks actually ran and any remaining limitations. Keep development-alpha status until the documented acceptance checks are complete. A configured CI workflow is not evidence that Windows/macOS packages passed; an automated startup scenario is not evidence of a full playthrough.

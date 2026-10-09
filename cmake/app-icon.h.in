@@ -1,0 +1,5 @@
+// Generated from assets/fta2.png. See third_party/APP-ICON.md for artwork provenance.
+#pragma once
+inline constexpr unsigned char kApplicationIcon[] = {
+@FTA2_ICON_BYTES@
+};

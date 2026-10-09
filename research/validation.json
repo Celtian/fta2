@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "0.1.1",
+  "version": "0.1.2",
   "status": "development-alpha",
   "upstream_revision": "1a3e816afd5ddc41cc2a5c51a5da292e6d61758c",
   "toolchain": {
@@ -12,7 +12,7 @@
     "language": "C++20"
   },
   "ctest": {
-    "passed": 4,
+    "passed": 5,
     "failed": 0
   },
   "integration": {
@@ -184,7 +184,14 @@
       "MSVC_CI": "not run",
       "native_Windows_startup_test": "passed; Windows NT 10.0.26200.0",
       "native_Windows_integration": "passed; native video/audio backends",
-      "native_Windows_reference_parity": "passed"
+      "native_Windows_reference_parity": "passed",
+      "complete_package_startup": "passed; actual Windows; no data path supplied",
+      "complete_package_relocation": "passed; spaces and Unicode path",
+      "complete_package_data_precedence": "passed; bundled, remembered and explicit paths",
+      "complete_package_damage_handling": "passed; visible archive error; no fallback",
+      "complete_package_bundled_files_unchanged": 8,
+      "native_Windows_runtime_test": "passed",
+      "complete_package_evidence": "research/windows-complete-validation.json"
     },
     "macOS-arm64-x64": "CI configured; not run"
   }

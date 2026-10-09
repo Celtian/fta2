@@ -1,0 +1,2 @@
+// See third_party/APP-ICON.md for artwork provenance.
+1 ICON "@CMAKE_CURRENT_SOURCE_DIR@/assets/fta2.ico"

@@ -17,7 +17,7 @@ static int runGame(int argc, char** argv) {
             std::string arg = argv[i];
             if (arg == "--help") {
                 puts("fta2-native [--data-dir PATH] [--save-dir PATH]\nNative Faery Tale Adventure "
-                     "II; original DOS game data required.\n--help       Show help\n--version    "
+                     "II; bundled game data is loaded automatically.\n--help       Show help\n--version    "
                      "Show version");
                 return 0;
             }
@@ -88,7 +88,12 @@ static int runGame(int argc, char** argv) {
         for (auto k : {"music_volume", "sfx_volume", "speech_volume"})
             if (!ConfMan.hasKey(k))
                 ConfMan.setInt(k, 192);
-        Native::prepareDosResources();
+        try {
+            Native::prepareDosResources();
+        } catch (const std::exception& e) {
+            throw std::runtime_error("Game data in " + Native::dataDirectory.toString() +
+                                     ": " + e.what());
+        }
         ConfMan.setPath("data_dir", Native::dataDirectory);
         ConfMan.flushToDisk();
         Native::Platform platform;

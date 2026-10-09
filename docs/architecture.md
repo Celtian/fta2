@@ -5,7 +5,7 @@ The product consists of `fta2-native`, its own platform layer and the imported S
 | Component | Responsibility |
 |---|---|
 | `src/main.cpp` | CLI, user paths, data validation and direct game startup |
-| `src/platform/startup.*` | Game-directory discovery and the Windows folder picker |
+| `src/platform/startup.*` | Bundled-data discovery, remembered installations and the Windows folder picker |
 | `src/platform/resources.*` | SHA-256, HRES bounds checks, the supported DOS profile and deterministic extraction |
 | `src/platform/runtime.*` | Standard containers and streams, files, configuration, timers, SDL window/input/palette and PCM mixing |
 | `src/platform/saves.*` | Original chunk-format validation and optional native metadata |
@@ -22,6 +22,12 @@ Saves are written outside the installation, first to a temporary file and then r
 The infrastructure port replaces `Common::` names with `Native::` and removes inheritance from `Engine`, `OSystem`, the detector, metaengine, plugins and GUI debugger. Native streams and utilities are new implementations based on the standard library. Only selected portable gameplay and audio algorithms remain from ScummVM. The preserved random sequence matches `common/random.cpp` from the pinned revision.
 
 New `MotionTask` instances are value-initialized to make saves reproducible. Cancelled tasks are released after the game step finishes; cancelled pathfinding must not dereference a destroyed owner. The port also fixes resource ownership issues found by sanitizers and handles an empty window list.
+
+## Complete packages and startup
+
+Explicit `--data-dir` takes precedence. Otherwise the engine first checks `data/` beside the executable and then beside its containing directory, supporting both a flat layout and `bin/` plus sibling `data/`. An existing bundled path is authoritative even if incomplete or damaged: normal profile validation reports the failure rather than silently using a remembered installation. Only when no bundled path exists does discovery check the saved path and legacy locations, with the Windows folder picker as a final interactive fallback.
+
+`tools/package_complete.py` combines a Windows engine ZIP with exactly eight allowlisted files from the supported DOS profile. It verifies their baseline SHA-256 hashes before writing, produces a deterministic ZIP for identical inputs and records data provenance in `share/fta2-native/complete-package.json`. It does not execute or modify the original files. Public CI and corresponding source packages remain independent of game data.
 
 ## Definitive Edition
 

@@ -1,6 +1,6 @@
-# Native alpha 0.1.1 validation status
+# Native alpha 0.1.2 validation status
 
-The result is a standalone C++20 engine using SDL 3.4.18. It was built and run on Linux and the actual Windows host with the original DOS data, without DOSBox or the ScummVM framework. **This is a development alpha; a complete playthrough of the port has not yet been demonstrated.** Version 0.1.1 changes startup and directory selection; the extended stability and sanitizer results below were recorded on 0.1.0.
+The result is a standalone C++20 engine using SDL 3.4.18. It was built and run on Linux and the actual Windows host with the original DOS data, without DOSBox or the ScummVM framework. **This is a development alpha; a complete playthrough of the port has not yet been demonstrated.** Version 0.1.2 adds complete Windows packages with automatically discovered bundled data; the extended stability and sanitizer results below were recorded on 0.1.0.
 
 The reference is a separate SAGA2 build at revision `1a3e816afd5ddc41cc2a5c51a5da292e6d61758c`, modified only by the supplied reference patches. Successful startup with DOS resources was verified before separating the engine. The missing `FTA2WIN.EXE` dependency was resolved by extracting the actual DOS resources.
 
@@ -12,7 +12,7 @@ The reference is a separate SAGA2 build at revision `1a3e816afd5ddc41cc2a5c51a5d
 | HRES | All six local archives inventoried; table and internal-resource bounds checked. Synthetic malformed archives are rejected. |
 | DOS executable | Exact supported SHA-256 checked; unknown executables are rejected with expected and actual hashes. |
 | Extraction | 23 resources, including six fonts. C++ and independent Python implementations produce identical 340,358-byte packs and identical manifests. |
-| Public tests | 4/4 CTest tests: runtime, the data tool's six cases, CLI help and version. Runtime checks cover streams, SHA-256, saves, RNG, mouse mapping after resizing and finite PCM looping. |
+| Public tests | 5/5 CTest tests: runtime, the data tool's six cases, the complete-package tool's eight cases, CLI help and version. Runtime checks cover streams, SHA-256, saves, RNG, mouse mapping after resizing, finite PCM looping and bundled-data discovery, including SDL's trailing path separator. The updated runtime test also passes as a native Windows process. |
 | Startup and controls | New game, moving Julian, selecting Phillip, saving, switching characters and restoring the saved world. Automated input reaches the original game handlers. |
 | New saves | Loading restores the actor, coordinates and exact RNG state. All 30 original chunks in both compared saves are byte-for-byte identical to the reference. |
 | Original save | A copy of this installation's `999.SAV` loads from slot 2. The original file is not overwritten. |
@@ -22,12 +22,14 @@ The reference is a separate SAGA2 build at revision `1a3e816afd5ddc41cc2a5c51a5d
 | Stability | A deterministic run of 10,000 game steps, including saving and loading. This is a limited scenario in the starting area, not extended gameplay through the entire game. |
 | Memory | AddressSanitizer and LeakSanitizer checks; leaks fixed in motion-task cancellation, pathfinding, world loading and resource cleanup. |
 | Missing media | All local runs use the profile without voice data or videos. Dialogue text cannot be disabled in the options menu. |
-| Windows startup | Version 0.1.1 runs on Windows NT 10.0.26200.0 with native video/audio backends. Folder selection opens the game, the path is remembered, cancellation exits cleanly and invalid selections show an error dialog. Runtime, movement/save/load and reference parity checks pass on the actual Windows host. |
-| Packages | Linux x64 and cross-compiled Windows x64 packages with bundled SDL and licences; the source ZIP excludes original game data. The earlier Windows PE executable passed public and integration/parity checks under Wine 10. Native Windows/macOS CI has not been run remotely. |
+| Windows startup | Version 0.1.2 runs on Windows NT 10.0.26200.0 with native video/audio backends. A complete ZIP opens the game without a data path or folder picker, from an unrelated working directory and after relocation into a path containing spaces and Unicode characters. Bundled data wins over remembered paths; an explicit path overrides it. Damaged archives and missing resource sources report errors, with a visible dialog for interactive startup. |
+| Packages | Complete and engine-only Windows x64 packages bundle SDL and licences. Complete packages include exactly eight verified game inputs, unchanged after testing. Source packages exclude original game data. Movement/save/load, original-save import and full reference parity pass on the actual Windows host. Native Windows/macOS CI has not been run remotely. |
 
 Machine-readable results are in [`research/validation.json`](../research/validation.json). Baseline installation checksums are in [`research/original-files.json`](../research/original-files.json). Game images, saves and extracted graphics remain in development output directories and are excluded from the source package.
 
 Windows cross-build details and the distinction between Wine checks and native Windows testing are documented in [Windows build and validation](windows-build.md). Earlier Wine results are in [`research/windows-build.json`](../research/windows-build.json); actual Windows results for 0.1.1 are in [`research/windows-native-validation.json`](../research/windows-native-validation.json).
+
+Complete-package results for 0.1.2 are in [`research/windows-complete-validation.json`](../research/windows-complete-validation.json). The reproducible Windows test script uses isolated save directories, without `--data-dir` for automatic-startup scenarios. It intentionally damages and restores only a temporary extracted copy when exercising error handling.
 
 Checksums of the compared PPM screens:
 

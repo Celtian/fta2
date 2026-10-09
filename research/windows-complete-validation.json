@@ -1,0 +1,185 @@
+{
+  "version": "0.1.2",
+  "date": "2026-10-09",
+  "status": "development-alpha",
+  "environment": {
+    "windows": "Microsoft Windows NT 10.0.26200.0",
+    "execution": "Native Windows processes launched through Windows PowerShell; no Wine or DOSBox",
+    "video_audio": "Native Windows SDL backends; synthetic runtime test uses dummy video/audio",
+    "save_isolation": "Explicit --save-dir in Windows TEMP; startup tests supply no --data-dir"
+  },
+  "executable_sha256": "33d8c7a2af08bb059d0c993f10790f923ce110d07bb5dbf3db7f1529dedf437a",
+  "dll_sha256": "4659d5a1e240e7d58fb92808f84afeb53395818cec62385d4796b72977a7d859",
+  "startup_tests": [
+    {
+      "name": "version",
+      "finished": true,
+      "exit_code": 0
+    },
+    {
+      "name": "clean-startup",
+      "finished": true,
+      "exit_code": 0
+    },
+    {
+      "name": "moved-unicode",
+      "finished": true,
+      "exit_code": 0
+    },
+    {
+      "name": "bundled-over-remembered",
+      "finished": true,
+      "exit_code": 0
+    },
+    {
+      "name": "damaged-archive",
+      "finished": true,
+      "exit_code": 1
+    },
+    {
+      "name": "visible-damaged-error",
+      "finished": true,
+      "exit_code": 1
+    },
+    {
+      "name": "explicit-override",
+      "finished": true,
+      "exit_code": 0
+    },
+    {
+      "name": "missing-resource-source",
+      "finished": true,
+      "exit_code": 1
+    }
+  ],
+  "runtime_test": "passed as a native Windows process",
+  "complete_package": {
+    "bundled_files_unchanged": 8,
+    "relocated_unicode_path": true,
+    "unrelated_working_directory": true,
+    "data_override_used_for_startup": false,
+    "original_save_import": true
+  },
+  "integration": {
+    "states": [
+      {
+        "phase": "initial",
+        "frame": 1,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12521,
+        "z": 8,
+        "rng": 888809617
+      },
+      {
+        "phase": "moved",
+        "frame": 180,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12513,
+        "z": 8,
+        "rng": 1260233905
+      },
+      {
+        "phase": "switched",
+        "frame": 190,
+        "actor": 32769,
+        "u": 13249,
+        "v": 12497,
+        "z": 8,
+        "rng": 3004664737
+      },
+      {
+        "phase": "saved",
+        "frame": 220,
+        "actor": 32769,
+        "u": 13249,
+        "v": 12497,
+        "z": 8,
+        "rng": 81644917
+      },
+      {
+        "phase": "restored",
+        "frame": 230,
+        "actor": 32769,
+        "u": 13249,
+        "v": 12497,
+        "z": 8,
+        "rng": 81644917
+      },
+      {
+        "phase": "original-save-loaded",
+        "frame": 240,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12521,
+        "z": 8,
+        "rng": 135530414
+      },
+      {
+        "phase": "finished",
+        "frame": 260,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12521,
+        "z": 8,
+        "rng": 808685479
+      }
+    ],
+    "audio": {
+      "music_nonzero_samples": 276278,
+      "effects_nonzero_samples": 8322
+    },
+    "original_files_unchanged": 54
+  },
+  "reference_comparison": {
+    "screenshots": {
+      "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+      "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+    },
+    "simulation": {
+      "initial": {
+        "frame": 1,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12521,
+        "z": 8,
+        "rng": 888809617
+      },
+      "moved": {
+        "frame": 180,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12513,
+        "z": 8,
+        "rng": 1260233905
+      },
+      "switched": {
+        "frame": 190,
+        "actor": 32769,
+        "u": 13249,
+        "v": 12497,
+        "z": 8,
+        "rng": 3004664737
+      },
+      "saved": {
+        "frame": 220,
+        "actor": 32769,
+        "u": 13249,
+        "v": 12497,
+        "z": 8,
+        "rng": 81644917
+      }
+    },
+    "save_chunks": {
+      "fta2.999": 30,
+      "fta2.001": 30
+    }
+  },
+  "pending": [
+    "MSVC-CI",
+    "extended-manual-UI-checks",
+    "subjective-audio-device-comparison",
+    "complete-game-playthrough"
+  ]
+}

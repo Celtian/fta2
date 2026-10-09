@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "platform/runtime.h"
+#include "app-icon.h"
 #include <chrono>
 Native::Config ConfMan;
 Native::Cursor CursorMan;
@@ -242,6 +243,7 @@ void TimerManager::checkTimers() {
     }
 }
 Platform::Platform() {
+    SDL_SetHint(SDL_HINT_APP_ID, "fta2-native");
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS))
         throw std::runtime_error(SDL_GetError());
     g_platform = this;
@@ -262,6 +264,14 @@ void Platform::initGraphics(int width, int height) {
                                SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
     if (!_window)
         error("Cannot create window: %s", SDL_GetError());
+    auto* iconStream = SDL_IOFromConstMem(kApplicationIcon, sizeof(kApplicationIcon));
+    auto* icon = iconStream ? SDL_LoadPNG_IO(iconStream, true) : nullptr;
+    if (icon) {
+        SDL_SetWindowIcon(_window, icon);
+        SDL_DestroySurface(icon);
+    } else {
+        warning("Cannot load application icon: %s", SDL_GetError());
+    }
     _renderer = SDL_CreateRenderer(_window, nullptr);
     if (!_renderer)
         error("Cannot create renderer: %s", SDL_GetError());
