@@ -1,0 +1,38 @@
+docs/validation.md
+  s_379e0511314c43::t_4b5850eb052cdb 1,3
+  s_379e0511314c43::t_49e5c226da47be 38-39
+src/platform/probe.cpp
+  s_379e0511314c43::t_1794be4a7ad12e 35-43,73,78,89,91-92,101-104
+tests/runtime_test.cpp
+  s_379e0511314c43::t_53c430db45d582 114-119,134-140,144-147
+  s_379e0511314c43::t_075823bafe90c5 120,133,141-143,148
+  s_379e0511314c43::t_84081d1ffda9b8 121-132
+src/platform/runtime.cpp
+  s_379e0511314c43::t_1794be4a7ad12e 379-383
+README.md
+  s_379e0511314c43::t_1794be4a7ad12e 35
+  s_379e0511314c43::t_6af44f6f742eb6 59
+research/keypad-validation.json
+  s_379e0511314c43::t_84c58597348d83 1-133
+CMakeLists.txt
+  s_379e0511314c43::t_4b5850eb052cdb 2
+docs/windows-build.md
+  s_379e0511314c43::t_6af44f6f742eb6 58,67,75
+  s_379e0511314c43::t_4b5850eb052cdb 23-24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "200b8d45031c039f4b6ffe5f47ba1cb7c4d960cb",
+  "prompts": {},
+  "sessions": {
+    "s_379e0511314c43": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12064-37b8-7520-b7a8-9041a183461d",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Celtian <dominik.hladik@seznam.cz>"
+    }
+  }
+}
