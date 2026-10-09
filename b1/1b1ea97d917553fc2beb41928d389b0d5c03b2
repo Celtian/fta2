@@ -1,0 +1,91 @@
+src/platform/startup.cpp
+  s_ed68b25d700fb8::t_c534c3caf76247 10-11,15-23
+  s_ed68b25d700fb8::t_87b249b7ec8c7d 5-9,12-14,25-27
+AGENTS.md
+  s_ed68b25d700fb8::t_c534c3caf76247 18,70
+src/main.cpp
+  s_ed68b25d700fb8::t_c534c3caf76247 20,91-96
+third_party/README.md
+  s_6d20aad7c96bc6::t_5297e6aa4094e0 9
+tools/make_app_icon.cpp
+  s_6d20aad7c96bc6::t_4b8e24c1ddb1c7 1-41,44-73
+  s_6d20aad7c96bc6::t_2c181cead5af24 42-43
+src/platform/runtime.cpp
+  s_6d20aad7c96bc6::t_2aa6f651967b97 3,267-274
+  s_6d20aad7c96bc6::t_a90527383f0c45 246
+docs/validation.md
+  s_ed68b25d700fb8::t_bdc04243c5d7a4 1,3,15,25-26,32
+  s_ed68b25d700fb8::t_b2e3f4a2a743a6 33
+cmake/app-icon.rc.in
+  s_6d20aad7c96bc6::t_2aa6f651967b97 1-2
+third_party/APP-ICON.md
+  s_6d20aad7c96bc6::t_5297e6aa4094e0 1-39
+cmake/app-icon.h.in
+  s_6d20aad7c96bc6::t_2aa6f651967b97 1-5
+tools/package_complete.py
+  s_ed68b25d700fb8::t_d806a82aba22f4 1-8,10-123,125-131
+  s_ed68b25d700fb8::t_14ab6155dbd7be 9,124
+README.md
+  s_6d20aad7c96bc6::t_d951b8c9b824c6 23
+  s_ed68b25d700fb8::t_14ab6155dbd7be 19-22,39,54-60
+  s_ed68b25d700fb8::t_3e07bde0ea2a8f 61
+research/validation.json
+  s_ed68b25d700fb8::t_2ca2829fd553d8 3,15,187-194
+CMakeLists.txt
+  s_ed68b25d700fb8::t_c534c3caf76247 2,61
+  s_6d20aad7c96bc6::t_2aa6f651967b97 23-27,35-37,39-40,45-46,48-49
+  s_6d20aad7c96bc6::t_6db45ae5530c51 38
+  s_6d20aad7c96bc6::t_4b8e24c1ddb1c7 47
+third_party/SCUMMVM-ICONS-GPL-2.0.txt
+  s_6d20aad7c96bc6::t_2c181cead5af24 1-339
+tests/package_test.py
+  s_ed68b25d700fb8::t_d806a82aba22f4 1-107
+src/platform/resources.cpp
+  s_ed68b25d700fb8::t_c534c3caf76247 117,131-136
+docs/windows-build.md
+  s_ed68b25d700fb8::t_bdc04243c5d7a4 73-74
+  s_ed68b25d700fb8::t_b3f826356ed5cf 3-5,17-18,47-56
+  s_ed68b25d700fb8::t_75a81d7849930a 58-65
+  s_ed68b25d700fb8::t_c7fba6c8f576ea 57
+docs/architecture.md
+  s_ed68b25d700fb8::t_14ab6155dbd7be 8,26-30
+  s_ed68b25d700fb8::t_f0925419d6f93b 31
+tests/runtime_test.cpp
+  s_ed68b25d700fb8::t_c534c3caf76247 70-77,81-84
+  s_ed68b25d700fb8::t_87b249b7ec8c7d 78-80
+tools/test_complete_windows.ps1
+  s_ed68b25d700fb8::t_31fe2452bf62be 61,95,98
+  s_ed68b25d700fb8::t_75a81d7849930a 99
+  s_ed68b25d700fb8::t_bc166022496ec6 1-60,62-94,96-97,100-160
+research/windows-complete-validation.json
+  s_ed68b25d700fb8::t_2ca2829fd553d8 1-185
+cmake/toolchains/windows-zig.cmake
+  s_6d20aad7c96bc6::t_d951b8c9b824c6 9-10
+  s_6d20aad7c96bc6::t_6db45ae5530c51 11-12
+assets/fta2-native.desktop
+  s_6d20aad7c96bc6::t_2aa6f651967b97 1-8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b11b1ea97d917553fc2beb41928d389b0d5c03b2",
+  "prompts": {},
+  "sessions": {
+    "s_6d20aad7c96bc6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a11ffe-517d-7bd1-9860-c12d66e318e3",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Celtian <dominik.hladik@seznam.cz>"
+    },
+    "s_ed68b25d700fb8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a11fa7-c7ae-7820-8ea2-e59f7e06aaeb",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Celtian <dominik.hladik@seznam.cz>"
+    }
+  }
+}
