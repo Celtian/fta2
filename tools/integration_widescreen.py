@@ -55,6 +55,38 @@ def validate_exploration(output, saves):
     return dict(exploration, map_interior_parity=True, map_interiors_compared=7)
 
 
+def validate_buttons(output):
+    """Validate immediate redraw evidence and both Center On image states."""
+    result = json.loads((output / "buttons.json").read_text())
+    assert result == {"status": "passed", "immediate_redraw_checks": 200,
+                      "selections": 48, "aggression_banding_toggles": 96,
+                      "portrait_changes": 48, "layouts": 4, "repetitions": 2,
+                      "captures": 24, "fixture_restored": True}
+    center_images = {}
+    for mode, width, shift in (("classic", 640, 0), ("wide", 854, 214)):
+        for panel in ("group", "individual"):
+            for method in ("mouse", "key"):
+                for brother in range(3):
+                    name = f"buttons-{mode}-{panel}-{method}-{brother}.ppm"
+                    image = (output / name).read_bytes()
+                    header = f"P6\n{width} 480\n255\n".encode()
+                    assert image.startswith(header) and len(image) == len(header) + width * 480 * 3
+                    pixels = image[len(header):]
+                    for slot in range(3 if panel == "group" else 1):
+                        # The compressed image has transparent corners over different panel backgrounds.
+                        x, y = 561 + shift, 58 + 150 * slot
+                        crop = b"".join(pixels[(row * width + x) * 3:
+                                               (row * width + x + 24) * 3]
+                                        for row in range(y, y + 23))
+                        selected = panel == "individual" or slot == brother
+                        if selected in center_images:
+                            assert crop == center_images[selected], name
+                        else:
+                            center_images[selected] = crop
+    assert center_images[True] != center_images[False]
+    return dict(result, center_images_match_across_modes_and_input=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--binary", type=Path, required=True)
@@ -87,6 +119,7 @@ def main():
         assert result["checkbox_redraw_parity"] and result["checkbox_edge_clicks"]
         assert result["options_layouts_checked"] == 4
         exploration = validate_exploration(output, saves)
+        buttons = validate_buttons(output)
         assert "widescreen=true" in (saves / "config.ini").read_text()
         for name in ("wide-group.ppm", "wide-individual.ppm", "wide-final.ppm"):
             image = (output / name).read_bytes()
@@ -98,7 +131,7 @@ def main():
                     image = (output / f"options-{mode}-{menu}-{state}.ppm").read_bytes()
                     header = f"P6\n{width} 480\n255\n".encode()
                     assert image.startswith(header) and len(image) == len(header) + width * 480 * 3
-        results.append({"startup": startup, "checks": result, "exploration": exploration})
+        results.append({"startup": startup, "checks": result, "exploration": exploration, "buttons": buttons})
     after = {str(p.relative_to(game)): sha256(p.read_bytes())
              for p in game.rglob("*") if p.is_file()}
     assert before == after

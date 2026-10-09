@@ -200,7 +200,6 @@ protected:
 	void        *_forImage;  // pointer to forground compress image data
 	void        *_resImage;  // pointer to resessed compressed image data
 	void        *_dimImage;  // pointer to dimmed commpressed image data
-	Rect16      _extent;         // area that image covers
 	bool        _dimmed;         // duh dim bit
 	bool        _internalAlloc;  // set if memory allocated in class
 
@@ -301,7 +300,6 @@ private:
 
 protected:
 	void    **_images;
-	Rect16  _extent;
 	int16   _current;
 	int16   _min;
 	int16   _max;

@@ -4,6 +4,7 @@
 
 #include "saga2/actor.h"
 #include "saga2/automap.h"
+#include "saga2/button.h"
 #include "saga2/contain.h"
 #include "saga2/display.h"
 #include "saga2/document.h"
@@ -23,6 +24,11 @@ extern gTextBox* textBox;
 extern WorldMapData* mapList;
 extern int16 worldCount;
 extern AutoMap* pAutoMap;
+extern GfxOwnerSelCompButton *centerBtns[kNumViews], *aggressBtns[kNumViews],
+    *bandingBtns[kNumViews];
+extern GfxOwnerSelCompButton *indivCenterBtn, *indivAggressBtn, *indivBandingBtn;
+extern GfxOwnerSelCompButton *julBtn, *phiBtn, *kevBtn;
+extern GfxMultCompButton *portBtns[kNumViews], *indivPortBtn;
 void initAutoMap();
 void updateMainDisplay();
 } // namespace Saga2
@@ -266,6 +272,153 @@ struct WidescreenProbe {
                   "\"radius_metatiles\":2,\"corners_excluded\":true,\"fixture_restored\":true}\n";
     }
 
+    void buttonStates() {
+        using namespace Saga2;
+        auto vm = g_vm;
+        const auto originalMode = activeDisplayMode;
+        const auto originalActor = getCenterActorID();
+        const auto originalPosition = centerActorCoords();
+        const auto originalSeed = vm->_rnd->getSeed();
+        requireWide(vm->saveGameState(5, "Button redraw checkpoint", false) == kNoError,
+                    "cannot save button checkpoint");
+        int checks = 0, selections = 0, toggles = 0, portraits = 0;
+        auto drain = [&] {
+            if (GameMode::_newmodeFlag)
+                GameMode::update();
+            Event event;
+            while (g_platform->pollEvent(event)) {
+                if (event.type == EVENT_KEYDOWN)
+                    vm->_toolBase->handleKeyStroke(event);
+                else if (event.type == EVENT_MOUSEMOVE || event.type == EVENT_LBUTTONDOWN ||
+                         event.type == EVENT_LBUTTONUP)
+                    vm->_toolBase->handleMouse(event, g_platform->getMillis());
+            }
+        };
+        auto press = [&](gPanel* button) {
+            const auto r = button->getExtent();
+            click(mainWindow, r.x + r.width / 2, r.y + r.height / 2);
+            drain();
+        };
+        auto verify = [&](const std::string& capture = {}) {
+            std::vector<gPanel*> controls;
+            if (vm->_indivControlsFlag)
+                controls = {indivCenterBtn, indivAggressBtn, indivBandingBtn, julBtn,
+                            phiBtn,         kevBtn,          indivPortBtn};
+            else
+                for (int brother = 0; brother < 3; ++brother)
+                    controls.insert(controls.end(), {centerBtns[brother], aggressBtns[brother],
+                                                     bandingBtns[brother], portBtns[brother]});
+            std::vector<std::vector<byte>> immediate;
+            for (auto control : controls) {
+                const auto r = control->getExtent();
+                immediate.push_back(region(r.x, r.y, r.width, r.height));
+            }
+            // Preserve the normally updated pixels before requesting any full redraw.
+            if (!capture.empty())
+                g_platform->capture(output / (capture + ".ppm"));
+            reDrawScreen();
+            for (size_t i = 0; i < controls.size(); ++i) {
+                const auto r = controls[i]->getExtent();
+                requireWide(immediate[i] == region(r.x, r.y, r.width, r.height),
+                            String::format("button %u at %d,%d retained stale pixels (%s panel)",
+                                           unsigned(i), r.x, r.y,
+                                           vm->_indivControlsFlag ? "individual" : "group")
+                                .c_str());
+            }
+            ++checks;
+        };
+        for (int cycle = 0; cycle < 2; ++cycle)
+            for (bool wide : {false, true}) {
+                ConfMan.setBool("widescreen", wide);
+                requestDisplayModeChange();
+                applyPendingDisplayMode();
+                requireWide(g_platform->getWidth() == (wide ? 854 : 640),
+                            "button test has the wrong display mode");
+                for (int individual = 0; individual < 2; ++individual) {
+                    setCenterBrother(0);
+                    if (individual)
+                        setControlPanelsToIndividualMode(0);
+                    else
+                        setControlPanelsToTrioMode();
+                    reDrawScreen();
+                    for (int keyboard = 0; keyboard < 2; ++keyboard)
+                        for (int brother : {1, 2, 0}) {
+                            if (keyboard) {
+                                key(SDLK_1 + brother);
+                                drain();
+                            } else {
+                                if (individual)
+                                    setControlPanelsToIndividualMode(brother);
+                                press(individual ? indivCenterBtn : centerBtns[brother]);
+                            }
+                            requireWide(getCenterActorPlayerID() == brother,
+                                        "Center On or keyboard selected the wrong brother");
+                            for (int i = 0; i < 3; ++i)
+                                requireWide(centerBtns[i]->isSelected() == (i == brother),
+                                            "Center On radio states are inconsistent");
+                            if (individual) {
+                                requireWide(indivCenterBtn->isSelected() &&
+                                                julBtn->isSelected() == (brother == 0) &&
+                                                phiBtn->isSelected() == (brother == 1) &&
+                                                kevBtn->isSelected() == (brother == 2),
+                                            "individual brother states are inconsistent");
+                            }
+                            const std::string capture =
+                                std::string("buttons-") + (wide ? "wide-" : "classic-") +
+                                (individual ? "individual-" : "group-") +
+                                (keyboard ? "key-" : "mouse-") + std::to_string(brother);
+                            verify(cycle ? "" : capture);
+                            ++selections;
+                            if (keyboard)
+                                continue;
+                            for (bool band : {false, true}) {
+                                auto button =
+                                    individual
+                                        ? (band ? indivBandingBtn : indivAggressBtn)
+                                        : (band ? bandingBtns[brother] : aggressBtns[brother]);
+                                for (int toggle = 0; toggle < 2; ++toggle) {
+                                    const bool old = button->isSelected();
+                                    press(button);
+                                    requireWide(button->isSelected() != old,
+                                                "aggression or banding failed to toggle");
+                                    verify();
+                                    ++toggles;
+                                }
+                            }
+                            const int portrait = individual ? kUiIndiv : brother;
+                            const auto original = Portrait->getCurrentState(portrait);
+                            Portrait->set(portrait, original == kPortraitAngry ? kPortraitNormal
+                                                                               : kPortraitAngry);
+                            verify();
+                            Portrait->set(portrait, original);
+                            verify();
+                            portraits += 2;
+                        }
+                    if (individual) {
+                        // Panel switching can mask invalidation bugs by repainting the whole
+                        // sidebar. Exercise this button's own state redraw without a panel switch
+                        // as well.
+                        indivCenterBtn->select(false);
+                        verify();
+                        indivCenterBtn->select(true);
+                        verify();
+                    }
+                }
+            }
+        ConfMan.setBool("widescreen", originalMode == DisplayMode::Widescreen);
+        requestDisplayModeChange();
+        applyPendingDisplayMode();
+        requireWide(vm->loadGameState(5) == kNoError && getCenterActorID() == originalActor &&
+                        centerActorCoords() == originalPosition &&
+                        vm->_rnd->getSeed() == originalSeed,
+                    "button fixture was not restored");
+        std::ofstream(output / "buttons.json")
+            << "{\"status\":\"passed\",\"immediate_redraw_checks\":" << checks
+            << ",\"selections\":" << selections << ",\"aggression_banding_toggles\":" << toggles
+            << ",\"portrait_changes\":" << portraits
+            << ",\"layouts\":4,\"repetitions\":2,\"captures\":24,\"fixture_restored\":true}\n";
+    }
+
     void modalTick() {
         requireWide(++modalTicks < 80, "modal input timed out");
         auto dialog = Saga2::ModalWindow::_current;
@@ -466,6 +619,7 @@ struct WidescreenProbe {
         requireWide(vm->loadGameState(2) == kNoError && g_platform->getWidth() == 854,
                     "original-save import changed display mode or failed");
         exploration();
+        buttonStates();
         inspect([] { Saga2::openAutoMap(); });
         inspect([] { Saga2::openBook(Saga2::resImports->reserved[0]); });
 

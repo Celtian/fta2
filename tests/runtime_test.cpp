@@ -1,11 +1,18 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "platform/resources.h"
 #include "platform/startup.h"
+#include "saga2/saga2.h"
+
+#include "saga2/audio.h"
+#include "saga2/button.h"
 #include "saga2/gfx.h"
 #include "saga2/gpointer.h"
 #include "saga2/idtypes.h"
 #include "saga2/saveload.h"
 #include "saga2/tcoords.h"
+namespace Saga2 {
+extern gDisplayPort* globalPort;
+}
 using namespace Native;
 static void check(bool condition, const char* what) {
     if (!condition)
@@ -141,6 +148,44 @@ int main() {
         std::unique_ptr<InSaveFile> restored(platform.saves.openForLoading("fta2.001"));
         check(restored && restored->readUint16LE() == 0xFEDC, "Save directory round trip");
         platform.initGraphics(640, 480);
+        {
+            Saga2::Saga2Engine engine;
+            engine._audio = new Saga2::AudioInterface;
+            Saga2::globalPort = &engine._mainPort;
+            struct RecordingWindow : Saga2::gWindow {
+                Saga2::Rect16 updated;
+                RecordingWindow() : gWindow(Saga2::Rect16(0, 0, 854, 480), 0, "test", nullptr) {}
+                void update(const Saga2::Rect16& area) override { updated = area; }
+            } window;
+            byte unusedImages[2]{};
+            void* images[] = {&unusedImages[0], &unusedImages[1]};
+            auto owner = new Saga2::GfxOwnerSelCompButton(window, Saga2::Rect16(500, 20, 24, 24),
+                                                          images, 2, 0, nullptr);
+            auto multi = new Saga2::GfxMultCompButton(window, Saga2::Rect16(500, 60, 24, 24),
+                                                      images, 2, 0, 0, nullptr);
+            auto checkUpdated = [&](Saga2::gPanel* button) {
+                const auto bounds = button->getExtent();
+                check(window.updated.x == bounds.x && window.updated.y == bounds.y &&
+                          window.updated.width == bounds.width &&
+                          window.updated.height == bounds.height,
+                      "Translated button invalidated its old bounds");
+                check(button->hitTest(Saga2::Point16(bounds.x + 12, bounds.y + 12)) == button,
+                      "Translated button hit test used old bounds");
+            };
+            for (int shift : {214, -214, 214}) {
+                window.translateControls(shift);
+                for (int selected : {1, 0, 1, 0}) {
+                    owner->select(selected);
+                    checkUpdated(owner);
+                    multi->invalidate();
+                    checkUpdated(multi);
+                    static_cast<Saga2::gPanel*>(multi)->activate(Saga2::kEventMouseDown);
+                    checkUpdated(multi);
+                }
+            }
+        }
+        Saga2::globalPort = nullptr;
+        Saga2::g_vm = nullptr;
         int count = 0;
         auto windows = SDL_GetWindows(&count);
         check(count > 0, "Window handle");

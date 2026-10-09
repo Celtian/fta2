@@ -40,3 +40,5 @@ Version 0.1.12 adds G/Shift+G to the imported gameplay key handler and a fourtee
 Version 0.1.14 aligns the Widescreen checkbox with Night and Auto-Wield Weapon, reuses the original 18 × 17 checkbox bounds for hit testing and full redraw, and restores the 263-pixel Options height. It retains the original checkbox artwork and setting behavior.
 
 Version 0.1.15 updates native SDL window sizing and development probes. The original per-world exploration algorithm, radius, corner exclusion and save format remain unchanged.
+
+Version 0.1.16 removes duplicate control rectangles from the imported compressed-button classes and their constructor initialization. Hit testing, rendering and state-change invalidation now share the inherited panel bounds after widescreen translation. The original artwork and gameplay selection rules are preserved.

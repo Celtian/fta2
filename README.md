@@ -65,7 +65,7 @@ cpack --config build/CPackConfig.cmake -C Release
 To create the complete Windows ZIP locally after packaging the Windows engine:
 
 ```sh
-python3 tools/package_complete.py --engine-package dist/fta2-native-0.1.15-Windows-x86_64.zip --data-dir original-game --output dist/fta2-native-0.1.15-Windows-x86_64-complete.zip
+python3 tools/package_complete.py --engine-package dist/fta2-native-0.1.16-Windows-x86_64.zip --data-dir original-game --output dist/fta2-native-0.1.16-Windows-x86_64-complete.zip
 ```
 
 The tool checks all eight data files against their known SHA-256 hashes, excludes original saves and unnecessary DOS files, and records a package manifest. It refuses unknown data, output inside the original installation, and overwriting an existing output ZIP.
