@@ -164,25 +164,21 @@ void gMousePointer::setImage(
     int             y) {
 	Point16         pos = _currentPosition - _offsetPosition;
 
-	if (_pointerImage != &img
-	        ||  x != _offsetPosition.x
-	        ||  y != _offsetPosition.y
-	        ||  img._size != _saveMap._size) {
-		_offsetPosition.x = x;
-		_offsetPosition.y = y;
+	// Rebuilt cursor images can reuse an address and size with different pixels.
+	_offsetPosition.x = x;
+	_offsetPosition.y = y;
 
-		hide();
-		if (_saveMap._data)
-			free(_saveMap._data);
-		_saveMap._size = img._size;
-		_saveMap._data = (uint8 *)malloc(img.bytes());
-		_pointerImage = &img;
-		_currentPosition = pos + _offsetPosition;
+	hide();
+	if (_saveMap._data)
+		free(_saveMap._data);
+	_saveMap._size = img._size;
+	_saveMap._data = (uint8 *)malloc(img.bytes());
+	_pointerImage = &img;
+	_currentPosition = pos + _offsetPosition;
 
-		CursorMan.replaceCursor(img._data, img._size.x, img._size.y, -x, -y, 0);
-		CursorMan.showMouse(true);
-		show();
-	}
+	CursorMan.replaceCursor(img._data, img._size.x, img._size.y, -x, -y, 0);
+	CursorMan.showMouse(true);
+	show();
 }
 
 } // end of namespace Saga2

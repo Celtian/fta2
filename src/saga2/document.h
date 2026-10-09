@@ -120,6 +120,7 @@ private:
 	hResContext *_illustrationCon;
 
 private:
+	void updateCursor(const Point16 &pos, bool inPanel);
 	bool activate(gEventType why);       // activate the control
 	void deactivate();
 
@@ -159,6 +160,8 @@ public:
 	          uint16          ident,          // control ID
 	          AppFunc         *cmd = NULL);   // application command func
 	~CDocument();
+	bool open() override;
+	void close() override;
 
 	void gotoPage(int8 page);
 

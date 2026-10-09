@@ -1,0 +1,248 @@
+{
+  "date": "2026-10-09",
+  "version": "0.1.9",
+  "status": "passed",
+  "scope": "Document cursor direction, pixel refresh, close restoration and original page navigation; development alpha",
+  "cause": {
+    "direction": "gMousePointer::setImage skipped pixel upload when a composed cursor bitmap reused the same address, dimensions and hotspot. Left and right cursor images have equal dimensions.",
+    "restoration": "Closing a document cleared hover references without restoring the cursor; Escape and bookmark callbacks did not reset it."
+  },
+  "fix": {
+    "pixels": "Upload current pixels on every cursor image update, including same-address and same-size images",
+    "document": "Centralized local-coordinate cursor selection for open, move, drag and release; close control and outside areas use the normal pointer",
+    "close": "Document close and destruction restore the original normal pointer and hotspot",
+    "interfaces": "Existing virtual open/close overrides only; no new public platform API or CLI options"
+  },
+  "public_regression": {
+    "status": "regression reproduced",
+    "old_cursor_implementation_exit_code": 1,
+    "stderr": "runtime-test: Cursor pixels must refresh when the bitmap address and size are reused",
+    "fixed_public_runtime_test": "passed"
+  },
+  "document_scenarios": {
+    "options_layouts": [
+      "in-game",
+      "pre-game variant invoked by integration harness"
+    ],
+    "openings_per_process": {
+      "credits_books": 8,
+      "scrolls": 4,
+      "parchments": 4
+    },
+    "processes_per_platform_run": 2,
+    "checks": [
+      "Exact displayed cursor pixels match original graphics; both native cursor and pointer offsets match the original hotspots",
+      "Repeated left/right motion across the book center, including immediately adjacent pixels",
+      "Stationary-pointer opening on both halves",
+      "Mouse page clicks advance and return; first and last spreads clamp without changing directional cursors",
+      "Dragging across the document and releasing refreshes direction",
+      "Bookmark and outside hover use the normal pointer",
+      "Escape closes from both page-arrow states; bookmark closure is exercised after both states",
+      "No motion is injected between closing and checking the restored normal cursor",
+      "Options modal focus, actor, coordinates, RNG, party flags and settings remain unchanged",
+      "Scroll and parchment preserve up/down arrows, center boundary, dragging, stationary opening and both close paths"
+    ],
+    "staged_page_break_fix": "Preserved the existing null-terminator copy correction and final-credits-paragraph regression; credits-last.ppm is captured",
+    "prior_scenarios": "Hot Keys, music mute, empty Load, save/load, Credits content, Speech Text persistence and missing-voice fallback also pass"
+  },
+  "linux": {
+    "build": "CMake Release, SDL 3.4.18",
+    "public_tests": {
+      "passed": 5,
+      "total": 5
+    },
+    "integration": ".cache/integration-cursor-019-v1",
+    "reference_parity": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "memory": {
+    "build": "Debug, -fsanitize=address -fno-omit-frame-pointer",
+    "options": "detect_leaks=1:halt_on_error=1",
+    "integration": ".cache/integration-cursor-asan-019-v1",
+    "result": "Two-process AddressSanitizer and LeakSanitizer integration passed",
+    "environment": "Executed outside the sandbox to permit LeakSanitizer thread inspection",
+    "reference_parity": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "windows": {
+    "build": "Zig cross-build, Windows x64 Release, SDL 3.4.18",
+    "execution": "Native Windows processes from an extracted preflight complete ZIP with bundled-data discovery and an unrelated working directory",
+    "version": "fta2-native 0.1.9",
+    "runtime_test": "passed",
+    "integration": ".cache/cursor-windows-validation",
+    "processes": 2,
+    "reference_parity": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    },
+    "cursor_screens_identical_to_linux": [
+      "cursor-game-bookmark.ppm",
+      "cursor-game-closed-bookmark.ppm",
+      "cursor-game-closed-escape.ppm",
+      "cursor-game-left.ppm",
+      "cursor-game-right.ppm",
+      "cursor-pregame-bookmark.ppm",
+      "cursor-pregame-closed-bookmark.ppm",
+      "cursor-pregame-closed-escape.ppm",
+      "cursor-pregame-left.ppm",
+      "cursor-pregame-right.ppm"
+    ],
+    "executable_sha256": "cce95c5ed45ff9cb1b81076353c9183fdef2f1f15d5dd61edd292d6123aa8966"
+  },
+  "screenshots": {
+    "cursor-game-bookmark.ppm": "e2048105abfc2159370e01cb0d898f60887f56f06ac1dfe172b817a05717af7c",
+    "cursor-game-closed-bookmark.ppm": "3000744f7de72dbd1ad5667d79b6b5402aff22e3d6f6b078caf6e695b172305e",
+    "cursor-game-closed-escape.ppm": "e55751ea3758657307521217956dc1d0c0bf1cfaf85c3083ba9095f2a4d44d82",
+    "cursor-game-left.ppm": "cd967be58b18e91f0bec318d660d22e2dd43de192d4f167455626d5074e4ba06",
+    "cursor-game-right.ppm": "f874f782004456da4b795fa4be010411d039299555ed6391286039817efcb08d",
+    "cursor-pregame-bookmark.ppm": "9e6864c13ed28421a41448e445dfd15b5220800dacba794e5a4d00a92184b850",
+    "cursor-pregame-closed-bookmark.ppm": "e8f54fb737f4e6b3f9b204d6811d7f6b3143685211d9a8c28051f2e06290382b",
+    "cursor-pregame-closed-escape.ppm": "046a4a08e269427f3e2463579ce29d8e183edc90dd589e9dac2635fc08e954c3",
+    "cursor-pregame-left.ppm": "7bd51fdfde3adcb826679851a4443861e25d7ed9218810f1b6313e2601d9a64f",
+    "cursor-pregame-right.ppm": "f31ee3b26919ad0f76bbdcc0efdf8e03325ab5cdc22e0095aa8a211f86734a0a"
+  },
+  "capture_method": "Separate cursor-inclusive PPM captures composite the validated native cursor pixels and current position over the indexed framebuffer using the active palette. Existing parity captures still omit cursors.",
+  "captures": ".cache/integration-cursor-019-v1/output/ (PPM and PNG)",
+  "historical_validation_reports": "Unchanged from the 0.1.8 source ZIP",
+  "original_files_verified_after_tests": 54,
+  "packages": {
+    "engine": "fta2-native-0.1.9-Windows-x86_64.zip",
+    "complete": "fta2-native-0.1.9-Windows-x86_64-complete.zip",
+    "source": "fta2-native-0.1.9-source.zip",
+    "validation": "Final archives retain the identical executable and SDL library tested in the preflight package; complete data allowlist remains eight baseline-matching files"
+  },
+  "backends": {
+    "video": "dummy",
+    "audio": "dummy"
+  },
+  "limitations": [
+    "Automated SDL input; no new manual hardware or desktop test",
+    "No new macOS execution",
+    "No actual-device audio listening test",
+    "Not a complete playthrough"
+  ]
+}

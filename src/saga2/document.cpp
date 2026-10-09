@@ -190,6 +190,8 @@ CDocument::CDocument(CDocumentAppearance &dApp,
 }
 
 CDocument::~CDocument() {
+	// Close while the document override is still available to restore its cursor.
+	if (isOpen()) close();
 	int16   i;
 
 	for (i = 0; i < kMaxPages; i++) {
@@ -266,11 +268,10 @@ gPanel *CDocument::keyTest(int16 key) {
 	}
 }
 
-//  Cursor images for turning book pages
-void CDocument::pointerMove(gPanelMessage &msg) {
-	Point16 pos     = msg._pickPos;
-
-	if (msg._inPanel && Rect16(0, 0, _extent.width, _extent.height).ptInside(pos)) {
+//  Cursor images for turning document pages.
+void CDocument::updateCursor(const Point16 &pos, bool inPanel) {
+	if (inPanel && Rect16(0, 0, _extent.width, _extent.height).ptInside(pos)
+	        && !Rect16(_app.closeRect).ptInside(pos)) {
 		if (_app.orientation == kPageOrientVertical) {
 			// find out which end of the book we're on
 			if (pos.y < _extent.height / 2)   setMouseImage(kMousePgUpImage,   -7, -7);
@@ -280,14 +281,34 @@ void CDocument::pointerMove(gPanelMessage &msg) {
 			if (pos.x < _extent.width / 2)    setMouseImage(kMousePgLeftImage,  -7, -7);
 			else                            setMouseImage(kMousePgRightImage, -7, -7);
 		}
-	} else if (msg._pointerLeave) {
+	} else {
 		setMouseImage(kMouseArrowImage, 0, 0);
 	}
 
+}
+
+bool CDocument::open() {
+	if (!ModalWindow::open()) return false;
+	Point16 position, offset;
+	g_vm->_pointer->getImageCurPos(position);
+	g_vm->_pointer->getImage(offset);
+	updateCursor(position - offset - Point16(_extent.x, _extent.y), true);
+	return true;
+}
+
+void CDocument::close() {
+	if (!isOpen()) return;
+	ModalWindow::close();
+	setMouseImage(kMouseArrowImage, 0, 0);
+}
+
+void CDocument::pointerMove(gPanelMessage &msg) {
+	updateCursor(msg._pickPos, msg._inPanel && !msg._pointerLeave);
 	notify(kEventMouseMove, 0);
 }
 
-void CDocument::pointerDrag(gPanelMessage &) {
+void CDocument::pointerDrag(gPanelMessage &msg) {
+	updateCursor(msg._pickPos, msg._inPanel);
 	if (_selected) {
 		notify(kEventMouseDrag, 0);
 	}
@@ -295,6 +316,7 @@ void CDocument::pointerDrag(gPanelMessage &) {
 
 bool CDocument::pointerHit(gPanelMessage &msg) {
 	Point16 pos     = msg._pickPos;
+	updateCursor(pos, msg._inPanel);
 
 	if (msg._inPanel && Rect16(0, 0, _extent.width, _extent.height).ptInside(pos)) {
 		gEvent ev;
@@ -338,7 +360,8 @@ void CDocument::gotoPage(int8 page) {
 	}
 }
 
-void CDocument::pointerRelease(gPanelMessage &) {
+void CDocument::pointerRelease(gPanelMessage &msg) {
+	updateCursor(msg._pickPos, msg._inPanel);
 	if (_selected) notify(kEventMouseUp, 0);   // notify App of successful hit
 	deactivate();
 }
@@ -358,7 +381,7 @@ bool CDocument::checkForPageBreak(char *string, uint16 index, int32 &offset) {
 		size_t txtlen = strlen(&strIndex[3]);
 
 		// string them together
-		memmove(&strIndex[0], &strIndex[3], txtlen);
+		memmove(&strIndex[0], &strIndex[3], txtlen + 1);
 
 		// take the offset to the end of this line
 		offset = index;

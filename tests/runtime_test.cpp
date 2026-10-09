@@ -4,6 +4,7 @@
 #include "saga2/tcoords.h"
 #include "saga2/idtypes.h"
 #include "saga2/saveload.h"
+#include "saga2/gpointer.h"
 using namespace Native;
 static void check(bool condition, const char* what) {
     if (!condition)
@@ -20,6 +21,20 @@ static void mustFail(const std::function<void()>& fn) {
 }
 int main() {
     try {
+        {
+            Saga2::gDisplayPort port;
+            Saga2::gMousePointer pointer(port);
+            byte pixels[] = {0, 1, 2, 3};
+            Saga2::gPixelMap image;
+            image._size = Saga2::Point16(2, 2);
+            image._data = pixels;
+            pointer.setImage(image, -1, -1);
+            pixels[1] = 4;
+            pointer.setImage(image, -1, -1);
+            check(CursorMan.pixels == std::vector<byte>({0, 4, 2, 3}) && CursorMan.hotX == 1 &&
+                      CursorMan.hotY == 1,
+                  "Cursor pixels must refresh when the bitmap address and size are reused");
+        }
         check(sha256(nullptr, 0) ==
                   "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
               "SHA256 empty");

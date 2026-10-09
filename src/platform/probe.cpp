@@ -19,10 +19,13 @@
 #include "saga2/document.h"
 #include "saga2/script.h"
 #include "saga2/speech.h"
+#include "saga2/mouseimg.h"
+#include "saga2/gpointer.h"
 namespace Saga2 {
 extern char bookText[];
 extern gTextBox* textBox;
 extern GfxOwnerSelCompButton* speechTextBtn;
+extern CDocumentAppearance bookAppearance, scrollAppearance, parchAppearance;
 int16 pickSpeechButton(Point16 mouse, int16 size, gPort& textPort);
 } // namespace Saga2
 namespace Native {
@@ -62,6 +65,12 @@ struct HotKeysProbe {
         clickAt(panel->getWindow(), box.x + box.width / 2, box.y + box.height / 2);
     }
     void clickAt(Saga2::gWindow* target, int localX, int localY) {
+        for (auto type :
+             {SDL_EVENT_MOUSE_MOTION, SDL_EVENT_MOUSE_BUTTON_DOWN, SDL_EVENT_MOUSE_BUTTON_UP})
+            mouseAt(target, localX, localY, type);
+    }
+    void mouseAt(Saga2::gWindow* target, int localX, int localY,
+                 SDL_EventType type = SDL_EVENT_MOUSE_MOTION) {
         auto windowBox = target->getExtent();
         int count = 0;
         auto windows = SDL_GetWindows(&count);
@@ -72,23 +81,20 @@ struct HotKeysProbe {
         require(SDL_RenderCoordinatesToWindow(SDL_GetRenderer(window), windowBox.x + localX,
                                               windowBox.y + localY, &x, &y),
                 "cannot convert click coordinates");
-        for (auto type :
-             {SDL_EVENT_MOUSE_MOTION, SDL_EVENT_MOUSE_BUTTON_DOWN, SDL_EVENT_MOUSE_BUTTON_UP}) {
-            SDL_Event ev{};
-            ev.type = type;
-            if (type == SDL_EVENT_MOUSE_MOTION) {
-                ev.motion.windowID = SDL_GetWindowID(window);
-                ev.motion.x = x;
-                ev.motion.y = y;
-            } else {
-                ev.button.windowID = SDL_GetWindowID(window);
-                ev.button.button = SDL_BUTTON_LEFT;
-                ev.button.down = type == SDL_EVENT_MOUSE_BUTTON_DOWN;
-                ev.button.x = x;
-                ev.button.y = y;
-            }
-            require(SDL_PushEvent(&ev), "cannot inject click");
+        SDL_Event ev{};
+        ev.type = type;
+        if (type == SDL_EVENT_MOUSE_MOTION) {
+            ev.motion.windowID = SDL_GetWindowID(window);
+            ev.motion.x = x;
+            ev.motion.y = y;
+        } else {
+            ev.button.windowID = SDL_GetWindowID(window);
+            ev.button.button = SDL_BUTTON_LEFT;
+            ev.button.down = type == SDL_EVENT_MOUSE_BUTTON_DOWN;
+            ev.button.x = x;
+            ev.button.y = y;
         }
+        require(SDL_PushEvent(&ev), "cannot inject click");
     }
     void snapshot() {
         auto vm = Saga2::g_vm;
@@ -249,6 +255,10 @@ struct OptionsProbe {
                                      strlen(Saga2::bookText) > 100 &&
                                      strstr(Saga2::bookText, "Invalid textScript") == nullptr,
                                  "original credits text was not generated");
+                auto book = dynamic_cast<Saga2::CDocument*>(dialog);
+                auto ending = strstr(Saga2::bookText, "The Faery Tale Adventure licensed");
+                controls.require(book && ending && String(book->text).ends_with(ending),
+                                 "credits have stray characters after the final paragraph");
                 if (!cycle) {
                     g_platform->capture(controls.output / "credits.ppm");
                     HotKeysProbe::key(SDLK_RIGHT);
@@ -315,6 +325,15 @@ struct OptionsProbe {
             if (++pageTicks < 3)
                 return;
             g_platform->capture(controls.output / "credits-next.ppm");
+            for (int page = 2; page < 32; page += 2)
+                static_cast<Saga2::CDocument*>(dialog)->gotoPage(page);
+            pageTicks = 0;
+            phase = 6;
+            break;
+        case 6:
+            if (++pageTicks < 3)
+                return;
+            g_platform->capture(controls.output / "credits-last.ppm");
             controls.clickAt(dialog, 248, 230); // Original red bookmark closes the book.
             phase = 3;
             break;
@@ -323,6 +342,205 @@ struct OptionsProbe {
         }
     }
 };
+struct DocumentCursorProbe {
+    HotKeysProbe controls;
+    bool pregame = false, done = false;
+    int kind = 0, step = 0, ticks = 0;
+    Saga2::gWindow* options = nullptr;
+    Saga2::CDocument* document = nullptr;
+    std::vector<std::function<void()>> actions;
+    std::vector<byte> firstPage, nextPage, lastPage;
+
+    Saga2::CDocumentAppearance& appearance() {
+        return kind == 0   ? Saga2::bookAppearance
+               : kind == 1 ? Saga2::scrollAppearance
+                           : Saga2::parchAppearance;
+    }
+    void cursor(int id) {
+        auto image = Saga2::mouseCursors[id];
+        int hotspot = id == Saga2::kMouseArrowImage ? 0 : 7;
+        controls.require(
+            CursorMan.visible && CursorMan.w == image->_size.x && CursorMan.h == image->_size.y &&
+                CursorMan.hotX == hotspot && CursorMan.hotY == hotspot &&
+                CursorMan.pixels == std::vector<byte>(image->_data, image->_data + image->bytes()),
+            String::format("wrong document cursor pixels or hotspot (kind=%d step=%d expected=%d)",
+                           kind, step, id)
+                .c_str());
+        Saga2::Point16 offset;
+        Saga2::g_vm->_pointer->getImage(offset);
+        controls.require(offset.x == -hotspot && offset.y == -hotspot,
+                         "document pointer offset does not match its hotspot");
+    }
+    // Normal parity captures omit cursors. These separate captures include the displayed cursor.
+    void capture(const char* name) {
+        auto screen = g_platform->lockScreen();
+        byte palette[768];
+        g_platform->getPaletteManager()->grabPalette(palette, 0, 256);
+        Saga2::Point16 origin;
+        Saga2::g_vm->_pointer->getImageCurPos(origin);
+        std::ofstream out(
+            controls.output /
+                String::format("cursor-%s-%s.ppm", pregame ? "pregame" : "game", name).c_str(),
+            std::ios::binary);
+        out << "P6\n640 480\n255\n";
+        for (int y = 0; y < 480; ++y) {
+            for (int x = 0; x < 640; ++x) {
+                byte color = static_cast<byte*>(screen->pixels)[y * screen->pitch + x];
+                int cx = x - origin.x, cy = y - origin.y;
+                if (CursorMan.visible && cx >= 0 && cy >= 0 && cx < CursorMan.w &&
+                    cy < CursorMan.h) {
+                    byte pixel = CursorMan.pixels[cy * CursorMan.w + cx];
+                    if (pixel != CursorMan.key)
+                        color = pixel;
+                }
+                out.write(reinterpret_cast<char*>(palette + color * 3), 3);
+            }
+        }
+        g_platform->unlockScreen();
+    }
+    std::vector<byte> pagePixels() {
+        auto screen = g_platform->lockScreen();
+        auto box = document->getExtent();
+        std::vector<byte> pixels;
+        for (int y = box.y; y < box.y + box.height; ++y) {
+            auto row = static_cast<byte*>(screen->pixels) + y * screen->pitch + box.x;
+            pixels.insert(pixels.end(), row, row + box.width);
+        }
+        g_platform->unlockScreen();
+        return pixels;
+    }
+    void move(int x, int y, int expected) {
+        actions.push_back([=, this] { controls.mouseAt(document, x, y); });
+        actions.push_back([=, this] { cursor(expected); });
+    }
+    void prepare() {
+        options = Saga2::g_vm->_toolBase->topWindow();
+        controls.snapshot();
+        auto app = appearance();
+        bool vertical = kind != 0;
+        int before = vertical ? Saga2::kMousePgUpImage : Saga2::kMousePgLeftImage;
+        int after = vertical ? Saga2::kMousePgDownImage : Saga2::kMousePgRightImage;
+        for (int cycle = 0; cycle < (kind == 0 ? 4 : 2); ++cycle) {
+            // Position the pointer in the future document, then open without a motion event.
+            int x = vertical ? 80 : cycle % 2 ? 300 : 100;
+            int y = vertical ? cycle % 2 ? 190 : 80 : 120;
+            actions.push_back([=, this] {
+                auto box = options->getExtent();
+                controls.mouseAt(options, app.windowPos.x + x - box.x, app.windowPos.y + y - box.y);
+            });
+            actions.push_back([this] {
+                if (kind == 0)
+                    HotKeysProbe::key(SDLK_C);
+                else if (kind == 1)
+                    Saga2::openScroll(Saga2::resImports->reserved[0]);
+                else
+                    Saga2::openParchment(Saga2::resImports->reserved[0]);
+            });
+            actions.push_back([=, this] {
+                document = dynamic_cast<Saga2::CDocument*>(Saga2::g_vm->_toolBase->topWindow());
+                controls.require(document && document != options &&
+                                     Saga2::ModalWindow::_current == document,
+                                 "document did not open with modal focus");
+                cursor(cycle % 2 ? after : before);
+                firstPage = pagePixels();
+            });
+            if (!cycle) {
+                if (!vertical) {
+                    for (int px : {100, 196, 197, 300, 196, 300, 100})
+                        move(px, 120, px < 197 ? before : after);
+                    actions.push_back([this] { capture("left"); });
+                    move(300, 120, after);
+                    actions.push_back([this] { capture("right"); });
+                    actions.push_back([this] { controls.clickAt(document, 300, 120); });
+                    actions.push_back([this] {
+                        nextPage = pagePixels();
+                        controls.require(nextPage != firstPage,
+                                         "right-page click did not advance credits");
+                    });
+                    actions.push_back([this] { controls.clickAt(document, 100, 120); });
+                    actions.push_back([this] {
+                        controls.require(pagePixels() == firstPage,
+                                         "left-page click did not return to the first spread");
+                    });
+                    actions.push_back([this] { controls.clickAt(document, 100, 120); });
+                    actions.push_back([this] {
+                        controls.require(pagePixels() == firstPage, "first-page limit changed");
+                        cursor(Saga2::kMousePgLeftImage);
+                        for (int page = 2; page < 32; page += 2)
+                            document->gotoPage(page);
+                    });
+                    actions.push_back([this] { lastPage = pagePixels(); });
+                    actions.push_back([this] { controls.clickAt(document, 300, 120); });
+                    actions.push_back([this] {
+                        controls.require(pagePixels() == lastPage, "last-page limit changed");
+                        cursor(Saga2::kMousePgRightImage);
+                    });
+                    actions.push_back([this] { controls.clickAt(document, 100, 120); });
+                    actions.push_back([this] {
+                        controls.require(pagePixels() != lastPage, "cannot leave the last spread");
+                    });
+                    actions.push_back([this] { controls.clickAt(document, 300, 120); });
+                    actions.push_back([this] {
+                        controls.require(pagePixels() == lastPage,
+                                         "cannot return to the last spread");
+                    });
+                } else {
+                    for (int py :
+                         {80, app.windowPos.height / 2 - 1, app.windowPos.height / 2, 190, 80})
+                        move(80, py, py < app.windowPos.height / 2 ? before : after);
+                }
+                move(-10, 100, Saga2::kMouseArrowImage);
+                move(app.closeRect.x + app.closeRect.width / 2,
+                     app.closeRect.y + app.closeRect.height / 2, Saga2::kMouseArrowImage);
+                if (!vertical)
+                    actions.push_back([this] { capture("bookmark"); });
+                move(x, y, before);
+                actions.push_back(
+                    [=, this] { controls.mouseAt(document, x, y, SDL_EVENT_MOUSE_BUTTON_DOWN); });
+                int dragX = vertical ? x : 300, dragY = vertical ? 190 : y;
+                move(dragX, dragY, after);
+                actions.push_back([=, this] {
+                    controls.mouseAt(document, dragX, dragY, SDL_EVENT_MOUSE_BUTTON_UP);
+                });
+                actions.push_back([=, this] { cursor(after); });
+            }
+            move(x, y, cycle % 2 ? after : before);
+            actions.push_back([=, this] {
+                if ((cycle < 2 && kind == 0) || (cycle == 0 && kind != 0))
+                    HotKeysProbe::key(SDLK_ESCAPE);
+                else
+                    controls.clickAt(document, app.closeRect.x + app.closeRect.width / 2,
+                                     app.closeRect.y + app.closeRect.height / 2);
+            });
+            actions.push_back([=, this] {
+                controls.require(Saga2::g_vm->_toolBase->topWindow() == options &&
+                                     Saga2::ModalWindow::_current == options,
+                                 "closing document did not restore Options focus");
+                cursor(Saga2::kMouseArrowImage);
+                controls.unchanged();
+                if (!vertical)
+                    capture(cycle < 2 ? "closed-escape" : "closed-bookmark");
+            });
+        }
+        actions.push_back([this] {
+            done = true;
+            if (pregame)
+                static_cast<Saga2::requestInfo*>(options->_userData)->running = false;
+            else
+                HotKeysProbe::key(SDLK_ESCAPE);
+        });
+    }
+    void tick() {
+        if (actions.empty())
+            prepare();
+        controls.require(++ticks < 1000, "document cursor scenario timed out");
+        if (ticks % 3 == 0 && step < int(actions.size())) {
+            auto action = actions[step++]; // Advance before a nested scroll/parchment event loop.
+            action();
+        }
+    }
+};
+
 struct SpeechToggleProbe {
     HotKeysProbe controls;
     bool pregame = false, expected = false;
@@ -491,6 +709,7 @@ void configureSmokeProbe(const Path& output, int frames) {
         std::unique_ptr<OptionsProbe> options;
         std::unique_ptr<SpeechToggleProbe> toggle;
         std::unique_ptr<SpeechFallbackProbe> speech;
+        std::unique_ptr<DocumentCursorProbe> cursor;
         bool initialSubtitles = true, speechChecked = false;
     };
     auto state = std::make_shared<State>();
@@ -503,6 +722,8 @@ void configureSmokeProbe(const Path& output, int frames) {
                 state->options->tick();
             if (state->toggle)
                 state->toggle->tick();
+            if (state->cursor)
+                state->cursor->tick();
             return;
         }
         state->active = true;
@@ -705,6 +926,25 @@ void configureSmokeProbe(const Path& output, int frames) {
             record("options-regressions-checked");
         }
         if (s.frame == 246) {
+            auto parent = vm->_toolBase->topWindow();
+            for (bool pregame : {false, true}) {
+                for (int kind = 0; kind < 3; ++kind) {
+                    s.cursor = std::make_unique<DocumentCursorProbe>();
+                    s.cursor->pregame = pregame;
+                    s.cursor->kind = kind;
+                    s.cursor->controls.output = output;
+                    Saga2::OptionsDialog(pregame);
+                    if (Saga2::GameMode::_newmodeFlag)
+                        Saga2::GameMode::update();
+                    s.cursor->controls.require(s.cursor->done &&
+                                                   vm->_toolBase->topWindow() == parent &&
+                                                   Saga2::ModalWindow::_current == nullptr,
+                                               "document cursor scenario did not finish");
+                    s.cursor->controls.unchanged();
+                    s.cursor.reset();
+                }
+            }
+            record("document-cursors-checked");
             for (bool pregame : {false, true}) {
                 int repetitions = pregame && ConfMan.getBool("subtitles") ? 5 : 4;
                 for (int repeat = 0; repeat < repetitions; ++repeat) {
