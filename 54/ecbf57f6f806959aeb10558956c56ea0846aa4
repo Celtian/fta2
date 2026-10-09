@@ -1,0 +1,19 @@
+.gitattributes
+  s_685683c5bea680::t_41a2d802f5cde9 1-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "54ecbf57f6f806959aeb10558956c56ea0846aa4",
+  "prompts": {},
+  "sessions": {
+    "s_685683c5bea680": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a11fa1-ebe6-75b2-a8c3-52d54a086edc",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Celtian <dominik.hladik@seznam.cz>"
+    }
+  }
+}
