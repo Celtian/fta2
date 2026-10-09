@@ -1,0 +1,240 @@
+{
+  "date": "2026-10-09",
+  "version": "0.1.10",
+  "status": "passed",
+  "scope": "Mouse-wheel page navigation in vertical scrolls and parchment; development alpha",
+  "behavior": {
+    "direction": "Normalized wheel up selects the previous page; down selects the next page, independently of the pointer half",
+    "precision": "One page per whole notch; fractional movement accumulates within the document and resets on close",
+    "routing": "Wheel position and vertical delta enter the native event path; only the top modal vertical document receives navigation, excluding its close control and outside positions",
+    "bounds": "Existing page handlers clamp at the first and last pages; each event performs at most the maximum document page count",
+    "interfaces": "Internal event type and delta field, private document wheel handler and state; no external API, preference or CLI option"
+  },
+  "public_tests": {
+    "passed": 5,
+    "total": 5,
+    "wheel_translation": [
+      "Normal and flipped directions",
+      "Positive, negative, fractional, multi-notch and zero vertical deltas",
+      "Horizontal input stays outside vertical navigation",
+      "Wheel coordinates in fullscreen, 640 x 480 window and 1280 x 720 letterboxed window"
+    ]
+  },
+  "integration_scenarios": {
+    "layouts": [
+      "in-game Options",
+      "pre-game Options variant invoked by harness"
+    ],
+    "documents": [
+      "Original scroll appearance",
+      "Original parchment appearance"
+    ],
+    "text": "Original credits script 110 is rendered in both vertical document appearances to provide multiple original-data pages",
+    "checks": [
+      "Wheel-rendered pages match existing arrow-key and mouse-click navigation byte-for-byte",
+      "Quarter/quarter/half-notch movement reaches exactly the next page",
+      "A two-notch movement matches two arrow-key page changes",
+      "Flipped-direction events navigate forward and backward correctly",
+      "Outside, close-control and horizontal-only input leave the page and fractional accumulation unchanged",
+      "Large wheel movements clamp at the first and last pages; opposite input leaves the boundary normally",
+      "Closing with a partial notch pending and reopening starts a fresh accumulator",
+      "Cursor pixels, hotspots, modal focus, actor position, party flags and settings remain correct",
+      "Books/Credits, Options and Hot Keys ignore wheel input",
+      "Prior save/load, Hot Keys, Credits content, keypad, music and speech regressions pass"
+    ],
+    "ambient_audio": "The longer document scenarios allow existing timed ambient sound selection to advance RNG. RNG is not asserted frozen across a long read; original timing and ambient behavior are preserved. Reference RNG checkpoints before the added UI scenarios remain identical."
+  },
+  "linux": {
+    "build": "CMake Release, SDL 3.4.18",
+    "integration": ".cache/integration-wheel-010-v3",
+    "processes": 2,
+    "reference_parity": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "memory": {
+    "build": "Debug, -fsanitize=address -fno-omit-frame-pointer",
+    "options": "detect_leaks=1:halt_on_error=1",
+    "integration": ".cache/integration-wheel-asan-010-final",
+    "processes": 2,
+    "result": "AddressSanitizer and LeakSanitizer passed",
+    "environment": "Executed outside the sandbox to permit LeakSanitizer thread inspection",
+    "reference_parity": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "windows": {
+    "build": "Zig cross-build, Windows x64 Release, SDL 3.4.18",
+    "execution": "Native Windows processes from a preflight complete ZIP, with bundled-data discovery and an unrelated working directory",
+    "version": "fta2-native 0.1.10",
+    "runtime_test": "passed",
+    "integration": ".cache/wheel-windows-validation",
+    "processes": 2,
+    "reference_parity": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    },
+    "wheel_screens_identical_to_linux": [
+      "wheel-game-parchment-after.ppm",
+      "wheel-game-parchment-before.ppm",
+      "wheel-game-scroll-after.ppm",
+      "wheel-game-scroll-before.ppm",
+      "wheel-pregame-parchment-after.ppm",
+      "wheel-pregame-parchment-before.ppm",
+      "wheel-pregame-scroll-after.ppm",
+      "wheel-pregame-scroll-before.ppm"
+    ],
+    "executable_sha256": "c11ded0cf60555342b9a32d8efbb2879a46f8c4970568151ff1dcb075088ed9f"
+  },
+  "screenshots": {
+    "wheel-game-parchment-after.ppm": "d761f29f4abe5089c91d222775214570baa03d9f96bb0dbeffaed58b484ea8c4",
+    "wheel-game-parchment-before.ppm": "73b2d6bcf9cae04af289659baef5323b00085e2c7a2e33e03855a57480c5657e",
+    "wheel-game-scroll-after.ppm": "f3a212b5473d4f9faf5988c28756be0efee0a94752771cce9d1cf96715aa8c53",
+    "wheel-game-scroll-before.ppm": "dcde3f65074b515b74b36d893013bdd791426a40ffb23e0dc7b18e3f4ad3cb9d",
+    "wheel-pregame-parchment-after.ppm": "dfce796b70eee297ef03abaa07f739ef66f84ad8d09b33afbfa2aa6f72ff9fc6",
+    "wheel-pregame-parchment-before.ppm": "dbd5e98f51c7440ab06260455d08a4d83c4e85cdd8fc93006653eeee8f2fcbf6",
+    "wheel-pregame-scroll-after.ppm": "bbc97cc2c7c8487f1643d74e22733e270d364e05d7ce423ae96de2b03d2a5190",
+    "wheel-pregame-scroll-before.ppm": "cf40806fa4ab08096f0952ff1746b2cf26ce61ee8d426bc30276c614bab2c319"
+  },
+  "captures": ".cache/integration-wheel-010-v3/output/ (PPM and PNG)",
+  "historical_reports": "Unchanged from the 0.1.9 source ZIP",
+  "original_files_verified_after_tests": 54,
+  "packages": {
+    "engine": "fta2-native-0.1.10-Windows-x86_64.zip",
+    "complete": "fta2-native-0.1.10-Windows-x86_64-complete.zip",
+    "source": "fta2-native-0.1.10-source.zip",
+    "validation": "Final archives retain the executable and SDL library tested in the preflight package; the complete-package allowlist remains eight baseline-matching files"
+  },
+  "backends": {
+    "video": "dummy",
+    "audio": "dummy"
+  },
+  "limitations": [
+    "Automated SDL input; no new manual mouse-wheel or trackpad hardware test",
+    "No new macOS execution",
+    "No actual-device audio listening test",
+    "Not a complete playthrough"
+  ]
+}

@@ -32,6 +32,7 @@
 #include "saga2/floating.h"
 #include "saga2/display.h"
 #include "saga2/gbevel.h"
+#include "saga2/document.h"
 
 namespace Saga2 {
 
@@ -740,6 +741,18 @@ void gToolBase::setActive(gPanel *ctl) {
 }
 
 void gToolBase::handleMouse(Native::Event &event, uint32 time) {
+	// Wheel input belongs only to the top document, without changing button/focus state.
+	if (event.type == Native::EVENT_MOUSEWHEEL) {
+		if (lockUINest == 0) {
+			if (CDocument *document = dynamic_cast<CDocument *>(topWindow())) {
+				if (ModalWindow::_current == document) {
+					Rect16 box = document->getExtent();
+					document->handleWheel(Point16(event.mouse.x - box.x, event.mouse.y - box.y), event.wheelY);
+				}
+			}
+		}
+		return;
+	}
 	gWindow         *w = _activeWindow;
 	gPanel          *ctl,
 	                *pickPanel = nullptr;

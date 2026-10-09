@@ -96,6 +96,25 @@ struct HotKeysProbe {
         }
         require(SDL_PushEvent(&ev), "cannot inject click");
     }
+    void wheelAt(Saga2::gWindow* target, int localX, int localY, float delta,
+                 SDL_MouseWheelDirection direction = SDL_MOUSEWHEEL_NORMAL, float horizontal = 0) {
+        auto box = target->getExtent();
+        int count = 0;
+        auto windows = SDL_GetWindows(&count);
+        require(count == 1, "expected one SDL window for wheel input");
+        auto window = windows[0];
+        SDL_free(windows);
+        SDL_Event ev{};
+        ev.type = SDL_EVENT_MOUSE_WHEEL;
+        ev.wheel.windowID = SDL_GetWindowID(window);
+        require(SDL_RenderCoordinatesToWindow(SDL_GetRenderer(window), box.x + localX,
+                                              box.y + localY, &ev.wheel.mouse_x, &ev.wheel.mouse_y),
+                "cannot convert wheel coordinates");
+        ev.wheel.y = delta;
+        ev.wheel.x = horizontal;
+        ev.wheel.direction = direction;
+        require(SDL_PushEvent(&ev), "cannot inject wheel input");
+    }
     void snapshot() {
         auto vm = Saga2::g_vm;
         actor = Saga2::getCenterActorID();
@@ -170,6 +189,7 @@ struct HotKeysProbe {
             if (!cycle)
                 g_platform->capture(output / (pregame ? "pregame-hotkeys.ppm" : "hotkeys.ppm"));
             phase = 2;
+            wheelAt(help, 100, 100, -2);
             for (auto code : {SDLK_3, SDLK_A, SDLK_B, SDLK_TAB, SDLK_I, SDLK_S, SDLK_K, SDLK_M,
                               SDLK_SPACE, SDLK_O})
                 key(code);
@@ -349,7 +369,7 @@ struct DocumentCursorProbe {
     Saga2::gWindow* options = nullptr;
     Saga2::CDocument* document = nullptr;
     std::vector<std::function<void()>> actions;
-    std::vector<byte> firstPage, nextPage, lastPage;
+    std::vector<byte> firstPage, nextPage, thirdPage, lastPage;
 
     Saga2::CDocumentAppearance& appearance() {
         return kind == 0   ? Saga2::bookAppearance
@@ -413,6 +433,99 @@ struct DocumentCursorProbe {
         actions.push_back([=, this] { controls.mouseAt(document, x, y); });
         actions.push_back([=, this] { cursor(expected); });
     }
+    void wheel(float delta, int x = 80, int y = 80,
+               SDL_MouseWheelDirection direction = SDL_MOUSEWHEEL_NORMAL, float horizontal = 0) {
+        actions.push_back(
+            [=, this] { controls.wheelAt(document, x, y, delta, direction, horizontal); });
+    }
+    void samePage(std::vector<byte>& expected) {
+        actions.push_back([this, &expected] {
+            controls.require(pagePixels() == expected,
+                             "wheel page differs from original navigation");
+            controls.require(Saga2::g_vm->_toolBase->topWindow() == document &&
+                                 Saga2::ModalWindow::_current == document,
+                             "wheel input changed modal focus");
+            // Ambient audio continues its timed random selection during long documents.
+            controls.unchanged(false);
+        });
+    }
+    void wheelCapture(const char* name) {
+        actions.push_back([=, this] {
+            g_platform->capture(controls.output /
+                                String::format("wheel-%s-%s-%s.ppm", pregame ? "pregame" : "game",
+                                               kind == 1 ? "scroll" : "parchment", name)
+                                    .c_str());
+        });
+    }
+    void wheelChecks() {
+        wheelCapture("before");
+        wheel(1, 80, 190); // Up remains previous-page input even over the lower half.
+        samePage(firstPage);
+        actions.push_back([] { HotKeysProbe::key(SDLK_DOWN); });
+        actions.push_back([this] {
+            nextPage = pagePixels();
+            controls.require(nextPage != firstPage, "vertical document has no second page");
+        });
+        actions.push_back([] { HotKeysProbe::key(SDLK_UP); });
+        samePage(firstPage);
+        wheel(-0.25f);
+        samePage(firstPage);
+        wheel(0, 80, 80, SDL_MOUSEWHEEL_NORMAL, 3);
+        samePage(firstPage);
+        wheel(-4, -10, 100);
+        auto close = appearance().closeRect;
+        wheel(-4, close.x + close.width / 2, close.y + close.height / 2);
+        samePage(firstPage);
+        wheel(-0.25f);
+        samePage(firstPage);
+        wheel(-0.5f); // Fractional input sums to exactly one notch.
+        samePage(nextPage);
+        wheelCapture("after");
+        wheel(1);
+        samePage(firstPage);
+        actions.push_back([this] { controls.clickAt(document, 80, 190); });
+        samePage(nextPage);
+        actions.push_back([this] { controls.clickAt(document, 80, 80); });
+        samePage(firstPage);
+        actions.push_back([] {
+            HotKeysProbe::key(SDLK_DOWN);
+            HotKeysProbe::key(SDLK_DOWN);
+        });
+        actions.push_back([this] {
+            thirdPage = pagePixels();
+            controls.require(thirdPage != firstPage && thirdPage != nextPage,
+                             "vertical document has no third page");
+        });
+        actions.push_back([] {
+            HotKeysProbe::key(SDLK_UP);
+            HotKeysProbe::key(SDLK_UP);
+        });
+        samePage(firstPage);
+        wheel(-2);
+        samePage(thirdPage);
+        wheel(2);
+        samePage(firstPage);
+        wheel(1, 80, 80, SDL_MOUSEWHEEL_FLIPPED);
+        samePage(nextPage);
+        wheel(-1, 80, 80, SDL_MOUSEWHEEL_FLIPPED);
+        samePage(firstPage);
+        actions.push_back([this] {
+            for (int page = 1; page < 32; ++page)
+                document->gotoPage(page);
+        });
+        actions.push_back([this] { lastPage = pagePixels(); });
+        wheel(-100);
+        samePage(lastPage);
+        wheel(1);
+        actions.push_back([this] {
+            controls.require(pagePixels() != lastPage, "wheel cannot leave the last page");
+        });
+        wheel(-1);
+        samePage(lastPage);
+        wheel(100);
+        samePage(firstPage);
+        actions.push_back([this] { cursor(Saga2::kMousePgUpImage); });
+    }
     void prepare() {
         options = Saga2::g_vm->_toolBase->topWindow();
         controls.snapshot();
@@ -444,6 +557,25 @@ struct DocumentCursorProbe {
                 cursor(cycle % 2 ? after : before);
                 firstPage = pagePixels();
             });
+            if (vertical) {
+                if (!cycle) {
+                    wheelChecks();
+                } else {
+                    wheel(-0.25f); // The previous opening left 0.75 of a notch pending.
+                    samePage(firstPage);
+                    wheel(-0.75f);
+                    actions.push_back([this] {
+                        controls.require(
+                            pagePixels() != firstPage,
+                            "fractional wheel input did not accumulate after reopening");
+                    });
+                    wheel(1);
+                    samePage(firstPage);
+                }
+            } else if (!cycle) {
+                wheel(-2, 100, 120);
+                samePage(firstPage);
+            }
             if (!cycle) {
                 if (!vertical) {
                     for (int px : {100, 196, 197, 300, 196, 300, 100})
@@ -504,6 +636,11 @@ struct DocumentCursorProbe {
                 });
                 actions.push_back([=, this] { cursor(after); });
             }
+            if (vertical && !cycle) {
+                actions.push_back([this] { document->gotoPage(0); });
+                wheel(-0.75f);
+                samePage(firstPage);
+            }
             move(x, y, cycle % 2 ? after : before);
             actions.push_back([=, this] {
                 if ((cycle < 2 && kind == 0) || (cycle == 0 && kind != 0))
@@ -517,9 +654,17 @@ struct DocumentCursorProbe {
                                      Saga2::ModalWindow::_current == options,
                                  "closing document did not restore Options focus");
                 cursor(Saga2::kMouseArrowImage);
-                controls.unchanged();
+                controls.unchanged(false);
                 if (!vertical)
                     capture(cycle < 2 ? "closed-escape" : "closed-bookmark");
+            });
+            actions.push_back([this] { controls.wheelAt(options, 100, 100, -2); });
+            actions.push_back([this] {
+                controls.require(Saga2::g_vm->_toolBase->topWindow() == options &&
+                                     Saga2::ModalWindow::_current == options,
+                                 "wheel input changed Options focus");
+                cursor(Saga2::kMouseArrowImage);
+                controls.unchanged(false);
             });
         }
         actions.push_back([this] {
@@ -536,7 +681,13 @@ struct DocumentCursorProbe {
         controls.require(++ticks < 1000, "document cursor scenario timed out");
         if (ticks % 3 == 0 && step < int(actions.size())) {
             auto action = actions[step++]; // Advance before a nested scroll/parchment event loop.
-            action();
+            try {
+                action();
+            } catch (const std::runtime_error& error) {
+                throw std::runtime_error(
+                    String::format("Document probe (kind=%d step=%d): %s", kind, step, error.what())
+                        .c_str());
+            }
         }
     }
 };
@@ -940,11 +1091,12 @@ void configureSmokeProbe(const Path& output, int frames) {
                                                    vm->_toolBase->topWindow() == parent &&
                                                    Saga2::ModalWindow::_current == nullptr,
                                                "document cursor scenario did not finish");
-                    s.cursor->controls.unchanged();
+                    s.cursor->controls.unchanged(false);
                     s.cursor.reset();
                 }
             }
             record("document-cursors-checked");
+            record("document-wheel-checked");
             for (bool pregame : {false, true}) {
                 int repetitions = pregame && ConfMan.getBool("subtitles") ? 5 : 4;
                 for (int repeat = 0; repeat < repetitions; ++repeat) {

@@ -75,6 +75,7 @@ class CDocument : public ModalWindow {
 
 	friend class CScroll;
 	friend class CBook;
+	friend class gToolBase;
 
 private:
 	enum {
@@ -120,6 +121,8 @@ private:
 	hResContext *_illustrationCon;
 
 private:
+	float _wheelRemainder = 0;
+	void handleWheel(const Point16 &pos, float delta);
 	void updateCursor(const Point16 &pos, bool inPanel);
 	bool activate(gEventType why);       // activate the control
 	void deactivate();

@@ -124,7 +124,46 @@ int main() {
         check(count > 0, "Window handle");
         auto window = windows[0];
         SDL_free(windows);
+        Event nativeEvent;
+        auto checkWheel = [&](float gameX, float gameY) {
+            while (platform.pollEvent(nativeEvent)) {
+            }
+            float windowX = 0, windowY = 0;
+            check(SDL_RenderCoordinatesToWindow(SDL_GetRenderer(window), gameX, gameY, &windowX,
+                                                &windowY),
+                  "Cannot convert wheel position");
+            for (auto direction : {SDL_MOUSEWHEEL_NORMAL, SDL_MOUSEWHEEL_FLIPPED}) {
+                for (float delta : {1.f, -1.f, 0.25f, -0.75f, 3.f, 0.f}) {
+                    SDL_Event wheel{};
+                    wheel.type = SDL_EVENT_MOUSE_WHEEL;
+                    wheel.wheel.windowID = SDL_GetWindowID(window);
+                    wheel.wheel.mouse_x = windowX;
+                    wheel.wheel.mouse_y = windowY;
+                    wheel.wheel.y = delta;
+                    wheel.wheel.x = 2; // Horizontal movement must not become vertical input.
+                    wheel.wheel.direction = direction;
+                    check(SDL_PushEvent(&wheel), "Cannot inject wheel input");
+                }
+            }
+            for (auto direction : {SDL_MOUSEWHEEL_NORMAL, SDL_MOUSEWHEEL_FLIPPED}) {
+                for (float delta : {1.f, -1.f, 0.25f, -0.75f, 3.f, 0.f}) {
+                    bool received = platform.pollEvent(nativeEvent);
+                    check(received && nativeEvent.type == EVENT_MOUSEWHEEL &&
+                              nativeEvent.mouse.x == gameX && nativeEvent.mouse.y == gameY &&
+                              nativeEvent.wheelY ==
+                                  (direction == SDL_MOUSEWHEEL_FLIPPED ? -delta : delta),
+                          String::format(
+                              "Wheel translation failed: received=%d type=%d position=%d,%d "
+                              "expected=%.0f,%.0f delta=%g input=%g direction=%d",
+                              received, nativeEvent.type, nativeEvent.mouse.x, nativeEvent.mouse.y,
+                              gameX, gameY, nativeEvent.wheelY, delta, direction)
+                              .c_str());
+                }
+            }
+            check(!platform.pollEvent(nativeEvent), "Unexpected event after wheel input");
+        };
         check(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN, "Fullscreen startup");
+        checkWheel(320, 240);
         check(SDL_SetWindowFullscreen(window, false), "Leave fullscreen");
         SDL_SyncWindow(window);
         SDL_SetWindowSize(window, 640, 480);
@@ -132,7 +171,7 @@ int main() {
         SDL_PumpEvents();
         auto point = platform.windowToGame(320, 240);
         check(point.x == 320 && point.y == 240, "Mouse 1:1 mapping");
-        Event nativeEvent;
+        checkWheel(320, 240);
         while (platform.pollEvent(nativeEvent)) {
         }
         struct SelectionKey {
@@ -201,6 +240,8 @@ int main() {
         check(point.x == 0 && point.y == 0, "Letterbox left edge");
         point = platform.windowToGame(1120, 720);
         check(point.x == 640 && point.y == 480, "Letterbox right edge");
+        checkWheel(0, 0);
+        checkWheel(320, 240);
         ConfMan.setInt("random_seed", 42);
         RandomSource rng("test");
         check(rng.getRandomNumber(UINT_MAX) == 1570459262u, "Reference random sequence");

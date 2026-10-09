@@ -420,7 +420,8 @@ enum EventType {
     EVENT_LBUTTONUP,
     EVENT_RBUTTONUP,
     EVENT_KEYDOWN,
-    EVENT_QUIT
+    EVENT_QUIT,
+    EVENT_MOUSEWHEEL
 };
 enum {
     KBD_SHIFT = 1,
@@ -448,6 +449,7 @@ enum KeyCode {
 struct Event {
     EventType type = EVENT_INVALID;
     Point mouse;
+    float wheelY = 0;
     struct {
         int ascii = 0, keycode = 0, flags = 0;
     } kbd;

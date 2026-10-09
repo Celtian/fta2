@@ -298,8 +298,27 @@ bool CDocument::open() {
 
 void CDocument::close() {
 	if (!isOpen()) return;
+	_wheelRemainder = 0;
 	ModalWindow::close();
 	setMouseImage(kMouseArrowImage, 0, 0);
+}
+
+void CDocument::handleWheel(const Point16 &pos, float delta) {
+	if (_app.orientation != kPageOrientVertical || !isOpen()
+	        || !Rect16(0, 0, _extent.width, _extent.height).ptInside(pos)
+	        || Rect16(_app.closeRect).ptInside(pos) || !std::isfinite(delta))
+		return;
+
+	_wheelRemainder += delta;
+	float whole = std::trunc(_wheelRemainder);
+	_wheelRemainder -= whole;
+	// Discard whole notches at page limits; bound work to the document's maximum pages.
+	int turns = (int)std::min(std::abs(whole), (float)kMaxPages);
+	gEvent ev;
+	for (int i = 0; i < turns; ++i) {
+		if (whole > 0) cmdDocumentUp(ev);
+		else           cmdDocumentDn(ev);
+	}
 }
 
 void CDocument::pointerMove(gPanelMessage &msg) {

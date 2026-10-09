@@ -361,6 +361,12 @@ bool Platform::pollEvent(Event& out) {
                 continue;
             return true;
         }
+        if (ev.type == SDL_EVENT_MOUSE_WHEEL) {
+            out.type = EVENT_MOUSEWHEEL;
+            out.mouse = windowToGame(ev.wheel.mouse_x, ev.wheel.mouse_y);
+            out.wheelY = ev.wheel.direction == SDL_MOUSEWHEEL_FLIPPED ? -ev.wheel.y : ev.wheel.y;
+            return true;
+        }
         if (ev.type == SDL_EVENT_KEY_DOWN) {
             if ((ev.key.key == SDLK_RETURN || ev.key.key == SDLK_KP_ENTER) &&
                 (ev.key.mod & SDL_KMOD_ALT)) {

@@ -45,6 +45,7 @@ def main():
         assert any(s["phase"] == "options-regressions-checked" for s in states)
         assert any(s["phase"] == "speech-text-checked" for s in states)
         assert any(s["phase"] == "document-cursors-checked" for s in states)
+        assert any(s["phase"] == "document-wheel-checked" for s in states)
         assert json.loads((output / "speech-startup.json").read_text())["subtitles"] is True
         assert "subtitles=false" in (saves / "config.ini").read_text()
         # A second native process must retain the unchecked preference.
@@ -62,7 +63,16 @@ def main():
         assert restart_states[-1]["phase"] == "finished"
         assert any(s["phase"] == "speech-text-checked" for s in restart_states)
         assert any(s["phase"] == "document-cursors-checked" for s in restart_states)
+        assert any(s["phase"] == "document-wheel-checked" for s in restart_states)
         for variant in ("game", "pregame"):
+            for kind in ("scroll", "parchment"):
+                for capture_dir in (output, restart_output):
+                    before_page = (capture_dir / f"wheel-{variant}-{kind}-before.ppm").read_bytes()
+                    after_page = (capture_dir / f"wheel-{variant}-{kind}-after.ppm").read_bytes()
+                    header = b"P6\n640 480\n255\n"
+                    assert before_page.startswith(header) and after_page.startswith(header)
+                    assert len(before_page) == len(after_page) == len(header) + 640 * 480 * 3
+                    assert before_page != after_page
             for name in ("left", "right", "bookmark", "closed-escape", "closed-bookmark"):
                 for capture_dir in (output, restart_output):
                     screenshot = (capture_dir / f"cursor-{variant}-{name}.ppm").read_bytes()
