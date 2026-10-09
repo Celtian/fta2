@@ -1,0 +1,217 @@
+{
+  "date": "2026-10-09",
+  "version": "0.1.11",
+  "status": "passed",
+  "scope": "Escape closes the frontmost open gameplay container before opening Options; development alpha",
+  "cause": "The imported gameplay Escape handler opened Options unconditionally while UI keys were enabled.",
+  "implementation": [
+    "Search open windows from back to front and select the frontmost ContainerWindow, independently of pointer position and game-window keyboard focus.",
+    "Reuse cmdCloseButtonFunc, including original object onClose scripts, open flags, mental-container deletion and deferred cleanup.",
+    "Consume that Escape after container closure; only open Options if no container is open.",
+    "Modal dialogs retain their own Escape handling, and O continues to open Options above an open container.",
+    "Update the in-game Hot Keys description; no external API, preference or CLI option added."
+  ],
+  "public_tests": {
+    "passed": 5,
+    "total": 5,
+    "log": ".cache/container-ctest.log"
+  },
+  "integration": {
+    "processes_per_backend": 2,
+    "physical_container": {
+      "object": 3887,
+      "name": "Sack",
+      "source": "Existing unlocked physical container from the original save; the same ContainerWindow and callback used by chests."
+    },
+    "repetitions_per_process": {
+      "physical_open_close": 12,
+      "mental_open_close": 12
+    },
+    "checks": [
+      "Open the physical object through its original open handler and verify its window and open flag.",
+      "O opens Options over the physical container; modal Escape returns to that still-open container.",
+      "Open Ideas, Skills and Memories in turn above the physical container. Escape with the pointer outside closes only the frontmost mental window.",
+      "A second Escape closes the physical container, clears its open flag, deletes its node and restores the game window.",
+      "Alternate between container focus and clicking the game background before physical closure.",
+      "After the last closure, Escape opens Options; another Escape returns to gameplay.",
+      "Actor identity and coordinates, party flags, UI settings and audio preferences remain unchanged.",
+      "The existing timed ambient audio may advance RNG during these nonmodal tests; original simulation behavior is preserved.",
+      "Prior keypad, save/load, Hot Keys, speech, music, document cursor and wheel regressions also pass."
+    ]
+  },
+  "linux": {
+    "build": "CMake Release, SDL 3.4.18",
+    "integration": ".cache/integration-container-011-v6",
+    "reference_comparison": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "memory": {
+    "build": "Debug, -fsanitize=address -fno-omit-frame-pointer",
+    "options": "detect_leaks=1:halt_on_error=1",
+    "integration": ".cache/integration-container-asan-011",
+    "result": "AddressSanitizer and LeakSanitizer passed",
+    "environment": "Executed outside the sandbox to permit thread inspection",
+    "reference_comparison": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "windows": {
+    "build": "Zig cross-build, Windows x64 Release, SDL 3.4.18",
+    "execution": "Native Windows processes from a preflight complete ZIP, using bundled-data discovery from an unrelated working directory",
+    "runtime_test": "passed",
+    "integration": ".cache/container-windows-validation",
+    "executable_sha256": "042d796ddb83b6d946ef1ab63d0f45881cea7d4a79938aa62b4a8259327022d7",
+    "reference_comparison": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    },
+    "new_captures_identical_to_linux": true
+  },
+  "captures": {
+    "container-open.ppm": "38f0aae66b240e682720426027ae0380c7b932d800abc763048c169e8a7b7ace",
+    "container-closed.ppm": "b6dd092963792c058610e8ecce408ca1b4da59941d42c84adf05b02c298e618a"
+  },
+  "capture_directory": ".cache/integration-container-011-v6/output",
+  "original_files_verified_after_tests": 54,
+  "historical_reports": "Unchanged from the 0.1.10 source ZIP",
+  "packages": {
+    "engine": "fta2-native-0.1.11-Windows-x86_64.zip",
+    "complete": "fta2-native-0.1.11-Windows-x86_64-complete.zip",
+    "source": "fta2-native-0.1.11-source.zip",
+    "validation": "Final archives preserve the executable and SDL library tested in the preflight complete package; the eight-file allowlist is unchanged."
+  },
+  "backends": {
+    "video": "dummy",
+    "audio": "dummy"
+  },
+  "limitations": [
+    "Automated injected SDL input, without a new manual keyboard or mouse hardware test",
+    "Physical regression uses an original-data Sack; chest windows share the same production handler",
+    "No new macOS execution",
+    "No actual-device audio listening check",
+    "Not a complete playthrough"
+  ]
+}

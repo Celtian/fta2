@@ -980,8 +980,24 @@ void TileModeHandleKey(int16 key, int16 qual) {
 		break;
 
 	case 0x1b: // Escape key
-		if (uiKeysEnabled)
+		if (uiKeysEnabled) {
+			ContainerWindow *container = nullptr;
+			for (auto it = g_vm->_toolBase->bottomWindowIterator();
+			        it != g_vm->_toolBase->topWindowIterator(); ++it) {
+				if (auto *window = dynamic_cast<ContainerWindow *>(*it))
+					container = window;
+			}
+			if (container) {
+				// Use the close button's object scripts and deferred cleanup.
+				gEvent ev = {};
+				ev.window = container;
+				ev.eventType = kEventNewValue;
+				ev.value = 1;
+				cmdCloseButtonFunc(ev);
+				break;
+			}
 			OptionsDialog();
+		}
 		break;
 
 	default:

@@ -21,6 +21,7 @@
 #include "saga2/speech.h"
 #include "saga2/mouseimg.h"
 #include "saga2/gpointer.h"
+#include "saga2/contain.h"
 namespace Saga2 {
 extern char bookText[];
 extern gTextBox* textBox;
@@ -846,6 +847,137 @@ struct SpeechFallbackProbe {
         }
     }
 };
+struct ContainerEscapeProbe {
+    HotKeysProbe controls;
+    Saga2::GameObject* chest = nullptr;
+    Saga2::gWindow* parent = nullptr;
+    int phase = 0, cycle = 0, ticks = 0, menus = 0, modalTicks = 0;
+    bool done = false, expectingMenu = false;
+
+    Saga2::ContainerNode* physical() {
+        return Saga2::g_vm->_cnm->find(chest->thisID(), Saga2::ContainerNode::kPhysicalType);
+    }
+    Saga2::ContainerNode* mental() {
+        return Saga2::g_vm->_cnm->find(Saga2::getCenterActorID(),
+                                       Saga2::ContainerNode::kMentalType);
+    }
+    void modalTick() {
+        if (!expectingMenu) {
+            controls.require(++modalTicks < 10, "Options did not consume its closing Escape");
+            return;
+        }
+        controls.require(++menus <= 2, "Escape opened Options before closing containers");
+        modalTicks = 0;
+        auto tool = Saga2::g_vm->_toolBase;
+        controls.require(tool->topWindow() == Saga2::ModalWindow::_current &&
+                             tool->topWindow()->getExtent().height == 263,
+                         "expected Options after container navigation");
+        HotKeysProbe::key(SDLK_ESCAPE);
+        expectingMenu = false;
+    }
+    void tick() {
+        controls.require(
+            ++ticks < 100,
+            String::format("container Escape navigation did not finish (phase=%d cycle=%d)", phase,
+                           cycle)
+                .c_str());
+        auto vm = Saga2::g_vm;
+        auto tool = vm->_toolBase;
+        switch (phase) {
+        case 0: {
+            parent = tool->topWindow();
+            auto position = Saga2::centerActorCoords();
+            int nearest = 32767;
+            for (int id = 0; id < Saga2::objectCount; ++id) {
+                auto obj = Saga2::GameObject::objectAddress(id);
+                if (dynamic_cast<Saga2::PhysicalContainerProto*>(obj->proto()) && !obj->isOpen() &&
+                    !obj->isLocked() && obj->world() == Saga2::getCenterActor()->world()) {
+                    int distance = (obj->getWorldLocation() - position).quickHDistance();
+                    if (distance < nearest) {
+                        chest = obj;
+                        nearest = distance;
+                    }
+                }
+            }
+            controls.require(chest != nullptr && nearest <= 32,
+                             "no nearby unlocked original-data container");
+            controls.snapshot();
+            std::ofstream(controls.output / "container-escape.json")
+                << "{\"object\":" << chest->thisID() << ",\"name\":\"" << chest->objName()
+                << "\"}\n";
+            phase = 1;
+            break;
+        }
+        case 1:
+            controls.require(chest->open(Saga2::getCenterActorID()), "cannot open container");
+            Saga2::updateContainerWindows();
+            controls.require(physical() && physical()->getWindow() && chest->isOpen(),
+                             "container did not open");
+            if (cycle == 0) {
+                g_platform->capture(controls.output / "container-open.ppm");
+                expectingMenu = true;
+                HotKeysProbe::key(SDLK_O);
+                phase = 2;
+            } else {
+                phase = 3;
+            }
+            break;
+        case 2:
+            if (expectingMenu)
+                return;
+            controls.require(menus == 1 && physical() && physical()->getWindow() &&
+                                 chest->isOpen() && tool->topWindow() == physical()->getWindow(),
+                             "O or modal Escape closed the underlying container");
+            phase = 3;
+            break;
+        case 3:
+            // Close the frontmost of two windows, even with the pointer outside it.
+            Saga2::OpenMindContainer(Saga2::getCenterActorPlayerID(), true, cycle % 3);
+            controls.require(mental() && mental()->getWindow() &&
+                                 tool->topWindow() == mental()->getWindow(),
+                             "mental container did not open above the physical container");
+            controls.mouseAt(parent, 4, 475);
+            HotKeysProbe::key(SDLK_ESCAPE);
+            phase = 4;
+            break;
+        case 4:
+            controls.require(!mental() && chest->isOpen() && physical() &&
+                                 tool->topWindow() == physical()->getWindow(),
+                             "Escape did not close only the frontmost container");
+            if (cycle % 2) {
+                // A visible container still has priority after the game regains keyboard focus.
+                controls.clickAt(parent, 4, 475);
+            }
+            HotKeysProbe::key(SDLK_ESCAPE);
+            phase = 5;
+            break;
+        case 5:
+            controls.require(!physical() && !chest->isOpen() && tool->topWindow() == parent &&
+                                 Saga2::ModalWindow::_current == nullptr,
+                             "Escape did not close the physical object and restore the game");
+            controls.unchanged(false);
+            if (cycle == 0)
+                g_platform->capture(controls.output / "container-closed.ppm");
+            if (++cycle < 12) {
+                phase = 1;
+            } else {
+                expectingMenu = true;
+                HotKeysProbe::key(SDLK_ESCAPE);
+                phase = 6;
+            }
+            break;
+        case 6:
+            if (expectingMenu)
+                return;
+            controls.require(menus == 2 && tool->topWindow() == parent &&
+                                 Saga2::ModalWindow::_current == nullptr,
+                             "Escape without containers did not open and close Options");
+            controls.unchanged(false);
+            done = true;
+            break;
+        }
+    }
+};
 } // namespace
 
 void configureSmokeProbe(const Path& output, int frames) {
@@ -861,11 +993,16 @@ void configureSmokeProbe(const Path& output, int frames) {
         std::unique_ptr<SpeechToggleProbe> toggle;
         std::unique_ptr<SpeechFallbackProbe> speech;
         std::unique_ptr<DocumentCursorProbe> cursor;
+        std::unique_ptr<ContainerEscapeProbe> container;
         bool initialSubtitles = true, speechChecked = false;
     };
     auto state = std::make_shared<State>();
     state->initialSubtitles = ConfMan.getBool("subtitles");
     gameFrameHook = [output, state, frames] {
+        if (state->container && Saga2::ModalWindow::_current) {
+            state->container->modalTick();
+            return;
+        }
         if (state->active) {
             if (state->ui)
                 state->ui->tick();
@@ -1144,7 +1281,16 @@ void configureSmokeProbe(const Path& output, int frames) {
                 record("speech-text-checked");
             }
         }
-        if (s.frame >= frames && s.speechChecked) {
+        if (s.speechChecked && !s.container) {
+            s.container = std::make_unique<ContainerEscapeProbe>();
+            s.container->controls.output = output;
+        }
+        if (s.container && !s.container->done) {
+            s.container->tick();
+            if (s.container->done)
+                record("container-escape-checked");
+        }
+        if (s.frame >= frames && s.speechChecked && s.container && s.container->done) {
             auto [music, effects] = g_platform->getMixer()->sampleCounts();
             std::ofstream audio(output / "audio.json");
             audio << "{\"music_nonzero_samples\":" << music

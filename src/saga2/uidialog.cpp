@@ -800,7 +800,7 @@ static void showHotKeysDialog() {
 		{"K", "Open Memories"},
 		{"M", "Toggle music"},
 		{"Space", "Dismiss speech and make selected brother wait"},
-		{"O / Esc", "Open Options"},
+		{"O / Esc", "Options / close container (Esc)"},
 		{"Alt+Enter", "Switch fullscreen / window"}
 	};
 	Rect16 windowRect((640 - 487) / 2, (480 - 320) / 2, 487, 320);

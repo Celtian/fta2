@@ -46,6 +46,7 @@ def main():
         assert any(s["phase"] == "speech-text-checked" for s in states)
         assert any(s["phase"] == "document-cursors-checked" for s in states)
         assert any(s["phase"] == "document-wheel-checked" for s in states)
+        assert any(s["phase"] == "container-escape-checked" for s in states)
         assert json.loads((output / "speech-startup.json").read_text())["subtitles"] is True
         assert "subtitles=false" in (saves / "config.ini").read_text()
         # A second native process must retain the unchecked preference.
@@ -64,6 +65,7 @@ def main():
         assert any(s["phase"] == "speech-text-checked" for s in restart_states)
         assert any(s["phase"] == "document-cursors-checked" for s in restart_states)
         assert any(s["phase"] == "document-wheel-checked" for s in restart_states)
+        assert any(s["phase"] == "container-escape-checked" for s in restart_states)
         for variant in ("game", "pregame"):
             for kind in ("scroll", "parchment"):
                 for capture_dir in (output, restart_output):
@@ -78,7 +80,8 @@ def main():
                     screenshot = (capture_dir / f"cursor-{variant}-{name}.ppm").read_bytes()
                     header = b"P6\n640 480\n255\n"
                     assert screenshot.startswith(header) and len(screenshot) == len(header) + 640 * 480 * 3
-        for name in ("options.ppm", "hotkeys.ppm", "options-returned.ppm",
+        for name in ("container-open.ppm", "container-closed.ppm",
+                     "options.ppm", "hotkeys.ppm", "options-returned.ppm",
                      "pregame-options.ppm", "pregame-hotkeys.ppm", "pregame-returned.ppm",
                      "load-empty.ppm", "credits.ppm", "credits-next.ppm", "credits-last.ppm",
                      "save-menu.ppm", "load-saved.ppm", "speech-options-on.ppm",
