@@ -1,0 +1,49 @@
+research/container-escape-validation.json
+  s_379e0511314c43::t_700caa2d47edd7 1-217
+src/platform/probe.cpp
+  s_379e0511314c43::t_642930cc645610 904
+  s_379e0511314c43::t_af066064ecd7ce 890-892,894,896-899
+  s_379e0511314c43::t_b05ccba2885c27 854,865-868,870
+  s_379e0511314c43::t_eb97fa35150f73 879-883
+  s_379e0511314c43::t_778c4e0cb26fb3 869
+  s_379e0511314c43::t_7d85935ba29787 949
+  s_379e0511314c43::t_0677385382302f 1002-1005
+  s_379e0511314c43::t_6a28430a8222c4 24,850-853,855-861,863-864,871-878,884-888,900-901,905-948,950-980,996,1284-1293
+  s_379e0511314c43::t_31ef65806839e0 889,895,902-903
+  s_379e0511314c43::t_8b1c099fc95021 862,893
+src/saga2/tilemode.cpp
+  s_379e0511314c43::t_9df51b626d498c 983-998,1000
+docs/windows-build.md
+  s_379e0511314c43::t_3e9d88de332fe8 96
+  s_379e0511314c43::t_00be117ac61b64 60,69,77
+  s_379e0511314c43::t_700caa2d47edd7 103-104
+CMakeLists.txt
+  s_379e0511314c43::t_107f9494bdade4 2
+README.md
+  s_379e0511314c43::t_00be117ac61b64 35,65
+tools/integration_test.py
+  s_379e0511314c43::t_403ef428210675 49,68,83-84
+third_party/README.md
+  s_379e0511314c43::t_00be117ac61b64 33-34
+src/saga2/uidialog.cpp
+  s_379e0511314c43::t_107f9494bdade4 803
+docs/validation.md
+  s_379e0511314c43::t_d7dc98a51c1e7e 1,3
+  s_379e0511314c43::t_700caa2d47edd7 50-51
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "18205623557c2f4aed9f0f077b6979bd70f6e8ba",
+  "prompts": {},
+  "sessions": {
+    "s_379e0511314c43": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12064-37b8-7520-b7a8-9041a183461d",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Celtian <dominik.hladik@seznam.cz>"
+    }
+  }
+}
