@@ -187,10 +187,16 @@ struct HotKeysProbe {
         case 1:
             help = active;
             require(help && help != options && help->getExtent().width == 487 &&
-                        help->getExtent().height == 320 &&
+                        help->getExtent().height == 336 &&
                         size_t(std::distance(tool->bottomWindowIterator(),
                                              tool->topWindowIterator())) == windowCount + 1,
                     "Hot Keys did not open as a separate dialog");
+            {
+                const auto close = help->keyTest(ASCII_ESCAPE);
+                require(close && close->getExtent().y + close->getExtent().height <=
+                                     help->getExtent().height - 14,
+                        "Hot Keys Close overlaps the bottom decoration");
+            }
             unchanged();
             if (!cycle)
                 g_platform->capture(output / (pregame ? "pregame-hotkeys.ppm" : "hotkeys.ppm"));

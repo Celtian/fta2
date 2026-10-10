@@ -1,0 +1,93 @@
+{
+  "version": "0.1.38",
+  "status": "development-alpha",
+  "behavior": {
+    "scope": "physical gifts to living player brothers after no main-inventory slot or merge is available",
+    "order": "breadth first; siblings sorted by row, column and object ID",
+    "closed_containers": true,
+    "locked_branches_excluded": true,
+    "source_subtree_excluded": true,
+    "original_receive_scripts_and_capacity_preserved": true,
+    "changed_source_stops_trials": true,
+    "exhaustion": "original ground drop",
+    "save_format_unchanged": true,
+    "no_new_setting_or_public_api": true
+  },
+  "fixture_per_process": {
+    "status": "passed",
+    "cases": 12,
+    "placements": 168,
+    "guard_checks": 96,
+    "script_checks": 48,
+    "ui_transfer_checks": 36,
+    "redraw_checks": 24,
+    "save_load_checks": 12,
+    "fixture_restored": true
+  },
+  "fixture_details": [
+    "Temporary light copies of original container and item prototypes keep the actor within native capacity; all originals are restored.",
+    "Original interpreter method tables and bytecode are patched only in memory, within scoped restoration, for receive acceptance/refusal and insertion refusal/source mutation. No input archive is written.",
+    "Portrait and map events queue the original task; real motion updates finish delivery. The map target cache is populated from the original sprite picker.",
+    "Immediate destination-icon pixels and the grid after a normal world frame are compared with a full redraw. Transparent frame gaps require the normal world update after motion.",
+    "Checkpoints restore all temporary objects, prototypes, actors, queued actions and RNG before the reference scenario continues."
+  ],
+  "checks": {
+    "linux_release_build": true,
+    "windows_zig_release_build": true,
+    "linux_ctest": 7,
+    "windows_ctest": 7,
+    "asan_lsan_ctest": 7,
+    "windows_cpp_tests_execute_natively": true,
+    "portable_python_tests_host": "Linux",
+    "linux_classic_processes": 2,
+    "linux_widescreen_processes": 2,
+    "windows_classic_processes": 1,
+    "windows_widescreen_processes": 2,
+    "windows_native_video_runtime": true,
+    "windows_voice_processes": 4,
+    "windows_death_regression_processes": 8,
+    "asan_lsan_classic_processes": 2,
+    "asan_lsan_widescreen_processes": 2,
+    "linux_windows_widescreen_images_equal": [
+      405,
+      405
+    ],
+    "unchanged_0137_captures": [
+      393,
+      393
+    ],
+    "reference_rebuilt_and_rerun": true,
+    "reference_screenshots": 2,
+    "reference_checkpoints": 4,
+    "original_chunks_per_save": 30,
+    "original_files_unchanged": 54
+  },
+  "delivery": {
+    "archive": "dist/fta2-native-0.1.38-Windows-x86_64.zip",
+    "zip_downloads_for_version": 1,
+    "data_files": 8,
+    "voice_archives": 1,
+    "validated_executable_sha256": "2ed894adf857ea89ef7999dbf0b587fb21579956704b6b94aec6fda29862025c"
+  },
+  "limitations": [
+    "Automated injected input and dummy gameplay backends; native Windows video is tested separately.",
+    "Native MSVC/macOS builds, manual hardware input and a full playthrough are not validated for this release."
+  ],
+  "evidence": [
+    ".cache/storage-038-ctest.log",
+    ".cache/storage-038-windows-ctest.log",
+    ".cache/storage-038-asan-ctest.log",
+    ".cache/storage-038-final-classic.log",
+    ".cache/storage-038-final-wide.log",
+    ".cache/storage-038-asan-classic.log",
+    ".cache/storage-038-asan-wide.log",
+    ".cache/storage-038-windows-final-validation/validation.json",
+    ".cache/storage-038-parity.json",
+    ".cache/storage-038-parity-restart.json",
+    ".cache/storage-038-windows-parity.json",
+    ".cache/storage-038-asan-parity.json",
+    ".cache/storage-038-asan-parity-restart.json",
+    ".cache/storage-038-data-verify-final.json",
+    ".cache/storage-038-package-audit.json"
+  ]
+}

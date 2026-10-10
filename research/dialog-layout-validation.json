@@ -1,0 +1,78 @@
+{
+  "version": "0.1.40",
+  "status": "development-alpha",
+  "changes": {
+    "title_text_height": 47,
+    "title_vertical_shift": 4,
+    "title_center_excludes_right_shadow": true,
+    "options_geometry_unchanged": true,
+    "hotkeys_size": [
+      487,
+      336
+    ],
+    "hotkeys_row_pitch": 14,
+    "hotkeys_first_row_y": 68,
+    "hotkeys_note_y": 270,
+    "close_bounds": [
+      179,
+      292,
+      121,
+      30
+    ],
+    "close_bottom_inset": 14,
+    "original_artwork_and_fonts_retained": true
+  },
+  "checks": {
+    "linux_release_build": true,
+    "windows_zig_release_build": true,
+    "linux_ctest": 7,
+    "windows_ctest": 7,
+    "linux_classic_processes": 2,
+    "linux_widescreen_processes": 2,
+    "windows_classic_processes": 1,
+    "windows_widescreen_processes": 2,
+    "native_windows_video_runtime": true,
+    "hotkeys_variants_per_widescreen_process": 8,
+    "mouse_close_bottom_right_and_escape": true,
+    "options_modal_focus_restored": true,
+    "hotkeys_plaque_identical_across_all_eight_combinations": true,
+    "options_only_title_pixels_changed": 819,
+    "load_game_dialog_unchanged": true,
+    "linux_windows_widescreen_images_equal": [
+      413,
+      413
+    ],
+    "reference_rebuilt_and_rerun": true,
+    "classic_reference_comparisons": 3,
+    "reference_images_per_comparison": 2,
+    "reference_checkpoints_per_comparison": 4,
+    "original_chunks_in_each_of_two_saves": 30,
+    "original_files_unchanged": 54
+  },
+  "delivery": {
+    "archive": "dist/fta2-native-0.1.40-Windows-x86_64.zip",
+    "zip_downloads_for_version": 1,
+    "matching_sources_embedded": true,
+    "validated_executable_sha256": "44e4a31200ac6bd23de689bc902a7a10dcea54d85806ce56173d82dcee43b791"
+  },
+  "limitations": [
+    "Gameplay checks use injected input and dummy video/audio. Native Windows video is tested separately.",
+    "ASan/LSan was not rerun for this geometry-only correction.",
+    "Native MSVC/macOS builds, manual hardware input and a full playthrough remain unverified."
+  ],
+  "evidence": [
+    ".cache/dialog-040-ctest-final.log",
+    ".cache/dialog-040-windows-ctest-final.log",
+    ".cache/dialog-040-classic-final.log",
+    ".cache/dialog-040-wide-verified.log",
+    ".cache/dialog-040-windows-package-validation/validation.json",
+    ".cache/dialog-040-visual-regression.json",
+    ".cache/dialog-040-hotkeys-pixel-parity.json",
+    ".cache/dialog-040-windows-image-parity.json",
+    ".cache/dialog-040-parity.json",
+    ".cache/dialog-040-parity-restart.json",
+    ".cache/dialog-040-windows-parity.json",
+    ".cache/dialog-040-data-verify-final.json",
+    ".cache/dialog-040-package-audit.json"
+  ]
+}

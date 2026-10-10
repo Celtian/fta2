@@ -376,7 +376,7 @@ static const StaticRect optTitleText = {
 	0,
 	0,
 	kOptBoxXSzNS,
-	kOptTPHeight
+	47 // Match the title baseline of Save/Load and message dialogs.
 };
 
 static const StaticRect optTopSlideText = {
@@ -817,13 +817,13 @@ static void showHotKeysDialog() {
 		{"O / Esc", "Options / close container (Esc)"},
 		{"Alt+Enter", "Switch fullscreen / window"}
 	};
-	Rect16 windowRect((640 - 487) / 2, (480 - 320) / 2, 487, 320);
+	Rect16 windowRect((640 - 487) / 2, (480 - 336) / 2, 487, 336);
 	const StaticWindow decorations[] = {
 		{{windowRect.x, windowRect.y, 487, 39}, nullptr, optTopPanelResID},
 		{{windowRect.x, (int16)(windowRect.y + 39), 487, 101}, nullptr, optBotPanelResID},
 		{{windowRect.x, (int16)(windowRect.y + 99), 487, 101}, nullptr, optBotPanelResID},
 		{{windowRect.x, (int16)(windowRect.y + 159), 487, 101}, nullptr, optBotPanelResID},
-		{{windowRect.x, (int16)(windowRect.y + 219), 487, 101}, nullptr, optBotPanelResID}
+		{{windowRect.x, (int16)(windowRect.y + 235), 487, 101}, nullptr, optBotPanelResID}
 	};
 	textPallete pal(33 + 9, 36 + 9, 41 + 9, 34 + 9, 40 + 9, 43 + 9);
 	requestInfo info;
@@ -833,20 +833,20 @@ static void showHotKeysDialog() {
 	void **pushImages = loadButtonRes(decRes, 4, kNumBtnImages);
 	ModalWindow *win = new ModalWindow(windowRect, 0, nullptr);
 
-	new CPlaqText(*win, Rect16(0, 0, 487, 39), OPTN_DIALOG_HOT_KEYS,
+	new CPlaqText(*win, Rect16(0, 0, kOptBoxXSzNS, 47), OPTN_DIALOG_HOT_KEYS,
 	              &Plate18Font, 0, pal, 0, nullptr);
-	new CPlaqText(*win, Rect16(18, 44, 108, 17), "Key", &SmallFont, kTextPosLeft, pal, 0, nullptr);
-	new CPlaqText(*win, Rect16(142, 44, 327, 17), "Action", &SmallFont, kTextPosLeft, pal, 0, nullptr);
+	new CPlaqText(*win, Rect16(18, 48, 108, 17), "Key", &SmallFont, kTextPosLeft, pal, 0, nullptr);
+	new CPlaqText(*win, Rect16(142, 48, 327, 17), "Action", &SmallFont, kTextPosLeft, pal, 0, nullptr);
 	for (uint i = 0; i < ARRAYSIZE(shortcuts); ++i) {
-		int16 y = 64 + i * 13;
-		new CPlaqText(*win, Rect16(18, y, 108, 13), shortcuts[i].key,
+		int16 y = 68 + i * 14;
+		new CPlaqText(*win, Rect16(18, y, 108, 14), shortcuts[i].key,
 		              &SmallFont, kTextPosLeft, pal, 0, nullptr);
-		new CPlaqText(*win, Rect16(142, y, 327, 13), shortcuts[i].action,
+		new CPlaqText(*win, Rect16(142, y, 327, 14), shortcuts[i].action,
 		              &SmallFont, kTextPosLeft, pal, 0, nullptr);
 	}
-	new CPlaqText(*win, Rect16(18, 264, 451, 14), "Gameplay shortcuts may be unavailable during dialogue.",
+	new CPlaqText(*win, Rect16(18, 270, 451, 14), "Gameplay shortcuts may be unavailable during dialogue.",
 	              &SmallFont, kTextPosLeft, pal, 0, nullptr);
-	GfxCompButton *close = new GfxCompButton(*win, Rect16(183, 282, kPushButtonWidth, kPushButtonHeight),
+	GfxCompButton *close = new GfxCompButton(*win, Rect16((kOptBoxXSzNS - kPushButtonWidth) / 2, 292, kPushButtonWidth, kPushButtonHeight),
 	                                      pushImages, kNumBtnImages, HOT_KEYS_CLOSE, pal, 0, cmdDialogQuit);
 	close->_accelKey = Native::ASCII_ESCAPE;
 	win->setDecorations(decorations, ARRAYSIZE(decorations), decRes, 'O', 'P', 'T');

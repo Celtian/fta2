@@ -1,0 +1,158 @@
+{
+  "version": "0.1.39",
+  "status": "development-alpha",
+  "cause": "The recovered DOS ColorMapRanges table began eight bytes late, omitting empty bank zero and shifting every selected scheme by one bank. Both the extractor and development reference shared the bad offset.",
+  "correction": {
+    "old_file_offset": "0x1C3B24",
+    "new_file_offset": "0x1C3B1C",
+    "bytes": 1584,
+    "banks": 198,
+    "pack_sha256": "c54493e0188039e696570b0b2b4f5b2f4f9c586c7710938a3b1271ea6c315c1e",
+    "original_data_unchanged": true,
+    "settings_and_save_format_unchanged": true
+  },
+  "dos_lookup_evidence": {
+    "status": "passed",
+    "source_exe_sha256": "a7413ddf57df2ec649e3cb401cfc6b3d0b0141cc840161dbd6b3029e381837c2",
+    "builder_file_offset": "0xB89A4",
+    "bank_scale_instruction_file_offset": "0xB89DB",
+    "bank_scale_instruction": "8d14d500000000",
+    "bank_base_instruction_file_offset": "0xB89E2",
+    "bank_base_instruction": "81c278aa0100",
+    "data_object_file_offset": "0x1A90A4",
+    "bank_table_object_address": "0x1AA78",
+    "bank_table_file_offset": "0x1c3b1c",
+    "bank_count": 198,
+    "empty_first_bank_retained": true,
+    "bank_table_sha256": "22a66297c55acb1d2695f08d0dd6defb856b422f8103b90e84f3370cb7738da1",
+    "native_release_checks": [
+      {
+        "prototype": 47,
+        "sprite": 306,
+        "pixels": 1120,
+        "table_and_pixels_match_dos_address": true
+      },
+      {
+        "prototype": 86,
+        "sprite": 101,
+        "pixels": 666,
+        "table_and_pixels_match_dos_address": true
+      },
+      {
+        "prototype": 87,
+        "sprite": 98,
+        "pixels": 858,
+        "table_and_pixels_match_dos_address": true
+      },
+      {
+        "prototype": 88,
+        "sprite": 101,
+        "pixels": 666,
+        "table_and_pixels_match_dos_address": true
+      },
+      {
+        "prototype": 89,
+        "sprite": 103,
+        "pixels": 936,
+        "table_and_pixels_match_dos_address": true
+      },
+      {
+        "prototype": 91,
+        "sprite": 101,
+        "pixels": 666,
+        "table_and_pixels_match_dos_address": true
+      },
+      {
+        "prototype": 92,
+        "sprite": 124,
+        "pixels": 1760,
+        "table_and_pixels_match_dos_address": true
+      },
+      {
+        "prototype": 93,
+        "sprite": 124,
+        "pixels": 1760,
+        "table_and_pixels_match_dos_address": true
+      },
+      {
+        "prototype": 94,
+        "sprite": 124,
+        "pixels": 1760,
+        "table_and_pixels_match_dos_address": true
+      },
+      {
+        "prototype": 703,
+        "sprite": 102,
+        "pixels": 936,
+        "table_and_pixels_match_dos_address": true
+      }
+    ],
+    "dosbox_pixel_capture_compared": false,
+    "archive_bank_scan": {
+      "object_prototypes": 970,
+      "object_max_bank": 195,
+      "actor_scheme_bank_selections": 68992,
+      "actor_max_bank": 196,
+      "all_within_198_banks": true
+    }
+  },
+  "public_regression": "Synthetic extraction includes the empty initial bank, the final valid bank and an unrelated trailing sentinel. The regression passes the correction and was separately confirmed to fail under the previous eight-byte shift.",
+  "checks": {
+    "linux_release_build": true,
+    "windows_zig_release_build": true,
+    "linux_ctest": 7,
+    "windows_ctest": 7,
+    "asan_lsan_ctest": 7,
+    "python_data_cases": 7,
+    "linux_classic_processes": 2,
+    "linux_widescreen_processes": 2,
+    "windows_classic_processes": 1,
+    "windows_widescreen_processes": 2,
+    "asan_lsan_classic_processes": 2,
+    "native_windows_video_runtime": true,
+    "windows_voice_processes": 4,
+    "windows_villager_death_processes": 8,
+    "linux_windows_widescreen_images_equal": [
+      405,
+      405
+    ],
+    "native_and_python_resource_packs_equal": true,
+    "other_extracted_assets_unchanged": 22,
+    "reference_rebuilt_and_rerun_with_corrected_pack": true,
+    "reference_images": 2,
+    "reference_checkpoints": 4,
+    "original_chunks_per_save": 30,
+    "save_chunks_equal_to_0138": true,
+    "checkpoints_equal_to_0138": 4,
+    "original_files_unchanged": 54
+  },
+  "delivery": {
+    "archive": "dist/fta2-native-0.1.39-Windows-x86_64.zip",
+    "zip_downloads_for_version": 1,
+    "matching_sources_embedded": true,
+    "validated_executable_sha256": "2cdf975c997e79106e8782cbe6119951e33b43897220d00a6efa71697adc1d1b"
+  },
+  "limitations": [
+    "The user reported brown icons in DOSBox. No automated DOSBox framebuffer comparison was performed; the corrected lookup is traced directly from the verified original DOS executable.",
+    "Old reference images used the same incorrect table. They are historical renderer-parity evidence, not proof of original DOS color accuracy. Corrected images are intentionally different.",
+    "Gameplay integration uses injected input and dummy video/audio; native Windows video is tested separately. Native MSVC/macOS builds, manual hardware input and a full playthrough remain unverified.",
+    "ASan/LSan ran public tests and both classic integration processes; separate sanitizer widescreen processes were not rerun for this extraction correction."
+  ],
+  "evidence": [
+    ".cache/color-039-palette-proof.json",
+    ".cache/color-039-ctest.log",
+    ".cache/color-039-windows-ctest.log",
+    ".cache/color-039-asan-ctest.log",
+    ".cache/color-039-classic.log",
+    ".cache/color-039-wide.log",
+    ".cache/color-039-asan-classic.log",
+    ".cache/color-039-windows-final-validation/validation.json",
+    ".cache/color-039-parity.json",
+    ".cache/color-039-parity-restart.json",
+    ".cache/color-039-windows-parity.json",
+    ".cache/color-039-asan-parity.json",
+    ".cache/color-039-asan-parity-restart.json",
+    ".cache/color-039-data-verify-final.json",
+    ".cache/color-039-package-audit.json"
+  ]
+}

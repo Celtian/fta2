@@ -142,9 +142,10 @@ def recover(exe: bytes) -> list[tuple[str, int, bytes]]:
         data = bounded(exe, offset, 1286 + height * stride)
         decode_font(data)
         assets.append((name, offset, data))
+    # Preserve ColorMapRanges bank zero; the DOS lookup at 0xB89E2 uses 0x1AA78.
     for name, offset, size in [("loadingWindowPalette", 0x1C66D0, 1024),
                                ("loadingWindowData", 0x1C6AD0, 640 * 480),
-                               ("ColorMapRanges", 0x1C3B24, 1584)]:
+                               ("ColorMapRanges", 0x1C3B1C, 1584)]:
         assets.append((name, offset, bounded(exe, offset, size)))
     for name, (address, w, h) in CURSORS.items():
         offset = DOS_DATA_BASE + address

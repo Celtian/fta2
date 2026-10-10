@@ -101,6 +101,22 @@ def validate_physical_ordering(output):
     return result
 
 
+def validate_carried_storage(output):
+    """Check automatic carried-container traversal, scripts and original UI dispatch."""
+    result = json.loads((output / "carried-storage.json").read_text())
+    assert result == {"status": "passed", "cases": 12, "placements": 168,
+                      "guard_checks": 96, "script_checks": 48,
+                      "ui_transfer_checks": 36, "redraw_checks": 24,
+                      "save_load_checks": 12, "fixture_restored": True}
+    for wide, width in ((0, 640), (1, 854)):
+        for sidebar in range(2):
+            for brother in range(3):
+                image = (output / f"carried-storage-{wide}-{sidebar}-{brother}.ppm").read_bytes()
+                header = f"P6\n{width} 480\n255\n".encode()
+                assert image.startswith(header) and len(image) == len(header) + width * 480 * 3
+    return result
+
+
 def validate_inventory_ui(output):
     """Check physical wheel/placeholder and game-clock integration evidence."""
     result = json.loads((output / "inventory-ui.json").read_text())
@@ -110,7 +126,7 @@ def validate_inventory_ui(output):
                       "save_load_checks": 4, "fixture_restored": True}
     for wide, width in ((0, 640), (1, 854)):
         for sidebar in range(2):
-            for kind, count in (("inventory", 4), ("clock", 3), ("clock-options", 2)):
+            for kind, count in (("inventory", 4), ("clock", 3), ("clock-options", 2), ("hotkeys", 2)):
                 for sample in range(count):
                     name = f"{kind}-{wide}-{sidebar}-{sample}.ppm"
                     image = (output / name).read_bytes()
@@ -165,6 +181,7 @@ def validate_container_owners(output):
     validate_mental_scrolling(output)
     validate_spell_ordering(output)
     validate_physical_ordering(output)
+    validate_carried_storage(output)
     for wide in range(2):
         for sidebar in range(2):
             for pregame in range(2):

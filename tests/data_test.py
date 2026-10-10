@@ -4,6 +4,7 @@ from pathlib import Path
 import struct
 import tempfile
 import unittest
+from unittest.mock import patch
 
 spec = importlib.util.spec_from_file_location("fta2_data", Path(__file__).resolve().parents[1] / "tools/fta2_data.py")
 data = importlib.util.module_from_spec(spec)
@@ -36,6 +37,22 @@ class ArchiveTests(unittest.TestCase):
     def test_unknown_executable_is_rejected_with_expected_hash(self):
         with self.assertRaisesRegex(data.DataError, data.EXE_SHA256):
             data.recover(b"MZ" + bytes(100))
+
+    def test_color_ranges_retain_empty_first_bank_and_last_valid_bank(self):
+        # A missing initial bank shifts every sprite's chosen color scheme.
+        executable = bytearray(0x220000)
+        for offset in data.FONTS.values():
+            struct.pack_into("<HHH", executable, offset, 1, 1, 1)
+        offset = 0x1C3B1C
+        ranges = bytes(8) + bytes(value for bank in range(1, 198)
+                                  for value in (bank,) * 8)
+        executable[offset:offset + len(ranges)] = ranges
+        executable[offset + len(ranges):offset + len(ranges) + 8] = b"NOTBANK!"
+        executable = bytes(executable)
+        with patch.object(data, "EXE_SHA256", data.sha256(executable)):
+            assets = {name: (start, payload)
+                      for name, start, payload in data.recover(executable)}
+        self.assertEqual(assets["ColorMapRanges"], (offset, ranges))
 
     def test_refuse_extraction_into_originals_before_writing(self):
         with tempfile.TemporaryDirectory() as temp:

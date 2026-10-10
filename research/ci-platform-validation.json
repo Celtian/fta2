@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-11",
+  "status": "development-alpha",
+  "reported_ci_failures": {
+    "macos": {
+      "compiler": "AppleClang 15.0.0.15000309",
+      "os": "macOS 14.8.9",
+      "failure": "Point(x, y) rejected: no matching constructor for aggregate initialization."
+    },
+    "windows": {
+      "compiler": "MSVC 19.44.35229.0",
+      "os": "Windows Server 2022",
+      "failure": "Diagnostics test fails because the unhandled C++ exception text is absent."
+    }
+  },
+  "corrections": {
+    "point": "Brace initialization with explicit int16 conversions; no constructor or public API added.",
+    "windows_diagnostics": "Capture the original Windows exception dump, then delegate MSVC exception code 0xe06d7363 to the previous filter. It can invoke the installed terminate handler while preserving the dump even if abort does not reenter the top-level filter.",
+    "regressions": "Synthetic previous filters exercise both EXCEPTION_CONTINUE_SEARCH fallback and termination with an active C++ exception. Existing exception-text and minidump assertions remain."
+  },
+  "checks": {
+    "linux_release_build": true,
+    "windows_zig_release_build": true,
+    "linux_ctest": 7,
+    "windows_ctest": 7,
+    "asan_lsan_ctest": 7,
+    "windows_previous_filter_regression_failed_before_fix": true,
+    "nested_termination_dump_regression_failed_before_dump_order_fix": true,
+    "windows_fatal_process_cases": 5,
+    "native_windows_process_execution": true,
+    "windows_python_orchestration_host": "Linux",
+    "native_macos_build": false,
+    "native_msvc_build": false,
+    "remote_ci_rerun": false
+  },
+  "limitations": [
+    "Native macOS and MSVC CI have not been rerun from this workspace. Local Windows validation uses Zig/MinGW executables on the native Windows host, with a synthetic MSVC-style prior filter.",
+    "Original-data gameplay integration and packaging were not rerun for this compiler/test-fixture and Windows diagnostics correction."
+  ],
+  "references": [
+    "https://devblogs.microsoft.com/oldnewthing/20250710-00/?p=111366/"
+  ],
+  "evidence": [
+    ".cache/ci-fix-windows-before-test.log",
+    ".cache/ci-fix-windows-ctest-final.log",
+    ".cache/ci-fix-linux-build-verified.log",
+    ".cache/ci-fix-windows-build-verified.log",
+    ".cache/ci-fix-linux-ctest-verified.log",
+    ".cache/ci-fix-windows-ctest-verified.log",
+    ".cache/ci-fix-asan-ctest-verified.log"
+  ]
+}

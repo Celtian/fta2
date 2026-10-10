@@ -27,12 +27,14 @@ The addresses below are **file offsets in this DOS executable**, not Windows exe
 
 A font has a 1,286-byte header: three little-endian uint16 values, 256 little-endian uint16 offsets, and three 256-byte tables for width, kerning and spacing. Its bitmap contains `height × stride` bytes. A character offset is a byte offset within a row; bits are read most significant first. The Python extractor generates a preview of all 256 characters in each font.
 
-The loading-screen palette is at `0x1C66D0` (1,024 RGBX bytes), its image at `0x1C6AD0` (307,200 indices), and `ColorMapRanges` at `0x1C3B24` (1,584 bytes; code reference at `0xE96C0`). Cursors and the gauge were identified from the initializer at `0x13CD44`; the DOS data-object base is `0x1A90A4`. Exact addresses and dimensions are recorded in `tools/fta2_data.py` and the compiled `src/platform/dos-profile.inc`.
+The loading-screen palette is at `0x1C66D0` (1,024 RGBX bytes), its image at `0x1C6AD0` (307,200 indices), and `ColorMapRanges` at `0x1C3B1C` (1,584 bytes, 198 banks of eight colors). Cursors and the gauge were identified from the initializer at `0x13CD44`; the DOS data-object base is `0x1A90A4`. Exact addresses and dimensions are recorded in `tools/fta2_data.py` and the compiled `src/platform/dos-profile.inc`.
+
+The DOS color-table builder starts at file offset `0xB89A4`. At `0xB89DB` it multiplies the selected bank by eight, then at `0xB89E2` adds the data-object address `0x1AA78`, giving file offset `0x1C3B1C`. Bank zero contains eight zeros and must be retained. Bank 197 is the last valid bank; the following bytes belong to another structure. Releases through 0.1.38 incorrectly started eight bytes later at `0x1C3B24`, shifting every selected bank and including eight unrelated trailing bytes. This made Bellows and the brown Book variant cream-colored. Comparing native rendering with an extractor or reference using that same offset could not detect the mistake. Version 0.1.39 corrects the extraction, with a synthetic regression retaining both boundary banks.
 
 The F2R1 pack contains the `F2R1` signature, a little-endian uint32 count of 23, 40-byte records (`name[32]`, little-endian offset, little-endian length), and contiguous resource data. It is 340,358 bytes long and has this SHA-256:
 
 ```text
-f77094a250eae904073bd21b8f2c1c208d10f8ab9d56830893aed7acd62c765e
+c54493e0188039e696570b0b2b4f5b2f4f9c586c7710938a3b1271ea6c315c1e
 ```
 
 The manifest records the source executable, each resource's offset, length and SHA-256, and the pack checksum. The C++ output and independent Python extractor output are compared byte-for-byte, including their manifests. An unknown executable, incomplete HRES record or out-of-bounds resource is rejected with an explanation.

@@ -180,6 +180,14 @@ LONG WINAPI crashFilter(EXCEPTION_POINTERS* exception) {
             line.emit();
         }
     }
+    // Preserve the original dump before MSVC's filter converts C++ exceptions
+    // to std::terminate: abort inside that filter need not reenter our handler.
+    if (exception->ExceptionRecord->ExceptionCode == 0xe06d7363 && oldFilter &&
+        oldFilter != crashFilter) {
+        const LONG result = oldFilter(exception);
+        if (result != EXCEPTION_CONTINUE_SEARCH)
+            return result;
+    }
     return EXCEPTION_EXECUTE_HANDLER;
 }
 

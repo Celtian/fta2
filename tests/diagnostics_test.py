@@ -60,7 +60,10 @@ def main():
         assert log.stat().st_size < 65536 + 10000
         assert "fatal after size limit" in log.read_text(encoding="utf-8")
         native = b"native-handlers" in run("capabilities").stdout
-        for mode in ("fault", "abort", "terminate"):
+        modes = ["fault", "abort", "terminate"]
+        if args.binary.suffix == ".exe":
+            modes.extend(("cpp-filter", "cpp-filter-terminate"))
+        for mode in modes:
             if mode in ("fault", "abort") and not native:
                 continue  # ASan retains its own POSIX signal handlers; terminate still logs.
             directory = Path(temp) / mode
@@ -70,6 +73,12 @@ def main():
             assert "actor=32768" in text and "u=13258" in text
             if mode == "terminate":
                 assert "synthetic uncaught exception" in text
+            if mode.startswith("cpp-filter"):
+                assert "synthetic previous C++ exception filter" in text, text
+            if mode == "cpp-filter":
+                assert "Windows exception code=0xe06d7363" in text, text
+            if mode == "cpp-filter-terminate":
+                assert "synthetic previous filter exception" in text, text
             if args.binary.suffix == ".exe":
                 dumps = list(directory.glob("*.dmp"))
                 assert len(dumps) == 1 and dumps[0].read_bytes()[:4] == b"MDMP", text

@@ -6,6 +6,7 @@
 #include "saga2/automap.h"
 #include "saga2/button.h"
 #include "saga2/calendar.h"
+#include "saga2/code.h"
 #include "saga2/contain.h"
 #include "saga2/display.h"
 #include "saga2/document.h"
@@ -21,6 +22,7 @@
 #include "saga2/modal.h"
 #include "saga2/player.h"
 #include "saga2/script.h"
+#include "saga2/methods.r"
 #include "saga2/tile.h"
 #include "saga2/uidialog.h"
 
@@ -40,6 +42,10 @@ extern GfxCompButton* menConBtn;
 extern GfxCompButton* trioMentalBtns[kNumViews];
 extern gPanelList *trioControls, *indivControls;
 extern ReadyContainerView *TrioCviews[kNumViews], *indivCviewTop, *indivCviewBot;
+extern StaticPoint16 fineScroll;
+extern ObjectID pickedObject;
+uint16 *builtinVTableAddress(int16, uint8 *, CallTable **);
+uint8 *segmentAddress(uint16, uint16);
 void initAutoMap();
 void updateMainDisplay();
 void updateWindowSection(const Rect16& clip);
@@ -2520,7 +2526,9 @@ static void verifyInventoryUI(const Path& output) {
                     new ContainerNode(*vm->_cnm, getCenterActorID(), ContainerNode::kMentalType);
                 mentalBeneath->show();
                 mentalBeneath->getWindow()->setExtent(Rect16(300, 260, 158, 215));
-                int phase = 0;
+                int phase = -3;
+                ModalWindow* parentOptions = nullptr;
+                int helpClosingTicks = 0;
                 const bool before = vm->_showGameTime;
                 const bool nightBefore = vm->_showNight;
                 const int speechBefore = ConfMan.getInt("speech_volume");
@@ -2528,7 +2536,38 @@ static void verifyInventoryUI(const Path& output) {
                     auto dialog = ModalWindow::_current;
                     if (!dialog)
                         return;
-                    if (phase == 0) {
+                    if (phase == -3) {
+                        parentOptions = dialog;
+                        key(SDLK_H);
+                        ++phase;
+                    } else if (phase == -2) {
+                        requireWide(dialog != parentOptions && dialog->getExtent().width == 487 &&
+                                        dialog->getExtent().height == 336,
+                                    "Hot Keys did not open above Options");
+                        const auto close = dialog->keyTest(ASCII_ESCAPE);
+                        requireWide(close &&
+                                        close->getExtent().x ==
+                                            (kOptBoxXSzNS - close->getExtent().width) / 2 &&
+                                        close->getExtent().y + close->getExtent().height <=
+                                            dialog->getExtent().height - 14,
+                                    "Hot Keys Close is not centered inside the bottom frame");
+                        g_platform->capture(
+                            output /
+                            String::format("hotkeys-%d-%d-%d.ppm", wide, sidebar, pregame).c_str());
+                        if (pregame)
+                            click(dialog, close->getExtent().x + close->getExtent().width - 1,
+                                  close->getExtent().y + close->getExtent().height - 1);
+                        else
+                            key(SDLK_ESCAPE);
+                        ++phase;
+                    } else if (phase == -1) {
+                        // The nested event loop can tick once after receiving Close,
+                        // before the help window is destroyed and modal focus restored.
+                        requireWide(++helpClosingTicks < 10,
+                                    "Hot Keys did not restore Options modal focus");
+                        if (dialog == parentOptions)
+                            ++phase;
+                    } else if (phase == 0) {
                         wheel(40, 400, -1);
                         requireWide(beneath->getView()->_scrollPosition == 0,
                                     "modal dialog allowed inventory wheel through");
@@ -2982,7 +3021,7 @@ static void verifyPhysicalOrdering(const Path& output) {
                 pick(0);
                 Event wheel;
                 wheel.type = EVENT_MOUSEWHEEL;
-                wheel.mouse = Point(x, y);
+                wheel.mouse = Point{static_cast<int16>(x), static_cast<int16>(y)};
                 wheel.wheelY = -100;
                 vm->_toolBase->handleMouse(wheel, timestamp);
                 requireWide(view._scrollPosition == view._totalRows - view._visibleRows,
@@ -3026,6 +3065,445 @@ static void verifyPhysicalOrdering(const Path& output) {
         << ",\"priority_checks\":" << priorities << ",\"guard_checks\":" << guards
         << ",\"redraw_checks\":" << redraws << ",\"save_load_checks\":" << loads
         << ",\"fixture_restored\":true}\n";
+}
+
+// Temporarily exercise real interpreter return values without editing any input archive.
+class ReceiveScriptFixture {
+    Saga2::GameObject* object;
+    uint16 script;
+    uint16* entry;
+    std::array<uint16, 2> method;
+    uint8* code;
+    std::vector<uint8> bytes;
+
+  public:
+    ReceiveScriptFixture(Saga2::Actor* actor, Saga2::GameObject* target, int which, int result,
+                         bool changeItem = false)
+        : object(target), script(target->_data.script) {
+        using namespace Saga2;
+        target->_data.script = actor->scriptClass();
+        CallTable* table = nullptr;
+        auto vtable = builtinVTableAddress(kBuiltinTypeObject,
+                                           reinterpret_cast<uint8*>(&target->_data), &table);
+        requireWide(vtable != nullptr, "receive fixture needs a script class");
+        entry = vtable + 2 * which;
+        method = {entry[0], entry[1]};
+        uint16* body = nullptr;
+        for (int index = Method_Actor_onTalkTo; index <= Method_Actor_onReceive; ++index)
+            if (vtable[index * 2] != 0xffff && vtable[index * 2 + 1] > 32) {
+                body = vtable + index * 2;
+                break;
+            }
+        requireWide(body != nullptr, "receive fixture needs executable script code");
+        code = segmentAddress(body[0], body[1]);
+        std::vector<uint8> program{uint8(kOpEnter), 0, 0};
+        auto word = [&](int value) {
+            program.push_back(uint8(value));
+            program.push_back(uint8(value >> 8));
+        };
+        if (changeItem) {
+            program.push_back(kOpConstint);
+            word(42);
+            program.push_back(kOpPutbyteV);
+            program.push_back(skAddrDeref);
+            program.push_back(skAddrThread);
+            word(offsetof(scriptCallFrame, indirectObject));
+            word(kBuiltinTypeObject);
+            word(offsetof(ObjectData, hitPoints));
+        }
+        program.push_back(kOpConstint);
+        word(result);
+        program.push_back(kOpReturn);
+        bytes.assign(code, code + program.size());
+        entry[0] = body[0];
+        entry[1] = body[1];
+        std::copy(program.begin(), program.end(), code);
+    }
+    ~ReceiveScriptFixture() {
+        std::copy(bytes.begin(), bytes.end(), code);
+        entry[0] = method[0];
+        entry[1] = method[1];
+        object->_data.script = script;
+    }
+};
+
+static void verifyCarriedStorage(const Path& output) {
+    using namespace Saga2;
+    auto vm = g_vm;
+    requireWide(vm->saveGameState(21, "Carried storage checkpoint", false) == kNoError,
+                "cannot checkpoint carried storage");
+    const auto seed = vm->_rnd->getSeed();
+    auto original = std::find_if(vm->_objectProtos.begin(), vm->_objectProtos.end(),
+                                 [](auto p) { return dynamic_cast<PhysicalContainerProto*>(p); });
+    requireWide(original != vm->_objectProtos.end(), "carried storage needs a container");
+    const auto protoCount = vm->_objectProtos.size();
+    auto bagProto = new PhysicalContainerProto(**original);
+    bagProto->mass = 0;
+    bagProto->bulk = 1;
+    auto fillerProto = new InventoryProto(*vm->_objectProtos[352]);
+    fillerProto->mass = fillerProto->bulk = 0;
+    const int bagIndex = int(protoCount), fillerIndex = bagIndex + 1;
+    vm->_objectProtos.push_back(bagProto);
+    vm->_objectProtos.push_back(fillerProto);
+    uint32 timestamp = g_platform->getMillis();
+    int cases = 0, placements = 0, guards = 0, redraws = 0, scripts = 0, ui = 0, loads = 0;
+    auto drain = [&] {
+        if (GameMode::_newmodeFlag)
+            GameMode::update();
+        Event event;
+        while (g_platform->pollEvent(event)) {
+            if (event.type == EVENT_KEYDOWN)
+                vm->_toolBase->handleKeyStroke(event);
+            else if (event.type == EVENT_MOUSEMOVE || event.type == EVENT_LBUTTONDOWN ||
+                     event.type == EVENT_LBUTTONUP) {
+                if (event.type == EVENT_LBUTTONDOWN)
+                    timestamp += 400;
+                vm->_toolBase->handleMouse(event, timestamp);
+            }
+        }
+    };
+    for (int wide = 0; wide < 2; ++wide)
+        for (int sidebar = 0; sidebar < 2; ++sidebar)
+            for (int brother = 0; brother < 3; ++brother) {
+                requireWide(vm->loadGameState(21) == kNoError, "cannot reset carried storage");
+                ConfMan.setBool("widescreen", bool(wide));
+                ConfMan.setBool("alternate_sidebar", bool(sidebar));
+                requestDisplayModeChange();
+                applyPendingDisplayMode();
+                setCenterBrother(brother);
+                updateContainerWindows();
+                auto actor = getCenterActor();
+                actor->setInterruptablity(true);
+                actor->stopMoving();
+                vm->_mTaskList->collectRetired();
+                std::vector<GameObject*> existing;
+                ContainerIterator carried(actor);
+                GameObject* child;
+                while (carried.next(&child) != Nothing)
+                    if (child->containmentSet() & ProtoObj::kIsTangible)
+                        existing.push_back(child);
+                for (auto object : existing)
+                    object->move(Location(0, 0, 1, ImportantLimbo));
+                auto create = [&](int proto, ObjectID parent, int row, int col, int amount = 1) {
+                    auto object = GameObject::newObject();
+                    requireWide(object != nullptr, "no spare object for carried storage");
+                    object->setProtoNum(proto);
+                    object->setExtra(amount);
+                    object->move(Location(row, col, 1, parent));
+                    return object;
+                };
+                // Creation order deliberately differs from visible slot order.
+                auto second = create(bagIndex, actor->thisID(), 0, 1);
+                auto first = create(bagIndex, actor->thisID(), 0, 0);
+                std::vector<GameObject*> fillers;
+                for (int slot = 2; slot < 9; ++slot)
+                    fillers.push_back(create(fillerIndex, actor->thisID(), slot / 3, slot % 3));
+                auto nested = create(bagIndex, first->thisID(), 0, 0);
+                auto deepest = create(bagIndex, nested->thisID(), 0, 0);
+                auto source = create(352, actor->IDParent(), 0, 0);
+                const Location home(actor->getLocation(), actor->IDParent());
+                source->move(home);
+                auto ground = [&] { source->move(home); };
+                auto receive = [&](GameObject* item, int count = 1) {
+                    const auto before = vm->_rnd->getSeed();
+                    requireWide(item->dropOn(actor->thisID(), actor->thisID(), count),
+                                "carried storage rejected drop dispatch");
+                    requireWide(vm->_rnd->getSeed() == before,
+                                "successful carried storage consumed RNG");
+                    ++placements;
+                };
+                auto at = [&](GameObject* object, GameObject* parent) {
+                    requireWide(
+                        object->IDParent() == parent->thisID(),
+                        String::format(
+                            "carried storage wrong destination: item=%u parent=%u expected=%u",
+                            object->thisID(), object->IDParent(), parent->thisID())
+                            .c_str());
+                };
+                auto fill = [&](GameObject* container) {
+                    for (int row = 0; row < container->proto()->getMaxRows(); ++row)
+                        for (int col = 0; col < container->proto()->getMaxCols(); ++col)
+                            create(fillerIndex, container->thisID(), row, col);
+                };
+                receive(source);
+                at(source, first);
+                requireWide(!first->isOpen(), "automatic storage opened a closed bag");
+                ++guards;
+                auto giver = getPlayerActorAddress((brother + 1) % 3)->getActor();
+                const auto giverSlot = giver->getFirstEmptySlot(source);
+                requireWide(giverSlot != Nowhere, "carried storage giver needs a source slot");
+                source->move(Location(giverSlot, giver->thisID()));
+                const auto transferSeed = vm->_rnd->getSeed();
+                requireWide(source->dropOn(giver->thisID(), actor->thisID()) &&
+                                vm->_rnd->getSeed() == transferSeed,
+                            "automatic brother-to-brother transfer failed or consumed RNG");
+                at(source, first);
+                ++placements;
+                ground();
+                // A free direct bag precedes a free nested bag, even under the first bag.
+                fill(first);
+                receive(source);
+                at(source, second);
+                ground();
+                fill(second);
+                receive(source);
+                at(source, nested);
+                ground();
+                fill(nested);
+                receive(source);
+                at(source, deepest);
+                ground();
+                first->setFlags(kObjectLocked, kObjectLocked);
+                // Both locked ancestors and their unlocked descendants are excluded.
+                second->setFlags(kObjectLocked, kObjectLocked);
+                source->dropOn(actor->thisID(), actor->thisID());
+                requireWide(isWorld(source->IDParent()), "locked tree received an item");
+                ++guards;
+                first->setFlags(0, kObjectLocked);
+                second->setFlags(0, kObjectLocked);
+                fill(deepest);
+                ground();
+                source->dropOn(actor->thisID(), actor->thisID());
+                requireWide(isWorld(source->IDParent()),
+                            "full carried tree did not retain ground fallback");
+                ++guards;
+                std::vector<GameObject*> lastRowItems;
+                ContainerIterator lastRow(deepest);
+                while (lastRow.next(&child) != Nothing)
+                    lastRowItems.push_back(child);
+                for (auto object : lastRowItems)
+                    object->move(Location(0, 0, 1, ImportantLimbo));
+                // Freeing the first main slot restores original ready-inventory precedence.
+                fillers.front()->move(Location(0, 0, 1, ImportantLimbo));
+                ground();
+                receive(source);
+                at(source, actor);
+                ground();
+                const auto originalMass = vm->_objectProtos[352]->mass;
+                vm->_objectProtos[352]->mass = 255;
+                source->dropOn(actor->thisID(), actor->thisID());
+                requireWide(isWorld(source->IDParent()),
+                            "rejected primary insertion entered a bag");
+                vm->_objectProtos[352]->mass = originalMass;
+                ++guards;
+                fillers.front()->move(Location(0, 2, 1, actor->thisID()));
+                ground();
+                // Preserve original merge/stack actions, including partial quantities.
+                auto coins = create(354, deepest->thisID(), 0, 0, 20);
+                auto incoming = create(354, actor->IDParent(), 0, 0, 30);
+                incoming->move(home);
+                receive(incoming, 5);
+                requireWide(coins->getExtra() == 25, "automatic partial merge lost quantity");
+                int remaining = 0;
+                GameObject* remainder = nullptr;
+                for (int id = 4; id < objectCount; ++id) {
+                    auto object = GameObject::objectAddress(id);
+                    if (object->proto() == coins->proto() && object->IDParent() == home._context &&
+                        object->getLocation() == TilePoint(home)) {
+                        remaining += object->getExtra();
+                        remainder = object;
+                    }
+                }
+                requireWide(remaining == 25, "automatic partial merge lost its source remainder");
+                ++guards;
+                fillers[1]->move(Location(0, 0, 1, ImportantLimbo));
+                coins->move(Location(1, 0, 1, actor->thisID()));
+                receive(remainder, 5);
+                requireWide(coins->getExtra() == 30 && coins->IDParent() == actor->thisID(),
+                            "full main inventory did not prioritize its existing merge");
+                coins->move(Location(0, 0, 1, deepest->thisID()));
+                fillers[1]->move(Location(1, 0, 1, actor->thisID()));
+                ++guards;
+                auto ring = create(352, deepest->thisID(), 0, 1);
+                receive(source);
+                at(source, deepest);
+                requireWide(source->getLocation().z == 0 && ring->getLocation().z == 2,
+                            "automatic stacking bypassed the original stack action");
+                ground();
+                coins->setExtra(32765);
+                auto large = create(354, actor->IDParent(), 0, 0, 30);
+                large->move(home);
+                receive(large, 30);
+                at(large, deepest);
+                requireWide(large->getExtra() == 30 && coins->getExtra() == 32765 &&
+                                large->getLocation() != coins->getLocation(),
+                            "automatic merge overflow discarded coins");
+                ++guards;
+                // Reset full bags while keeping the two main-container slots fixed.
+                std::vector<GameObject*> temporary;
+                for (auto container : {first, second, nested, deepest}) {
+                    ContainerIterator iter(container);
+                    while (iter.next(&child) != Nothing)
+                        temporary.push_back(child);
+                }
+                for (auto object : temporary)
+                    object->move(Location(0, 0, 1, ImportantLimbo));
+                nested->move(Location(0, 0, 1, first->thisID()));
+                deepest->move(Location(0, 0, 1, nested->thisID()));
+                // A container cannot be stored inside itself or any of its descendants.
+                first->move(home);
+                auto ninth = create(fillerIndex, actor->thisID(), 0, 0);
+                receive(first);
+                at(first, second);
+                requireWide(first->IDParent() != nested->thisID() &&
+                                first->IDParent() != deepest->thisID(),
+                            "automatic storage formed a cycle");
+                ++guards;
+                first->move(Location(0, 0, 1, actor->thisID()));
+                ninth->move(Location(0, 0, 1, ImportantLimbo));
+                // Native capacity rejection must try the next bag, not recurse to the actor.
+                auto bulky = create(352, first->thisID(), 0, 1);
+                const auto oldBulk = vm->_objectProtos[352]->bulk;
+                vm->_objectProtos[352]->bulk = 4;
+                ground();
+                receive(source);
+                at(source, second);
+                vm->_objectProtos[352]->bulk = oldBulk;
+                bulky->move(Location(0, 0, 1, ImportantLimbo));
+                // Script decisions run before routing; a changed source stops all further trials.
+                ground();
+                for (int result : {kActionResultFailure, kActionResultSuccess}) {
+                    ReceiveScriptFixture patch(actor, actor, Method_Actor_onReceive, result);
+                    const auto before = source->_data;
+                    const bool accepted = source->dropOn(actor->thisID(), actor->thisID());
+                    requireWide(accepted == bool(result) && source->IDParent() == before.parentID &&
+                                    source->getLocation() == before.location,
+                                "automatic storage bypassed the actor receive script");
+                    ++scripts;
+                }
+                {
+                    ReceiveScriptFixture patch(actor, first, Method_GameObject_onAcceptInsertion,
+                                               kActionResultFailure);
+                    receive(source);
+                    at(source, second);
+                    ++scripts;
+                }
+                ground();
+                const auto oldHealth = source->_data.hitPoints;
+                {
+                    ReceiveScriptFixture patch(actor, first, Method_GameObject_onAcceptInsertion,
+                                               kActionResultFailure, true);
+                    receive(source);
+                    requireWide(source->IDParent() == home._context &&
+                                    source->_data.hitPoints == 42,
+                                "automatic storage retried a script-modified source");
+                    ++scripts;
+                }
+                source->_data.hitPoints = oldHealth;
+                // Exercise both portrait panels through the original two-click UI dispatch.
+                auto node =
+                    new ContainerNode(*vm->_cnm, first->thisID(), ContainerNode::kPhysicalType);
+                first->setFlags(kObjectOpen, kObjectOpen);
+                node->show();
+                node->getWindow()->setExtent(Rect16(30, 60, node->getWindow()->getExtent().width,
+                                                    node->getWindow()->getExtent().height));
+                for (int group = 0; group < 2; ++group) {
+                    if (group)
+                        setControlPanelsToTrioMode();
+                    else
+                        setControlPanelsToIndividualMode(brother);
+                    ground();
+                    reDrawScreen();
+                    vm->_mouseInfo->copyObject(source, GrabInfo::kIntDrop);
+                    auto button = group ? portBtns[brother] : indivPortBtn;
+                    const auto box = button->getExtent();
+                    for (auto type : {SDL_EVENT_MOUSE_MOTION, SDL_EVENT_MOUSE_BUTTON_DOWN,
+                                      SDL_EVENT_MOUSE_BUTTON_UP})
+                        mouse(box.x + 8, box.y + 8, type);
+                    drain();
+                    requireWide(actor->_moveTask && !vm->_mouseInfo->getObject(),
+                                "portrait did not queue original transfer");
+                    actor->_currentFacing =
+                        (actor->getLocation() - actor->getLocation()).quickDir();
+                    for (int frame = 0; frame < 64 && source->IDParent() == home._context; ++frame)
+                        MotionTask::updatePositions();
+                    at(source, first);
+                    actor->setInterruptablity(true);
+                    actor->stopMoving();
+                    vm->_mTaskList->collectRetired();
+                    updateContainerWindows();
+                    updateIndicators();
+                    const auto window = node->getWindow()->getExtent();
+                    const auto grid = node->getView()->getExtent();
+                    const int gx = window.x + grid.x, gy = window.y + grid.y;
+                    const int width = std::min(int(grid.width), int(window.width) - grid.x);
+                    const int height = std::min(int(grid.height), int(window.height) - grid.y);
+                    const auto& view = *node->getView();
+                    const auto location = source->getLocation();
+                    const int ix =
+                        gx + view._iconOrigin.x + location.v * (32 + view._iconSpacing.x);
+                    const int iy =
+                        gy + view._iconOrigin.y + location.u * (32 + view._iconSpacing.y);
+                    const auto icon = region(ix, iy, 32, 32);
+                    // Real motion updates the world too; render its normal frame before comparing
+                    // gaps.
+                    updateMainDisplay();
+                    const auto before = region(gx, gy, width, height);
+                    reDrawScreen();
+                    requireWide(icon == region(ix, iy, 32, 32) &&
+                                    before == region(gx, gy, width, height),
+                                "automatic storage grid redraw differs from full redraw");
+                    ++ui;
+                    ++redraws;
+                }
+                node->hide();
+                ground();
+                reDrawScreen();
+                Point16 projected;
+                TileToScreenCoords(actor->getLocation(), projected);
+                Point16 hit(-1, -1);
+                StaticTilePoint pickedPosition;
+                for (int py = projected.y - 70; py <= projected.y && hit.x < 0; ++py)
+                    for (int px = projected.x - 24; px <= projected.x + 24; ++px)
+                        if (pickObject(StaticPoint32(px, py), pickedPosition) == actor->thisID()) {
+                            hit = Point16(px, py);
+                            break;
+                        }
+                requireWide(hit.x >= 0, "cannot locate receiving brother in map sprites");
+                vm->_mouseInfo->copyObject(source, GrabInfo::kIntDrop);
+                // The normal map loop refreshes this cache between input events.
+                pickedObject = actor->thisID();
+                vm->_mouseInfo->setDoable(true);
+                for (auto type : {SDL_EVENT_MOUSE_MOTION, SDL_EVENT_MOUSE_BUTTON_DOWN,
+                                  SDL_EVENT_MOUSE_BUTTON_UP})
+                    mouse(hit.x + displayLayout().mapX + fineScroll.x,
+                          hit.y + displayLayout().mapY + fineScroll.y, type);
+                drain();
+                requireWide(actor->_moveTask && !vm->_mouseInfo->getObject(),
+                            "map did not queue original transfer");
+                actor->_currentFacing = (actor->getLocation() - actor->getLocation()).quickDir();
+                for (int frame = 0; frame < 64 && source->IDParent() == home._context; ++frame)
+                    MotionTask::updatePositions();
+                at(source, first);
+                actor->setInterruptablity(true);
+                actor->stopMoving();
+                vm->_mTaskList->collectRetired();
+                ++ui;
+                node->show();
+                updateContainerWindows();
+                reDrawScreen();
+                g_platform->capture(
+                    output /
+                    String::format("carried-storage-%d-%d-%d.ppm", wide, sidebar, brother).c_str());
+                const auto sourceID = source->thisID(), firstID = first->thisID();
+                requireWide(vm->saveGameState(22, "Carried storage fixture", false) == kNoError &&
+                                vm->loadGameState(22) == kNoError,
+                            "cannot reload carried storage");
+                requireWide(GameObject::objectAddress(sourceID)->IDParent() == firstID,
+                            "save/load changed automatic storage");
+                ++loads;
+                ++cases;
+            }
+    requireWide(vm->loadGameState(21) == kNoError, "cannot restore carried storage");
+    for (size_t index = protoCount; index < vm->_objectProtos.size(); ++index)
+        delete vm->_objectProtos[index];
+    vm->_objectProtos.resize(protoCount);
+    vm->_rnd->setSeed(seed);
+    std::ofstream(output / "carried-storage.json")
+        << "{\"status\":\"passed\",\"cases\":" << cases << ",\"placements\":" << placements
+        << ",\"guard_checks\":" << guards << ",\"script_checks\":" << scripts
+        << ",\"ui_transfer_checks\":" << ui << ",\"redraw_checks\":" << redraws
+        << ",\"save_load_checks\":" << loads << ",\"fixture_restored\":true}\n";
 }
 
 void verifyContainerOwners(const Path& output) {
@@ -3248,6 +3726,7 @@ void verifyContainerOwners(const Path& output) {
     verifySpellOrdering(output);
     verifyInventoryUI(output);
     verifyPhysicalOrdering(output);
+    verifyCarriedStorage(output);
     requireWide(vm->loadGameState(9) == kNoError, "cannot restore container owner fixture");
     ConfMan.setBool("widescreen", originalWide);
     ConfMan.setBool("alternate_sidebar", originalSidebar);

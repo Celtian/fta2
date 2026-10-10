@@ -8,13 +8,36 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+
+static bool terminateInPreviousFilter = false;
+
+static LONG WINAPI previousCppFilter(EXCEPTION_POINTERS* exception) {
+    if (exception->ExceptionRecord->ExceptionCode == 0xe06d7363) {
+        Native::diagnosticFatal("synthetic previous C++ exception filter");
+        if (terminateInPreviousFilter) {
+            // Emulate the MSVC runtime's conversion to std::terminate, retaining
+            // an active C++ exception for the diagnostic handler to inspect.
+            try {
+                throw std::runtime_error("synthetic previous filter exception");
+            } catch (...) {
+                std::terminate();
+            }
+        }
+    }
+    return EXCEPTION_CONTINUE_SEARCH;
+}
 #endif
 
 static int run(int argc, char** argv) {
     if (argc != 3)
         return 2;
-    Native::Diagnostics session;
     const std::string mode = argv[1];
+#ifdef _WIN32
+    terminateInPreviousFilter = mode == "cpp-filter-terminate";
+    if (mode == "cpp-filter" || terminateInPreviousFilter)
+        SetUnhandledExceptionFilter(previousCppFilter);
+#endif
+    Native::Diagnostics session;
     const Native::Path directory(argv[2]);
     const bool started =
         session.start(directory, "synthetic-test", mode == "limit" ? 65536 : 8 * 1024 * 1024);
@@ -34,6 +57,11 @@ static int run(int argc, char** argv) {
         RaiseException(EXCEPTION_ACCESS_VIOLATION, EXCEPTION_NONCONTINUABLE, 0, nullptr);
 #else
         std::raise(SIGSEGV);
+#endif
+        return 5;
+    } else if (mode == "cpp-filter" || mode == "cpp-filter-terminate") {
+#ifdef _WIN32
+        RaiseException(0xe06d7363, EXCEPTION_NONCONTINUABLE, 0, nullptr);
 #endif
         return 5;
     } else if (mode == "abort") {

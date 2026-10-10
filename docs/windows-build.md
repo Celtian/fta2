@@ -172,3 +172,10 @@ Version 0.1.36 adds per-brother spell drag ordering, occupied-slot swaps and whe
 
 
 Version 0.1.37 adds same-container item swaps using the original two-click controls. Compatible stacks, nested insertion, cross-container transfers and item use retain their original handling. The complete ZIP includes the matching data-free engine sources; completed platform checks are recorded in [container ordering validation](validation.md#physical-container-ordering-0137).
+
+
+Version 0.1.38 automatically stores overflow gifts in a living brother's unlocked carried containers, including closed and nested bags, after the original nine-slot inventory has no suitable slot. Direct containers precede deeper levels in slot order; scripts, merging and capacity rules remain in force. Exhaustion retains the original ground drop. The single complete ZIP includes matching sources; see [carried storage validation](validation.md#automatic-carried-storage-0138) for completed checks.
+
+Version 0.1.39 corrects the DOS sprite-color bank offset, restoring the original brown Bellows and Book colors and the intended schemes for other sprites. It retains the empty first bank instead of shifting the table by one row. Sources and the native extractor use the same corrected profile; the complete ZIP remains the only Windows download. See [DOS color-bank validation](validation.md#dos-color-bank-recovery-0139).
+
+Version 0.1.40 aligns Options and Hot Keys titles with Load Game and improves the Hot Keys row spacing and bottom-button inset. It retains the single complete Windows ZIP with matching embedded sources; completed checks are recorded in [dialog layout validation](validation.md#options-and-hot-keys-alignment-0140).

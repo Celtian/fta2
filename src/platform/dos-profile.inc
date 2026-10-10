@@ -1,6 +1,6 @@
 // Verified DOS profile; see docs/dos-resources.md and tools/fta2_data.py.
 constexpr const char *dosExeHash="a7413ddf57df2ec649e3cb401cfc6b3d0b0141cc840161dbd6b3029e381837c2";
-constexpr const char *dosPackHash="f77094a250eae904073bd21b8f2c1c208d10f8ab9d56830893aed7acd62c765e";
+constexpr const char *dosPackHash="c54493e0188039e696570b0b2b4f5b2f4f9c586c7710938a3b1271ea6c315c1e";
 constexpr Asset assets[]={
  {"Onyx10Font",0x213C98,3206},
  {"Plate18Font",0x211C48,8270},
@@ -10,7 +10,8 @@ constexpr Asset assets[]={
  {"Script10Font",0x216C78,3166},
  {"loadingWindowPalette",0x1C66D0,1024},
  {"loadingWindowData",0x1C6AD0,307200},
- {"ColorMapRanges",0x1C3B24,1584},
+ // Includes the empty bank zero; DOS lookup: 0xB89E2, data address 0x1AA78.
+ {"ColorMapRanges",0x1C3B1C,1584},
  {"closeBx1ImageData",0x1C44CC,144},
  {"closeBx2ImageData",0x1C455C,144},
  {"usePtrImageData",0x1C45EC,225},
