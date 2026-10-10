@@ -1,0 +1,23 @@
+src/platform/widescreen_probe.cpp
+  s_2adb1a9ac6dc39::t_272ce4cf07d6fc 3458
+docs/validation.md
+  s_2adb1a9ac6dc39::t_f6acf9aa5de9fc 342,349-350
+research/ci-platform-validation.json
+  s_2adb1a9ac6dc39::t_39026177c2684c 51-81
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7cba9dafd58d26d9036e75f892d9a2e0b46f49ce",
+  "prompts": {},
+  "sessions": {
+    "s_2adb1a9ac6dc39": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a121a0-0d5a-7240-8278-e82003904d2a",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Celtian <dominik.hladik@seznam.cz>"
+    }
+  }
+}
