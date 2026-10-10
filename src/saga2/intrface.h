@@ -89,6 +89,8 @@ void updateIndicators();
 
 void initUIState();
 void layoutUserControls(int16 sidebarDelta);
+bool applySidebarLayout();
+uint64 getCarriedGold(GameObject *actor);
 void saveUIState(Native::OutSaveFile *outS);
 void loadUIState(Native::InSaveFile *in);
 void cleanupUIState();
@@ -585,7 +587,9 @@ private:
 
 	// buttons
 	GfxCompImage          *_starBtns[kHealthNumControls];
+	GfxCompImage          *_starFrames[kHealthNumControls];
 	GfxCompImage          *_indivStarBtn;
+	GfxCompImage          *_indivStarFrame;
 
 	// array of pointer to the star imagery
 	void **_starImag;
@@ -606,6 +610,7 @@ public:
 
 
 	void update();
+	void layout(bool alternate);
 };
 
 

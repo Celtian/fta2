@@ -87,6 +87,100 @@ def validate_buttons(output):
     return dict(result, center_images_match_across_modes_and_input=True)
 
 
+def validate_sidebar(output, saves, initial):
+    """Check the optional layout, nested gold fixture and checkpoint restoration."""
+    assert json.loads((output / "sidebar-startup.json").read_text()) == {
+        "alternate_sidebar": initial}
+    result = json.loads((output / "sidebar-layout.json").read_text())
+    assert result == {"status": "passed", "mental_clicks": 102, "group_mental_clicks": 54,
+                      "mental_redraw_checks": 102, "gold_checks": 14,
+                      "mental_pressed_checks": 90,
+                      "mental_tooltip_checks": 90,
+                      "mental_default_positions": 84, "mental_preserved_positions": 18,
+                      "mental_saved_positions": 12, "carry_footer_checks": 14,
+                      "container_hover_closes": 84,
+                      "container_item_hover_closes": 54,
+                      "grid_cells": 72, "grid_edge_checks": 288,
+                      "grid_tooltip_checks": 288, "hp_redraw_checks": 60,
+                      "grid_button_redraw_checks": 144,
+                      "gold_tooltip_checks": 86, "gold_inactive_checks": 10,
+                      "gold_passive_clicks": 2,
+                      "options_openings": 13, "fixture_restored": True,
+                      "preference_enabled": True}
+    assert "alternate_sidebar=true" in (saves / "config.ini").read_text()
+    before, after = chunks(saves / "fta2.006"), chunks(saves / "fta2.008")
+    # The original loader advances clock/fade timestamps and refreshes sight/animation caches.
+    # Protect all other chunks and every object byte apart from the documented sight counter.
+    transient = {b"TIME", b"PALE", b"ACTR", b"OBJS"}
+    assert before.keys() == after.keys()
+    for tag in before.keys() - transient:
+        assert before[tag] == after[tag], tag
+    objects_before, objects_after = bytearray(before[b"OBJS"]), bytearray(after[b"OBJS"])
+    assert len(objects_before) == len(objects_after) and (len(objects_before) - 6) % 32 == 0
+    for offset in range(6 + 29, len(objects_before), 32):
+        objects_before[offset] = objects_after[offset] = 0
+    assert objects_before == objects_after, "Sidebar fixture altered inventory object records"
+    panels = {}
+    for mode, width, shift in (("classic", 640, 0), ("wide", 854, 214)):
+        for brother in range(3):
+            image = (output / f"sidebar-{mode}-{brother}.ppm").read_bytes()
+            header = f"P6\n{width} 480\n255\n".encode()
+            assert image.startswith(header) and len(image) == len(header) + width * 480 * 3
+            tooltip_image = (output / f"gold-tooltip-{mode}-{brother}.ppm").read_bytes()
+            assert tooltip_image.startswith(header) and len(tooltip_image) == len(image)
+            assert tooltip_image != image, "Gold tooltip capture did not include the cursor"
+            pixels = image[len(header):]
+            panel = b"".join(pixels[(y * width + 460 + shift) * 3:
+                                     (y * width + 640 + shift) * 3]
+                             for y in range(20, 440))
+            if mode == "classic":
+                panels[brother] = panel
+            else:
+                assert panels[brother] == panel, (mode, brother)
+        for brother in range(3):
+            image = (output / f"sidebar-group-{mode}-{brother}.ppm").read_bytes()
+            header = f"P6\n{width} 480\n255\n".encode()
+            assert image.startswith(header)
+            pixels = image[len(header):]
+            panel = b"".join(pixels[(y * width + 460 + shift) * 3:
+                                     (y * width + 640 + shift) * 3]
+                             for y in range(20, 440))
+            if mode == "classic":
+                panels["group", brother] = panel
+            else:
+                assert panels["group", brother] == panel, (mode, brother)
+        for kind in ("group", "individual"):
+            for brother in range(3):
+                image = (output / f"mental-position-{mode}-{kind}-{brother}.ppm").read_bytes()
+                header = f"P6\n{width} 480\n255\n".encode()
+                assert image.startswith(header) and len(image) == len(header) + width * 480 * 3
+                pixels = image[len(header):]
+                window = b"".join(pixels[(y * width + 478 + shift) * 3:
+                                          (y * width + 636 + shift) * 3]
+                                  for y in range(114, 329))
+                if mode == "classic":
+                    panels["mental", kind, brother] = window
+                else:
+                    assert panels["mental", kind, brother] == window, (mode, kind, brother)
+        for kind in ("group", "individual"):
+            for brother in range(3):
+                captures = [(output / f"tooltip-{when}-close-{mode}-{kind}-{brother}.ppm").read_bytes()
+                            for when in ("before", "after")]
+                header = f"P6\n{width} 480\n255\n".encode()
+                assert all(image.startswith(header) and len(image) == len(header) + width * 480 * 3
+                           for image in captures)
+                assert captures[0] != captures[1], "Escape did not change the tooltip/window capture"
+        assert (output / f"sidebar-zero-{mode}.ppm").exists()
+        for menu in ("game", "pregame"):
+            for state in ("on", "off"):
+                image = (output / f"sidebar-options-{mode}-{menu}-{state}.ppm").read_bytes()
+                assert image.startswith(f"P6\n{width} 480\n255\n".encode())
+    return dict(result, persisted_startup_checked=True, checkpoint_chunks_identical=len(before.keys() - transient),
+                inventory_objects_restored=True,
+                mental_window_images_match_across_modes=True,
+                sidebar_images_match_across_modes=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--binary", type=Path, required=True)
@@ -120,6 +214,7 @@ def main():
         assert result["options_layouts_checked"] == 4
         exploration = validate_exploration(output, saves)
         buttons = validate_buttons(output)
+        sidebar = validate_sidebar(output, saves, bool(index))
         assert "widescreen=true" in (saves / "config.ini").read_text()
         for name in ("wide-group.ppm", "wide-individual.ppm", "wide-final.ppm"):
             image = (output / name).read_bytes()
@@ -131,7 +226,7 @@ def main():
                     image = (output / f"options-{mode}-{menu}-{state}.ppm").read_bytes()
                     header = f"P6\n{width} 480\n255\n".encode()
                     assert image.startswith(header) and len(image) == len(header) + width * 480 * 3
-        results.append({"startup": startup, "checks": result, "exploration": exploration, "buttons": buttons})
+        results.append({"startup": startup, "checks": result, "exploration": exploration, "buttons": buttons, "sidebar": sidebar})
     after = {str(p.relative_to(game)): sha256(p.read_bytes())
              for p in game.rglob("*") if p.is_file()}
     assert before == after

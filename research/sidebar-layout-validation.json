@@ -1,0 +1,1034 @@
+{
+  "date": "2026-10-10",
+  "version": "0.1.17",
+  "status": "passed",
+  "development_status": "development-alpha",
+  "scope": "Optional individual sidebar layout with mental controls beside HP and carried gold in their old position; active-offset ready-container restoration",
+  "layout": {
+    "configuration_key": "alternate_sidebar",
+    "default": false,
+    "checkbox": "New layout",
+    "options_geometry_changed": false,
+    "individual_mental_bounds": [
+      559,
+      22,
+      28,
+      27
+    ],
+    "mental_scaling": "nearest-neighbour from original 44 x 43 artwork",
+    "individual_hp_offset": [
+      19,
+      0
+    ],
+    "gold_bounds": [
+      485,
+      265,
+      44,
+      43
+    ],
+    "widescreen_offset": 214,
+    "save_format_changed": false
+  },
+  "gold_provenance": {
+    "file": "FTA.HRS",
+    "sha256": "1d4fc56861bdc3f0e1dda1a21f48991e350dd8213fb694484f0f7fa731c7055d",
+    "group": "LIST",
+    "resource": "PRO\\0",
+    "prototype": 354,
+    "record_size": 52,
+    "record_byte_offset": 36298,
+    "class": 13,
+    "name_index": 437,
+    "name": "Gold Coin",
+    "flags": "0x1001",
+    "quantity": "getExtra()",
+    "scope": "Recursive carried inventory including closed and nested bags; jewellery and other brothers excluded; 64-bit display total"
+  },
+  "linux": {
+    "release_build": "passed",
+    "ctest": {
+      "passed": 5,
+      "total": 5,
+      "log": ".cache/layout-017-linux-ctest-verified.log"
+    },
+    "widescreen_result": ".cache/layout-017-wide-final2/result.json",
+    "sidebar_checks_per_process": [
+      {
+        "status": "passed",
+        "mental_clicks": 18,
+        "gold_checks": 12,
+        "options_openings": 13,
+        "fixture_restored": true,
+        "preference_enabled": true,
+        "persisted_startup_checked": true,
+        "checkpoint_chunks_identical": 27,
+        "inventory_objects_restored": true,
+        "sidebar_images_match_across_modes": true
+      },
+      {
+        "status": "passed",
+        "mental_clicks": 18,
+        "gold_checks": 12,
+        "options_openings": 13,
+        "fixture_restored": true,
+        "preference_enabled": true,
+        "persisted_startup_checked": true,
+        "checkpoint_chunks_identical": 27,
+        "inventory_objects_restored": true,
+        "sidebar_images_match_across_modes": true
+      }
+    ],
+    "classic_integration": "passed",
+    "reference": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "windows": {
+    "release_cross_build": "passed (Zig 0.16.0, official SDL 3.4.18 x64 DLL)",
+    "ctest": {
+      "passed": 5,
+      "total": 5,
+      "log": ".cache/layout-017-windows-ctest-verified.log",
+      "scope": "C++/CLI cases as native Windows processes through PowerShell; portable Python cases on Linux"
+    },
+    "result": {
+      "status": "passed",
+      "native_windows": true,
+      "version": "0.1.17",
+      "video": "dummy",
+      "audio": "dummy",
+      "bundled_files": 8,
+      "data_unchanged": true,
+      "runtime_passed": true,
+      "native_video_runtime_passed": true,
+      "classic_passed": true,
+      "supplied_data_path": false,
+      "runs": [
+        {
+          "startup": {
+            "widescreen": false,
+            "width": 640
+          },
+          "checks": {
+            "status": "passed",
+            "toggle_count": 17,
+            "sidebar_pixel_parity": true,
+            "map_overlap_parity": true,
+            "movement_in_expanded_area": true,
+            "original_save_loaded": true,
+            "checkbox_redraw_parity": true,
+            "checkbox_edge_clicks": true,
+            "options_layouts_checked": 4
+          },
+          "exploration": {
+            "samples": [
+              {
+                "mode": "classic",
+                "brother": 0,
+                "step": 0,
+                "world": 0,
+                "u": 768,
+                "v": 768,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 0,
+                "step": 1,
+                "world": 0,
+                "u": 895,
+                "v": 768,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 0,
+                "step": 2,
+                "world": 0,
+                "u": 768,
+                "v": 895,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 0,
+                "step": 3,
+                "world": 0,
+                "u": 895,
+                "v": 895,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 0,
+                "step": 4,
+                "world": 0,
+                "u": 896,
+                "v": 896,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 1,
+                "step": 0,
+                "world": 0,
+                "u": 1792,
+                "v": 1792,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 1,
+                "step": 1,
+                "world": 0,
+                "u": 1919,
+                "v": 1792,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 1,
+                "step": 2,
+                "world": 0,
+                "u": 1792,
+                "v": 1919,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 1,
+                "step": 3,
+                "world": 0,
+                "u": 1919,
+                "v": 1919,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 1,
+                "step": 4,
+                "world": 0,
+                "u": 1920,
+                "v": 1920,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 2,
+                "step": 0,
+                "world": 0,
+                "u": 2816,
+                "v": 2816,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 2,
+                "step": 1,
+                "world": 0,
+                "u": 2943,
+                "v": 2816,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 2,
+                "step": 2,
+                "world": 0,
+                "u": 2816,
+                "v": 2943,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 2,
+                "step": 3,
+                "world": 0,
+                "u": 2943,
+                "v": 2943,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 2,
+                "step": 4,
+                "world": 0,
+                "u": 2944,
+                "v": 2944,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 0,
+                "step": 0,
+                "world": 0,
+                "u": 768,
+                "v": 768,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 0,
+                "step": 1,
+                "world": 0,
+                "u": 895,
+                "v": 768,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 0,
+                "step": 2,
+                "world": 0,
+                "u": 768,
+                "v": 895,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 0,
+                "step": 3,
+                "world": 0,
+                "u": 895,
+                "v": 895,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 0,
+                "step": 4,
+                "world": 0,
+                "u": 896,
+                "v": 896,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 1,
+                "step": 0,
+                "world": 0,
+                "u": 1792,
+                "v": 1792,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 1,
+                "step": 1,
+                "world": 0,
+                "u": 1919,
+                "v": 1792,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 1,
+                "step": 2,
+                "world": 0,
+                "u": 1792,
+                "v": 1919,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 1,
+                "step": 3,
+                "world": 0,
+                "u": 1919,
+                "v": 1919,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 1,
+                "step": 4,
+                "world": 0,
+                "u": 1920,
+                "v": 1920,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 2,
+                "step": 0,
+                "world": 0,
+                "u": 2816,
+                "v": 2816,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 2,
+                "step": 1,
+                "world": 0,
+                "u": 2943,
+                "v": 2816,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 2,
+                "step": 2,
+                "world": 0,
+                "u": 2816,
+                "v": 2943,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 2,
+                "step": 3,
+                "world": 0,
+                "u": 2943,
+                "v": 2943,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 2,
+                "step": 4,
+                "world": 0,
+                "u": 2944,
+                "v": 2944,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              }
+            ],
+            "status": "passed",
+            "footprints_compared": 16,
+            "brother_maps_checked": 14,
+            "shared_world_exploration": true,
+            "world_switches_checked": 2,
+            "radius_metatiles": 2,
+            "corners_excluded": true,
+            "fixture_restored": true
+          },
+          "buttons": {
+            "status": "passed",
+            "immediate_redraw_checks": 200,
+            "selections": 48,
+            "aggression_banding_toggles": 96,
+            "portrait_changes": 48,
+            "layouts": 4,
+            "repetitions": 2,
+            "captures": 24,
+            "fixture_restored": true
+          },
+          "sidebar": {
+            "status": "passed",
+            "mental_clicks": 18,
+            "gold_checks": 12,
+            "options_openings": 13,
+            "fixture_restored": true,
+            "preference_enabled": true
+          }
+        },
+        {
+          "startup": {
+            "widescreen": true,
+            "width": 854
+          },
+          "checks": {
+            "status": "passed",
+            "toggle_count": 17,
+            "sidebar_pixel_parity": true,
+            "map_overlap_parity": true,
+            "movement_in_expanded_area": true,
+            "original_save_loaded": true,
+            "checkbox_redraw_parity": true,
+            "checkbox_edge_clicks": true,
+            "options_layouts_checked": 4
+          },
+          "exploration": {
+            "samples": [
+              {
+                "mode": "classic",
+                "brother": 0,
+                "step": 0,
+                "world": 0,
+                "u": 768,
+                "v": 768,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 0,
+                "step": 1,
+                "world": 0,
+                "u": 895,
+                "v": 768,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 0,
+                "step": 2,
+                "world": 0,
+                "u": 768,
+                "v": 895,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 0,
+                "step": 3,
+                "world": 0,
+                "u": 895,
+                "v": 895,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 0,
+                "step": 4,
+                "world": 0,
+                "u": 896,
+                "v": 896,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 1,
+                "step": 0,
+                "world": 0,
+                "u": 1792,
+                "v": 1792,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 1,
+                "step": 1,
+                "world": 0,
+                "u": 1919,
+                "v": 1792,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 1,
+                "step": 2,
+                "world": 0,
+                "u": 1792,
+                "v": 1919,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 1,
+                "step": 3,
+                "world": 0,
+                "u": 1919,
+                "v": 1919,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 1,
+                "step": 4,
+                "world": 0,
+                "u": 1920,
+                "v": 1920,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 2,
+                "step": 0,
+                "world": 0,
+                "u": 2816,
+                "v": 2816,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 2,
+                "step": 1,
+                "world": 0,
+                "u": 2943,
+                "v": 2816,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 2,
+                "step": 2,
+                "world": 0,
+                "u": 2816,
+                "v": 2943,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 2,
+                "step": 3,
+                "world": 0,
+                "u": 2943,
+                "v": 2943,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "classic",
+                "brother": 2,
+                "step": 4,
+                "world": 0,
+                "u": 2944,
+                "v": 2944,
+                "uncovered_pixels": 0,
+                "side_pixels": 0,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 0,
+                "step": 0,
+                "world": 0,
+                "u": 768,
+                "v": 768,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 0,
+                "step": 1,
+                "world": 0,
+                "u": 895,
+                "v": 768,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 0,
+                "step": 2,
+                "world": 0,
+                "u": 768,
+                "v": 895,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 0,
+                "step": 3,
+                "world": 0,
+                "u": 895,
+                "v": 895,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 0,
+                "step": 4,
+                "world": 0,
+                "u": 896,
+                "v": 896,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 1,
+                "step": 0,
+                "world": 0,
+                "u": 1792,
+                "v": 1792,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 1,
+                "step": 1,
+                "world": 0,
+                "u": 1919,
+                "v": 1792,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 1,
+                "step": 2,
+                "world": 0,
+                "u": 1792,
+                "v": 1919,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 1,
+                "step": 3,
+                "world": 0,
+                "u": 1919,
+                "v": 1919,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 1,
+                "step": 4,
+                "world": 0,
+                "u": 1920,
+                "v": 1920,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 2,
+                "step": 0,
+                "world": 0,
+                "u": 2816,
+                "v": 2816,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 2,
+                "step": 1,
+                "world": 0,
+                "u": 2943,
+                "v": 2816,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 2,
+                "step": 2,
+                "world": 0,
+                "u": 2816,
+                "v": 2943,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 2,
+                "step": 3,
+                "world": 0,
+                "u": 2943,
+                "v": 2943,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              },
+              {
+                "mode": "wide",
+                "brother": 2,
+                "step": 4,
+                "world": 0,
+                "u": 2944,
+                "v": 2944,
+                "uncovered_pixels": 0,
+                "side_pixels": 89880,
+                "uncovered_side_pixels": 0
+              }
+            ],
+            "status": "passed",
+            "footprints_compared": 16,
+            "brother_maps_checked": 14,
+            "shared_world_exploration": true,
+            "world_switches_checked": 2,
+            "radius_metatiles": 2,
+            "corners_excluded": true,
+            "fixture_restored": true
+          },
+          "buttons": {
+            "status": "passed",
+            "immediate_redraw_checks": 200,
+            "selections": 48,
+            "aggression_banding_toggles": 96,
+            "portrait_changes": 48,
+            "layouts": 4,
+            "repetitions": 2,
+            "captures": 24,
+            "fixture_restored": true
+          },
+          "sidebar": {
+            "status": "passed",
+            "mental_clicks": 18,
+            "gold_checks": 12,
+            "options_openings": 13,
+            "fixture_restored": true,
+            "preference_enabled": true
+          }
+        }
+      ],
+      "executable_sha256": "FA755A2654125C1015D73E3CCF1B59A2CE135395B41AE4FABCDD639636876872"
+    },
+    "reference": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    },
+    "working_filesystem": "isolated local Windows TEMP, exported to repository cache",
+    "capture_comparisons": [
+      {
+        "process": 0,
+        "matching_ppm_captures": 65,
+        "sidebar": {
+          "status": "passed",
+          "mental_clicks": 18,
+          "gold_checks": 12,
+          "options_openings": 13,
+          "fixture_restored": true,
+          "preference_enabled": true,
+          "persisted_startup_checked": true,
+          "checkpoint_chunks_identical": 27,
+          "inventory_objects_restored": true,
+          "sidebar_images_match_across_modes": true
+        }
+      },
+      {
+        "process": 1,
+        "matching_ppm_captures": 65,
+        "sidebar": {
+          "status": "passed",
+          "mental_clicks": 18,
+          "gold_checks": 12,
+          "options_openings": 13,
+          "fixture_restored": true,
+          "preference_enabled": true,
+          "persisted_startup_checked": true,
+          "checkpoint_chunks_identical": 27,
+          "inventory_objects_restored": true,
+          "sidebar_images_match_across_modes": true
+        }
+      }
+    ],
+    "prior_unc_attempt": {
+      "status": "failed",
+      "scope": "second widescreen process",
+      "reason": "Access denied during atomic temporary-save replacement on the WSL shared filesystem",
+      "log": ".cache/layout-017-final-windows-native-test.log"
+    }
+  },
+  "sanitizers": {
+    "address_sanitizer": "passed",
+    "leak_sanitizer": "passed",
+    "widescreen_processes": 2,
+    "result": ".cache/layout-017-wide-asan-final/result.json",
+    "execution": "outside sandbox after the initial thread-inspection restriction"
+  },
+  "reference": {
+    "revision": "1a3e816afd5ddc41cc2a5c51a5da292e6d61758c",
+    "build": "passed",
+    "run": "passed",
+    "build_log": ".cache/layout-017-reference-build.log",
+    "run_log": ".cache/layout-017-reference-run.log"
+  },
+  "original_files": {
+    "verified_files": 54
+  },
+  "fixture_restoration": {
+    "gold_counts_positions_selected_actor_rng": "restored",
+    "inventory_object_records": "identical except original sight-cache counters",
+    "unchanged_chunks_including_nrng": 27,
+    "loader_refreshes": [
+      "TIME clock timestamp",
+      "PALE fade timestamp",
+      "ACTR sight/animation counters",
+      "OBJS sight counters"
+    ],
+    "baseline_reference_checks": "All 30 original chunks in each of two classic saves match on both platforms"
+  },
+  "backends": {
+    "gameplay_video": "dummy",
+    "gameplay_audio": "dummy",
+    "input": "injected SDL events",
+    "native_video_exception": "Separate Windows runtime suite passed with windows video and dummy audio"
+  },
+  "limitations": [
+    "No manual hardware input or full playthrough",
+    "macOS and remote CI not executed",
+    "The compact mental control retains the original three horizontal hit regions",
+    "Unusually large gold totals use fitted text; the fixture exercises totals above 65535 but not every digit-width case"
+  ]
+}

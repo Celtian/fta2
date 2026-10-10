@@ -1,0 +1,323 @@
+{
+  "date": "2026-10-10",
+  "version": "0.1.23",
+  "status": "passed",
+  "development_status": "development-alpha",
+  "scope": "Clear visible and delayed inventory hover text before window-close teardown",
+  "window_cleanup": {
+    "path": "gWindow::close -> gToolBase::leavePanel -> hovered control pointerMove",
+    "order": "Pointer leave and single focus deactivation occur before removal from the window list and reference clearing",
+    "delayed_text": "Original ContainerView leave clears mouse-in-view, cached text, picked object and quantity",
+    "closed_window_repoll": "Delayed container text cannot be restored after closure without a new hover event",
+    "guard": "Already closed and dragged windows retain the existing close guards",
+    "public_regression": {
+      "old_code": "Fails with Closing a window must clear its hover tooltip before discarding panels",
+      "old_log": ".cache/tooltip-023-regression-before.log",
+      "fixed_code": "Passes on Linux and Windows",
+      "checks": [
+        "Leave flags and live window during callback",
+        "Tooltip clear",
+        "Single focus deactivation",
+        "Mouse/focus references cleared",
+        "Idempotent second close"
+      ]
+    },
+    "mental_hover_closes_per_process": 84,
+    "actual_item_hover_closes_per_process": 54,
+    "tooltip_captures_per_process": 24,
+    "coverage": "All brothers, all categories, group and individual panels, classic and widescreen",
+    "real_item_labels": "Actual inventory objects and original cached labels, no game objects added",
+    "physical_hover_closes_per_classic_process": 12,
+    "configuration_or_save_format_changed": false
+  },
+  "linux": {
+    "release_build": "passed",
+    "build_log": ".cache/tooltip-023-linux-build-final.log",
+    "ctest": {
+      "passed": 5,
+      "total": 5,
+      "log": ".cache/tooltip-023-linux-ctest.log"
+    },
+    "widescreen_result": ".cache/tooltip-023-wide-final/result.json",
+    "sidebar_checks_per_process": [
+      {
+        "status": "passed",
+        "mental_clicks": 102,
+        "group_mental_clicks": 54,
+        "mental_redraw_checks": 102,
+        "mental_pressed_checks": 90,
+        "mental_tooltip_checks": 90,
+        "mental_default_positions": 84,
+        "mental_preserved_positions": 18,
+        "mental_saved_positions": 12,
+        "container_hover_closes": 84,
+        "container_item_hover_closes": 54,
+        "carry_footer_checks": 14,
+        "gold_checks": 14,
+        "options_openings": 13,
+        "grid_cells": 72,
+        "grid_edge_checks": 288,
+        "grid_tooltip_checks": 288,
+        "hp_redraw_checks": 60,
+        "grid_button_redraw_checks": 144,
+        "gold_tooltip_checks": 86,
+        "gold_inactive_checks": 10,
+        "gold_passive_clicks": 2,
+        "fixture_restored": true,
+        "preference_enabled": true,
+        "persisted_startup_checked": true,
+        "checkpoint_chunks_identical": 27,
+        "inventory_objects_restored": true,
+        "mental_window_images_match_across_modes": true,
+        "sidebar_images_match_across_modes": true
+      },
+      {
+        "status": "passed",
+        "mental_clicks": 102,
+        "group_mental_clicks": 54,
+        "mental_redraw_checks": 102,
+        "mental_pressed_checks": 90,
+        "mental_tooltip_checks": 90,
+        "mental_default_positions": 84,
+        "mental_preserved_positions": 18,
+        "mental_saved_positions": 12,
+        "container_hover_closes": 84,
+        "container_item_hover_closes": 54,
+        "carry_footer_checks": 14,
+        "gold_checks": 14,
+        "options_openings": 13,
+        "grid_cells": 72,
+        "grid_edge_checks": 288,
+        "grid_tooltip_checks": 288,
+        "hp_redraw_checks": 60,
+        "grid_button_redraw_checks": 144,
+        "gold_tooltip_checks": 86,
+        "gold_inactive_checks": 10,
+        "gold_passive_clicks": 2,
+        "fixture_restored": true,
+        "preference_enabled": true,
+        "persisted_startup_checked": true,
+        "checkpoint_chunks_identical": 27,
+        "inventory_objects_restored": true,
+        "mental_window_images_match_across_modes": true,
+        "sidebar_images_match_across_modes": true
+      }
+    ],
+    "classic_integration": ".cache/tooltip-023-classic-final",
+    "reference": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "windows": {
+    "release_cross_build": "passed (Zig 0.16.0, official SDL 3.4.18 x64 DLL)",
+    "build_log": ".cache/tooltip-023-windows-build-final.log",
+    "ctest": {
+      "passed": 5,
+      "total": 5,
+      "log": ".cache/tooltip-023-windows-ctest.log",
+      "scope": "C++/CLI cases execute on native Windows; portable Python cases execute on the Linux host"
+    },
+    "native_windows": true,
+    "runtime_passed": true,
+    "native_video_runtime_passed": true,
+    "classic_passed": true,
+    "packaged_data_files": 8,
+    "data_unchanged": true,
+    "bundled_data_discovery": true,
+    "executable_sha256": "7778bfc8814fc72c34f4b671f851c63d982c95d026582dc1b1861969b3479f52",
+    "result": ".cache/tooltip-023-final-windows-validation/result.json",
+    "working_filesystem": "Isolated local Windows TEMP, exported to repository cache",
+    "capture_comparisons": [
+      {
+        "process": 0,
+        "matching_ppm_captures": 129,
+        "sidebar": {
+          "status": "passed",
+          "mental_clicks": 102,
+          "group_mental_clicks": 54,
+          "mental_redraw_checks": 102,
+          "mental_pressed_checks": 90,
+          "mental_tooltip_checks": 90,
+          "mental_default_positions": 84,
+          "mental_preserved_positions": 18,
+          "mental_saved_positions": 12,
+          "container_hover_closes": 84,
+          "container_item_hover_closes": 54,
+          "carry_footer_checks": 14,
+          "gold_checks": 14,
+          "options_openings": 13,
+          "grid_cells": 72,
+          "grid_edge_checks": 288,
+          "grid_tooltip_checks": 288,
+          "hp_redraw_checks": 60,
+          "grid_button_redraw_checks": 144,
+          "gold_tooltip_checks": 86,
+          "gold_inactive_checks": 10,
+          "gold_passive_clicks": 2,
+          "fixture_restored": true,
+          "preference_enabled": true,
+          "persisted_startup_checked": true,
+          "checkpoint_chunks_identical": 27,
+          "inventory_objects_restored": true,
+          "mental_window_images_match_across_modes": true,
+          "sidebar_images_match_across_modes": true
+        }
+      },
+      {
+        "process": 1,
+        "matching_ppm_captures": 129,
+        "sidebar": {
+          "status": "passed",
+          "mental_clicks": 102,
+          "group_mental_clicks": 54,
+          "mental_redraw_checks": 102,
+          "mental_pressed_checks": 90,
+          "mental_tooltip_checks": 90,
+          "mental_default_positions": 84,
+          "mental_preserved_positions": 18,
+          "mental_saved_positions": 12,
+          "container_hover_closes": 84,
+          "container_item_hover_closes": 54,
+          "carry_footer_checks": 14,
+          "gold_checks": 14,
+          "options_openings": 13,
+          "grid_cells": 72,
+          "grid_edge_checks": 288,
+          "grid_tooltip_checks": 288,
+          "hp_redraw_checks": 60,
+          "grid_button_redraw_checks": 144,
+          "gold_tooltip_checks": 86,
+          "gold_inactive_checks": 10,
+          "gold_passive_clicks": 2,
+          "fixture_restored": true,
+          "preference_enabled": true,
+          "persisted_startup_checked": true,
+          "checkpoint_chunks_identical": 27,
+          "inventory_objects_restored": true,
+          "mental_window_images_match_across_modes": true,
+          "sidebar_images_match_across_modes": true
+        }
+      }
+    ],
+    "reference": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "sanitizers": {
+    "address_sanitizer": "passed",
+    "leak_sanitizer": "passed",
+    "widescreen_processes": 2,
+    "result": ".cache/tooltip-023-wide-asan-final/result.json",
+    "execution": "Outside sandbox to allow thread inspection",
+    "classic_integration": ".cache/tooltip-023-classic-asan-final"
+  },
+  "reference": {
+    "revision": "1a3e816afd5ddc41cc2a5c51a5da292e6d61758c",
+    "build": "passed",
+    "run": "passed",
+    "build_log": ".cache/tooltip-023-reference-build.log",
+    "run_log": ".cache/tooltip-023-reference-run.log"
+  },
+  "original_files": {
+    "verified_files": 54
+  },
+  "fixture_restoration": {
+    "positions_selected_actor_rng_gold": "restored",
+    "unchanged_chunks_including_nrng": 27,
+    "inventory_object_records": "Identical except original sight-cache counters",
+    "baseline_reference_checks": "All 30 original chunks match in each of two classic saves on both platforms"
+  },
+  "backends": {
+    "gameplay_video": "dummy",
+    "audio": "dummy",
+    "input": "Injected SDL events aimed at logical pixel centers",
+    "native_video_exception": "Separate Windows runtime suite uses the native windows video backend"
+  },
+  "limitations": [
+    "No manual hardware input, macOS execution, remote CI or full playthrough",
+    "Hovered text is checked while the pointer remains stationary across Escape closure",
+    "Inventory hover fixtures display the actual delayed label directly without advancing simulation"
+  ]
+}

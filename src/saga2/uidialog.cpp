@@ -62,6 +62,7 @@ APPFUNC(cmdAutoAggression);
 APPFUNC(cmdAutoWeapon);
 APPFUNC(cmdNight);
 APPFUNC(cmdWidescreen);
+APPFUNC(cmdSidebarLayout);
 APPFUNC(cmdSpeechText);
 
 // volume control functions
@@ -321,6 +322,8 @@ static const StaticRect optWidescreenRect = {
 	optNightRect.width,
 	optNightRect.height
 };
+
+static const StaticRect optSidebarLayoutRect = {214, optSpeechRect.y, 18, 17};
 
 static const StaticRect optTopSliderRect = {
 	15,
@@ -977,6 +980,12 @@ int16 OptionsDialog(bool disableSaveResume) {
 	wide->select(ConfMan.getBool("widescreen"));
 	new CPlaqText(*win, Rect16(optWidescreenRect.x + optWidescreenRect.width + 3,
 	              optWidescreenRect.y, kTextPixelLen - kSmallTextOffset, 17), "Widescreen (16:9)",
+	              &SmallFont, kTextPosLeft, pal, 0, nullptr);
+
+	auto layout = new GfxOwnerSelCompButton(*win, optSidebarLayoutRect,
+	        checkImag, kNumBtnImages, 0, cmdSidebarLayout);
+	layout->select(ConfMan.getBool("alternate_sidebar"));
+	new CPlaqText(*win, Rect16(235, optSidebarLayoutRect.y, 95, 17), "New layout",
 	              &SmallFont, kTextPosLeft, pal, 0, nullptr);
 
 	new GfxSlider(*win, optTopSliderRect, optTopFaceRect, 0,
@@ -1903,6 +1912,14 @@ APPFUNC(cmdWidescreen) {
 		const bool wide = !ConfMan.getBool("widescreen");
 		ConfMan.setBool("widescreen", wide);
 		ev.panel->select(wide);
+	}
+}
+
+APPFUNC(cmdSidebarLayout) {
+	if (ev.panel && isUserAction(ev)) {
+		const bool enabled = !ConfMan.getBool("alternate_sidebar");
+		ConfMan.setBool("alternate_sidebar", enabled);
+		ev.panel->select(enabled);
 	}
 }
 

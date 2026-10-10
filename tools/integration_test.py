@@ -82,6 +82,9 @@ def main():
                     screenshot = (capture_dir / f"cursor-{variant}-{name}.ppm").read_bytes()
                     header = b"P6\n640 480\n255\n"
                     assert screenshot.startswith(header) and len(screenshot) == len(header) + 640 * 480 * 3
+        for capture_dir in (output, restart_output):
+            assert json.loads((capture_dir / "container-tooltip.json").read_text()) == {
+                "status": "passed", "physical_closes": 12, "delayed_text_cleared": True}
         for name in ("map-brother-1.ppm", "map-brother-2.ppm", "map-brother-3.ppm",
                      "map-click-brother-1.ppm", "map-click-brother-2.ppm", "map-click-brother-3.ppm",
                      "map-missing.ppm", "container-open.ppm", "container-closed.ppm",

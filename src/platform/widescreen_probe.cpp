@@ -9,9 +9,12 @@
 #include "saga2/display.h"
 #include "saga2/document.h"
 #include "saga2/fontlib.h"
+#include "saga2/gpointer.h"
+#include "saga2/grabinfo.h"
 #include "saga2/grequest.h"
 #include "saga2/gtextbox.h"
 #include "saga2/intrface.h"
+#include "saga2/localize.h"
 #include "saga2/modal.h"
 #include "saga2/player.h"
 #include "saga2/script.h"
@@ -29,8 +32,13 @@ extern GfxOwnerSelCompButton *centerBtns[kNumViews], *aggressBtns[kNumViews],
 extern GfxOwnerSelCompButton *indivCenterBtn, *indivAggressBtn, *indivBandingBtn;
 extern GfxOwnerSelCompButton *julBtn, *phiBtn, *kevBtn;
 extern GfxMultCompButton *portBtns[kNumViews], *indivPortBtn;
+extern GfxCompButton* menConBtn;
+extern GfxCompButton* trioMentalBtns[kNumViews];
+extern gPanelList *trioControls, *indivControls;
+extern ReadyContainerView *TrioCviews[kNumViews], *indivCviewTop, *indivCviewBot;
 void initAutoMap();
 void updateMainDisplay();
+void updateWindowSection(const Rect16& clip);
 } // namespace Saga2
 namespace Native {
 namespace {
@@ -53,8 +61,10 @@ void mouse(int x, int y, SDL_EventType type) {
     auto window = windows[0];
     SDL_free(windows);
     float wx, wy;
-    requireWide(SDL_RenderCoordinatesToWindow(SDL_GetRenderer(window), x, y, &wx, &wy),
-                "cannot map input");
+    // Aim at pixel centers so round-trip floating-point error cannot cross an edge.
+    requireWide(
+        SDL_RenderCoordinatesToWindow(SDL_GetRenderer(window), x + 0.5f, y + 0.5f, &wx, &wy),
+        "cannot map input");
     SDL_Event event{};
     event.type = type;
     if (type == SDL_EVENT_MOUSE_MOTION) {
@@ -87,15 +97,39 @@ std::vector<byte> region(int x, int y, int width, int height) {
     return pixels;
 }
 
+// Normal parity captures exclude the separately presented cursor. Include its actual
+// indexed bitmap here so tooltip evidence also shows the text and its placement.
+void captureWithCursor(const Path& output) {
+    const int width = g_platform->getWidth(), height = g_platform->getHeight();
+    auto pixels = region(0, 0, width, height);
+    Saga2::Point16 position;
+    auto cursor = Saga2::g_vm->_pointer->getImageCurPos(position);
+    for (int y = 0; y < cursor->_size.y; ++y)
+        for (int x = 0; x < cursor->_size.x; ++x) {
+            const int sx = position.x + x, sy = position.y + y;
+            const byte color = cursor->_data[y * cursor->_size.x + x];
+            if (color && sx >= 0 && sx < width && sy >= 0 && sy < height)
+                pixels[sy * width + sx] = color;
+        }
+    std::ofstream file(output.c_str(), std::ios::binary);
+    file << "P6\n" << width << ' ' << height << "\n255\n";
+    const auto& colors = g_platform->getPaletteManager()->colors;
+    for (auto pixel : pixels)
+        file.write(reinterpret_cast<const char*>(colors.data() + pixel * 3), 3);
+    requireWide(bool(file), "cannot capture gold tooltip");
+}
+
 struct WidescreenProbe {
     Path output;
     bool busy = false, requested = false;
     bool pregameMenu = false;
     int modalPhase = 0, modalTicks = 0, frame = 0;
+    bool sidebarBefore = false;
+    int sidebarMenus = 0;
     int checkboxClicks = 0, optionsLayouts = 0, optionsCaptures = 0;
     std::array<std::vector<byte>, 2> checkboxPixels;
     std::vector<byte> labelPixels;
-    enum Action { Toggle, Save, Load, NewGame, Inspect } action = Toggle;
+    enum Action { Toggle, Save, Load, NewGame, Inspect, Sidebar } action = Toggle;
     Saga2::gWindow* options = nullptr;
     Saga2::TilePoint walkingStart;
     bool inspectingExploration = false;
@@ -419,6 +453,632 @@ struct WidescreenProbe {
             << ",\"layouts\":4,\"repetitions\":2,\"captures\":24,\"fixture_restored\":true}\n";
     }
 
+    void sidebarMenu(bool pregame) {
+        action = Sidebar;
+        pregameMenu = pregame;
+        modalPhase = modalTicks = 0;
+        sidebarBefore = ConfMan.getBool("alternate_sidebar");
+        Saga2::OptionsDialog(pregame);
+        requireWide(ConfMan.getBool("alternate_sidebar") != sidebarBefore &&
+                        !Saga2::ModalWindow::_current,
+                    "sidebar checkbox did not toggle and close");
+        if (Saga2::GameMode::_newmodeFlag)
+            Saga2::GameMode::update();
+        requireWide(Saga2::applyPendingDisplayMode(), "sidebar layout was not applied");
+        ++sidebarMenus;
+    }
+
+    void sidebarLayout() {
+        using namespace Saga2;
+        auto vm = g_vm;
+        const auto seed = vm->_rnd->getSeed();
+        const auto actor = getCenterActorID();
+        const auto position = centerActorCoords();
+        const auto originalMode = activeDisplayMode;
+        requireWide(vm->saveGameState(6, "Sidebar layout checkpoint", false) == kNoError,
+                    "cannot checkpoint sidebar fixture");
+        auto drain = [&] {
+            if (GameMode::_newmodeFlag)
+                GameMode::update();
+            Event event;
+            while (g_platform->pollEvent(event)) {
+                if (event.type == EVENT_KEYDOWN)
+                    vm->_toolBase->handleKeyStroke(event);
+                else if (event.type == EVENT_MOUSEMOVE || event.type == EVENT_LBUTTONDOWN ||
+                         event.type == EVENT_LBUTTONUP)
+                    vm->_toolBase->handleMouse(event, g_platform->getMillis());
+            }
+        };
+        int goldTooltipChecks = 0, goldInactiveChecks = 0, goldPassiveClicks = 0, footerChecks = 0;
+        auto verifyGoldText = [&](const char* expected) {
+            Point16 actualOffset, expectedOffset;
+            auto cursor = vm->_pointer->getImage(actualOffset);
+            const auto size = cursor->_size;
+            const std::vector<byte> pixels(cursor->_data, cursor->_data + size.x * size.y);
+            vm->_mouseInfo->setText(expected);
+            cursor = vm->_pointer->getImage(expectedOffset);
+            requireWide(size == cursor->_size && actualOffset == expectedOffset &&
+                            pixels ==
+                                std::vector<byte>(cursor->_data, cursor->_data + size.x * size.y),
+                        "gold tooltip is missing, stale or not cleared");
+            ++goldTooltipChecks;
+        };
+        auto hoverGold = [&] {
+            const auto main = mainWindow->getExtent();
+            mouse(main.x + 507 + displayLayout().sidebarOffset, main.y + 286,
+                  SDL_EVENT_MOUSE_MOTION);
+            drain();
+        };
+        auto verifyGold = [&] {
+            const int x = displayLayout().sidebarOffset;
+            updateIndicators();
+            const auto text = String::format("%s %llu", GOLD_HINT,
+                                             static_cast<unsigned long long>(getCarriedGold(
+                                                 vm->_playerList[indivBrother]->getActor())));
+            const auto main = mainWindow->getExtent();
+            auto control = indivControls->hitTest(Point16(486 + x, 265));
+            requireWide(control && control != menConBtn, "missing gold hover control");
+            if (vm->_toolBase->isMousePanel(control))
+                verifyGoldText(
+                    text.c_str()); // Inventory updates must refresh a stationary tooltip.
+            for (const auto point : {Point16(486 + x, 265), Point16(530 + x, 265),
+                                     Point16(486 + x, 307), Point16(530 + x, 307)}) {
+                requireWide(indivControls->hitTest(point) == control &&
+                                !control->hitTest(Point16(531 + x, point.y)) &&
+                                !control->hitTest(Point16(point.x, 308)),
+                            "gold hover bounds are inconsistent");
+                mouse(main.x + point.x, main.y + point.y, SDL_EVENT_MOUSE_MOTION);
+                drain();
+                verifyGoldText(text.c_str());
+            }
+            vm->_toolBase->leavePanel();
+            verifyGoldText(nullptr);
+            const auto immediate = region(486 + x, 265, 133, 43);
+            reDrawScreen();
+            requireWide(immediate == region(486 + x, 265, 133, 43),
+                        "carry footer retained stale pixels");
+            requireWide(control->getExtent() == Rect16(486 + x, 265, 45, 43) &&
+                            region(522 + x, 266, 16, 40) == region(567 + x, 266, 16, 40),
+                        "gold-to-mass joint differs from the original mass-to-bulk joint");
+            for (const auto left : {539, 584}) {
+                const auto pie = indivControls->hitTest(Point16(left + x, 274));
+                requireWide(pie && pie->getExtent() == Rect16(left + x, 274, 28, 26) &&
+                                indivControls->hitTest(Point16(left + x + 27, 299)) == pie,
+                            "joined decoration moved a mass or bulk hit region");
+            }
+            ++footerChecks;
+        };
+        std::array<uint64, 3> originalGold;
+        for (int i = 0; i < 3; ++i)
+            originalGold[i] = getCarriedGold(vm->_playerList[i]->getActor());
+        int bagProto = -1;
+        for (size_t i = 0; i < vm->_objectProtos.size(); ++i)
+            if (dynamic_cast<PhysicalContainerProto*>(vm->_objectProtos[i])) {
+                bagProto = i;
+                break;
+            }
+        requireWide(bagProto >= 0, "no bag prototype for gold fixture");
+        auto create = [&](int prototype, ObjectID parent, int amount) {
+            auto object = GameObject::newObject();
+            requireWide(object != nullptr, "no spare object for gold fixture");
+            object->setProtoNum(prototype);
+            object->setExtra(amount);
+            object->move(Location(0, 0, 1, parent));
+            return object;
+        };
+        auto bag = create(bagProto, ActorBaseID, 0);
+        auto nested = create(bagProto, bag->thisID(), 0);
+        auto direct = create(354, ActorBaseID, 12345);
+        auto coins = create(354, nested->thisID(), 23456);
+        create(352, nested->thisID(), 1); // Jewellery is not spendable Gold Coin currency.
+        requireWide(!bag->isOpen() && !nested->isOpen() &&
+                        getCarriedGold(vm->_playerList[0]->getActor()) == originalGold[0] + 35801,
+                    "nested closed bags or coin stacks were counted incorrectly");
+        int mentalClicks = 0, groupMentalClicks = 0, mentalRedrawChecks = 0;
+        int mentalPressedChecks = 0, goldChecks = 0;
+        int mentalDefaultPositions = 0, mentalPreservedPositions = 0, mentalSavedPositions = 0;
+        int hoverCloses = 0, itemHoverCloses = 0;
+        int gridCells = 0, gridEdges = 0, gridTooltips = 0, hpRedraws = 0, gridButtonRedraws = 0;
+        std::vector<byte> coinPixels;
+        for (bool wide : {false, true}) {
+            ConfMan.setBool("widescreen", wide);
+            requestDisplayModeChange();
+            applyPendingDisplayMode();
+            const int x = displayLayout().sidebarOffset;
+            setCenterBrother(0);
+            setControlPanelsToIndividualMode(0);
+            updateContainerWindows();
+            updateIndicators();
+            // Load both historical defaults and a custom position through the original node
+            // serializer, then hide/save/reopen each at its accepted position.
+            const std::array<Rect16, 3> savedPositions{
+                Rect16(478, 114, 158, 215), Rect16(692, 114, 158, 215), Rect16(60, 80, 158, 215)};
+            for (int part = 0; part < 3; ++part) {
+                ContainerNode node(*vm->_cnm, ActorBaseID, ContainerNode::kMentalType);
+                node.getPosition() = savedPositions[part];
+                node._mindType = part;
+                const auto expected =
+                    part == 2 ? savedPositions[part] : Rect16(478 + x, 114, 158, 215);
+                for (int repeat = 0; repeat < 2; ++repeat) {
+                    MemoryWriteStreamDynamic saved;
+                    node.write(&saved);
+                    MemoryReadStream input(saved.getData(), saved.size());
+                    node.read(&input);
+                    node.show();
+                    requireWide(node.getWindow()->getExtent() == expected && node._mindType == part,
+                                "loaded mental default or custom position was not restored");
+                    ++mentalSavedPositions;
+                    node.hide();
+                }
+            }
+            reDrawScreen();
+            const auto originalPanel = region(460 + x, 20, 180, 420);
+            g_platform->capture(
+                output /
+                String::format("sidebar-original-%s.ppm", wide ? "wide" : "classic").c_str());
+            setControlPanelsToTrioMode();
+            updateIndicators();
+            reDrawScreen();
+            const auto originalGroup = region(460 + x, 20, 180, 420);
+            setControlPanelsToIndividualMode(0);
+            for (bool pregame : {false, true}) {
+                sidebarMenu(pregame);
+                requireWide(menConBtn->getExtent().x == 559 + x &&
+                                indivCenterBtn->getExtent().y == 54 &&
+                                indivCviewTop->getExtent().x == 476 + x &&
+                                indivCviewTop->getExtent().y == 113,
+                            "new sidebar geometry is incorrect");
+                sidebarMenu(pregame);
+                requireWide(indivControls->hitTest(Point16(486 + x, 265)) == menConBtn,
+                            "disabled gold control obscures the original mental control");
+                ++goldInactiveChecks;
+                if (originalPanel != region(460 + x, 20, 180, 420))
+                    g_platform->capture(output / "sidebar-disabled-failed.ppm");
+                requireWide(originalPanel == region(460 + x, 20, 180, 420),
+                            "disabling the layout did not restore original pixels");
+                key(SDLK_TAB);
+                drain();
+                requireWide(!vm->_indivControlsFlag &&
+                                originalGroup == region(460 + x, 20, 180, 420),
+                            "disabling the layout did not restore group pixels");
+                for (auto button : trioMentalBtns) {
+                    const auto r = button->getExtent();
+                    requireWide(!button->getEnabled() && !button->hitTest(Point16(r.x, r.y)) &&
+                                    !button->hitTest(Point16(r.x + 27, r.y + 26)),
+                                "disabled group mental control still receives clicks");
+                }
+                key(SDLK_TAB);
+                drain();
+            }
+            sidebarMenu(false);
+            for (int brother = 0; brother < 3; ++brother) {
+                setCenterBrother(brother);
+                setControlPanelsToIndividualMode(brother);
+                verifyGold();
+                ++goldChecks;
+                g_platform->capture(
+                    output / String::format("sidebar-%s-%d.ppm", wide ? "wide" : "classic", brother)
+                                 .c_str());
+                hoverGold();
+                verifyGoldText(String::format("%s %llu", GOLD_HINT,
+                                              static_cast<unsigned long long>(getCarriedGold(
+                                                  vm->_playerList[brother]->getActor())))
+                                   .c_str());
+                captureWithCursor(output / String::format("gold-tooltip-%s-%d.ppm",
+                                                          wide ? "wide" : "classic", brother)
+                                               .c_str());
+                vm->_toolBase->leavePanel();
+                verifyGoldText(nullptr);
+                const auto icon = region(495 + x, 274, 25, 12);
+                if (coinPixels.empty())
+                    coinPixels = icon;
+                requireWide(icon == coinPixels, "coin artwork changed between brothers or ratios");
+                for (bool group : {false, true}) {
+                    if (group)
+                        setControlPanelsToTrioMode();
+                    else
+                        setControlPanelsToIndividualMode(brother);
+                    auto button = group ? trioMentalBtns[brother] : menConBtn;
+                    if (group) {
+                        requireWide(!indivControls->getEnabled(),
+                                    "gold panel remains enabled in group view");
+                        ++goldInactiveChecks;
+                    }
+                    const auto r = button->getExtent();
+                    requireWide(r.x == 559 + x && r.y == 22 + (group ? 150 * brother : 0) &&
+                                    r.width == 28 && r.height == 27,
+                                "mental button geometry is incorrect");
+                    auto panel = group ? trioControls : indivControls;
+                    const int top = 22 + (group ? 150 * brother : 0);
+                    auto hp = panel->hitTest(Point16(592 + x, top));
+                    auto center = group ? centerBtns[brother] : indivCenterBtn;
+                    auto band = group ? bandingBtns[brother] : indivBandingBtn;
+                    auto aggression = group ? aggressBtns[brother] : indivAggressBtn;
+                    auto armor = panel->hitTest(Point16(592 + x, top + 64));
+                    ArmorAttributes armorAttributes;
+                    vm->_playerList[brother]->getActor()->totalArmorAttributes(armorAttributes);
+                    const std::array<gPanel*, 6> cells{button, hp, center, band, aggression, armor};
+                    auto stats = vm->_playerList[brother]->getEffStats();
+                    const int base = vm->_playerList[brother]->getBaseStats().vitality;
+                    const auto healthText =
+                        String::format("%s %d/%d", HEALTH_HINT, stats->vitality, base);
+                    const auto armorText =
+                        String::format(DESC_ARMOR, armorAttributes.damageAbsorbtion,
+                                       armorAttributes.damageDivider, armorAttributes.defenseBonus);
+                    const std::array<const char*, 6> labels{
+                        IDEAS_INVENT,
+                        healthText.c_str(),
+                        getCenterActorPlayerID() == brother ? ON_CENTER : OFF_CENTER,
+                        isBanded(brother) ? ON_BANDED : OFF_BANDED,
+                        isAggressive(brother) ? ON_AGRESS : OFF_AGRESS,
+                        armorAttributes.damageAbsorbtion == 0 && armorAttributes.defenseBonus == 0
+                            ? NO_ARMOR
+                            : armorText.c_str()};
+                    for (int cell = 0; cell < 6; ++cell) {
+                        auto control = cells[cell];
+                        requireWide(control != nullptr, "missing grid control");
+                        const auto bounds = control->getExtent();
+                        requireWide(bounds.x == 559 + x + 33 * (cell % 2) &&
+                                        bounds.y == top + 32 * (cell / 2) && bounds.width == 28 &&
+                                        bounds.height == 27,
+                                    "sidebar cell does not follow the 2 by 3 grid");
+                        ++gridCells;
+                        for (const auto point :
+                             {Point16(bounds.x, bounds.y), Point16(bounds.x + 27, bounds.y),
+                              Point16(bounds.x, bounds.y + 26),
+                              Point16(bounds.x + 27, bounds.y + 26)}) {
+                            requireWide(panel->hitTest(point) == control,
+                                        "grid corner belongs to another control");
+                            requireWide(!control->hitTest(Point16(bounds.x + 28, point.y)) &&
+                                            !control->hitTest(Point16(point.x, bounds.y + 27)),
+                                        "grid hit region extends into its gap");
+                            ++gridEdges;
+                            const auto main = mainWindow->getExtent();
+                            mouse(main.x + 100, main.y + 100, SDL_EVENT_MOUSE_MOTION);
+                            drain();
+                            mouse(main.x + point.x, main.y + point.y, SDL_EVENT_MOUSE_MOTION);
+                            drain();
+                            Point16 actualOffset, expectedOffset;
+                            auto cursor = vm->_pointer->getImage(actualOffset);
+                            const auto size = cursor->_size;
+                            const std::vector<byte> pixels(cursor->_data,
+                                                           cursor->_data + size.x * size.y);
+                            // The mental control retains three tooltip regions within its cell.
+                            const char* mentalLabels[] = {IDEAS_INVENT, SPELL_INVENT, SKILL_INVENT};
+                            vm->_mouseInfo->setText(
+                                cell == 0 ? mentalLabels[(point.x - bounds.x) * 3 / 28]
+                                          : labels[cell]);
+                            cursor = vm->_pointer->getImage(expectedOffset);
+                            requireWide(size == cursor->_size && actualOffset == expectedOffset &&
+                                            pixels ==
+                                                std::vector<byte>(cursor->_data,
+                                                                  cursor->_data + size.x * size.y),
+                                        "grid corner tooltip belongs to another control");
+                            ++gridTooltips;
+                        }
+                    }
+                    auto verifyGrid = [&] {
+                        const auto immediate = region(559 + x, top, 61, 91);
+                        reDrawScreen();
+                        requireWide(immediate == region(559 + x, top, 61, 91),
+                                    "compact grid retained stale button or HP pixels");
+                    };
+                    const auto vitality = stats->vitality;
+                    for (int value : {0, 1, base / 4, base / 2, base}) {
+                        stats->vitality = value;
+                        updateIndicators();
+                        verifyGrid();
+                        ++hpRedraws;
+                    }
+                    stats->vitality = vitality;
+                    updateIndicators();
+                    for (auto control : {center, band, aggression}) {
+                        const auto bounds = control->getExtent();
+                        const auto main = mainWindow->getExtent();
+                        for (const auto point :
+                             {Point16(bounds.x, bounds.y), Point16(bounds.x + 27, bounds.y + 26)}) {
+                            mouse(main.x + point.x, main.y + point.y, SDL_EVENT_MOUSE_MOTION);
+                            drain();
+                            mouse(main.x + point.x, main.y + point.y, SDL_EVENT_MOUSE_BUTTON_DOWN);
+                            drain();
+                            verifyGrid();
+                            mouse(main.x + point.x, main.y + point.y, SDL_EVENT_MOUSE_BUTTON_UP);
+                            drain();
+                            verifyGrid();
+                            gridButtonRedraws += 2;
+                        }
+                    }
+                    auto open = [&](int part, int px, int py) {
+                        auto existing =
+                            vm->_cnm->find(ActorBaseID + brother, ContainerNode::kMentalType);
+                        const auto expected =
+                            existing ? (existing->getWindow() ? existing->getWindow()->getExtent()
+                                                              : existing->getPosition())
+                                     : Rect16(478 + x, 114, 158, 215);
+                        if (group)
+                            setCenterBrother((brother + 1) % 3);
+                        const auto main = mainWindow->getExtent();
+                        mouse(main.x + r.x + px, main.y + r.y + py, SDL_EVENT_MOUSE_MOTION);
+                        drain();
+                        Point16 actualOffset, expectedOffset;
+                        auto cursor = vm->_pointer->getImage(actualOffset);
+                        const auto actualSize = cursor->_size;
+                        const std::vector<byte> actualText(
+                            cursor->_data, cursor->_data + actualSize.x * actualSize.y);
+                        const char* labels[] = {IDEAS_INVENT, SPELL_INVENT, SKILL_INVENT};
+                        vm->_mouseInfo->setText(labels[part]);
+                        cursor = vm->_pointer->getImage(expectedOffset);
+                        requireWide(actualSize == cursor->_size && actualOffset == expectedOffset &&
+                                        actualText ==
+                                            std::vector<byte>(cursor->_data,
+                                                              cursor->_data + cursor->_size.x *
+                                                                                  cursor->_size.y),
+                                    "mental tooltip did not match the hovered category");
+                        mouse(main.x + r.x + px, main.y + r.y + py, SDL_EVENT_MOUSE_BUTTON_DOWN);
+                        drain();
+                        const auto pressed = region(r.x, r.y, r.width, r.height);
+                        if (part == 0 && px == 0 && py == 0)
+                            g_platform->capture(
+                                output / String::format("sidebar-pressed-%s-%s-%d.ppm",
+                                                        wide ? "wide" : "classic",
+                                                        group ? "group" : "individual", brother)
+                                             .c_str());
+                        reDrawScreen();
+                        requireWide(pressed == region(r.x, r.y, r.width, r.height),
+                                    "pressed mental button retained stale pixels");
+                        ++mentalPressedChecks;
+                        mouse(main.x + r.x + px, main.y + r.y + py, SDL_EVENT_MOUSE_BUTTON_UP);
+                        drain();
+                        updateContainerWindows();
+                        auto node =
+                            vm->_cnm->find(ActorBaseID + brother, ContainerNode::kMentalType);
+                        requireWide(
+                            node && node->getWindow() && node->_mindType == part &&
+                                getCenterActorPlayerID() == brother &&
+                                bool(vm->_indivControlsFlag) != group,
+                            String::format("mental control mismatch: wide=%d group=%d brother=%d "
+                                           "requested=%d actual=%d center=%d panel=%d visible=%d",
+                                           wide, group, brother, part, node ? node->_mindType : -1,
+                                           getCenterActorPlayerID(), vm->_indivControlsFlag,
+                                           node && node->getWindow())
+                                .c_str());
+                        requireWide(
+                            node->getWindow()->getExtent() == expected,
+                            "mental window did not follow its default or remembered position");
+                        if (existing)
+                            ++mentalPreservedPositions;
+                        else {
+                            ++mentalDefaultPositions;
+                            if (part == 0 && px == 0 && py == 0)
+                                g_platform->capture(
+                                    output / String::format("mental-position-%s-%s-%d.ppm",
+                                                            wide ? "wide" : "classic",
+                                                            group ? "group" : "individual", brother)
+                                                 .c_str());
+                        }
+                        // Check the normally updated mental and selection/HP pixels first.
+                        const auto immediate = region(559 + x, r.y - 2, 64, 93);
+                        reDrawScreen();
+                        requireWide(immediate == region(559 + x, r.y - 2, 64, 93),
+                                    "mental or selection control retained stale pixels");
+                        ++mentalClicks;
+                        groupMentalClicks += group;
+                        ++mentalRedrawChecks;
+                        return node;
+                    };
+                    int closeIndex = 0;
+                    auto close = [&] {
+                        auto node =
+                            vm->_cnm->find(ActorBaseID + brother, ContainerNode::kMentalType);
+                        auto window = node->getWindow();
+                        auto& view = window->getView();
+                        const auto viewBox = view.getExtent();
+                        const auto windowBox = window->getExtent();
+                        bool itemHovered = false;
+                        for (int py = 0; py < viewBox.height && !itemHovered; py += 8)
+                            for (int px = 0; px < viewBox.width && !itemHovered; px += 8)
+                                if (auto item = view.pickObject(Point16(px, py))) {
+                                    mouse(windowBox.x + viewBox.x + px,
+                                          windowBox.y + viewBox.y + py, SDL_EVENT_MOUSE_MOTION);
+                                    drain();
+                                    requireWide(vm->_cnm->_mouseInView &&
+                                                    vm->_cnm->_lastPickedObjectID ==
+                                                        item->thisID() &&
+                                                    vm->_cnm->_mouseText[0],
+                                                "inventory hover did not cache its item text");
+                                    // Display the actual cached object label without advancing
+                                    // simulation.
+                                    vm->_mouseInfo->setText(vm->_cnm->_mouseText);
+                                    itemHovered = true;
+                                    ++itemHoverCloses;
+                                }
+                        if (!itemHovered) {
+                            mouse(windowBox.x + 50, windowBox.y + 4, SDL_EVENT_MOUSE_MOTION);
+                            drain();
+                        }
+                        const bool capture = closeIndex++ == 0;
+                        const auto name = String::format("%s-%s-%d", wide ? "wide" : "classic",
+                                                         group ? "group" : "individual", brother);
+                        if (capture)
+                            captureWithCursor(
+                                output / (String("tooltip-before-close-") + name + ".ppm").c_str());
+                        key(SDLK_ESCAPE);
+                        drain();
+                        updateContainerWindows();
+                        requireWide(
+                            !vm->_cnm->find(ActorBaseID + brother, ContainerNode::kMentalType),
+                            "mental container did not close");
+                        requireWide(!vm->_cnm->_mouseInView && !vm->_cnm->_mouseText[0] &&
+                                        vm->_cnm->_lastPickedObjectID == Nothing,
+                                    "closed inventory retained delayed tooltip state");
+                        Point16 actualOffset, expectedOffset;
+                        auto cursor = vm->_pointer->getImage(actualOffset);
+                        const auto size = cursor->_size;
+                        const std::vector<byte> pixels(cursor->_data,
+                                                       cursor->_data + size.x * size.y);
+                        vm->_mouseInfo->setText(nullptr);
+                        cursor = vm->_pointer->getImage(expectedOffset);
+                        requireWide(size == cursor->_size && actualOffset == expectedOffset &&
+                                        pixels ==
+                                            std::vector<byte>(cursor->_data,
+                                                              cursor->_data + cursor->_size.x *
+                                                                                  cursor->_size.y),
+                                    "Escape retained visible tooltip pixels");
+                        ++hoverCloses;
+                        if (capture)
+                            captureWithCursor(
+                                output / (String("tooltip-after-close-") + name + ".ppm").c_str());
+                    };
+                    for (int part = 0; part < 3; ++part) {
+                        // Both corners of every horizontal category, including subdivision
+                        // boundaries.
+                        open(part, (part * r.width + 2) / 3, 0);
+                        close();
+                        open(part, ((part + 1) * r.width + 2) / 3 - 1, r.height - 1);
+                        close();
+                    }
+                    auto node = open(0, 0, r.height / 2);
+                    auto window = node->getWindow();
+                    // The original default window overlaps lower sidebar rows. Move it aside
+                    // using the same partial redraw as dragging, before clicking behind it.
+                    auto oldExtent = window->getExtent();
+                    auto newExtent = oldExtent;
+                    newExtent.x = 60;
+                    window->setExtent(newExtent);
+                    updateWindowSection(oldExtent);
+                    updateWindowSection(newExtent);
+                    // Switching category for the selected brother must reuse the existing window.
+                    click(mainWindow, r.x + r.width - 1, r.y + r.height / 2);
+                    drain();
+                    updateContainerWindows();
+                    node = vm->_cnm->find(ActorBaseID + brother, ContainerNode::kMentalType);
+                    requireWide(node && node->getWindow() == window && node->_mindType == 2 &&
+                                    window->getExtent() == newExtent,
+                                "switching mental category did not reuse its window");
+                    ++mentalPreservedPositions;
+                    ++mentalClicks;
+                    groupMentalClicks += group;
+                    const auto immediate = region(559 + x, r.y - 2, 64, 93);
+                    if (group)
+                        g_platform->capture(output / String::format("sidebar-group-%s-%d.ppm",
+                                                                    wide ? "wide" : "classic",
+                                                                    brother)
+                                                         .c_str());
+                    reDrawScreen();
+                    requireWide(immediate == region(559 + x, r.y - 2, 64, 93),
+                                "reused mental control retained stale pixels");
+                    ++mentalRedrawChecks;
+                    if (group)
+                        open(1, (r.width + 2) / 3, r.height / 2);
+                    close();
+                }
+            }
+            setCenterBrother(0);
+            setControlPanelsToIndividualMode(0);
+            const auto oldGold = region(486 + x, 265, 133, 43);
+            hoverGold();
+            const auto goldControl = indivControls->hitTest(Point16(507 + x, 286));
+            const auto beforeClickSeed = vm->_rnd->getSeed();
+            click(mainWindow, 507 + x, 286);
+            drain();
+            requireWide(vm->_toolBase->isMousePanel(goldControl) && getCenterActorPlayerID() == 0 &&
+                            isIndivMode() && vm->_rnd->getSeed() == beforeClickSeed &&
+                            oldGold == region(486 + x, 265, 133, 43),
+                        "clicking the gold tooltip changed gameplay or its image");
+            ++goldPassiveClicks;
+            direct->setExtra(54321);
+            verifyGold();
+            ++goldChecks;
+            requireWide(oldGold != region(486 + x, 265, 133, 43) &&
+                            getCarriedGold(vm->_playerList[0]->getActor()) ==
+                                originalGold[0] + 77777,
+                        "gold display did not update after a stack change");
+            coins->move(Location(0, 0, 1, ActorBaseID + 1));
+            requireWide(getCarriedGold(vm->_playerList[0]->getActor()) == originalGold[0] + 54321 &&
+                            getCarriedGold(vm->_playerList[1]->getActor()) ==
+                                originalGold[1] + 23456,
+                        "transferred gold was counted for the wrong brother");
+            hoverGold();
+            // Mutating a carried stack while hovered must update the amount without mouse motion.
+            coins->move(Location(0, 0, 1, ActorBaseID));
+            updateIndicators();
+            coins->move(Location(0, 0, 1, ActorBaseID + 1));
+            verifyGold();
+            ++goldChecks;
+            // Loading must recreate all ready views at the active sidebar coordinates.
+            requireWide(vm->saveGameState(7, "Sidebar layout fixture", false) == kNoError &&
+                            vm->loadGameState(7) == kNoError,
+                        "new layout save/load failed");
+            for (int i = 0; i < 3; ++i)
+                requireWide(TrioCviews[i]->getExtent().x == 476 + x, "loaded trio slots misplaced");
+            requireWide(indivCviewTop->getExtent().x == 476 + x &&
+                            indivCviewTop->getExtent().y == 113 &&
+                            indivCviewBot->getExtent().x == 476 + x,
+                        "loaded individual slots misplaced");
+            verifyGold();
+            ++goldChecks;
+            // A zero balance retains the same currency artwork and updates the number.
+            std::vector<GameObject*> emptyCoins;
+            RecursiveContainerIterator contents(vm->_playerList[2]->getActor());
+            GameObject* item = nullptr;
+            for (ObjectID id = contents.first(&item); id != Nothing; id = contents.next(&item))
+                if (isObject(id) && item->proto() == vm->_objectProtos[354])
+                    emptyCoins.push_back(item);
+            for (auto item : emptyCoins)
+                item->move(Location(0, 0, 1, ActorBaseID + 1));
+            setCenterBrother(2);
+            setControlPanelsToIndividualMode(2);
+            verifyGold();
+            requireWide(getCarriedGold(vm->_playerList[2]->getActor()) == 0 &&
+                            region(495 + x, 274, 25, 12) == coinPixels,
+                        "zero gold balance removed or changed the coin artwork");
+            g_platform->capture(
+                output / String::format("sidebar-zero-%s.ppm", wide ? "wide" : "classic").c_str());
+            ++goldChecks;
+            // Reloading destroys fixture object addresses; reacquire them for the next ratio.
+            requireWide(vm->loadGameState(6) == kNoError, "cannot reset sidebar fixture");
+            bag = create(bagProto, ActorBaseID, 0);
+            nested = create(bagProto, bag->thisID(), 0);
+            direct = create(354, ActorBaseID, 12345);
+            coins = create(354, nested->thisID(), 23456);
+            create(352, nested->thisID(), 1);
+            sidebarMenu(false);
+        }
+        ConfMan.setBool("widescreen", originalMode == DisplayMode::Widescreen);
+        requestDisplayModeChange();
+        applyPendingDisplayMode();
+        requireWide(vm->loadGameState(6) == kNoError && getCenterActorID() == actor &&
+                        centerActorCoords() == position && vm->_rnd->getSeed() == seed,
+                    "sidebar fixture leaked into gameplay");
+        for (int i = 0; i < 3; ++i)
+            requireWide(getCarriedGold(vm->_playerList[i]->getActor()) == originalGold[i],
+                        "fixture gold was not restored");
+        requireWide(vm->saveGameState(8, "Sidebar layout checkpoint", false) == kNoError,
+                    "cannot save restored sidebar checkpoint");
+        // Leave the option enabled so the next process verifies its persisted startup value.
+        sidebarMenu(false);
+        std::ofstream(output / "sidebar-layout.json")
+            << "{\"status\":\"passed\",\"mental_clicks\":" << mentalClicks
+            << ",\"group_mental_clicks\":" << groupMentalClicks
+            << ",\"mental_redraw_checks\":" << mentalRedrawChecks
+            << ",\"mental_pressed_checks\":" << mentalPressedChecks
+            << ",\"mental_tooltip_checks\":" << mentalPressedChecks
+            << ",\"mental_default_positions\":" << mentalDefaultPositions
+            << ",\"mental_preserved_positions\":" << mentalPreservedPositions
+            << ",\"mental_saved_positions\":" << mentalSavedPositions
+            << ",\"container_hover_closes\":" << hoverCloses
+            << ",\"container_item_hover_closes\":" << itemHoverCloses
+            << ",\"carry_footer_checks\":" << footerChecks << ",\"gold_checks\":" << goldChecks
+            << ",\"options_openings\":" << sidebarMenus << ",\"grid_cells\":" << gridCells
+            << ",\"grid_edge_checks\":" << gridEdges << ",\"grid_tooltip_checks\":" << gridTooltips
+            << ",\"hp_redraw_checks\":" << hpRedraws
+            << ",\"grid_button_redraw_checks\":" << gridButtonRedraws
+            << ",\"gold_tooltip_checks\":" << goldTooltipChecks
+            << ",\"gold_inactive_checks\":" << goldInactiveChecks
+            << ",\"gold_passive_clicks\":" << goldPassiveClicks
+            << ",\"fixture_restored\":true,\"preference_enabled\":true}\n";
+    }
+
     void modalTick() {
         requireWide(++modalTicks < 80, "modal input timed out");
         auto dialog = Saga2::ModalWindow::_current;
@@ -446,6 +1106,28 @@ struct WidescreenProbe {
                 } else
                     g_platform->capture(output / "wide-modal.ppm");
                 key(SDLK_ESCAPE);
+            }
+            return;
+        }
+        if (action == Sidebar) {
+            if (modalPhase == 0) {
+                auto checkbox = dialog->hitTest(Saga2::Point16(223, 191));
+                requireWide(checkbox && checkbox->getExtent().width == 18 &&
+                                checkbox->getExtent().height == 17,
+                            "missing New layout checkbox");
+                click(dialog, 231, 199); // Include the bottom-right hit/redraw edge.
+                modalPhase = 1;
+            } else if (modalPhase == 1 && ConfMan.getBool("alternate_sidebar") != sidebarBefore) {
+                const auto name = String::format(
+                    "sidebar-options-%s-%s-%s.ppm",
+                    activeDisplayMode == DisplayMode::Widescreen ? "wide" : "classic",
+                    pregameMenu ? "pregame" : "game", sidebarBefore ? "off" : "on");
+                g_platform->capture(output / name.c_str());
+                if (pregameMenu)
+                    static_cast<Saga2::requestInfo*>(dialog->_userData)->running = false;
+                else
+                    key(SDLK_ESCAPE);
+                modalPhase = 2;
             }
             return;
         }
@@ -576,6 +1258,12 @@ struct WidescreenProbe {
         std::ofstream(output / "startup.json")
             << "{\"widescreen\":" << (ConfMan.getBool("widescreen") ? "true" : "false")
             << ",\"width\":" << g_platform->getWidth() << "}\n";
+        std::ofstream(output / "sidebar-startup.json")
+            << "{\"alternate_sidebar\":"
+            << (ConfMan.getBool("alternate_sidebar") ? "true" : "false") << "}\n";
+        ConfMan.setBool("alternate_sidebar", false);
+        Saga2::requestDisplayModeChange();
+        Saga2::applyPendingDisplayMode();
         if (activeDisplayMode == DisplayMode::Widescreen) {
             ConfMan.setBool("widescreen", false);
             Saga2::requestDisplayModeChange();
@@ -665,6 +1353,7 @@ struct WidescreenProbe {
         requireWide(bag->close(Saga2::getCenterActorID()), "cannot close inventory fixture");
         node->markForDelete();
         Saga2::updateContainerWindows();
+        sidebarLayout();
         ConfMan.flushToDisk();
         g_platform->capture(output / "wide-final.ppm");
         walkingStart = Saga2::centerActorCoords();

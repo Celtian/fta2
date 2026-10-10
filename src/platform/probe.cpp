@@ -945,7 +945,7 @@ struct ContainerEscapeProbe {
             HotKeysProbe::key(SDLK_ESCAPE);
             phase = 4;
             break;
-        case 4:
+        case 4: {
             controls.require(!mental() && chest->isOpen() && physical() &&
                                  tool->topWindow() == physical()->getWindow(),
                              "Escape did not close only the frontmost container");
@@ -953,6 +953,15 @@ struct ContainerEscapeProbe {
                 // A visible container still has priority after the game regains keyboard focus.
                 controls.clickAt(parent, 4, 475);
             }
+            const auto box = physical()->getWindow()->getView().getExtent();
+            controls.mouseAt(physical()->getWindow(), box.x + 8, box.y + 8);
+            phase = 7;
+            break;
+        }
+        case 7:
+            controls.require(vm->_cnm->_mouseInView &&
+                                 tool->isMousePanel(&physical()->getWindow()->getView()),
+                             "physical inventory hover was not entered before Escape");
             HotKeysProbe::key(SDLK_ESCAPE);
             phase = 5;
             break;
@@ -960,6 +969,9 @@ struct ContainerEscapeProbe {
             controls.require(!physical() && !chest->isOpen() && tool->topWindow() == parent &&
                                  Saga2::ModalWindow::_current == nullptr,
                              "Escape did not close the physical object and restore the game");
+            controls.require(!vm->_cnm->_mouseInView && !vm->_cnm->_mouseText[0] &&
+                                 vm->_cnm->_lastPickedObjectID == Saga2::Nothing,
+                             "Escape retained physical inventory tooltip state");
             controls.unchanged(false);
             if (cycle == 0)
                 g_platform->capture(controls.output / "container-closed.ppm");
@@ -978,6 +990,8 @@ struct ContainerEscapeProbe {
                                  Saga2::ModalWindow::_current == nullptr,
                              "Escape without containers did not open and close Options");
             controls.unchanged(false);
+            std::ofstream(controls.output / "container-tooltip.json")
+                << "{\"status\":\"passed\",\"physical_closes\":12,\"delayed_text_cleared\":true}\n";
             done = true;
             break;
         }

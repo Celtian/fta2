@@ -156,6 +156,7 @@ int main() {
                 Saga2::Rect16 updated;
                 RecordingWindow() : gWindow(Saga2::Rect16(0, 0, 854, 480), 0, "test", nullptr) {}
                 void update(const Saga2::Rect16& area) override { updated = area; }
+                void draw() override {}
             } window;
             byte unusedImages[2]{};
             void* images[] = {&unusedImages[0], &unusedImages[1]};
@@ -183,6 +184,40 @@ int main() {
                     checkUpdated(multi);
                 }
             }
+            struct HoverControl : Saga2::gControl {
+                bool tooltip = true;
+                int leaves = 0, deactivations = 0;
+                HoverControl(Saga2::gPanelList& panel)
+                    : gControl(panel, Saga2::Rect16(10, 10, 20, 20), nullptr, 0, nullptr) {}
+                void pointerMove(Saga2::gPanelMessage& message) override {
+                    if (!message._pointerLeave)
+                        return;
+                    check(!message._pointerEnter && !message._inPanel && _window.isOpen(),
+                          "Window must send pointer leave before closing");
+                    tooltip = false;
+                    ++leaves;
+                }
+                bool activate(Saga2::gEventType) override { return true; }
+                void deactivate() override {
+                    ++deactivations;
+                    gControl::deactivate();
+                }
+            };
+            auto hover = new HoverControl(window);
+            window.open();
+            Event hoverEvent;
+            hoverEvent.type = EVENT_MOUSEMOVE;
+            hoverEvent.mouse = {12, 12};
+            engine._toolBase->handleMouse(hoverEvent, platform.getMillis());
+            check(engine._toolBase->isMousePanel(hover), "Test hover control was not entered");
+            engine._toolBase->setActive(hover);
+            window.close();
+            check(!hover->tooltip && hover->leaves == 1 && hover->deactivations == 1 &&
+                      !engine._toolBase->isMousePanel(hover) && !hover->isActive(),
+                  "Closing a window must clear its hover tooltip before discarding panels");
+            window.close();
+            check(hover->leaves == 1 && hover->deactivations == 1,
+                  "Closing an already closed window must not repeat hover cleanup");
         }
         Saga2::globalPort = nullptr;
         Saga2::g_vm = nullptr;

@@ -38,6 +38,8 @@
 #include "saga2/imagcach.h"
 #include "saga2/fontlib.h"
 #include "saga2/uimetrcs.h"
+#include "saga2/setup.h"
+#include "saga2/sprite.h"
 
 namespace Saga2 {
 
@@ -385,6 +387,180 @@ CMassWeightIndicator    *MassWeightIndicator = nullptr;
 CHealthIndicator        *HealthIndicator     = nullptr;
 CManaIndicator          *ManaIndicator       = nullptr;
 
+// The supported DOS LIST/PRO\0 table identifies prototype 354 as mergeable Gold Coin.
+uint64 getCarriedGold(GameObject *actor) {
+	uint64 total = 0;
+	RecursiveContainerIterator iter(actor);
+	GameObject *item = nullptr;
+	for (ObjectID id = iter.first(&item); id != Nothing; id = iter.next(&item)) {
+		if (isObject(id) && item->proto() == g_vm->_objectProtos[354])
+			total += item->getExtra();
+	}
+	return total;
+}
+
+static bool sidebarLayoutApplied = false;
+
+// Keep all three original click regions in a compact, nearest-neighbour icon.
+class MentalButton : public GfxCompButton {
+public:
+	MentalButton(gPanelList &list, const Rect16 &box, void **images, uint16 brother, AppFunc *cmd)
+	    : GfxCompButton(list, box, images, kNumBtnImages, brother, cmd) {}
+	gPanel *hitTest(const Point16 &point) override {
+		if (_id != kUiIndiv && !sidebarLayoutApplied) return nullptr;
+		return GfxCompButton::hitTest(point);
+	}
+	void drawClipped(gPort &port, const Point16 &offset, const Rect16 &clip) override {
+		if (_id != kUiIndiv && !sidebarLayoutApplied) return;
+		if (!sidebarLayoutApplied) {
+			GfxCompImage::drawClipped(port, offset, clip);
+			return;
+		}
+		if (!_extent.overlap(clip)) return;
+		SAVE_GPORT_STATE(port);
+		byte full[44 * 43]{};
+		gPixelMap source;
+		source._size = Point16(44, 43);
+		source._data = full;
+		gPort temporary;
+		temporary.setMap(&source);
+		temporary.setMode(kDrawModeMatte);
+		if (isGhosted()) drawCompressedImageGhosted(temporary, Point16(0, 0), getCurrentCompImage());
+		else drawCompressedImage(temporary, Point16(0, 0), getCurrentCompImage());
+		byte compact[28 * 27];
+		for (int y = 0; y < 27; ++y)
+			for (int x = 0; x < 28; ++x)
+				compact[y * 28 + x] = full[(y * 43 / 27) * 44 + x * 44 / 28];
+		gPixelMap image;
+		image._size = Point16(28, 27);
+		image._data = compact;
+		port.setMode(kDrawModeMatte);
+		port.bltPixels(image, 0, 0, _extent.x - offset.x, _extent.y - offset.y, 28, 27);
+	}
+};
+GfxCompButton *trioMentalBtns[kNumViews]{};
+
+class GoldDisplay : public gControl {
+	uint64 _amount = 0;
+	byte _background[45 * 43]{};
+	void updateTooltip() {
+		char text[48];
+		Native::sprintf_s(text, "%s %llu", GOLD_HINT, static_cast<unsigned long long>(
+		    getCarriedGold(GameObject::objectAddress(ActorBaseID + indivBrother))));
+		g_vm->_mouseInfo->setText(text);
+	}
+public:
+	GoldDisplay(gPanelList &list) : gControl(list, Rect16(486, 265, 45, 43), nullptr, 0, nullptr) {
+		auto context = resFile->newContext(containerGroupID, "gold counter decoration");
+		void *decoration = g_vm->_imageCache->requestImage(context, MKTAG('G', 'J', 'B', 0));
+		byte pixels[88 * 43]{};
+		gPixelMap image;
+		image._size = Point16(88, 43);
+		image._data = pixels;
+		gPort temporary;
+		temporary.setMap(&image);
+		drawCompressedImage(temporary, Point16(0, 0), decoration);
+		// Preserve the full circular bezel and gold corners. Original pale pixels identify
+		// each interior span, including the balance symbol that needs to be removed.
+		for (int y = 0; y < 43; ++y) {
+			int left = 44, right = -1;
+			for (int x = 0; x < 45; ++x) {
+				_background[y * 45 + x] = pixels[y * 88 + x];
+				if (pixels[y * 88 + x] == 34) {
+					left = MIN(left, x);
+					right = x;
+				}
+			}
+			for (int x = left; x <= right; ++x)
+				_background[y * 45 + x] = y < 17 ? 48 : (y < 26 ? 49 : 50);
+		}
+		g_vm->_imageCache->releaseImage(decoration);
+		resFile->disposeContext(context);
+	}
+	gPanel *hitTest(const Point16 &point) override {
+		return sidebarLayoutApplied && isIndivMode() ? gControl::hitTest(point) : nullptr;
+	}
+	void pointerMove(gPanelMessage &message) override {
+		setMousePoll(!message._pointerLeave);
+		if (message._pointerLeave) g_vm->_mouseInfo->setText(nullptr);
+		else updateTooltip();
+	}
+	void refresh() {
+		if (!sidebarLayoutApplied || !isIndivMode()) return;
+		const uint64 amount = getCarriedGold(GameObject::objectAddress(ActorBaseID + indivBrother));
+		if (_amount != amount) {
+			_amount = amount;
+			invalidate();
+			if (g_vm->_toolBase->isMousePanel(this)) updateTooltip();
+		}
+	}
+	void drawClipped(gPort &port, const Point16 &offset, const Rect16 &clip) override {
+		if (!sidebarLayoutApplied || !_extent.overlap(clip)) return;
+		SAVE_GPORT_STATE(port);
+		const Rect16 box(_extent.x - offset.x, _extent.y - offset.y, _extent.width, _extent.height);
+		port.setMode(kDrawModeMatte);
+		gPixelMap background;
+		background._size = Point16(45, 43);
+		background._data = _background;
+		port.bltPixels(background, 0, 0, box.x, box.y, 45, 43);
+		textPallete pal(67, 48, 89, 67, 48, 89);
+		char amount[32];
+		Native::sprintf_s(amount, "%llu", static_cast<unsigned long long>(
+		    getCarriedGold(GameObject::objectAddress(ActorBaseID + indivBrother))));
+		// Render the currency prototype directly, including when no coins are carried.
+		ProtoObj *coin = g_vm->_objectProtos[354];
+		// The original mergeable-object artwork uses offset 3 for a pile of 25+ coins.
+		Sprite *sprite = objectSprites->sprite(coin->iconSprite + 3);
+		ColorTable colors;
+		coin->getColorTranslation(colors);
+		std::vector<byte> source(sprite->size.x * sprite->size.y, 0);
+		gPixelMap icon;
+		icon._size = sprite->size;
+		icon._data = source.data();
+		ExpandColorMappedSprite(icon, sprite, colors);
+		int iconWidth = MIN<int>(25, sprite->size.x);
+		int iconHeight = MAX<int>(1, sprite->size.y * iconWidth / sprite->size.x);
+		if (iconHeight > 12) {
+			iconHeight = 12;
+			iconWidth = MAX<int>(1, sprite->size.x * iconHeight / sprite->size.y);
+		}
+		byte fittedIcon[25 * 12]{};
+		for (int y = 0; y < iconHeight; ++y)
+			for (int x = 0; x < iconWidth; ++x) {
+				int sx = x * sprite->size.x / iconWidth;
+				if (coin->flags & ResourceObjectPrototype::kObjPropFlipped)
+					sx = sprite->size.x - 1 - sx;
+				fittedIcon[y * iconWidth + x] = source[(y * sprite->size.y / iconHeight) * sprite->size.x + sx];
+			}
+		icon._size = Point16(iconWidth, iconHeight);
+		icon._data = fittedIcon;
+		port.bltPixels(icon, 0, 0, box.x + 9 + (25 - iconWidth) / 2,
+		               box.y + 9 + (12 - iconHeight) / 2, iconWidth, iconHeight);
+		const int width = TextWidth(&Helv11Font, amount, -1, 0) + 2;
+		if (width <= 23) {
+			writePlaqText(port, Rect16(box.x + 10, box.y + 20, 23, 14),
+			              &Helv11Font, 0, pal, false, amount);
+		} else {
+			// Preserve every digit for unusually large totals without covering nearby controls.
+			std::vector<byte> pixels(width * 14, 0);
+			gPixelMap text;
+			text._size = Point16(width, 14);
+			text._data = pixels.data();
+			gPort temporary;
+			temporary.setMap(&text);
+			writePlaqText(temporary, Rect16(1, 0, width - 2, 14), &Helv11Font, 0, pal, false, amount);
+			byte fitted[23 * 14];
+			for (int y = 0; y < 14; ++y)
+				for (int x = 0; x < 23; ++x)
+					fitted[y * 23 + x] = pixels[y * width + x * width / 23];
+			text._size = Point16(23, 14);
+			text._data = fitted;
+			port.bltPixels(text, 0, 0, box.x + 10, box.y + 20, 23, 14);
+		}
+	}
+};
+static GoldDisplay *goldDisplay = nullptr;
+
 /* ===================================================================== *
    Plaq writing class
  * ===================================================================== */
@@ -681,6 +857,40 @@ void CStatusLine::clear() {
 
 bool CMassWeightIndicator::_bRedraw;
 
+// Extend the original two-medallion strip with another copy of its internal joint.
+// Only the ready-panel frame changes; container windows keep their original artwork.
+class JoinedCarryBackground : public GfxCompImage {
+	byte _joined[88 * 43]{};
+public:
+	JoinedCarryBackground(gPanelList &panel, const Rect16 &box, void *image)
+	    : GfxCompImage(panel, box, image, kUiIndiv, nullptr) {
+		gPixelMap map;
+		map._size = Point16(88, 43);
+		map._data = _joined;
+		gPort temporary;
+		temporary.setMap(&map);
+		drawCompressedImage(temporary, Point16(0, 0), image);
+		// The next medallion begins 45 pixels after the first. Replace the outer left
+		// border with its inner counterpart, stopping before the mass pie at x=8.
+		for (int y = 0; y < 43; ++y)
+			for (int x = 0; x < 8; ++x)
+				_joined[y * 88 + x] = _joined[y * 88 + 45 + x];
+	}
+	void drawClipped(gPort &port, const Point16 &offset, const Rect16 &clip) override {
+		if (!sidebarLayoutApplied) {
+			GfxCompImage::drawClipped(port, offset, clip);
+			return;
+		}
+		if (!_extent.overlap(clip)) return;
+		SAVE_GPORT_STATE(port);
+		gPixelMap image;
+		image._size = Point16(88, 43);
+		image._data = _joined;
+		port.setMode(kDrawModeMatte);
+		port.bltPixels(image, 0, 0, _extent.x - offset.x, _extent.y - offset.y, 88, 43);
+	}
+};
+
 CMassWeightIndicator::CMassWeightIndicator(gPanelList *panel, const Point16 &pos, uint16 type, bool death) {
 
 	// set up the position of this indicator
@@ -729,11 +939,11 @@ CMassWeightIndicator::CMassWeightIndicator(gPanelList *panel, const Point16 &pos
 	                                       cmdBulkInd);
 
 	// mass/bulk back image
-	new GfxCompImage(*panel,
-	                             Rect16(_backImagePos.x, _backImagePos.y, kBackImageXSize, kBackImageYSize),
-	                             _massBulkImag,
-	                             kUiIndiv,
-	                             nullptr);
+	const Rect16 background(_backImagePos.x, _backImagePos.y, kBackImageXSize, kBackImageYSize);
+	if (type == 1 && !death)
+		new JoinedCarryBackground(*panel, background, _massBulkImag);
+	else
+		new GfxCompImage(*panel, background, _massBulkImag, kUiIndiv, nullptr);
 
 	// release resource context
 	if (_containerRes) {
@@ -1202,6 +1412,42 @@ void CManaIndicator::getManaLineInfo(uint16 index,
     CHealthIndicator: Health star indicator
  * ===================================================================== */
 
+// The compact HP control owns one hit/redraw rectangle for both original image layers.
+class HealthImage : public GfxCompImage {
+	void *_frame;
+public:
+	HealthImage(gPanelList &list, const Rect16 &box, void **images, void *frame,
+	            int16 count, int16 initial, uint16 brother, AppFunc *cmd)
+	    : GfxCompImage(list, box, images, count, initial, brother, cmd),
+	      _frame(frame) {}
+	void drawClipped(gPort &port, const Point16 &offset, const Rect16 &clip) override {
+		if (!sidebarLayoutApplied) {
+			GfxCompImage::drawClipped(port, offset, clip);
+			return;
+		}
+		if (!_extent.overlap(clip)) return;
+		SAVE_GPORT_STATE(port);
+		byte full[33 * 33]{};
+		gPixelMap image;
+		image._size = Point16(33, 33);
+		image._data = full;
+		gPort temporary;
+		temporary.setMap(&image);
+		temporary.setMode(kDrawModeMatte);
+		if (isGhosted()) drawCompressedImageGhosted(temporary, Point16(1, 1), getCurrentCompImage());
+		else drawCompressedImage(temporary, Point16(1, 1), getCurrentCompImage());
+		drawCompressedImage(temporary, Point16(0, 0), _frame);
+		byte compact[28 * 27];
+		for (int y = 0; y < 27; ++y)
+			for (int x = 0; x < 28; ++x)
+				compact[y * 28 + x] = full[(y * 33 / 27) * 33 + x * 33 / 28];
+		image._size = Point16(28, 27);
+		image._data = compact;
+		port.setMode(kDrawModeMatte);
+		port.bltPixels(image, 0, 0, _extent.x - offset.x, _extent.y - offset.y, 28, 27);
+	}
+};
+
 CHealthIndicator::CHealthIndicator(AppFunc *cmd) {
 	uint16 i;
 
@@ -1228,12 +1474,13 @@ CHealthIndicator::CHealthIndicator(AppFunc *cmd) {
 	// health controls for the trio view
 	// deallocated with panel
 	for (i = 0; i < kHealthNumControls; i++) {
-		_starBtns[i] = new GfxCompImage(*trioControls,
+		_starBtns[i] = new HealthImage(*trioControls,
 		                           Rect16(kHealthStarXPos,
 		                                  kHealthStarYPos + kHealthStarYOffset * i,
 		                                  kHealthStarXSize,
 		                                  kHealthStarYSize),
 		                           _starImag,
+		                           _starFrameImag,
 		                           kHealthStarNum,
 		                           kHealthStarInitial,
 		                           _starIDs[i],
@@ -1241,7 +1488,7 @@ CHealthIndicator::CHealthIndicator(AppFunc *cmd) {
 
 
 		// image control for the star border/frame trio mode
-		new GfxCompImage(*trioControls,
+		_starFrames[i] = new GfxCompImage(*trioControls,
 		                             Rect16(kHealthFrameXPos,
 		                                    kHealthFrameYPos + kHealthStarYOffset * i,
 		                                    kHealthFrameXSize,
@@ -1254,19 +1501,20 @@ CHealthIndicator::CHealthIndicator(AppFunc *cmd) {
 	}
 	// health control for individual mode
 	// deallocated with panel
-	_indivStarBtn = new GfxCompImage(*indivControls,
+	_indivStarBtn = new HealthImage(*indivControls,
 	                          Rect16(kHealthStarXPos,
 	                                 kHealthStarYPos,
 	                                 kHealthStarXSize,
 	                                 kHealthStarYSize),
 	                          _starImag,
+	                          _starFrameImag,
 	                          kHealthStarNum,
 	                          kHealthStarInitial,
 	                          kUiIndiv,
 	                          cmd);
 
 	// image control for the star border/frame indiv mode
-	new GfxCompImage(*indivControls,
+	_indivStarFrame = new GfxCompImage(*indivControls,
 	                             Rect16(kHealthFrameXPos,
 	                                    kHealthFrameYPos,
 	                                    kHealthFrameXSize,
@@ -1282,6 +1530,23 @@ CHealthIndicator::CHealthIndicator(AppFunc *cmd) {
 	}
 }
 
+
+void CHealthIndicator::layout(bool alternate) {
+	const int x = Native::displayLayout().sidebarOffset;
+	for (int i = 0; i < kHealthNumControls; ++i) {
+		_starBtns[i]->setControlExtent(alternate ? Rect16(592 + x, 22 + 150 * i, 28, 27)
+		    : Rect16(kHealthStarXPos + x, kHealthStarYPos + kHealthStarYOffset * i,
+		             kHealthStarXSize, kHealthStarYSize));
+		_starFrames[i]->enable(!alternate);
+		_starFrames[i]->setControlExtent(Rect16(kHealthFrameXPos + x,
+		    kHealthFrameYPos + kHealthStarYOffset * i, kHealthFrameXSize, kHealthFrameYSize));
+	}
+	_indivStarBtn->setControlExtent(alternate ? Rect16(592 + x, 22, 28, 27)
+	    : Rect16(kHealthStarXPos + x, kHealthStarYPos, kHealthStarXSize, kHealthStarYSize));
+	_indivStarFrame->enable(!alternate);
+	_indivStarFrame->setControlExtent(Rect16(kHealthFrameXPos + x, kHealthFrameYPos,
+	                                       kHealthFrameXSize, kHealthFrameYSize));
+}
 
 CHealthIndicator::~CHealthIndicator() {
 	// release star imagery
@@ -1653,7 +1918,12 @@ void SetupUserControls() {
 
 
 	// mental container button
-	menConBtn = new GfxCompButton(*indivControls, menConBtnRect, menConBtnImag, kNumBtnImages, kUiIndiv, cmdBrain);
+	menConBtn = new MentalButton(*indivControls, menConBtnRect, menConBtnImag, kUiIndiv, cmdBrain);
+	for (n = 0; n < kNumViews; ++n)
+		trioMentalBtns[n] = new MentalButton(*trioControls, Rect16(559, 22 + 150 * n, 28, 27),
+		                                   menConBtnImag, brotherIDs[n], cmdBrain);
+
+	goldDisplay = new GoldDisplay(*indivControls);
 
 	// brother selection _buttons >>> need to replace these with sticky _buttons
 	julBtn = new GfxOwnerSelCompButton(*indivControls, julBtnRect, julBtnImag, kNumBtnImages, kUiJulian, cmdBroChange);
@@ -1683,10 +1953,50 @@ void SetupUserControls() {
 void layoutUserControls(int16 sidebarDelta) {
 	trioControls->translateControls(sidebarDelta);
 	indivControls->translateControls(sidebarDelta);
+	const bool alternate = ConfMan.getBool("alternate_sidebar");
+	const int x = Native::displayLayout().sidebarOffset;
+	menConBtn->setControlExtent(alternate ? Rect16(559 + x, 22, 28, 27)
+	                                       : Rect16(menConBtnRect.x + x, menConBtnRect.y, 44, 43));
+	for (int i = 0; i < kNumViews; ++i) {
+		trioMentalBtns[i]->setControlExtent(Rect16(559 + x, 22 + 150 * i, 28, 27));
+		trioMentalBtns[i]->enable(alternate);
+		centerBtns[i]->setControlExtent(Rect16(559 + x, (alternate ? 54 : 56) + 150 * i, 28, 27));
+		bandingBtns[i]->setControlExtent(Rect16(592 + x, (alternate ? 54 : 56) + 150 * i, 28, 27));
+	}
+	indivCenterBtn->setControlExtent(Rect16(559 + x, alternate ? 54 : 56, 28, 27));
+	indivBandingBtn->setControlExtent(Rect16(592 + x, alternate ? 54 : 56, 28, 27));
+	HealthIndicator->layout(alternate);
+	if (indivCviewTop) {
+		auto r = indivCviewTop->getExtent();
+		r.x = indivReadyContInfoTop.xPos + x;
+		r.y = indivReadyContInfoTop.yPos + 8;
+		indivCviewTop->setControlExtent(r);
+	}
+	for (int i = 0; i < kNumViews; ++i) {
+		if (!TrioCviews[i]) continue;
+		auto r = TrioCviews[i]->getExtent();
+		r.x = trioReadyContInfo[i].xPos + x;
+		TrioCviews[i]->setControlExtent(r);
+	}
+	if (indivCviewBot) {
+		auto r = indivCviewBot->getExtent();
+		r.x = indivReadyContInfoBot.xPos + x;
+		indivCviewBot->setControlExtent(r);
+	}
+	sidebarLayoutApplied = alternate;
 	if (StatusLine)
 		StatusLine->setControlExtent(Rect16(49, 445, 407 + Native::displayLayout().sidebarOffset, 15));
 	if (enchDisp)
 		enchDisp->setControlExtent(Rect16(0, 0, Native::displayLayout().screenWidth - 10, 18));
+}
+
+bool applySidebarLayout() {
+	if (sidebarLayoutApplied == ConfMan.getBool("alternate_sidebar")) return false;
+	layoutUserControls(0);
+	g_vm->_toolBase->leavePanel();
+	reDrawScreen();
+	g_platform->updateScreen();
+	return true;
 }
 
 void enableUserControls() {
@@ -1699,6 +2009,8 @@ void disableUserControls() {
 
 // defines the cleanup for ALL user interface controls
 void CleanupUserControls() {
+	goldDisplay = nullptr;
+	for (auto &button : trioMentalBtns) button = nullptr;
 	g_vm->_userControlsSetup = false;
 	CleanupButtonImages();
 }
@@ -1743,6 +2055,7 @@ void CleanupButtonImages() {
 }
 
 void updateIndicators() {
+	if (goldDisplay) goldDisplay->refresh();
 	HealthIndicator->update();
 	MassWeightIndicator->update();
 

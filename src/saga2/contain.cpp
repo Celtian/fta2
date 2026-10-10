@@ -1405,9 +1405,18 @@ void ContainerNode::show() {
 			_window = new TangibleContainerWindow(*this, deathContainerAppearance);
 			break;
 
-		case kMentalType:
+		case kMentalType: {
+			const Rect16 classic = mentalContainerAppearance.defaultWindowPos;
+			Rect16 wide = classic;
+			wide.x += Native::DisplayLayout::forMode(Native::DisplayMode::Widescreen).sidebarOffset;
+			// Recognize defaults saved in either mode; retain other remembered positions.
+			if (_position == classic || _position == wide) {
+				_position = classic;
+				_position.x += Native::displayLayout().sidebarOffset;
+			}
 			_window = new IntangibleContainerWindow(*this, mentalContainerAppearance);
 			break;
+		}
 
 		case kEnchantType:
 			_window = new EnchantmentContainerWindow(*this, enchantmentContainerAppearance);

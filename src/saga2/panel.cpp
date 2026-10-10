@@ -465,14 +465,14 @@ void gWindow::close() {
 	//saver.onExit(this);
 	if (!isOpen()) return;
 
-	//  If any panels on this window are active, then deactivate them.
-	if (g_vm->_toolBase->_activePanel && g_vm->_toolBase->_activePanel->getWindow() == this)
-		g_vm->_toolBase->_activePanel->deactivate();
-
 	//  Don't close a window that is being dragged (should never happen,
 	//  but just in case).
 	if (DragBar::_dragWindow == (FloatingWindow *)this)
 		return;
+
+	// Notify the hovered control while it is still alive, clearing its tooltip and
+	// any delayed inventory text before discarding the mouse/focus references.
+	g_vm->_toolBase->leavePanel();
 
 	_openFlag = false;
 

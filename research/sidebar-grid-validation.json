@@ -1,0 +1,385 @@
+{
+  "date": "2026-10-10",
+  "version": "0.1.19",
+  "status": "passed",
+  "development_status": "development-alpha",
+  "scope": "Uniform sidebar control grid, compact composite HP and original gold decoration for the coin counter",
+  "layout": {
+    "configuration_key": "alternate_sidebar",
+    "default": false,
+    "mental_bounds": [
+      [
+        559,
+        22,
+        28,
+        27
+      ],
+      [
+        559,
+        172,
+        28,
+        27
+      ],
+      [
+        559,
+        322,
+        28,
+        27
+      ]
+    ],
+    "individual_mental_bounds": [
+      559,
+      22,
+      28,
+      27
+    ],
+    "grid_cell_size": [
+      28,
+      27
+    ],
+    "grid_gap": [
+      5,
+      5
+    ],
+    "grid_columns": [
+      559,
+      592
+    ],
+    "grid_rows": [
+      22,
+      54,
+      86
+    ],
+    "hp_bounds": [
+      592,
+      22,
+      28,
+      27
+    ],
+    "hp_composite_size": [
+      33,
+      33
+    ],
+    "hp_composite_layers": {
+      "star": [
+        1,
+        1
+      ],
+      "frame": [
+        0,
+        0
+      ]
+    },
+    "gold_bounds": [
+      485,
+      265,
+      44,
+      43
+    ],
+    "gold_icon_max_size": [
+      36,
+      17
+    ],
+    "gold_icon_area": [
+      4,
+      4,
+      36,
+      17
+    ],
+    "number_area": [
+      4,
+      24,
+      36,
+      14
+    ],
+    "gold_border_width": 4,
+    "gold_fill_palette_index": 34,
+    "gold_text_palette_indices": [
+      46,
+      34,
+      67
+    ],
+    "widescreen_offset": 214,
+    "group_click": "Select the owning brother through the original selection path and open the chosen category without leaving group view",
+    "hidden_window_category": "Set the requested category before the deferred window show",
+    "configuration_or_save_format_changed": false
+  },
+  "gold_artwork": {
+    "prototype": 354,
+    "name": "Gold Coin",
+    "icon_sprite": 43,
+    "stack_offset": 3,
+    "sprite_index": 46,
+    "source": "Original object sprite set, using the prototype palette translation",
+    "variant": "Original 25+ coin pile, retained at zero balance",
+    "scaling": "Proportional nearest-neighbour downscaling only when needed",
+    "game_objects_created_for_rendering": false
+  },
+  "gold_decoration": {
+    "source": "original-game/FTAIMAGE.HRS",
+    "sha256": "e8f0cf92507a11c1c6ec0bf790fa054a883d421689f5f3abd9b4e2c8f9172bec",
+    "resource": "CONT/GJB0",
+    "offset": 20122828,
+    "source_size": [
+      88,
+      43
+    ],
+    "used_region": [
+      0,
+      0,
+      44,
+      43
+    ],
+    "processing": "Retain the outer four pixels; replace the embedded balance icon with original warm pale palette color 34",
+    "extraction": "Read-only resource inspection; runtime image-cache decompression into an owned background"
+  },
+  "linux": {
+    "release_build": "passed",
+    "build_log": ".cache/layout-019-linux-build-final.log",
+    "ctest": {
+      "passed": 5,
+      "total": 5,
+      "log": ".cache/layout-019-linux-ctest-final.log"
+    },
+    "widescreen_result": ".cache/layout-019-wide-final/result.json",
+    "sidebar_checks_per_process": [
+      {
+        "status": "passed",
+        "mental_clicks": 102,
+        "group_mental_clicks": 54,
+        "mental_redraw_checks": 102,
+        "mental_pressed_checks": 90,
+        "mental_tooltip_checks": 90,
+        "gold_checks": 14,
+        "options_openings": 13,
+        "grid_cells": 72,
+        "grid_edge_checks": 288,
+        "grid_tooltip_checks": 288,
+        "hp_redraw_checks": 60,
+        "grid_button_redraw_checks": 144,
+        "fixture_restored": true,
+        "preference_enabled": true,
+        "persisted_startup_checked": true,
+        "checkpoint_chunks_identical": 27,
+        "inventory_objects_restored": true,
+        "sidebar_images_match_across_modes": true
+      },
+      {
+        "status": "passed",
+        "mental_clicks": 102,
+        "group_mental_clicks": 54,
+        "mental_redraw_checks": 102,
+        "mental_pressed_checks": 90,
+        "mental_tooltip_checks": 90,
+        "gold_checks": 14,
+        "options_openings": 13,
+        "grid_cells": 72,
+        "grid_edge_checks": 288,
+        "grid_tooltip_checks": 288,
+        "hp_redraw_checks": 60,
+        "grid_button_redraw_checks": 144,
+        "fixture_restored": true,
+        "preference_enabled": true,
+        "persisted_startup_checked": true,
+        "checkpoint_chunks_identical": 27,
+        "inventory_objects_restored": true,
+        "sidebar_images_match_across_modes": true
+      }
+    ],
+    "classic_integration": ".cache/layout-019-classic-final",
+    "reference": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "windows": {
+    "release_cross_build": "passed (Zig 0.16.0, official SDL 3.4.18 x64 DLL)",
+    "build_log": ".cache/layout-019-windows-build-final.log",
+    "ctest": {
+      "passed": 5,
+      "total": 5,
+      "log": ".cache/layout-019-windows-ctest-final.log",
+      "scope": "C++/CLI cases execute on native Windows; portable Python cases execute on the Linux host"
+    },
+    "native_windows": true,
+    "runtime_passed": true,
+    "native_video_runtime_passed": true,
+    "classic_passed": true,
+    "packaged_data_files": 8,
+    "data_unchanged": true,
+    "bundled_data_discovery": true,
+    "executable_sha256": "38cc832c958da52c15c55f6e2b00abcd75a072b112ae67b476b913b01192d398",
+    "result": ".cache/layout-019-final-windows-validation/result.json",
+    "working_filesystem": "Isolated local Windows TEMP, exported to repository cache",
+    "capture_comparisons": [
+      {
+        "process": 0,
+        "matching_ppm_captures": 87,
+        "sidebar": {
+          "status": "passed",
+          "mental_clicks": 102,
+          "group_mental_clicks": 54,
+          "mental_redraw_checks": 102,
+          "mental_pressed_checks": 90,
+          "mental_tooltip_checks": 90,
+          "gold_checks": 14,
+          "options_openings": 13,
+          "grid_cells": 72,
+          "grid_edge_checks": 288,
+          "grid_tooltip_checks": 288,
+          "hp_redraw_checks": 60,
+          "grid_button_redraw_checks": 144,
+          "fixture_restored": true,
+          "preference_enabled": true,
+          "persisted_startup_checked": true,
+          "checkpoint_chunks_identical": 27,
+          "inventory_objects_restored": true,
+          "sidebar_images_match_across_modes": true
+        }
+      },
+      {
+        "process": 1,
+        "matching_ppm_captures": 87,
+        "sidebar": {
+          "status": "passed",
+          "mental_clicks": 102,
+          "group_mental_clicks": 54,
+          "mental_redraw_checks": 102,
+          "mental_pressed_checks": 90,
+          "mental_tooltip_checks": 90,
+          "gold_checks": 14,
+          "options_openings": 13,
+          "grid_cells": 72,
+          "grid_edge_checks": 288,
+          "grid_tooltip_checks": 288,
+          "hp_redraw_checks": 60,
+          "grid_button_redraw_checks": 144,
+          "fixture_restored": true,
+          "preference_enabled": true,
+          "persisted_startup_checked": true,
+          "checkpoint_chunks_identical": 27,
+          "inventory_objects_restored": true,
+          "sidebar_images_match_across_modes": true
+        }
+      }
+    ],
+    "reference": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "sanitizers": {
+    "address_sanitizer": "passed",
+    "leak_sanitizer": "passed",
+    "widescreen_processes": 2,
+    "result": ".cache/layout-019-wide-asan-final/result.json",
+    "execution": "Outside sandbox to allow thread inspection"
+  },
+  "reference": {
+    "revision": "1a3e816afd5ddc41cc2a5c51a5da292e6d61758c",
+    "build": "passed",
+    "run": "passed",
+    "build_log": ".cache/layout-019-reference-build.log",
+    "run_log": ".cache/layout-019-reference-run.log"
+  },
+  "original_files": {
+    "verified_files": 54
+  },
+  "fixture_restoration": {
+    "positions_selected_actor_rng_gold": "restored",
+    "unchanged_chunks_including_nrng": 27,
+    "inventory_object_records": "Identical except original sight-cache counters",
+    "baseline_reference_checks": "All 30 original chunks match in each of two classic saves on both platforms"
+  },
+  "backends": {
+    "gameplay_video": "dummy",
+    "audio": "dummy",
+    "input": "Injected SDL events aimed at logical pixel centers",
+    "native_video_exception": "Separate Windows runtime suite uses the native windows video backend"
+  },
+  "limitations": [
+    "No manual hardware input, macOS execution, remote CI or full playthrough",
+    "Mental windows retain original placement and can overlap lower sidebar controls; the reuse test moves them aside with partial redraw",
+    "Large totals retain fitted text; fixtures cover quantities above 65535, not every possible digit-width case"
+  ]
+}

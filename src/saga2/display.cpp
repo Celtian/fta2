@@ -66,7 +66,7 @@ bool applyPendingDisplayMode() {
 	displayModePending = false;
 	const auto mode = ConfMan.getBool("widescreen") ? Native::DisplayMode::Widescreen
 	                                               : Native::DisplayMode::Classic;
-	if (mode == Native::activeDisplayMode) return false;
+	if (mode == Native::activeDisplayMode) return applySidebarLayout();
 	const auto layout = Native::DisplayLayout::forMode(mode);
 	const int delta = layout.sidebarOffset - Native::displayLayout().sidebarOffset;
 	const int mapWidth = (layout.mapWidth + kTileWidth - 1) & ~kTileDXMask;

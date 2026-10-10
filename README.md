@@ -34,7 +34,11 @@ The game starts in borderless fullscreen, covering the entire monitor without a 
 
 Exploration is shared by all three brothers within each world. The original reveal radius remains two metatiles around the selected brother, excluding the four corners, in both display modes. A wider viewport does not increase the exploration or simulation activation radius.
 
-The original controls are preserved: use the mouse, `1`/`2`/`3` (top row or numeric keypad) to switch brothers, `O` to open options including save/load, Escape to close the frontmost container (or open Options when none is open), and Tab to switch between group and individual control.
+Enable **New layout** in Options for a regular two-column, three-row grid beside each portrait, in both individual and group view. All six controls, including HP with its original frame, fit 28 × 27 pixels with five-pixel gaps. Clicking a group's Ideas/Spells/Skills control selects that brother and opens the chosen category while keeping group view. In the individual panel, their former bottom-row space shows the original coin artwork and that brother's exact Gold Coin total in a round gold medallion with a bronze interior and light gold digits. Gold, weight and volume share a continuous strip of original gold decoration, with evenly spaced medallions. This includes coins in closed and nested carried bags. The coin icon remains visible at zero. Hover over the medallion to see the exact amount in its Gold tooltip; it updates even while the pointer stays still. The counter updates after inventory changes and switching brothers. The option defaults to off, applies after Options closes and is remembered across restarts in both display modes. Jewellery and other gold-named items are not counted as currency.
+
+Ideas/Spells/Skills windows open over the right sidebar in both display modes, keeping their original size and vertical position. Remembered custom positions are retained when reopening.
+
+The original controls are preserved: use the mouse, `1`/`2`/`3` (top row or numeric keypad) to switch brothers, `O` to open options including save/load, Escape to close the frontmost container and clear its hover text (or open Options when none is open), and Tab to switch between group and individual control.
 
 Choose **Hot Keys** in Options (or press **H** while Options is open) for the main keyboard shortcuts. Close the overview with **Close** or Escape to return to Options. **G** uses the selected brother's carried map, including maps in closed or nested bags; Shift+G also works. Escape or the original map button closes it. If that brother has no map, the status line says "No map carried by the selected brother." Gameplay shortcuts are ignored in modal dialogs, and G is ignored while holding or dragging an item. **M** toggles music during gameplay, preserving its configured volume; the mute setting is remembered.
 
@@ -65,7 +69,7 @@ cpack --config build/CPackConfig.cmake -C Release
 To create the complete Windows ZIP locally after packaging the Windows engine:
 
 ```sh
-python3 tools/package_complete.py --engine-package dist/fta2-native-0.1.16-Windows-x86_64.zip --data-dir original-game --output dist/fta2-native-0.1.16-Windows-x86_64-complete.zip
+python3 tools/package_complete.py --engine-package dist/fta2-native-0.1.23-Windows-x86_64.zip --data-dir original-game --output dist/fta2-native-0.1.23-Windows-x86_64-complete.zip
 ```
 
 The tool checks all eight data files against their known SHA-256 hashes, excludes original saves and unnecessary DOS files, and records a package manifest. It refuses unknown data, output inside the original installation, and overwriting an existing output ZIP.

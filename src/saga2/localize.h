@@ -84,6 +84,7 @@ namespace Saga2 {
 
 #define HEALTH_HINT         "Health:"
 #define WEIGHT_HINT         "Weight:"
+#define GOLD_HINT           "Gold:"
 #define BULK_HINT           "Bulk:"
 #define UNK_WEIGHT_HINT     "N/A"
 #define UNK_BULK_HINT       "N/A"

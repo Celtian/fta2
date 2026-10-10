@@ -4361,20 +4361,32 @@ int16 openMindType;
 APPFUNC(cmdBrain) {
 	int16       part = clamp(0, ev.mouse.x * 3 / ev.panel->getExtent().width, 2);
 
-	//assert( indivControls->getEnabled() );
-	if (!indivControls->getEnabled())
+	const bool individual = ev.panel->_id == kUiIndiv;
+	if (!(individual ? indivControls : trioControls)->getEnabled())
 		return;
 
 	if (ev.eventType == kEventNewValue) {
 		//WriteStatusF( 4, "Brain Attempt " );
 
-		GameObject          *container = indivCviewTop->_containerObject;
+		const uint16 brother = translatePanID(ev.panel->_id);
+		if (!individual) {
+			if (getCenterActorPlayerID() != brother) setCenterBrother(brother);
+			if (getCenterActorPlayerID() != brother) return; // Dead brothers cannot be selected.
+		}
+		GameObject          *container = individual ? indivCviewTop->_containerObject
+		                                           : g_vm->_playerList[brother]->getActor();
 		ContainerIterator   iter(container);
 		GameObject          *item;
 
 		openMindType = part;
+		// Selection schedules hidden windows to reopen after this input handler returns.
+		// Supply the requested category before that deferred show constructs the window.
+		if (!individual) {
+			auto node = g_vm->_cnm->find(container->thisID(), ContainerNode::kMentalType);
+			if (node && !node->getWindow()) node->_mindType = part;
+		}
 
-		assert(container == indivCviewBot->_containerObject);
+		assert(!individual || container == indivCviewBot->_containerObject);
 
 		//  Get the actor's mind container
 		while (iter.next(&item) != Nothing) {
@@ -4414,7 +4426,7 @@ void readyContainerSetup() {
 
 		TrioCviews[i] = new ReadyContainerView(
 		                      *trioControls,
-		                      Rect16(trioReadyContInfo[i].xPos,
+		                      Rect16(trioReadyContInfo[i].xPos + Native::displayLayout().sidebarOffset,
 		                             trioReadyContInfo[i].yPos + 8,
 		                             kIconOriginX * 2 + kIconWidth * trioReadyContInfo[i].cols + kIconSpacingY * (trioReadyContInfo[i].cols - 1),
 		                             kIconOriginY + (kIconOriginY * trioReadyContInfo[i].rows) + (trioReadyContInfo[i].rows * kIconHeight) - 23),
@@ -4430,7 +4442,7 @@ void readyContainerSetup() {
 	}
 
 	indivCviewTop   = new ReadyContainerView(*indivControls,
-	                  Rect16(indivReadyContInfoTop.xPos,
+	                  Rect16(indivReadyContInfoTop.xPos + Native::displayLayout().sidebarOffset,
 	                         indivReadyContInfoTop.yPos + 8,
 	                         kIconOriginX * 2 + kIconWidth * indivReadyContInfoTop.cols + kIconSpacingY * (indivReadyContInfoTop.cols - 1),
 	                         kIconOriginY + (kIconOriginY * indivReadyContInfoTop.rows) + (indivReadyContInfoTop.rows * kIconHeight) - 23),
@@ -4445,7 +4457,7 @@ void readyContainerSetup() {
 	indivCviewTop->draw();
 
 	indivCviewBot   = new ReadyContainerView(*indivControls,
-	                  Rect16(indivReadyContInfoBot.xPos,
+	                  Rect16(indivReadyContInfoBot.xPos + Native::displayLayout().sidebarOffset,
 	                         indivReadyContInfoBot.yPos + 8,
 	                         kIconOriginX * 2 + kIconWidth * indivReadyContInfoBot.cols + kIconSpacingY * (indivReadyContInfoBot.cols - 1),
 	                         kIconOriginY + (kIconOriginY * indivReadyContInfoBot.rows) + (indivReadyContInfoBot.rows * kIconHeight) - 24),
