@@ -1,0 +1,102 @@
+docs/validation.md
+  s_2adb1a9ac6dc39::t_f96622cb19d80f 137-142
+  s_2adb1a9ac6dc39::t_846295c329ff27 129-132
+  s_2adb1a9ac6dc39::t_16d068a14cb54f 133-136
+  s_2adb1a9ac6dc39::t_ea958c2c36bc99 123-128
+  s_2adb1a9ac6dc39::t_ae1de16c210ecb 3
+research/container-owner-validation.json
+  s_2adb1a9ac6dc39::t_a1fe2f7c925474 1-285
+research/mental-owner-validation.json
+  s_2adb1a9ac6dc39::t_fc3754fcf7f8c7 1-341
+tools/integration_test.py
+  s_2adb1a9ac6dc39::t_59adc29d8d54e9 16,87
+tools/integration_widescreen.py
+  s_2adb1a9ac6dc39::t_59adc29d8d54e9 50-57,59-65,67,70-74,85-88,91-93,296,308
+  s_2adb1a9ac6dc39::t_9f4332548a853d 20
+  s_2adb1a9ac6dc39::t_01e879e0502f91 58,75-77,81-84,89
+  s_2adb1a9ac6dc39::t_4e6815dad19324 79-80
+  s_2adb1a9ac6dc39::t_0c33b74895844f 16-19,21-49,90
+  s_2adb1a9ac6dc39::t_ed57cb60ccbfb0 66,69
+  s_2adb1a9ac6dc39::t_6e25db51622c0d 68
+  s_2adb1a9ac6dc39::t_669a9f7a2eac06 78
+src/saga2/contain.h
+  s_2adb1a9ac6dc39::t_c2976254c3ea83 50,284,302
+  s_2adb1a9ac6dc39::t_ae1de16c210ecb 310,315
+src/platform/probe.cpp
+  s_2adb1a9ac6dc39::t_01c37409794587 894
+README.md
+  s_2adb1a9ac6dc39::t_ae1de16c210ecb 74
+  s_2adb1a9ac6dc39::t_9f4332548a853d 39
+  s_2adb1a9ac6dc39::t_ed57cb60ccbfb0 41
+  s_2adb1a9ac6dc39::t_d4d9b455c20901 40
+docs/architecture.md
+  s_2adb1a9ac6dc39::t_79ca09d24a19f4 38
+  s_2adb1a9ac6dc39::t_7c4e300f452778 37,39
+  s_2adb1a9ac6dc39::t_ae1de16c210ecb 36
+CMakeLists.txt
+  s_2adb1a9ac6dc39::t_ae1de16c210ecb 2
+src/platform/widescreen_probe.cpp
+  s_2adb1a9ac6dc39::t_a24ff3b4b8b5d2 1426
+  s_2adb1a9ac6dc39::t_6da2dc9e0e3cba 1629-1630,1679-1684
+  s_2adb1a9ac6dc39::t_669a9f7a2eac06 1689,1696,1704,1709,1741,1744,1748
+  s_2adb1a9ac6dc39::t_4618a874af9c8a 1429-1430,1532-1535,1553-1554
+  s_2adb1a9ac6dc39::t_0c33b74895844f 1502-1503
+  s_2adb1a9ac6dc39::t_a4a47f50d50182 1610-1611,1641-1644,1661,1695,1702,1720-1721,1723,1728-1729,1732,1739,1742,1745,1763,1781-1783,1795,1807
+  s_2adb1a9ac6dc39::t_01e879e0502f91 1717,1722
+  s_2adb1a9ac6dc39::t_9f4332548a853d 1515-1528
+  s_2adb1a9ac6dc39::t_c36ed608237013 1784
+  s_2adb1a9ac6dc39::t_6252607ba4ca75 1747,1749-1750,1753
+  s_2adb1a9ac6dc39::t_c8ecbadf488969 1395-1422,1427-1428,1431-1457,1459,1469-1501,1504-1514,1529-1531,1536-1552,1555-1584,1800
+  s_2adb1a9ac6dc39::t_5d1dad41742356 1768
+  s_2adb1a9ac6dc39::t_59adc29d8d54e9 1751-1752,1754-1756
+  s_2adb1a9ac6dc39::t_fac73984393fb8 1801,1808-1809,1812
+  s_2adb1a9ac6dc39::t_f9de0340a56d99 1810-1811
+  s_2adb1a9ac6dc39::t_ed57cb60ccbfb0 1718
+  s_2adb1a9ac6dc39::t_d1e2fb74089cb1 1423-1425
+  s_2adb1a9ac6dc39::t_01c37409794587 1264,1585-1609,1612-1626,1631-1640,1645-1660,1662-1674,1686-1688,1690-1694,1697-1701,1703,1705-1708,1710-1716,1719,1724-1727,1730-1731,1733-1738,1740,1743,1746,1757-1762,1764-1767,1769-1780,1785-1794,1796-1799,1802-1806,1813-1819
+  s_2adb1a9ac6dc39::t_f6049b3b46e561 1627-1628
+  s_2adb1a9ac6dc39::t_f4d4cde52a82c2 1461-1465,1468
+  s_2adb1a9ac6dc39::t_82d5a057f4f442 1675-1678,1685
+  s_2adb1a9ac6dc39::t_3c00bd4e0a18a0 1458,1460,1466-1467
+  s_2adb1a9ac6dc39::t_8b3a028e04c077 1820
+research/container-owner-diamond-validation.json
+  s_2adb1a9ac6dc39::t_401fc49bf9e772 1-297
+src/platform/probe.h
+  s_2adb1a9ac6dc39::t_01c37409794587 8
+docs/windows-build.md
+  s_2adb1a9ac6dc39::t_ae1de16c210ecb 60,69,77
+  s_2adb1a9ac6dc39::t_846295c329ff27 132-133
+  s_2adb1a9ac6dc39::t_ea958c2c36bc99 130-131
+  s_2adb1a9ac6dc39::t_16d068a14cb54f 134-135
+  s_2adb1a9ac6dc39::t_f96622cb19d80f 136-137
+src/saga2/contain.cpp
+  s_2adb1a9ac6dc39::t_ae1de16c210ecb 1114,1116,1122-1124,1128-1132,1136-1138,1189-1196,1243,1256,1328-1333
+  s_2adb1a9ac6dc39::t_74ba575518f9a3 1162-1168,1180,1185-1186,1188
+  s_2adb1a9ac6dc39::t_5d1dad41742356 1244,1271
+  s_2adb1a9ac6dc39::t_01e879e0502f91 1172,1183-1184
+  s_2adb1a9ac6dc39::t_850c5b93bb3dcb 1117,1139
+  s_2adb1a9ac6dc39::t_2c2ad34c91654e 1276-1277
+  s_2adb1a9ac6dc39::t_01c37409794587 1170
+  s_2adb1a9ac6dc39::t_ed57cb60ccbfb0 1169,1173-1175,1177-1179
+  s_2adb1a9ac6dc39::t_62c1f2d9b7fad9 1187
+  s_2adb1a9ac6dc39::t_c2976254c3ea83 1115,1118-1121,1125-1127,1133-1135,1140-1161,1171,1176,1181-1182,1197-1199,1249,1254-1255,1664-1665
+  s_2adb1a9ac6dc39::t_a0975282b883b6 1257
+research/container-owner-plaque-validation.json
+  s_2adb1a9ac6dc39::t_510304e08d95cb 1-296
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e959312cac8d1083d7b6b16e5048a41afe5474d9",
+  "prompts": {},
+  "sessions": {
+    "s_2adb1a9ac6dc39": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a121a0-0d5a-7240-8278-e82003904d2a",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Celtian <dominik.hladik@seznam.cz>"
+    }
+  }
+}
