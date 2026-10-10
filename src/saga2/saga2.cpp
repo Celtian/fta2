@@ -150,6 +150,7 @@ Saga2Engine::~Saga2Engine() {
 }
 
 Native::Error Saga2Engine::run() {
+    _showGameTime = ConfMan.getBool("show_game_time");
     // Initialize graphics using following:
     Native::activeDisplayMode = ConfMan.getBool("widescreen")
                                     ? Native::DisplayMode::Widescreen : Native::DisplayMode::Classic;

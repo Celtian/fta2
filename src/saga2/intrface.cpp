@@ -847,6 +847,11 @@ void CStatusLine::clear() {
 	enable(false);
 	_window.update(_extent);
 	_lineDisplayed = false;
+	while (_queueTail != _queueHead) {
+		delete[] _lineQueue[_queueTail].text;
+		_lineQueue[_queueTail].text = nullptr;
+		_queueTail = bump(_queueTail);
+	}
 
 	_queueHead = _queueTail = 0;
 }

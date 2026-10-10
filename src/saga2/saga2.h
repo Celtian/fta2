@@ -184,6 +184,7 @@ class Saga2Engine {
     bool _autoAggression;
     bool _autoWeapon;
     bool _showNight;
+    bool _showGameTime = false;
     bool _speechText;
     bool _speechVoice;
 

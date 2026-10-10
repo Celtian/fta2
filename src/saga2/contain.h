@@ -88,6 +88,8 @@ public:
 	//  The total number of rows, and the scroll position of the control
 	int16           _totalRows,
 	                _scrollPosition;
+	float _wheelRemainder = 0;
+	void handleWheel(Point16 position, float delta);
 
 	//  Pointer to the object that this control is showing the
 	//  contents of.

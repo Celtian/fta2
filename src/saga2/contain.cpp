@@ -36,6 +36,7 @@
 #include "saga2/imagcach.h"
 #include "saga2/hresmgr.h"
 #include "saga2/fontlib.h"
+#include "saga2/inventory_ui.h"
 
 #include "saga2/pclass.r"
 
@@ -330,6 +331,36 @@ void ContainerView::drawClipped(
 	//  If there's no overlap between extent and clip, then return.
 	if (!_extent.overlap(r)) return;
 
+	if (_node.getType() == ContainerNode::kPhysicalType) {
+		// Use a clean stamp so quantity text styles cannot leak into placeholders.
+		byte pixels[kIconWidth * kIconHeight]{};
+		gPixelMap stamp;
+		stamp._size = Point16(kIconWidth, kIconHeight);
+		stamp._data = pixels;
+		gPort stampPort;
+		stampPort.setMap(&stamp);
+		stampPort.setFont(&ThinFix8Font);
+		stampPort.setColor(37);
+		stampPort.setOutlineColor(24);
+		stampPort.setStyle(kTextStyleOutline);
+		SAVE_GPORT_STATE(port);
+		port.setMode(kDrawModeMatte);
+		for (int row = _scrollPosition; row < MIN(_totalRows, _scrollPosition + _visibleRows); ++row) {
+			for (int column = 0; column < _visibleCols; ++column) {
+				if (getObject(TilePoint(row, column, 1))) continue;
+				memset(pixels, 0, sizeof(pixels));
+				char number[12];
+				Native::sprintf_s(number, "%d", InventoryUI::slotNumber(row, column, _visibleCols));
+				stampPort.moveTo((kIconWidth - TextWidth(&ThinFix8Font, number, -1, kTextStyleOutline)) / 2,
+				                 (kIconHeight - ThinFix8Font.height) / 2);
+				stampPort.drawText(number);
+				port.bltPixels(stamp, 0, 0, originX + column * (_iconSpacing.x + kIconWidth),
+				               originY + (row - _scrollPosition) * (_iconSpacing.y + kIconHeight),
+				               kIconWidth, kIconHeight);
+			}
+		}
+	}
+
 	//  Iterate through each item within the container.
 	while ((objID = iter.next(&item)) != Nothing) {
 		TilePoint   objLoc;
@@ -386,6 +417,16 @@ void ContainerView::drawClipped(
 			} else drawQuantity(port, item, objProto, x, y);
 		}
 	}
+}
+
+void ContainerView::handleWheel(Point16 position, float delta) {
+	if (_node.getType() != ContainerNode::kPhysicalType) return;
+	const int next = InventoryUI::scrollRows(_scrollPosition, _visibleRows, _totalRows,
+	                                       delta, _wheelRemainder);
+	if (next == _scrollPosition) return;
+	_scrollPosition = next;
+	_window.update(_extent);
+	updateMouseText(position);
 }
 
 // draws the mereged object multi-item selector
@@ -528,6 +569,7 @@ void ContainerView::deactivate() {
 
 void ContainerView::pointerMove(gPanelMessage &msg) {
 	if (msg._pointerLeave) {
+		_wheelRemainder = 0;
 		g_vm->_cnm->_lastPickedObjectID = Nothing;
 		g_vm->_cnm->_lastPickedObjectQuantity = -1;
 		g_vm->_mouseInfo->setText(nullptr);

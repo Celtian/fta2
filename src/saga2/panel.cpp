@@ -33,6 +33,7 @@
 #include "saga2/display.h"
 #include "saga2/gbevel.h"
 #include "saga2/document.h"
+#include "saga2/contain.h"
 
 namespace Saga2 {
 
@@ -754,7 +755,24 @@ void gToolBase::setActive(gPanel *ctl) {
 }
 
 void gToolBase::handleMouse(Native::Event &event, uint32 time) {
-	// Wheel input belongs only to the top document, without changing button/focus state.
+	// Resolve the frontmost window at the event position without changing focus.
+	ContainerView *wheelView = nullptr;
+	if (event.type == Native::EVENT_MOUSEWHEEL || event.type == Native::EVENT_MOUSEMOVE) {
+		const Point16 position(event.mouse.x, event.mouse.y);
+		bool covered = ModalWindow::_current != nullptr;
+		for (auto *window : _windowList) {
+			const Rect16 box = window->getExtent();
+			const Point16 local(event.mouse.x - box.x, event.mouse.y - box.y);
+			const bool under = !covered && box.ptInside(position);
+			if (auto *container = dynamic_cast<ContainerWindow *>(window)) {
+				auto &view = container->getView();
+				if (under && view._node.getType() == ContainerNode::kPhysicalType &&
+				    view.getExtent().ptInside(local)) wheelView = &view;
+				else view._wheelRemainder = 0;
+			}
+			if (box.ptInside(position)) covered = true;
+		}
+	}
 	if (event.type == Native::EVENT_MOUSEWHEEL) {
 		if (lockUINest == 0) {
 			if (CDocument *document = dynamic_cast<CDocument *>(topWindow())) {
@@ -762,6 +780,13 @@ void gToolBase::handleMouse(Native::Event &event, uint32 time) {
 					Rect16 box = document->getExtent();
 					document->handleWheel(Point16(event.mouse.x - box.x, event.mouse.y - box.y), event.wheelY);
 				}
+			}
+			if (wheelView && !_curMouseState.left && !_curMouseState.right &&
+			    !_leftDrag && !_rightDrag && !g_vm->_cnm->_objToGet) {
+				const auto box = wheelView->_window.getExtent();
+				const auto grid = wheelView->getExtent();
+				wheelView->handleWheel(Point16(event.mouse.x - box.x - grid.x,
+				                              event.mouse.y - box.y - grid.y), event.wheelY);
 			}
 		}
 		return;

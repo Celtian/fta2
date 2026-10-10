@@ -96,6 +96,8 @@ static int runGame(int argc, char** argv) {
         ConfMan.setBool("speech_mute", true);
         if (!ConfMan.hasKey("widescreen"))
             ConfMan.setBool("widescreen", false);
+        if (!ConfMan.hasKey("show_game_time"))
+            ConfMan.setBool("show_game_time", false);
         for (auto k : {"music_volume", "sfx_volume", "speech_volume"})
             if (!ConfMan.hasKey(k))
                 ConfMan.setInt(k, 192);

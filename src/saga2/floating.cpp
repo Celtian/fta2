@@ -704,6 +704,7 @@ void updateWindowSection(const Rect16 &r) {
 	//  Compute the offset of the local blits (used by drawClipped)
 
 	offset = Point16(clip.x, clip.y);
+	drawGameTime(tempPort, offset, clip);
 
 	//  For each window, both background and float, that overlaps
 	//  the clip, draw the window's imagery

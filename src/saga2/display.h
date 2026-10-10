@@ -50,6 +50,8 @@ void endGame();
 
 void niceScreenStartup();
 void initBackPanel();
+void drawGameTime(gPort &port, const Point16 &offset, const Rect16 &clip,
+                  bool captureBackground = false);
 
 // ------------------------------------------------------------------------
 // Display disable flags

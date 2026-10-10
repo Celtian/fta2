@@ -41,6 +41,14 @@ Mental inventory windows open at (478,114), 158 × 215 in classic mode and (692,
 
 Modal windows retain their artwork dimensions and vertical position. In wide mode they center horizontally on the whole screen when opened. Saves do not store the display preference; original saves and saves made in either mode load into the currently selected layout.
 
+## Physical inventory wheel input and game-time HUD
+
+Wheel events retain the platform's existing logical coordinate and flipped-direction translation. The UI dispatcher resolves the frontmost window under the event position, routes only its physical inventory grid and blocks underlying windows during a modal dialog. Existing vertical-document handling is retained. Button/drag state and the quantity selector block inventory wheel input without changing focus. Each view owns a fractional remainder, cleared on leaving or hiding; whole steps clamp to the original row limits. A changed position invalidates the grid and refreshes its stationary object-hover cache. Holding an item without a pressed button remains supported.
+
+Physical empty slots use absolute row-major numbering from 1, drawn in ThinFix8 with muted warm-gray palette color 37 and a thin dark outline in color 24 for readability against the textured backgrounds. A clean transparent stamp isolates number drawing from quantity-text styles. Existing object lookup determines occupancy, so invisible backing stacks and enchantments do not acquire new interaction behavior. Mental, death and fixed ready views retain their original rendering and input.
+
+`show_game_time` defaults to false. Both Options variants contain the original 18 × 17 checkbox at (214,206), without resizing the dialog. The requested configuration is saved normally, then applied by the existing deferred presentation update after modal/background and save/load processing. The engine reads the same preference at startup. The HUD formats the existing calendar as `Day N HH:MM`, with day = `_days + 1` and minute = `_frameInHour * 60 / kFramesPerHour`; it never advances the calendar. A transparent original-font stamp sits eight pixels inside the map's top-left corner, below floating windows and without hit regions. A fixed-size clean-world background captured during normal rendering restores the clock region on partial window redraws, avoiding old window pixels and digit remnants. Configuration remains outside game saves; inventory capacity, simulation, timing and RNG are unchanged.
+
 ## Optional sidebar layout
 
 `alternate_sidebar` defaults to false and lives only in the user configuration. The **New layout** checkbox uses the spare right-column row below Widescreen in both Options variants. After Options finishes its modal/background and save/load handling, the existing pending display update applies this preference even when the framebuffer dimensions stay the same. No SDL framebuffer replacement is needed for a sidebar-only change.

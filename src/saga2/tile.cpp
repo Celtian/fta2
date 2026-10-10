@@ -149,6 +149,7 @@ void TPLine(const TilePoint &start, const TilePoint &stop);
 #endif
 
 void drawFloatingWindows(gPort &, const Point16 &, const Rect16 &clip);
+void drawGameTime(gPort &, const Point16 &, const Rect16 &clip, bool captureBackground);
 
 /* ===================================================================== *
    Imports
@@ -4434,6 +4435,7 @@ void drawMainDisplay() {
 	Rect16 rect(kTileRectX, kTileRectY, Native::displayLayout().mapWidth, Native::displayLayout().mapHeight);
 
 	//  Render floating windows
+	drawGameTime(g_vm->_backPort, Point16(kTileRectX - fineScroll.x, kTileRectY), rect, true);
 	drawFloatingWindows(g_vm->_backPort,
 	                    Point16(kTileRectX - fineScroll.x, kTileRectY),
 	                    rect);

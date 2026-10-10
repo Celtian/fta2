@@ -47,6 +47,25 @@ def validate_mental_owners(output):
     return result
 
 
+def validate_inventory_ui(output):
+    """Check physical wheel/placeholder and game-clock integration evidence."""
+    result = json.loads((output / "inventory-ui.json").read_text())
+    assert result == {"status": "passed", "layouts": 4, "decorations": 4,
+                      "wheel_checks": 380, "placeholder_checks": 48,
+                      "redraw_checks": 80, "options_checks": 8, "clock_checks": 12,
+                      "save_load_checks": 4, "fixture_restored": True}
+    for wide, width in ((0, 640), (1, 854)):
+        for sidebar in range(2):
+            for kind, count in (("inventory", 4), ("clock", 3), ("clock-options", 2)):
+                for sample in range(count):
+                    name = f"{kind}-{wide}-{sidebar}-{sample}.ppm"
+                    image = (output / name).read_bytes()
+                    header = f"P6\n{width} 480\n255\n".encode()
+                    assert image.startswith(header)
+                    assert len(image) == len(header) + width * 480 * 3, name
+    return result
+
+
 def validate_container_owners(output):
     """Validate real container ownership, redraws and original-palette badge captures."""
     result = json.loads((output / "container-owner.json").read_text())
@@ -88,6 +107,7 @@ def validate_container_owners(output):
     assert yellow[0] > yellow[2] and yellow[1] > yellow[2]
     assert len(set(initials.values())) == 3
     validate_mental_owners(output)
+    validate_inventory_ui(output)
     return result
 
 
@@ -286,6 +306,8 @@ def main():
                            env=env, check=True, timeout=120, stdout=log, stderr=subprocess.STDOUT)
         startup = json.loads((output / "startup.json").read_text())
         assert startup == {"widescreen": bool(index), "width": 854 if index else 640}
+        assert json.loads((output / "clock-startup.json").read_text()) == {"show_game_time": bool(index)}
+        assert "show_game_time=true" in (saves / "config.ini").read_text()
         result = json.loads((output / "widescreen.json").read_text())
         assert result["status"] == "passed"
         assert result["checkbox_redraw_parity"] and result["checkbox_edge_clicks"]

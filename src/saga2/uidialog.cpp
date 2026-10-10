@@ -62,6 +62,7 @@ APPFUNC(cmdAutoAggression);
 APPFUNC(cmdAutoWeapon);
 APPFUNC(cmdNight);
 APPFUNC(cmdWidescreen);
+APPFUNC(cmdGameTime);
 APPFUNC(cmdSidebarLayout);
 APPFUNC(cmdSpeechText);
 
@@ -324,6 +325,7 @@ static const StaticRect optWidescreenRect = {
 };
 
 static const StaticRect optSidebarLayoutRect = {214, optSpeechRect.y, 18, 17};
+static const StaticRect optGameTimeRect = {214, 206, 18, 17};
 
 static const StaticRect optTopSliderRect = {
 	15,
@@ -986,6 +988,11 @@ int16 OptionsDialog(bool disableSaveResume) {
 	        checkImag, kNumBtnImages, 0, cmdSidebarLayout);
 	layout->select(ConfMan.getBool("alternate_sidebar"));
 	new CPlaqText(*win, Rect16(235, optSidebarLayoutRect.y, 95, 17), "New layout",
+	              &SmallFont, kTextPosLeft, pal, 0, nullptr);
+	auto clock = new GfxOwnerSelCompButton(*win, optGameTimeRect,
+	        checkImag, kNumBtnImages, 0, cmdGameTime);
+	clock->select(ConfMan.getBool("show_game_time"));
+	new CPlaqText(*win, Rect16(235, optGameTimeRect.y, 110, 17), "Show game time",
 	              &SmallFont, kTextPosLeft, pal, 0, nullptr);
 
 	new GfxSlider(*win, optTopSliderRect, optTopFaceRect, 0,
@@ -1919,6 +1926,14 @@ APPFUNC(cmdSidebarLayout) {
 	if (ev.panel && isUserAction(ev)) {
 		const bool enabled = !ConfMan.getBool("alternate_sidebar");
 		ConfMan.setBool("alternate_sidebar", enabled);
+		ev.panel->select(enabled);
+	}
+}
+
+APPFUNC(cmdGameTime) {
+	if (ev.panel && isUserAction(ev)) {
+		const bool enabled = !ConfMan.getBool("show_game_time");
+		ConfMan.setBool("show_game_time", enabled);
 		ev.panel->select(enabled);
 	}
 }

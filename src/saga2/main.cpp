@@ -253,7 +253,11 @@ void EventLoop(bool &running, bool) {
 void dumpGBASE(char *msg);
 
 void processEventLoop(bool updateScreen) {
-	if (Native::gameFrameHook) Native::gameFrameHook();
+	if (Native::gameFrameHook) {
+		// A probe may install a nested modal hook while its current callback is running.
+		auto hook = Native::gameFrameHook;
+		hook();
+	}
 
 	debugC(1, kDebugEventLoop, "EventLoop: starting event loop");
 

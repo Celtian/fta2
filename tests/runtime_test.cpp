@@ -10,6 +10,8 @@
 #include "saga2/idtypes.h"
 #include "saga2/saveload.h"
 #include "saga2/tcoords.h"
+#include "saga2/calendar.h"
+#include "saga2/inventory_ui.h"
 namespace Saga2 {
 extern gDisplayPort* globalPort;
 }
@@ -21,6 +23,37 @@ static void check(bool condition, const char* what) {
 static void mustFail(const std::function<void()>& fn) {
     bool failed = false;
     try {
+        {
+            using namespace Saga2::InventoryUI;
+            float remainder = 0;
+            check(scrollRows(0, 4, 8, -0.25f, remainder) == 0 && remainder == -0.25f,
+                  "Fractional inventory wheel input was lost");
+            check(scrollRows(0, 4, 8, -0.75f, remainder) == 1 && remainder == 0,
+                  "One wheel notch must scroll one row");
+            check(scrollRows(1, 4, 8, -100, remainder) == 4 && remainder == 0,
+                  "Inventory wheel exceeded its last row");
+            check(scrollRows(4, 4, 8, 1, remainder) == 3,
+                  "Wheel reversal retained discarded steps at the limit");
+            check(scrollRows(3, 4, 8, 100, remainder) == 0,
+                  "Inventory wheel exceeded its first row");
+            check(scrollRows(0, 4, 4, -1, remainder) == 0,
+                  "Non-overflowing inventory must not scroll");
+            check(scrollRows(2, 4, 8, std::numeric_limits<float>::infinity(), remainder) == 2 &&
+                      scrollRows(2, 4, 8, std::numeric_limits<float>::quiet_NaN(), remainder) == 2,
+                  "Invalid wheel input changed the position");
+            check(scrollRows(0, 4, 8, -std::numeric_limits<float>::max(), remainder) == 4,
+                  "Large wheel input overflowed");
+            check(slotNumber(0, 0, 4) == 1 && slotNumber(1, 0, 4) == 5 && slotNumber(7, 3, 4) == 32,
+                  "Slot numbering must continue across all rows");
+            constexpr unsigned frames = Saga2::CalendarTime::kFramesPerHour;
+            check(std::string(clockText(0, 5, 0, frames).data()) == "Day 1 05:00" &&
+                      std::string(clockText(0, 5, frames / 2, frames).data()) == "Day 1 05:30" &&
+                      std::string(clockText(0, 23, frames - 1, frames).data()) == "Day 1 23:59" &&
+                      std::string(clockText(1, 0, 0, frames).data()) == "Day 2 00:00" &&
+                      std::string(clockText(65535, 23, frames - 1, frames).data()) ==
+                          "Day 65536 23:59",
+                  "Game calendar clock formatting failed");
+        }
         fn();
     } catch (const std::runtime_error&) {
         failed = true;

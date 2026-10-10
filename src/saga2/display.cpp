@@ -34,6 +34,9 @@
 #include "saga2/tile.h"
 #include "saga2/tilemode.h"
 #include "saga2/modal.h"
+#include "saga2/calendar.h"
+#include "saga2/fontlib.h"
+#include "saga2/inventory_ui.h"
 
 namespace Saga2 {
 
@@ -64,9 +67,18 @@ bool applyPendingDisplayMode() {
 	    !g_vm->_tileDrawMap._data || !g_vm->_gameRunning)
 		return false;
 	displayModePending = false;
+	const bool clockChanged = g_vm->_showGameTime != ConfMan.getBool("show_game_time");
+	g_vm->_showGameTime = ConfMan.getBool("show_game_time");
 	const auto mode = ConfMan.getBool("widescreen") ? Native::DisplayMode::Widescreen
 	                                               : Native::DisplayMode::Classic;
-	if (mode == Native::activeDisplayMode) return applySidebarLayout();
+	if (mode == Native::activeDisplayMode) {
+		const bool sidebarChanged = applySidebarLayout();
+		if (clockChanged && !sidebarChanged) {
+			reDrawScreen();
+			g_platform->updateScreen();
+		}
+		return clockChanged || sidebarChanged;
+	}
 	const auto layout = Native::DisplayLayout::forMode(mode);
 	const int delta = layout.sidebarOffset - Native::displayLayout().sidebarOffset;
 	const int mapWidth = (layout.mapWidth + kTileWidth - 1) & ~kTileDXMask;
@@ -286,6 +298,54 @@ void disablePaletteChanges() {
 
 bool paletteChangesEnabled() {
 	return !paletteSuspendFlag;
+}
+
+void drawGameTime(gPort &port, const Point16 &offset, const Rect16 &clip, bool captureBackground) {
+	if (!g_vm->_showGameTime || !g_vm->_calendar) return;
+	const auto &layout = Native::displayLayout();
+	const Rect16 bounds(layout.mapX + 8, layout.mapY + 8, 112, 12);
+	if (!bounds.overlap(clip)) return;
+	// Floating windows share the map buffer. Keep the clean world behind this HUD
+	// region so partial window updates can restore it without old windows or digits.
+	static byte background[112 * 12];
+	static int backgroundWidth = 0;
+	if (captureBackground) {
+		for (int y = 0; y < 12; ++y)
+			memcpy(background + y * 112,
+			       port._map->_data + (bounds.y - offset.y + y) * port._map->_size.x + bounds.x - offset.x,
+			       112);
+		backgroundWidth = layout.screenWidth;
+	}
+	byte pixels[112 * 12]{};
+	gPixelMap stamp;
+	stamp._size = Point16(112, 12);
+	stamp._data = pixels;
+	gPort stampPort;
+	stampPort.setMap(&stamp);
+	stampPort.setFont(&ThinFix8Font);
+	stampPort.setColor(34);
+	stampPort.setOutlineColor(24);
+	stampPort.setStyle(kTextStyleOutline);
+	stampPort.moveTo(1, 1);
+	const auto &calendar = *g_vm->_calendar;
+	const auto text = InventoryUI::clockText(calendar._days, calendar._hour,
+	                                       calendar._frameInHour, CalendarTime::kFramesPerHour);
+	stampPort.drawText(text.data());
+	SAVE_GPORT_STATE(port);
+	port.setMode(kDrawModeMatte);
+	const auto savedClip = port._clip;
+	port.setClip(intersect(savedClip, Rect16(clip.x - offset.x, clip.y - offset.y,
+	                                       clip.width, clip.height)));
+	if (!captureBackground && backgroundWidth == layout.screenWidth) {
+		gPixelMap clean;
+		clean._size = stamp._size;
+		clean._data = background;
+		port.setMode(kDrawModeReplace);
+		port.bltPixels(clean, 0, 0, bounds.x - offset.x, bounds.y - offset.y, 112, 12);
+		port.setMode(kDrawModeMatte);
+	}
+	port.bltPixels(stamp, 0, 0, bounds.x - offset.x, bounds.y - offset.y, 112, 12);
+	port.setClip(savedClip);
 }
 
 

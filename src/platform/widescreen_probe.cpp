@@ -5,6 +5,7 @@
 #include "saga2/actor.h"
 #include "saga2/automap.h"
 #include "saga2/button.h"
+#include "saga2/calendar.h"
 #include "saga2/contain.h"
 #include "saga2/display.h"
 #include "saga2/document.h"
@@ -14,6 +15,7 @@
 #include "saga2/grequest.h"
 #include "saga2/gtextbox.h"
 #include "saga2/intrface.h"
+#include "saga2/inventory_ui.h"
 #include "saga2/localize.h"
 #include "saga2/modal.h"
 #include "saga2/player.h"
@@ -23,6 +25,7 @@
 
 namespace Saga2 {
 extern BackWindow* mainWindow;
+extern int lockUINest;
 extern gTextBox* textBox;
 extern WorldMapData* mapList;
 extern int16 worldCount;
@@ -1261,8 +1264,11 @@ struct WidescreenProbe {
         std::ofstream(output / "sidebar-startup.json")
             << "{\"alternate_sidebar\":"
             << (ConfMan.getBool("alternate_sidebar") ? "true" : "false") << "}\n";
+        std::ofstream(output / "clock-startup.json")
+            << "{\"show_game_time\":" << (vm->_showGameTime ? "true" : "false") << "}\n";
         verifyContainerOwners(output);
         ConfMan.setBool("alternate_sidebar", false);
+        ConfMan.setBool("show_game_time", false); // Compare the original unobstructed map below.
         Saga2::requestDisplayModeChange();
         Saga2::applyPendingDisplayMode();
         if (activeDisplayMode == DisplayMode::Widescreen) {
@@ -1355,6 +1361,7 @@ struct WidescreenProbe {
         node->markForDelete();
         Saga2::updateContainerWindows();
         sidebarLayout();
+        ConfMan.setBool("show_game_time", true);
         ConfMan.flushToDisk();
         g_platform->capture(output / "wide-final.ppm");
         walkingStart = Saga2::centerActorCoords();
@@ -1582,6 +1589,372 @@ static void verifyMentalOwners(const Path& output) {
         << ",\"captures\":72,\"fixture_restored\":true}\n";
 }
 
+static void verifyInventoryUI(const Path& output) {
+    using namespace Saga2;
+    auto vm = g_vm;
+    const bool originalClock = ConfMan.getBool("show_game_time");
+    const auto originalCalendar = *vm->_calendar;
+    const auto hook = gameFrameHook;
+    std::array<GameObject*, 3> bags{};
+    int found = 0;
+    for (int id = 0; id < objectCount && found < 3; ++id) {
+        auto object = GameObject::objectAddress(id);
+        if (dynamic_cast<PhysicalContainerProto*>(object->proto()) && !object->isOpen() &&
+            !vm->_cnm->find(id))
+            bags[found++] = object;
+    }
+    requireWide(found == 3, "inventory fixture needs three physical containers");
+    GameObject* item = nullptr;
+    for (int id = 0; id < objectCount && !item; ++id) {
+        auto object = GameObject::objectAddress(id);
+        if (object->proto() && dynamic_cast<InventoryProto*>(object->proto()) &&
+            !dynamic_cast<PhysicalContainerProto*>(object->proto()))
+            item = object;
+    }
+    requireWide(item != nullptr, "inventory fixture needs an inventory item");
+    const std::array<ObjectID, 3> bagIDs = {bags[0]->thisID(), bags[1]->thisID(), bags[2]->thisID()};
+    const ObjectID itemID = item->thisID();
+    for (auto bag : bags) {
+        while (auto child = bag->child())
+            child->move(Location(TilePoint(0, 0, 0), getCenterActorID()));
+        bag->move(Location(TilePoint(0, 0, 0), getCenterActorID()));
+    }
+    auto drain = [&] {
+        if (GameMode::_newmodeFlag)
+            GameMode::update();
+        Event event;
+        while (g_platform->pollEvent(event)) {
+            if (event.type == EVENT_KEYDOWN)
+                vm->_toolBase->handleKeyStroke(event);
+            else if (event.type == EVENT_MOUSEMOVE || event.type == EVENT_LBUTTONDOWN ||
+                     event.type == EVENT_LBUTTONUP || event.type == EVENT_MOUSEWHEEL)
+                vm->_toolBase->handleMouse(event, g_platform->getMillis());
+        }
+    };
+    auto wheel = [&](int x, int y, float delta) {
+        int count = 0;
+        auto windows = SDL_GetWindows(&count);
+        requireWide(count == 1, "wheel fixture needs one SDL window");
+        auto window = windows[0];
+        SDL_free(windows);
+        SDL_Event event{};
+        event.type = SDL_EVENT_MOUSE_WHEEL;
+        event.wheel.windowID = SDL_GetWindowID(window);
+        requireWide(SDL_RenderCoordinatesToWindow(SDL_GetRenderer(window), x + 0.5f, y + 0.5f,
+                                                  &event.wheel.mouse_x, &event.wheel.mouse_y),
+                    "cannot map inventory wheel");
+        event.wheel.y = delta;
+        requireWide(SDL_PushEvent(&event), "cannot inject inventory wheel");
+        drain();
+    };
+    int wheelChecks = 0, placeholders = 0, redraws = 0, options = 0, clocks = 0;
+    const auto appearance = bags[0]->proto()->appearanceType;
+    for (int wide = 0; wide < 2; ++wide) {
+        for (int sidebar = 0; sidebar < 2; ++sidebar) {
+            ConfMan.setBool("widescreen", bool(wide));
+            ConfMan.setBool("alternate_sidebar", bool(sidebar));
+            ConfMan.setBool("show_game_time", false);
+            requestDisplayModeChange();
+            applyPendingDisplayMode();
+            for (int decoration = 0; decoration < 4; ++decoration) {
+                bags[0]->proto()->appearanceType = decoration;
+                auto node =
+                    new ContainerNode(*vm->_cnm, bags[0]->thisID(), ContainerNode::kPhysicalType);
+                bags[0]->setFlags(kObjectOpen, kObjectOpen);
+                node->show();
+                auto window = node->getWindow();
+                window->setExtent(
+                    Rect16(30, 65, window->getExtent().width, window->getExtent().height));
+                reDrawScreen();
+                auto& view = window->getView();
+                const auto grid = view.getExtent();
+                const int gx = 30 + grid.x, gy = 65 + grid.y;
+                const int x = gx + view._iconOrigin.x + 16, y = gy + view._iconOrigin.y + 16;
+                auto checkPosition = [&](int expected) {
+                    requireWide(view._scrollPosition == expected,
+                                "inventory wheel position mismatch");
+                    ++wheelChecks;
+                };
+                auto parity = [&] {
+                    const auto before = region(gx, gy, 230, grid.height);
+                    reDrawScreen();
+                    requireWide(before == region(gx, gy, 230, grid.height),
+                                "inventory partial redraw differs from full redraw");
+                    ++redraws;
+                };
+                auto slot = [&](int row, int col) {
+                    return region(gx + view._iconOrigin.x + col * (32 + view._iconSpacing.x),
+                                  gy + view._iconOrigin.y + row * (32 + view._iconSpacing.y), 32,
+                                  32);
+                };
+                const auto first = slot(0, 0);
+                const auto number = region(x - 6, y - 6, 12, 12);
+                requireWide(std::count(number.begin(), number.end(), byte(37)) > 0 &&
+                                std::count(number.begin(), number.end(), byte(24)) > 0,
+                            "empty physical slot lacks a readable outlined number");
+                ++placeholders;
+                mouse(x, y, SDL_EVENT_MOUSE_MOTION);
+                drain();
+                wheel(x, y, -0.25f);
+                checkPosition(0);
+                wheel(x, y, -0.75f);
+                checkPosition(1);
+                parity();
+                const auto secondRow = slot(0, 0);
+                requireWide(first != secondRow, "slot number did not change after scrolling");
+                ++placeholders;
+                wheel(x, y, -100);
+                checkPosition(view._totalRows - view._visibleRows);
+                parity();
+                wheel(x, y, 1);
+                checkPosition(view._totalRows - view._visibleRows - 1);
+                wheel(x, y, 100);
+                checkPosition(0);
+                parity();
+                vm->_mouseInfo->copyObject(item);
+                wheel(x, y, -1);
+                checkPosition(1);
+                vm->_mouseInfo->replaceObject();
+                wheel(x, y, 100);
+                checkPosition(0);
+                wheel(x, y, -0.5f);
+                mouse(10, 10, SDL_EVENT_MOUSE_MOTION);
+                drain();
+                mouse(x, y, SDL_EVENT_MOUSE_MOTION);
+                drain();
+                wheel(x, y, -0.5f);
+                checkPosition(0);
+                wheel(x, y, -0.5f);
+                checkPosition(1);
+                wheel(gx - 1, gy, -1);
+                checkPosition(1);
+                wheel(gx, gy - 1, -1);
+                checkPosition(1);
+                wheel(gx, gy, -1);
+                checkPosition(2);
+                wheel(gx, gy + grid.height - 1, -1);
+                checkPosition(3);
+                wheel(gx, gy + grid.height, -1);
+                checkPosition(3);
+                const int right = 30 + window->getExtent().width - 1;
+                wheel(right, gy, -1);
+                checkPosition(4);
+                wheel(right + 1, gy, 1);
+                checkPosition(4);
+                wheel(gx + grid.width, gy, 1);
+                checkPosition(4);
+                wheel(x, y, 100);
+                checkPosition(0);
+                vm->_cnm->_objToGet = item;
+                wheel(x, y, -1);
+                checkPosition(0);
+                vm->_cnm->_objToGet = nullptr;
+                mouse(x, y, SDL_EVENT_MOUSE_BUTTON_DOWN);
+                drain();
+                wheel(x, y, -1);
+                checkPosition(0);
+                mouse(x, y, SDL_EVENT_MOUSE_BUTTON_UP);
+                drain();
+
+                // A second physical window owns the same screen pixels; only it scrolls.
+                auto cover =
+                    new ContainerNode(*vm->_cnm, bags[1]->thisID(), ContainerNode::kPhysicalType);
+                bags[1]->setFlags(kObjectOpen, kObjectOpen);
+                cover->show();
+                cover->getWindow()->setExtent(window->getExtent());
+                wheel(x, y, -1);
+                checkPosition(0);
+                requireWide(cover->getView()->_scrollPosition == 1,
+                            "covered inventory received wheel input");
+                ++wheelChecks;
+                delete cover;
+                bags[1]->setFlags(0, kObjectOpen);
+
+                // Occupied slots never retain their placeholder, even after a transfer back out.
+                item->move(Location(TilePoint(0, 0, 1), bags[0]->thisID()));
+                window->update(grid);
+                const auto occupied = slot(0, 0);
+                requireWide(occupied != first, "inventory item did not replace its placeholder");
+                parity();
+                mouse(10, 10, SDL_EVENT_MOUSE_MOTION);
+                drain();
+                mouse(x, y, SDL_EVENT_MOUSE_MOTION);
+                drain();
+                requireWide(vm->_cnm->_lastPickedObjectID == item->thisID() &&
+                                vm->_cnm->_mouseText[0] != 0,
+                            "inventory hover fixture did not select its item");
+                wheel(x, y, -1);
+                requireWide(vm->_cnm->_lastPickedObjectID == Nothing &&
+                                vm->_cnm->_mouseText[0] == 0,
+                            "stationary inventory hover retained scrolled-away object");
+                ++wheelChecks;
+                wheel(x, y, 100);
+                item->move(Location(TilePoint(0, 0, 0), getCenterActorID()));
+                window->update(grid);
+                requireWide(slot(0, 0) == first, "placeholder did not return after removing item");
+                ++placeholders;
+                parity();
+                g_platform->capture(
+                    output /
+                    String::format("inventory-%d-%d-%d.ppm", wide, sidebar, decoration).c_str());
+                key(SDLK_ESCAPE);
+                drain();
+                updateContainerWindows();
+                requireWide(
+                    !vm->_cnm->find(bags[0]->thisID()),
+                    String::format(
+                        "Escape inventory %d/%d/%d: top=%p expected=%p held=%p modal=%p lock=%d",
+                        wide, sidebar, decoration, vm->_toolBase->topWindow(), window,
+                        vm->_mouseInfo->getObject(), ModalWindow::_current, lockUINest)
+                        .c_str());
+            }
+            if (auto old = vm->_cnm->find(getCenterActorID(), ContainerNode::kMentalType))
+                delete old;
+            auto mental =
+                new ContainerNode(*vm->_cnm, getCenterActorID(), ContainerNode::kMentalType);
+            mental->_mindType = 0;
+            mental->show();
+            mental->getWindow()->setExtent(Rect16(30, 65, 158, 215));
+            wheel(80, 176, -3);
+            requireWide(mental->getView()->_scrollPosition == 0,
+                        "wheel changed a mental inventory");
+            ++wheelChecks;
+            delete mental;
+            for (int pregame = 0; pregame < 2; ++pregame) {
+                if (GameMode::_newmodeFlag)
+                    GameMode::update();
+                auto beneath =
+                    new ContainerNode(*vm->_cnm, bags[0]->thisID(), ContainerNode::kPhysicalType);
+                bags[0]->setFlags(kObjectOpen, kObjectOpen);
+                beneath->show();
+                beneath->getWindow()->setExtent(Rect16(0, 150, 268, 320));
+                int phase = 0;
+                const bool before = vm->_showGameTime;
+                gameFrameHook = [&] {
+                    auto dialog = ModalWindow::_current;
+                    if (!dialog)
+                        return;
+                    if (phase == 0) {
+                        wheel(40, 400, -1);
+                        requireWide(beneath->getView()->_scrollPosition == 0,
+                                    "modal dialog allowed inventory wheel through");
+                        ++wheelChecks;
+                        auto control = dialog->hitTest(Point16(231, 222));
+                        requireWide(control && control->getExtent() == Rect16(214, 206, 18, 17),
+                                    "missing game-time checkbox or incorrect hit bounds");
+                        click(dialog, 231, 222);
+                        ++phase;
+                    } else if (phase == 1 && ConfMan.getBool("show_game_time") != before) {
+                        requireWide(vm->_showGameTime == before,
+                                    "clock applied before Options closed");
+                        g_platform->capture(output / String::format("clock-options-%d-%d-%d.ppm",
+                                                                    wide, sidebar, pregame)
+                                                         .c_str());
+                        if (pregame)
+                            static_cast<requestInfo*>(dialog->_userData)->running = false;
+                        else
+                            key(SDLK_ESCAPE);
+                        ++phase;
+                    }
+                };
+                OptionsDialog(pregame);
+                gameFrameHook = hook;
+                if (GameMode::_newmodeFlag)
+                    GameMode::update();
+                requireWide(phase == 2 && vm->_showGameTime == before,
+                            "clock checkbox timing failed");
+                applyPendingDisplayMode();
+                requireWide(vm->_showGameTime != before,
+                            "clock preference not applied after Options");
+                delete beneath;
+                bags[0]->setFlags(0, kObjectOpen);
+                ++options;
+            }
+            ConfMan.setBool("show_game_time", true);
+            requestDisplayModeChange();
+            applyPendingDisplayMode();
+            for (int sample = 0; sample < 3; ++sample) {
+                vm->_calendar->_days = sample == 2 ? 1 : 0;
+                vm->_calendar->_hour = sample == 0 ? 5 : (sample == 1 ? 23 : 0);
+                vm->_calendar->_frameInHour =
+                    sample == 0 ? CalendarTime::kFramesPerHour / 2
+                                : (sample == 1 ? CalendarTime::kFramesPerHour - 1 : 0);
+                drawMainDisplay();
+                const auto clock = region(28, 28, 112, 12);
+                requireWide(std::count(clock.begin(), clock.end(), byte(34)) > 0,
+                            "game clock not visible");
+                updateWindowSection(Rect16(28, 28, 112, 12));
+                requireWide(clock == region(28, 28, 112, 12), "partial redraw damaged game clock");
+                reDrawScreen();
+                requireWide(clock == region(28, 28, 112, 12),
+                            "normal clock differs from full redraw");
+                auto cover =
+                    new ContainerNode(*vm->_cnm, bags[2]->thisID(), ContainerNode::kPhysicalType);
+                bags[2]->setFlags(kObjectOpen, kObjectOpen);
+                cover->show();
+                cover->getWindow()->setExtent(Rect16(20, 20, 268, 320));
+                drawMainDisplay();
+                delete cover;
+                bags[2]->setFlags(0, kObjectOpen);
+                requireWide(clock == region(28, 28, 112, 12),
+                            "closing window did not restore clock background");
+                // Capture the next normal world frame after the immediate clock-region check.
+                drawMainDisplay();
+                vm->_calendar->_calendarPaused = true;
+                const auto frame = vm->_calendar->frameInDay();
+                updateCalendar();
+                requireWide(vm->_calendar->frameInDay() == frame,
+                            "clock advanced a paused calendar");
+                if (sample == 1) {
+                    vm->_calendar->_calendarPaused = false;
+                    updateCalendar();
+                    requireWide(vm->_calendar->_days == 1 && vm->_calendar->_hour == 0 &&
+                                    vm->_calendar->_frameInHour == 0,
+                                "clock did not follow calendar midnight rollover");
+                }
+                g_platform->capture(
+                    output / String::format("clock-%d-%d-%d.ppm", wide, sidebar, sample).c_str());
+                ++clocks;
+            }
+            auto saved =
+                new ContainerNode(*vm->_cnm, bags[0]->thisID(), ContainerNode::kPhysicalType);
+            bags[0]->setFlags(kObjectOpen, kObjectOpen);
+            saved->show();
+            saved->getWindow()->setExtent(Rect16(30, 65, 268, 320));
+            wheel(80, 176, -2);
+            requireWide(saved->getView()->_scrollPosition == 2, "save fixture did not scroll");
+            requireWide(vm->saveGameState(14, "Inventory UI checkpoint", false) == kNoError,
+                        "cannot save clock fixture");
+            vm->_calendar->_hour = 12;
+            requireWide(vm->loadGameState(14) == kNoError && vm->_calendar->_hour == 0,
+                        "loading did not restore game clock");
+            // Loading rebuilds the object pool; retain IDs across that ownership boundary.
+            for (size_t i = 0; i < bags.size(); ++i) bags[i] = GameObject::objectAddress(bagIDs[i]);
+            item = GameObject::objectAddress(itemID);
+            updateContainerWindows();
+            saved = vm->_cnm->find(bags[0]->thisID(), ContainerNode::kPhysicalType);
+            requireWide(saved && saved->getWindow() && saved->getView()->_scrollPosition == 0,
+                        String::format("loaded physical window %d/%d: node=%p window=%p row=%d owner=%d actor=%u parent=%u",
+                                       wide, sidebar, saved, saved ? saved->getWindow() : nullptr,
+                                       saved && saved->getView() ? saved->getView()->_scrollPosition : -1,
+                                       saved ? saved->getOwnerIndex() : -1,
+                                       getCenterActorID(), bags[0]->IDParent()).c_str());
+            delete saved;
+            bags[0]->setFlags(0, kObjectOpen);
+            *vm->_calendar = originalCalendar;
+        }
+    }
+    bags[0]->proto()->appearanceType = appearance;
+    ConfMan.setBool("show_game_time", originalClock);
+    requestDisplayModeChange();
+    applyPendingDisplayMode();
+    std::ofstream(output / "inventory-ui.json")
+        << "{\"status\":\"passed\",\"layouts\":4,\"decorations\":4,\"wheel_checks\":" << wheelChecks
+        << ",\"placeholder_checks\":" << placeholders << ",\"redraw_checks\":" << redraws
+        << ",\"options_checks\":" << options << ",\"clock_checks\":" << clocks
+        << ",\"save_load_checks\":4,\"fixture_restored\":true}\n";
+}
+
 void verifyContainerOwners(const Path& output) {
     using namespace Saga2;
     auto vm = g_vm;
@@ -1798,6 +2171,7 @@ void verifyContainerOwners(const Path& output) {
     }
     proto->appearanceType = appearance;
     verifyMentalOwners(output);
+    verifyInventoryUI(output);
     requireWide(vm->loadGameState(9) == kNoError, "cannot restore container owner fixture");
     ConfMan.setBool("widescreen", originalWide);
     ConfMan.setBool("alternate_sidebar", originalSidebar);

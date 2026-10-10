@@ -48,6 +48,10 @@ Load shows a harmless message when no player saves exist. Choose Save in Options
 
 Mouse-wheel up/down turns pages in scrolls and parchment while the pointer is over the document, excluding its close button. One notch turns one page; fractional wheel or trackpad input accumulates within the open document.
 
+Mouse-wheel up/down also scrolls physical containers such as chests, sacks and purses while the pointer is over their inventory grid. One notch moves one row within the original capacity. Fractional input accumulates separately per window and resets when leaving the grid. Covered windows and containers behind modal dialogs do not receive the wheel. Scrolling is ignored during button presses, dragging and quantity selection; holding an item without pressing a button still allows scrolling. Empty physical slots show small, muted warm-gray absolute slot numbers with a thin dark outline in the original font, starting at 1. Mental inventories, death inventories and fixed sidebar slots retain their existing behavior.
+
+Enable **Show game time** in Options to display **Day 1 05:30** at the upper-left of the main map. It uses the original saved game calendar, a 24-hour clock and a day count starting at 1. Pausing stops the clock, and loading restores the saved time. The display is passive, sits beneath open windows and works with either aspect ratio or sidebar layout. This option defaults to off, applies after Options closes and is remembered in `config.ini`.
+
 ## Game data
 
 The supported English DOS profile requires `FTA2.EXE`, `FTA.HRS`, `FTADATA.HRS`, `FTAIMAGE.HRS`, `FTASOUND.HRS`, `SCRIPTS.HRS`, and the instrument banks `DRIVERS/SAMPLE.AD` and `DRIVERS/SAMPLE.OPL`. The executable, main archives and banks are checked against SHA-256 hashes. Unknown executables are rejected; Windows executable offsets are never applied to the DOS executable.
@@ -71,7 +75,7 @@ cpack --config build/CPackConfig.cmake -C Release
 To create the complete Windows ZIP locally after packaging the Windows engine:
 
 ```sh
-python3 tools/package_complete.py --engine-package dist/fta2-native-0.1.27-Windows-x86_64.zip --data-dir original-game --output dist/fta2-native-0.1.27-Windows-x86_64-complete.zip
+python3 tools/package_complete.py --engine-package dist/fta2-native-0.1.30-Windows-x86_64.zip --data-dir original-game --output dist/fta2-native-0.1.30-Windows-x86_64-complete.zip
 ```
 
 The tool checks all eight data files against their known SHA-256 hashes, excludes original saves and unnecessary DOS files, and records a package manifest. It refuses unknown data, output inside the original installation, and overwriting an existing output ZIP.
