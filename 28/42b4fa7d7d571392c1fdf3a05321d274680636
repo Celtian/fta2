@@ -1,0 +1,98 @@
+research/dos-color-map-validation.json
+  s_2adb1a9ac6dc39::t_7f5141c12ab558 1-158
+README.md
+  s_2adb1a9ac6dc39::t_40782c641aa575 47,57
+  s_2adb1a9ac6dc39::t_fefd68925757a2 58
+docs/architecture.md
+  s_2adb1a9ac6dc39::t_e5c748edcb3f7f 67
+  s_2adb1a9ac6dc39::t_40782c641aa575 68,105-107
+src/platform/dos-profile.inc
+  s_2adb1a9ac6dc39::t_3e37dbeb9f7127 13
+  s_2adb1a9ac6dc39::t_50e44d522a7d40 3
+  s_2adb1a9ac6dc39::t_fa1064d92d6282 14
+research/ci-platform-validation.json
+  s_2adb1a9ac6dc39::t_73b26e1415bdeb 1-52
+tools/integration_widescreen.py
+  s_2adb1a9ac6dc39::t_3c52444bb5c556 104-106,108-119,184
+  s_2adb1a9ac6dc39::t_6c938fedd0f533 107
+  s_2adb1a9ac6dc39::t_df17e496245311 129
+tests/data_test.py
+  s_2adb1a9ac6dc39::t_fa1064d92d6282 7,41-55
+  s_2adb1a9ac6dc39::t_1e984bce5e1601 56
+src/platform/probe.cpp
+  s_2adb1a9ac6dc39::t_19bd02595609c0 190,194-199
+tests/diagnostics_test.cpp
+  s_2adb1a9ac6dc39::t_0f39584ede65f5 12-13,15,17-26,36-37,62
+  s_2adb1a9ac6dc39::t_85a35ad016157a 11,14,16,27-28,35,38-40,60-61,63-64
+tests/diagnostics_test.py
+  s_2adb1a9ac6dc39::t_85a35ad016157a 63-64,66,77,79
+  s_2adb1a9ac6dc39::t_0f39584ede65f5 65,76,78,80-81
+src/saga2/uidialog.cpp
+  s_2adb1a9ac6dc39::t_2e7bca8254662f 836,849
+  s_2adb1a9ac6dc39::t_19bd02595609c0 379,820,826,838-839,841-842,844,847
+src/saga2/actor.cpp
+  s_2adb1a9ac6dc39::t_367b4cf25b3126 50-53,245-312,383-391
+research/carried-storage-validation.json
+  s_2adb1a9ac6dc39::t_a23eeaefa015ed 1-93
+docs/windows-build.md
+  s_2adb1a9ac6dc39::t_40782c641aa575 180-181
+  s_2adb1a9ac6dc39::t_b82a2622fabf6a 175-177
+  s_2adb1a9ac6dc39::t_3e37dbeb9f7127 178-179
+tools/fta2_data.py
+  s_2adb1a9ac6dc39::t_fa1064d92d6282 148
+  s_2adb1a9ac6dc39::t_3e37dbeb9f7127 145
+CMakeLists.txt
+  s_2adb1a9ac6dc39::t_19bd02595609c0 2
+src/platform/widescreen_probe.cpp
+  s_2adb1a9ac6dc39::t_9c3c507de6980d 2529-2530,2539-2547,2557-2563,2567,2570
+  s_2adb1a9ac6dc39::t_6c938fedd0f533 3232-3241,3477
+  s_2adb1a9ac6dc39::t_3807d4a624c4da 3427-3428
+  s_2adb1a9ac6dc39::t_fb00e1f529d333 2531,2564-2566,2568-2569
+  s_2adb1a9ac6dc39::t_4a44c4a908376c 3070-3086,3088-3091,3093-3109,3111-3136,3138-3150,3153-3154,3157-3158,3161-3182,3187-3215,3222-3231,3242-3263,3276-3280,3289-3297,3299-3301,3306-3307,3316-3322,3331-3335,3338,3341-3348,3351-3386,3389-3393,3396-3398,3400,3405-3410,3413-3415,3421-3426,3442,3446-3448,3450,3478-3480,3482-3483,3488-3489,3492-3504,3506-3508,3729
+  s_2adb1a9ac6dc39::t_1c07898277b3e6 9,3087,3137,3151-3152,3155-3156,3159-3160,3183-3186,3216-3221,3267-3268,3272-3275,3285-3286,3336-3337,3339-3340,3349-3350,3387-3388,3394-3395,3399,3401-3404,3411-3412,3416-3417,3433-3439,3485-3487,3490-3491
+  s_2adb1a9ac6dc39::t_e5c748edcb3f7f 2548-2553
+  s_2adb1a9ac6dc39::t_6e14b8d0bded1d 3110,3264-3266,3269-3271,3281-3284,3287-3288,3298,3302-3305,3308-3315,3418-3420
+  s_2adb1a9ac6dc39::t_85a35ad016157a 3024
+  s_2adb1a9ac6dc39::t_aeb1777dd61c95 25,45-48
+  s_2adb1a9ac6dc39::t_2628d447b44e5e 2554-2556
+  s_2adb1a9ac6dc39::t_37b1b0162c56cf 3092
+  s_2adb1a9ac6dc39::t_145e0fa7d79b92 3323-3325,3328-3330
+  s_2adb1a9ac6dc39::t_198c1399978a43 3429-3432
+  s_2adb1a9ac6dc39::t_83adb28a706ecf 3440-3441
+  s_2adb1a9ac6dc39::t_faea4d61ad8b44 3443-3445
+  s_2adb1a9ac6dc39::t_b4f9bf026f7440 3449
+  s_2adb1a9ac6dc39::t_bff21b12c73241 3451-3453,3474-3476
+  s_2adb1a9ac6dc39::t_6fad5591c47b59 3481
+  s_2adb1a9ac6dc39::t_2e434ac72b370f 3484
+  s_2adb1a9ac6dc39::t_bf196df9f61a96 3505
+  s_2adb1a9ac6dc39::t_f644e25ee796f2 3326-3327,3454-3473
+docs/validation.md
+  s_2adb1a9ac6dc39::t_a23eeaefa015ed 303-315
+  s_2adb1a9ac6dc39::t_baebd525c3c888 337
+  s_2adb1a9ac6dc39::t_7f5141c12ab558 316-328
+  s_2adb1a9ac6dc39::t_73b26e1415bdeb 338-348
+  s_2adb1a9ac6dc39::t_58e6e907a49bd4 329-336
+docs/dos-resources.md
+  s_2adb1a9ac6dc39::t_2d26663f54bb75 30-32,37
+src/platform/diagnostics.cpp
+  s_2adb1a9ac6dc39::t_c60d3726a492f1 183-189
+  s_2adb1a9ac6dc39::t_f680d0c222449c 190
+research/dialog-layout-validation.json
+  s_2adb1a9ac6dc39::t_0ab20b6eb88a55 1-78
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2842b4fa7d7d571392c1fdf3a05321d274680636",
+  "prompts": {},
+  "sessions": {
+    "s_2adb1a9ac6dc39": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a121a0-0d5a-7240-8278-e82003904d2a",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Celtian <dominik.hladik@seznam.cz>"
+    }
+  }
+}
