@@ -1,0 +1,77 @@
+{
+  "version": "0.1.37",
+  "status": "development-alpha",
+  "behavior": {
+    "controls": "original two-click pickup/drop",
+    "scope": "same physical container only",
+    "merge_stack_and_nested_insertion_priority": true,
+    "whole_destination_stack_moves_together": true,
+    "partial_source_and_occupied_origin_not_swapped": true,
+    "save_format_unchanged": true,
+    "cross_container_use_mental_death_and_ready_dispatch_preserved": true
+  },
+  "fixture_per_process": {
+    "status": "passed",
+    "cases": 12,
+    "swaps": 60,
+    "priority_checks": 72,
+    "guard_checks": 60,
+    "redraw_checks": 60,
+    "save_load_checks": 12,
+    "fixture_restored": true
+  },
+  "fixture_isolation": "Temporary objects use original prototypes. Carried containers check pure swaps; ground containers avoid the deliberately heavy fixture carrier when testing original insertion actions. The appearance field is restored. Checkpoints restore all objects, actors, queued actions and RNG. Original input is immutable.",
+  "checks": {
+    "linux_release_build": true,
+    "windows_zig_release_build": true,
+    "linux_ctest": 7,
+    "windows_native_ctest": 7,
+    "asan_lsan_ctest": 7,
+    "linux_classic_processes": 2,
+    "linux_widescreen_processes": 2,
+    "windows_classic_processes": 1,
+    "windows_widescreen_processes": 2,
+    "windows_native_video_runtime": true,
+    "windows_voice_processes": 4,
+    "windows_death_regression_processes": 8,
+    "asan_lsan_classic_processes": 2,
+    "asan_lsan_widescreen_processes": 2,
+    "linux_windows_widescreen_images_equal": [
+      393,
+      393
+    ],
+    "reference_rebuilt_and_rerun": true,
+    "reference_screenshots": 2,
+    "reference_checkpoints": 4,
+    "original_chunks_per_save": 30,
+    "original_files_unchanged": 54
+  },
+  "delivery": {
+    "archive": "dist/fta2-native-0.1.37-Windows-x86_64.zip",
+    "zip_downloads_for_version": 1,
+    "data_files": 8,
+    "voice_archives": 1,
+    "validated_executable_sha256": "2cfd7d5e5594f25cb8300f9fbe1a0ec8f86140b79bbd206c81b0433861bd4cdb"
+  },
+  "limitations": [
+    "Injected UI events and dummy gameplay backends; native Windows video is checked separately.",
+    "Native MSVC and macOS builds, manual hardware input and a full playthrough have not been validated for this release."
+  ],
+  "evidence": [
+    ".cache/container-037-ctest.log",
+    ".cache/container-037-windows-ctest.log",
+    ".cache/container-037-asan-ctest.log",
+    ".cache/container-037-classic.log",
+    ".cache/container-037-wide.log",
+    ".cache/container-037-asan-classic.log",
+    ".cache/container-037-asan-wide.log",
+    ".cache/container-037-windows-final-validation/validation.json",
+    ".cache/container-037-parity.json",
+    ".cache/container-037-parity-restart.json",
+    ".cache/container-037-windows-parity.json",
+    ".cache/container-037-asan-parity.json",
+    ".cache/container-037-asan-parity-restart.json",
+    ".cache/container-037-data-verify-final.json",
+    ".cache/container-037-package-audit.json"
+  ]
+}

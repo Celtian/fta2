@@ -193,6 +193,7 @@ Native::String Saga2Engine::getSavegameFile(int slot) {
     return Native::String::format("fta2.%03d", slot);
 }
 Native::Error Saga2Engine::saveGameState(int slot, const Native::String& desc, bool) {
+    if (_toolBase) _toolBase->cancelSpellDrag();
     Native::diagnosticMessage("SAVE", "Begin slot=%d", slot);
     pauseTimer();
     try {
@@ -217,6 +218,7 @@ Native::Error Saga2Engine::saveGameState(int slot, const Native::String& desc, b
 }
 
 Native::Error Saga2Engine::loadGameState(int slot) {
+    if (_toolBase) _toolBase->cancelSpellDrag();
     Native::diagnosticMessage("LOAD", "Begin slot=%d", slot);
     std::unique_ptr<Native::InSaveFile> input(
         getSaveFileManager()->openForLoading(getSavegameFile(slot)));

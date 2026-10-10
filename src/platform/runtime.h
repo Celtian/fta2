@@ -123,7 +123,8 @@ class String : public std::string {
 using U32String = std::u32string;
 class Path : public std::filesystem::path {
   public:
-    using std::filesystem::path::path;
+    // Inherited narrow-string constructors can bypass UTF-8 conversion on MSVC.
+    Path() = default;
     Path(const std::string& s) : std::filesystem::path(std::u8string(s.begin(), s.end())) {}
     Path(const char* s) : Path(std::string(s)) {}
     Path(const String& s) : Path(std::string(s)) {}
@@ -422,7 +423,8 @@ enum EventType {
     EVENT_RBUTTONUP,
     EVENT_KEYDOWN,
     EVENT_QUIT,
-    EVENT_MOUSEWHEEL
+    EVENT_MOUSEWHEEL,
+    EVENT_FOCUSLOST
 };
 enum {
     KBD_SHIFT = 1,

@@ -38,6 +38,7 @@
 #include "saga2/fontlib.h"
 #include "saga2/inventory_ui.h"
 #include "saga2/gpointer.h"
+#include "saga2/modal.h"
 
 #include "saga2/pclass.r"
 
@@ -230,6 +231,7 @@ ContainerView::ContainerView(
 
 //  Destructor
 ContainerView::~ContainerView() {
+	cancelSpellDrag();
 }
 
 //  returns true if the object is visible for this type of
@@ -489,6 +491,7 @@ void ContainerView::drawQuantity(
 }
 
 void ContainerView::setContainer(GameObject *containerObj) {
+	if (_containerObject != containerObj) cancelSpellDrag();
 	const bool changedCategory = _node.getType() == ContainerNode::kMentalType &&
 	                             _containerObject != containerObj;
 	_containerObject = containerObj;
@@ -585,6 +588,59 @@ bool ContainerView::activate(gEventType why) {
 }
 
 void ContainerView::deactivate() {
+	cancelSpellDrag();
+	gPanel::deactivate();
+}
+
+bool ContainerView::validSpellDrag() const {
+	if (_spellDragObject == Nothing || _node.getType() != ContainerNode::kMentalType ||
+	    _node._mindType != 1 || !_containerObject ||
+	    _containerObject->thisID() != _spellDragContainer) return false;
+	const auto object = GameObject::objectAddress(_spellDragObject);
+	return object->IDParent() == _spellDragContainer &&
+	       _containerObject->possessor() == _node.getObject() &&
+	       (object->containmentSet() & (ProtoObj::kIsSpell | ProtoObj::kIsSkill)) &&
+	       !object->isTrueSkill() &&
+	       object->getLocation() == _spellDragSlot &&
+	       g_vm->_mouseInfo->getObjectId() == _spellDragObject;
+}
+
+void ContainerView::cancelSpellDrag() {
+	const auto object = _spellDragObject;
+	_spellDragObject = _spellDragContainer = Nothing;
+	_spellDragging = false;
+	if (object != Nothing) _wheelRemainder = 0;
+	if (object != Nothing && g_vm->_mouseInfo &&
+	    g_vm->_mouseInfo->getObjectId() == object) {
+		g_vm->_mouseInfo->replaceObject();
+		g_vm->_cnm->_lastPickedObjectID = Nothing;
+		g_vm->_cnm->_lastPickedObjectQuantity = -1;
+		g_vm->_cnm->_mouseText[0] = 0;
+		g_vm->_mouseInfo->setText(nullptr);
+	}
+}
+
+bool ContainerView::gridDropInside(Point16 position) const {
+	if (ModalWindow::_current || position.x < 0 || position.y < 0 ||
+	    position.x >= _extent.width || position.y >= _extent.height) return false;
+	const auto box = _window.getExtent();
+	const auto absolute = position + Point16(box.x + _extent.x, box.y + _extent.y);
+	gWindow *front = nullptr;
+	for (auto it = g_vm->_toolBase->bottomWindowIterator();
+	     it != g_vm->_toolBase->topWindowIterator(); ++it)
+		if ((*it)->getExtent().ptInside(absolute)) front = *it;
+	return front == &_window;
+}
+
+void ContainerView::pointerDrag(gPanelMessage &msg) {
+	if (_spellDragObject == Nothing || !msg._leftButton) return;
+	if (!validSpellDrag() || msg._rightButton || ModalWindow::_current) {
+		cancelSpellDrag();
+		return;
+	}
+	if (std::abs(int(msg._pickPos.x) - _spellDragStart.x) >= 4 ||
+	    std::abs(int(msg._pickPos.y) - _spellDragStart.y) >= 4)
+		_spellDragging = true;
 }
 
 void ContainerView::pointerMove(gPanelMessage &msg) {
@@ -633,6 +689,11 @@ bool ContainerView::pointerHit(gPanelMessage &msg) {
 	mouseSet    = mouseObject ? mouseObject->containmentSet() : 0;
 
 	if (!g_vm->_mouseInfo->getDoable()) return false;
+	const bool reorderCandidate = _node.getType() == ContainerNode::kMentalType &&
+	                              _node._mindType == 1 && slotObject && !mouseObject &&
+	                              msg._leftButton && !msg._rightButton && !msg._doubleClick &&
+	                              (slotObject->containmentSet() & (ProtoObj::kIsSpell | ProtoObj::kIsSkill)) &&
+	                              !slotObject->isTrueSkill();
 
 	if (msg._doubleClick && !g_vm->_cnm->_alreadyDone) {
 		dblClick(mouseObject, slotObject, msg);
@@ -671,18 +732,57 @@ bool ContainerView::pointerHit(gPanelMessage &msg) {
 		} else {
 			// default to doubleClick active
 			g_vm->_cnm->_alreadyDone = false;
-			clickOn(msg, mouseObject, slotObject);
+			// Preview a reorder without running the original take scripts. A plain
+			// click runs that action on release once it is known not to be a drag.
+			if (reorderCandidate) g_vm->_mouseInfo->copyObject(slotObject);
+			else clickOn(msg, mouseObject, slotObject);
 		}
 	}
 
 	// total the mass and bulk of all the objects in this container
 	totalObjects();
 	_window.update(_extent);
+	if (reorderCandidate && g_vm->_mouseInfo->getObject() == slotObject) {
+		_spellDragObject = slotObject->thisID();
+		_spellDragContainer = _containerObject->thisID();
+		_spellDragSlot = slotObject->getLocation();
+		_spellDragStart = msg._pickPos;
+	}
 
 	return activate(kEventMouseDown);
 }
 
-void ContainerView::pointerRelease(gPanelMessage &) {
+void ContainerView::pointerRelease(gPanelMessage &msg) {
+	if (_spellDragging) {
+		if (validSpellDrag() && gridDropInside(msg._pickPos)) {
+			const auto target = pickObjectSlot(msg._pickPos);
+			auto source = GameObject::objectAddress(_spellDragObject);
+			auto other = getObject(target);
+			// Only slot coordinates change: no aliases, insertion scripts or spell actions.
+			if (other != source) {
+				if (other) {
+					auto location = other->getLocation();
+					location.u = _spellDragSlot.u;
+					location.v = _spellDragSlot.v;
+					other->setLocation(location);
+				}
+				auto location = source->getLocation();
+				location.u = target.u;
+				location.v = target.v;
+				source->setLocation(location);
+			}
+		}
+		cancelSpellDrag();
+		_wheelRemainder = 0;
+		g_vm->_cnm->_alreadyDone = true;
+		_window.update(_extent);
+		if (gridDropInside(msg._pickPos)) updateMouseText(msg._pickPos);
+	} else {
+		// A press/release without a drag retains the original click-to-use cursor.
+		auto object = validSpellDrag() ? GameObject::objectAddress(_spellDragObject) : nullptr;
+		cancelSpellDrag();
+		if (object) clickOn(msg, nullptr, object);
+	}
 	// see if in multi-item get mode
 	if (g_vm->_cnm->_objToGet) {
 		g_vm->_cnm->_objToGet->take(getCenterActorID(), g_vm->_cnm->_numPicked);
@@ -779,6 +879,54 @@ void ContainerView::dblClickOn(
 	}
 }
 
+// Reordering is local to one physical container; normal drop actions retain priority.
+bool ContainerView::trySwapPhysical(Point16 position, GameObject *source, GameObject *target, int16 count) {
+	if (_node.getType() != ContainerNode::kPhysicalType ||
+	    !_node.isAccessable(getCenterActorID()) || !gridDropInside(position) ||
+	    source->parent() != _containerObject) return false;
+	const auto from = source->getLocation();
+	const auto to = pickObjectSlot(position);
+	if (from.u < 0 || from.u >= _totalRows || from.v < 0 || from.v >= _visibleCols)
+		return false;
+	if (from.u == to.u && from.v == to.v) return true;
+	if (!target || target == source || target->parent() != _containerObject ||
+	    source->isMoving() || target->isMoving() ||
+	    getObject(to) != target ||
+	    (target->containmentSet() & ProtoObj::kIsContainer) ||
+	    GameObject::canStackOrMerge(source, target) != kCannotStackOrMerge ||
+	    (source->isMergeable() ? count != source->getExtra() : count != 1)) return false;
+
+	// A picked item may leave a stack behind. Never overwrite that source slot.
+	Native::Array<GameObject *> destination;
+	ContainerIterator children(_containerObject);
+	GameObject *item;
+	while (children.next(&item) != Nothing) {
+		if (item == source || (item->containmentSet() & ProtoObj::kIsEnchantment)) continue;
+		const auto slot = item->getLocation();
+		if (slot.u == from.u && slot.v == from.v) return false;
+		if (slot.u == to.u && slot.v == to.v) {
+			if (item->proto() != target->proto() || (item != target && slot.z != 0)) return false;
+			destination.push_back(item);
+		}
+	}
+	if (destination.empty() || target->getLocation().z != int(destination.size())) return false;
+	for (auto member : destination) {
+		auto slot = member->getLocation();
+		slot.u = from.u;
+		slot.v = from.v;
+		member->setLocation(slot);
+	}
+	auto slot = from;
+	slot.u = to.u;
+	slot.v = to.v;
+	source->setLocation(slot);
+	source->updateImage(_containerObject->thisID());
+	g_vm->_cnm->_lastPickedObjectID = Nothing;
+	g_vm->_cnm->_lastPickedObjectQuantity = -1;
+	updateMouseText(position);
+	return true;
+}
+
 // drop a physical object
 void ContainerView::dropPhysical(
     gPanelMessage   &msg,
@@ -793,6 +941,10 @@ void ContainerView::dropPhysical(
 
 	//  test to check if item is accepted by container
 	if (_containerObject->canContain(mObj->thisID())) {
+		if (trySwapPhysical(msg._pickPos, mObj, cObj, num)) {
+			g_vm->_cnm->_alreadyDone = true;
+			return;
+		}
 		Actor       *centerActor = getCenterActor();
 		Location    loc(pickObjectSlot(msg._pickPos),
 		                _containerObject->thisID());

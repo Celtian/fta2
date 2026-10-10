@@ -292,6 +292,7 @@ void processEventLoop(bool updateScreen) {
 		case Native::EVENT_RBUTTONUP:
 		case Native::EVENT_MOUSEMOVE:
 		case Native::EVENT_MOUSEWHEEL:
+		case Native::EVENT_FOCUSLOST:
 			g_vm->_toolBase->handleMouse(event, g_platform->getMillis());
 			break;
 		case Native::EVENT_KEYDOWN:

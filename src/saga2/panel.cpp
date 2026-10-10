@@ -755,6 +755,12 @@ void gToolBase::setActive(gPanel *ctl) {
 }
 
 void gToolBase::handleMouse(Native::Event &event, uint32 time) {
+	if (event.type == Native::EVENT_FOCUSLOST) {
+		leavePanel();
+		_curMouseState.left = _curMouseState.right = false;
+		_leftDrag = _rightDrag = false;
+		return;
+	}
 	// Resolve the frontmost window at the event position without changing focus.
 	ContainerView *wheelView = nullptr;
 	if (event.type == Native::EVENT_MOUSEWHEEL || event.type == Native::EVENT_MOUSEMOVE) {
@@ -781,8 +787,11 @@ void gToolBase::handleMouse(Native::Event &event, uint32 time) {
 					document->handleWheel(Point16(event.mouse.x - box.x, event.mouse.y - box.y), event.wheelY);
 				}
 			}
-			if (wheelView && !_curMouseState.left && !_curMouseState.right &&
-			    !_leftDrag && !_rightDrag && !g_vm->_cnm->_objToGet) {
+			const bool spellDrag = wheelView && _activePanel == wheelView &&
+			                       wheelView->isSpellDragging() && _curMouseState.left &&
+			                       !_curMouseState.right && !_rightDrag;
+			if (wheelView && (spellDrag || (!_curMouseState.left && !_curMouseState.right &&
+			    !_leftDrag && !_rightDrag)) && !g_vm->_cnm->_objToGet) {
 				const auto box = wheelView->_window.getExtent();
 				const auto grid = wheelView->getExtent();
 				wheelView->handleWheel(Point16(event.mouse.x - box.x - grid.x,
@@ -1049,6 +1058,12 @@ void gToolBase::leavePanel() {
 	}
 
 	if (_activePanel) _activePanel->deactivate();
+}
+
+void gToolBase::cancelSpellDrag() {
+	for (auto *window : _windowList)
+		if (auto *container = dynamic_cast<ContainerWindow *>(window))
+			container->getView().cancelSpellDrag();
 }
 
 void gToolBase::handleKeyStroke(Native::Event &event) {

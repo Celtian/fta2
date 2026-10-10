@@ -528,6 +528,7 @@ private:
 public:
 	void setActive(gPanel *newActive);
 	void leavePanel();               // we're changing windows
+	void cancelSpellDrag();
 public:
 	void handleMouse(Native::Event &event, uint32 time);
 	void handleKeyStroke(Native::Event &event);

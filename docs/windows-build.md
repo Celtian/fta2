@@ -49,7 +49,7 @@ export ZIG_GLOBAL_CACHE_DIR="$PWD/.cache/zig-global"
 export ZIG_LOCAL_CACHE_DIR="$PWD/.cache/zig-local"
 cmake -S . -B build-windows-x64 -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/windows-zig.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$PWD/.cache/windows-sdl/SDL3-3.4.18/x86_64-w64-mingw32" -DFTA2_FETCH_SDL=OFF
 cmake --build build-windows-x64 --parallel 4
-cpack --config build-windows-x64/CPackConfig.cmake -C Release -B .cache/release-0.1.35
+cpack --config build-windows-x64/CPackConfig.cmake -C Release -B .cache/release-0.1.36
 ```
 
 The native Windows CI build uses MSVC and the regular instructions in the main README; it does not require Zig. Runtime licence notices for the cross-build are in `third_party/windows-runtime/` and are included in packages.
@@ -59,9 +59,9 @@ The native Windows CI build uses MSVC and the regular instructions in the main R
 Publish one complete ZIP containing engine, original English voices, eight verified DOS inputs and corresponding engine sources. CPack engine and source archives are internal intermediates:
 
 ```sh
-cpack --config build-windows-x64/CPackConfig.cmake -C Release -B .cache/release-0.1.35
-cpack --config build-windows-x64/CPackSourceConfig.cmake -B .cache/release-0.1.35
-python3 tools/package_complete.py --engine-package .cache/release-0.1.35/fta2-native-0.1.35-Windows-x86_64.zip --source-package .cache/release-0.1.35/fta2-native-0.1.35-source.zip --data-dir original-game --voice-file .cache/fta2-cd-voices/FTAVOICE.HRS --output dist/fta2-native-0.1.35-Windows-x86_64.zip
+cpack --config build-windows-x64/CPackConfig.cmake -C Release -B .cache/release-0.1.36
+cpack --config build-windows-x64/CPackSourceConfig.cmake -B .cache/release-0.1.36
+python3 tools/package_complete.py --engine-package .cache/release-0.1.36/fta2-native-0.1.36-Windows-x86_64.zip --source-package .cache/release-0.1.36/fta2-native-0.1.36-source.zip --data-dir original-game --voice-file .cache/fta2-cd-voices/FTAVOICE.HRS --output dist/fta2-native-0.1.36-Windows-x86_64.zip
 ```
 
 The tool verifies all eight data files and optional CD voice archive against baseline SHA-256 hashes, excludes original saves and unnecessary DOS components, and records provenance in `share/fta2-native/complete-package.json`. The matching source ZIP is embedded under `source/` and contains no original game data. It refuses to modify the original installation or overwrite an existing ZIP. Retain previous releases. Public CI similarly embeds sources into one engine ZIP per platform, with proprietary data excluded. The engine's GPL does not relicense original game data or audio.
@@ -69,7 +69,7 @@ The tool verifies all eight data files and optional CD voice archive against bas
 On an actual Windows desktop, validate a complete ZIP with isolated saves and a fresh temporary output directory:
 
 ```powershell
-.\tools\test_complete_windows.ps1 -Package .\dist\fta2-native-0.1.35-Windows-x86_64.zip -OutputDirectory "$env:TEMP\fta2-complete-check" -OriginalSave .\original-game\999.SAV
+.\tools\test_complete_windows.ps1 -Package .\dist\fta2-native-0.1.36-Windows-x86_64.zip -OutputDirectory "$env:TEMP\fta2-complete-check" -OriginalSave .\original-game\999.SAV
 ```
 
 The optional `-OriginalSave` is copied before loading. The script opens and closes only its own test windows, moves the extracted game into a path containing spaces and non-ASCII characters, and verifies startup, data precedence, visible errors and gameplay/save restoration. It writes `validation.json`, screenshots, saves and logs under the test output directory.
@@ -77,7 +77,7 @@ The optional `-OriginalSave` is copied before loading. The script opens and clos
 To validate fullscreen and Alt+Enter against a complete ZIP on the actual Windows desktop:
 
 ```powershell
-.\tools\test_window_windows.ps1 -Package .\dist\fta2-native-0.1.35-Windows-x86_64.zip -OutputDirectory "$env:TEMP\fta2-window-check"
+.\tools\test_window_windows.ps1 -Package .\dist\fta2-native-0.1.36-Windows-x86_64.zip -OutputDirectory "$env:TEMP\fta2-window-check"
 ```
 
 This test sends native keyboard messages only to its own game window, with SDL raw keyboard input disabled for that test process. It checks fullscreen startup by comparing physical window and monitor bounds and checking that the title bar is absent, including coverage beyond the desktop work area occupied by the taskbar. It activates only its own game window using a verified click, restores normal stacking and the cursor position before assertions, and checks both toggle directions, repeat suppression, right Alt with keypad Enter and preservation of a resized window.
@@ -166,3 +166,9 @@ Version 0.1.34 removes the redundant numeric-keypad note from Hot Keys and adds 
 
 
 Version 0.1.35 extends mouse-wheel scrolling and muted empty-slot numbers to Ideas/Spells/Skills. Category changes reset to the first row; selecting the same category preserves the offset. The original 80 slots, owner diamond, save format and both layouts are retained. The single complete ZIP passes native Windows integration and runtime checks; see [mental inventory validation](validation.md#mental-inventory-scrolling-0135). Development-alpha status is retained.
+
+
+Version 0.1.36 adds per-brother spell drag ordering, occupied-slot swaps and wheel scrolling during a spell drag. Orders use existing save coordinates; ordinary click and double-click spell use remain available. The single complete ZIP passes native Windows integration and runtime checks; see [spell ordering validation](validation.md#spell-drag-ordering-0136).
+
+
+Version 0.1.37 adds same-container item swaps using the original two-click controls. Compatible stacks, nested insertion, cross-container transfers and item use retain their original handling. The complete ZIP includes the matching data-free engine sources; completed platform checks are recorded in [container ordering validation](validation.md#physical-container-ordering-0137).

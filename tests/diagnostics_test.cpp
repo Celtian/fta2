@@ -55,4 +55,11 @@ static int run(int argc, char** argv) {
     }
     return 0;
 }
-int main(int argc, char** argv) { return SDL_RunApp(argc, argv, run, nullptr); }
+int main(int argc, char** argv) {
+#ifdef _WIN32
+    // Match the application's Unicode command-line handling, independent of the CRT code page.
+    return SDL_RunApp(0, nullptr, run, nullptr);
+#else
+    return SDL_RunApp(argc, argv, run, nullptr);
+#endif
+}

@@ -9,6 +9,7 @@ import tempfile
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--binary", required=True, type=Path)
+    parser.add_argument("--application-binary", type=Path)
     parser.add_argument("--emulator", nargs="*", default=[])
     args = parser.parse_args()
     if os.name != "nt":
@@ -25,18 +26,23 @@ def main():
     with tempfile.TemporaryDirectory(prefix="fta2-diagnostics-", dir=temporary_root, ignore_cleanup_errors=True) as temp:
         work = Path(temp) / "logs with spaces žluťoučký"
         work.mkdir()
-        def run(mode, directory=work, success=True):
+        def argument_path(directory):
             path = str(directory)
-            if args.emulator and args.binary.suffix == ".exe" and os.name != "nt":
+            if cross_windows:
                 path = subprocess.check_output(["wslpath", "-w", path], text=True).strip()
+            return path
+
+        def run(mode, directory=work, success=True):
+            path = argument_path(directory)
             result = subprocess.run([*args.emulator, str(args.binary), mode, path],
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=60)
             assert (result.returncode == 0) == success, (mode, result.returncode, result.stderr)
             return result
-        run("normal")
+        result = run("normal")
         logs = sorted(work.glob("*.log"))
-        assert len(logs) == 1
-        text = logs[0].read_text()
+        assert len(logs) == 1, (work, logs, result.stdout, result.stderr)
+        text = logs[0].read_text(encoding="utf-8")
+        assert "žluťoučký" in text, text
         assert all(message in text for message in ("synthetic-test", "ordinary message 42",
                    "synthetic warning", "synthetic SDL warning", "Session logging closed"))
         assert not list(work.glob("*.dmp")), "Clean exit produced a crash dump"
@@ -52,14 +58,14 @@ def main():
         run("limit", limit)
         log = next(limit.glob("*.log"))
         assert log.stat().st_size < 65536 + 10000
-        assert "fatal after size limit" in log.read_text()
+        assert "fatal after size limit" in log.read_text(encoding="utf-8")
         native = b"native-handlers" in run("capabilities").stdout
         for mode in ("fault", "abort", "terminate"):
             if mode in ("fault", "abort") and not native:
                 continue  # ASan retains its own POSIX signal handlers; terminate still logs.
             directory = Path(temp) / mode
             run(mode, directory, False)
-            text = next(directory.glob("*.log")).read_text()
+            text = next(directory.glob("*.log")).read_text(encoding="utf-8")
             assert "FATAL:" in text and "synthetic operation" in text
             assert "actor=32768" in text and "u=13258" in text
             if mode == "terminate":
@@ -67,6 +73,20 @@ def main():
             if args.binary.suffix == ".exe":
                 dumps = list(directory.glob("*.dmp"))
                 assert len(dumps) == 1 and dumps[0].read_bytes()[:4] == b"MDMP", text
+        if args.application_binary:
+            # An empty synthetic installation reaches startup logging, then fails resource validation.
+            data = work / "empty data"
+            saves = work / "application saves"
+            data.mkdir()
+            result = subprocess.run([
+                *args.emulator, str(args.application_binary), "--data-dir", argument_path(data),
+                "--save-dir", argument_path(saves)], stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE, timeout=60)
+            assert result.returncode == 1, (result.returncode, result.stdout, result.stderr)
+            logs = list((saves / "logs").glob("*.log"))
+            assert len(logs) == 1, (saves, logs, result.stdout, result.stderr)
+            text = logs[0].read_text(encoding="utf-8")
+            assert "[STARTUP]" in text and "žluťoučký" in text and "FATAL:" in text, text
         print("Persistent log, retention, Unicode paths, size bound and fatal-process checks passed")
 
 

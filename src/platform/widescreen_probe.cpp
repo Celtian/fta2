@@ -17,6 +17,7 @@
 #include "saga2/intrface.h"
 #include "saga2/inventory_ui.h"
 #include "saga2/localize.h"
+#include "saga2/motion.h"
 #include "saga2/modal.h"
 #include "saga2/player.h"
 #include "saga2/script.h"
@@ -1400,6 +1401,381 @@ struct WidescreenProbe {
 };
 } // namespace
 
+static void verifySpellOrdering(const Path& output) {
+    using namespace Saga2;
+    auto vm = g_vm;
+    requireWide(vm->saveGameState(17, "Spell order checkpoint", false) == kNoError,
+                "cannot save spell order checkpoint");
+    const auto seed = vm->_rnd->getSeed();
+    uint32 timestamp = g_platform->getMillis();
+    bool quickClick = false;
+    int moves = 0, swaps = 0, cancels = 0, wheels = 0, redraws = 0, loads = 0;
+    int clicks = 0, captures = 0;
+    auto drain = [&] {
+        if (GameMode::_newmodeFlag)
+            GameMode::update();
+        Event event;
+        while (g_platform->pollEvent(event)) {
+            if (event.type == EVENT_KEYDOWN)
+                vm->_toolBase->handleKeyStroke(event);
+            else if (event.type == EVENT_MOUSEMOVE || event.type == EVENT_LBUTTONDOWN ||
+                     event.type == EVENT_LBUTTONUP || event.type == EVENT_MOUSEWHEEL ||
+                     event.type == EVENT_FOCUSLOST) {
+                // Independent clicks must not accidentally exercise the double-click path.
+                if (event.type == EVENT_LBUTTONDOWN)
+                    timestamp += quickClick ? 100 : 400;
+                vm->_toolBase->handleMouse(event, timestamp);
+            }
+        }
+    };
+    auto wheel = [&](int x, int y, float delta) {
+        int count = 0;
+        auto windows = SDL_GetWindows(&count);
+        requireWide(count == 1, "spell fixture needs one window");
+        auto window = windows[0];
+        SDL_free(windows);
+        SDL_Event event{};
+        event.type = SDL_EVENT_MOUSE_WHEEL;
+        event.wheel.windowID = SDL_GetWindowID(window);
+        requireWide(SDL_RenderCoordinatesToWindow(SDL_GetRenderer(window), x + 0.5f, y + 0.5f,
+                                                  &event.wheel.mouse_x, &event.wheel.mouse_y),
+                    "cannot map spell wheel");
+        event.wheel.y = delta;
+        requireWide(SDL_PushEvent(&event), "cannot inject spell wheel");
+        drain();
+        ++wheels;
+    };
+    for (int wide = 0; wide < 2; ++wide)
+        for (int sidebar = 0; sidebar < 2; ++sidebar)
+            for (int group = 0; group < 2; ++group)
+                for (int brother = 0; brother < 3; ++brother) {
+                    requireWide(vm->loadGameState(17) == kNoError, "cannot reset spell fixture");
+                    ConfMan.setBool("widescreen", bool(wide));
+                    ConfMan.setBool("alternate_sidebar", bool(sidebar));
+                    requestDisplayModeChange();
+                    applyPendingDisplayMode();
+                    setCenterBrother(brother);
+                    updateContainerWindows();
+                    if (group)
+                        setControlPanelsToTrioMode();
+                    else
+                        setControlPanelsToIndividualMode(brother);
+                    auto node = OpenMindContainer(brother, 1, 1);
+                    requireWide(node && node->getWindow(), "cannot open spells");
+                    auto window = node->getWindow();
+                    const Rect16 box(40, 60, 158, 215);
+                    window->setExtent(box);
+                    node->getPosition() = box;
+                    auto& view = window->getView();
+                    const auto containerID = view._containerObject->thisID();
+                    // Reuse original spell objects; the checkpoint restores every fixture change.
+                    std::vector<ObjectID> spellIDs;
+                    for (int id = 0; id < objectCount && spellIDs.size() < 2; ++id) {
+                        auto object = GameObject::objectAddress(id);
+                        if (dynamic_cast<SkillProto*>(object->proto()) && !object->isTrueSkill() &&
+                            isObject(object->IDParent()))
+                            spellIDs.push_back(id);
+                    }
+                    requireWide(spellIDs.size() == 2, "fixture needs two original spells");
+                    ContainerIterator iter(view._containerObject);
+                    GameObject* child;
+                    while (iter.next(&child) != Nothing)
+                        child->setLocation(TilePoint(0, 0, 0));
+                    auto first = GameObject::objectAddress(spellIDs[0]);
+                    auto second = GameObject::objectAddress(spellIDs[1]);
+                    first->move(Location(TilePoint(0, 0, 1), containerID));
+                    second->move(Location(TilePoint(0, 1, 1), containerID));
+                    const auto grid = view.getExtent();
+                    const int gx = box.x + grid.x, gy = box.y + grid.y;
+                    const int x = gx + view._iconOrigin.x + 16;
+                    const int y = gy + view._iconOrigin.y + 16;
+                    reDrawScreen();
+                    const auto fixtureSeed = vm->_rnd->getSeed();
+                    auto identities = [&] {
+                        std::vector<ObjectID> ids;
+                        ContainerIterator children(GameObject::objectAddress(containerID));
+                        GameObject* object;
+                        ObjectID id;
+                        while ((id = children.next(&object)) != Nothing)
+                            ids.push_back(id);
+                        std::sort(ids.begin(), ids.end());
+                        return ids;
+                    };
+                    const auto originalIDs = identities();
+                    std::array<std::array<int16, kNumManas>, 3> mana{};
+                    for (int b = 0; b < 3; ++b)
+                        for (int m = 0; m < kNumManas; ++m)
+                            mana[b][m] = getPlayerActorAddress(b)->getActor()->getStats()->mana(m);
+                    auto parity = [&] {
+                        const auto before = region(gx, gy, grid.width, grid.height);
+                        reDrawScreen();
+                        requireWide(before == region(gx, gy, grid.width, grid.height),
+                                    "spell partial redraw differs from full redraw");
+                        ++redraws;
+                    };
+                    auto start = [&](int sx, int sy) {
+                        mouse(sx, sy, SDL_EVENT_MOUSE_MOTION);
+                        mouse(sx, sy, SDL_EVENT_MOUSE_BUTTON_DOWN);
+                        drain();
+                        requireWide(!view.isSpellDragging(), "press started drag without motion");
+                        mouse(sx + 3, sy + 3, SDL_EVENT_MOUSE_MOTION);
+                        drain();
+                        requireWide(!view.isSpellDragging(), "sub-threshold motion started drag");
+                        mouse(sx + 4, sy, SDL_EVENT_MOUSE_MOTION);
+                        drain();
+                        requireWide(view.isSpellDragging() && first->IDParent() == containerID,
+                                    "spell drag did not begin at four logical pixels");
+                    };
+                    auto release = [&](int dx, int dy) {
+                        mouse(dx, dy, SDL_EVENT_MOUSE_MOTION);
+                        mouse(dx, dy, SDL_EVENT_MOUSE_BUTTON_UP);
+                        drain();
+                        requireWide(!view.isSpellDragging() && !vm->_mouseInfo->getObject(),
+                                    "spell release retained drag or cursor");
+                        parity();
+                    };
+                    auto location = [&](GameObject* object, int row, int col) {
+                        requireWide(object->IDParent() == containerID &&
+                                        object->getLocation() == TilePoint(row, col, 1),
+                                    "spell location or owner changed unexpectedly");
+                    };
+                    // Ordinary click and slight motion keep the original click-to-use cursor.
+                    mouse(x, y, SDL_EVENT_MOUSE_MOTION);
+                    mouse(x, y, SDL_EVENT_MOUSE_BUTTON_DOWN);
+                    mouse(x + 3, y + 3, SDL_EVENT_MOUSE_MOTION);
+                    mouse(x + 3, y + 3, SDL_EVENT_MOUSE_BUTTON_UP);
+                    drain();
+                    requireWide(vm->_mouseInfo->getObject() == first && !view.isSpellDragging(),
+                                "spell ordering broke ordinary selection");
+                    vm->_mouseInfo->replaceObject();
+                    ++clicks;
+                    start(x, y);
+                    release(x + 72, y);
+                    location(first, 0, 2);
+                    location(second, 0, 1);
+                    ++moves;
+                    start(x + 72, y);
+                    release(x + 36, y);
+                    location(first, 0, 1);
+                    location(second, 0, 2);
+                    ++swaps;
+                    start(x + 36, y);
+                    release(x + 36, y);
+                    location(first, 0, 1);
+                    ++cancels;
+                    start(x + 36, y);
+                    release(10, 10);
+                    location(first, 0, 1);
+                    ++cancels;
+                    // Wheel remains blocked on a mere press and on covered grids.
+                    mouse(x + 36, y, SDL_EVENT_MOUSE_MOTION);
+                    mouse(x + 36, y, SDL_EVENT_MOUSE_BUTTON_DOWN);
+                    drain();
+                    wheel(x + 36, y, -1);
+                    requireWide(view._scrollPosition == 0, "press allowed wheel before drag");
+                    mouse(x + 40, y, SDL_EVENT_MOUSE_MOTION);
+                    drain();
+                    wheel(x + 40, y, -0.25f);
+                    requireWide(view._scrollPosition == 0, "fractional drag wheel moved early");
+                    wheel(x + 40, y, -0.75f);
+                    requireWide(view._scrollPosition == 1,
+                                "fractional drag wheel did not accumulate");
+                    wheel(gx - 1, gy, -1);
+                    requireWide(view._scrollPosition == 1, "wheel outside spell grid moved it");
+                    wheel(x, y, -100);
+                    requireWide(view._scrollPosition == 16, "drag did not reach last four rows");
+                    release(x + 108, y + 108);
+                    location(first, 19, 3);
+                    ++moves;
+                    start(x + 108, y + 108);
+                    wheel(x, y, 100);
+                    requireWide(view._scrollPosition == 0, "drag did not return to first row");
+                    release(gx, gy);
+                    location(first, 0, 0);
+                    ++moves;
+                    // Last included pixel of the grid resolves the last visible slot.
+                    start(x, y);
+                    release(gx + grid.width - 1, gy + grid.height - 1);
+                    location(first, 3, 3);
+                    ++moves;
+                    start(x + 108, y + 108);
+                    release(gx + grid.width, gy + grid.height - 1);
+                    location(first, 3, 3);
+                    ++cancels;
+                    start(x + 108, y + 108);
+                    release(gx + grid.width - 1, gy + grid.height);
+                    location(first, 3, 3);
+                    ++cancels;
+                    start(x + 108, y + 108);
+                    auto cover = new ContainerNode(*vm->_cnm, ActorBaseID + (brother + 1) % 3,
+                                                   ContainerNode::kMentalType);
+                    cover->show();
+                    cover->getWindow()->setExtent(box);
+                    reDrawScreen();
+                    const auto row = view._scrollPosition;
+                    wheel(x, y, -1);
+                    requireWide(view._scrollPosition == row &&
+                                    cover->getView()->_scrollPosition == 0,
+                                "drag wheel reached a covered or foreign grid");
+                    release(x, y);
+                    location(first, 3, 3);
+                    delete cover;
+                    reDrawScreen();
+                    ++cancels;
+                    start(x + 108, y + 108);
+                    OpenMindContainer(brother, 1, 0);
+                    requireWide(!view.isSpellDragging() && !vm->_mouseInfo->getObject(),
+                                "category switch retained a spell drag");
+                    mouse(x, y, SDL_EVENT_MOUSE_BUTTON_UP);
+                    drain();
+                    OpenMindContainer(brother, 1, 1);
+                    location(first, 3, 3);
+                    window->update(grid);
+                    parity();
+                    ++cancels;
+                    start(x + 108, y + 108);
+                    SDL_Event lost{};
+                    lost.type = SDL_EVENT_WINDOW_FOCUS_LOST;
+                    requireWide(SDL_PushEvent(&lost), "cannot inject focus loss");
+                    drain();
+                    requireWide(!view.isSpellDragging() && !vm->_mouseInfo->getObject(),
+                                "focus loss retained spell drag");
+                    mouse(x, y, SDL_EVENT_MOUSE_BUTTON_UP);
+                    drain();
+                    location(first, 3, 3);
+                    ++cancels;
+                    start(x + 108, y + 108);
+                    requireWide(vm->saveGameState(18, "Ordered spells fixture", false) == kNoError,
+                                "cannot save reordered spells");
+                    requireWide(!view.isSpellDragging() && !vm->_mouseInfo->getObject(),
+                                "saving retained a spell drag");
+                    mouse(x, y, SDL_EVENT_MOUSE_BUTTON_UP);
+                    drain();
+                    ++cancels;
+                    requireWide(vm->_rnd->getSeed() == fixtureSeed,
+                                "reordering or cancelling consumed RNG");
+                    requireWide(identities() == originalIDs,
+                                "spell drag created, removed or transferred an object");
+                    for (int b = 0; b < 3; ++b)
+                        for (int m = 0; m < kNumManas; ++m)
+                            requireWide(
+                                mana[b][m] ==
+                                    getPlayerActorAddress(b)->getActor()->getStats()->mana(m),
+                                "spell drag consumed mana");
+                    requireWide(vm->loadGameState(18) == kNoError, "cannot load ordered spells");
+                    updateContainerWindows();
+                    first = GameObject::objectAddress(spellIDs[0]);
+                    second = GameObject::objectAddress(spellIDs[1]);
+                    location(first, 3, 3);
+                    location(second, 0, 2);
+                    node = vm->_cnm->find(ActorBaseID + brother, ContainerNode::kMentalType);
+                    requireWide(node && node->_mindType == 1 && node->getWindow(),
+                                "ordered spell window did not reload");
+                    auto beginCurrent = [&] {
+                        node = vm->_cnm->find(ActorBaseID + brother, ContainerNode::kMentalType);
+                        requireWide(node && node->getWindow(), "spell cancellation lost window");
+                        mouse(x + 108, y + 108, SDL_EVENT_MOUSE_MOTION);
+                        mouse(x + 108, y + 108, SDL_EVENT_MOUSE_BUTTON_DOWN);
+                        mouse(x + 112, y + 108, SDL_EVENT_MOUSE_MOTION);
+                        drain();
+                        requireWide(node->getView()->isSpellDragging(),
+                                    "cannot restart spell drag");
+                    };
+                    auto cancelled = [&] {
+                        requireWide(!vm->_mouseInfo->getObject(), "cancel retained spell cursor");
+                        location(first, 3, 3);
+                        location(second, 0, 2);
+                        mouse(x, y, SDL_EVENT_MOUSE_BUTTON_UP);
+                        drain();
+                        ++cancels;
+                    };
+                    beginCurrent();
+                    ConfMan.setBool("widescreen", !bool(wide));
+                    requestDisplayModeChange();
+                    applyPendingDisplayMode();
+                    cancelled();
+                    ConfMan.setBool("widescreen", bool(wide));
+                    requestDisplayModeChange();
+                    applyPendingDisplayMode();
+                    beginCurrent();
+                    setCenterBrother((brother + 1) % 3);
+                    updateContainerWindows();
+                    cancelled();
+                    setCenterBrother(brother);
+                    updateContainerWindows();
+                    if (group)
+                        setControlPanelsToTrioMode();
+                    else
+                        setControlPanelsToIndividualMode(brother);
+                    beginCurrent();
+                    requireWide(vm->loadGameState(18) == kNoError, "cannot load during spell drag");
+                    updateContainerWindows();
+                    first = GameObject::objectAddress(spellIDs[0]);
+                    second = GameObject::objectAddress(spellIDs[1]);
+                    cancelled();
+                    node = vm->_cnm->find(ActorBaseID + brother, ContainerNode::kMentalType);
+                    // Original map clicking must consume the selected spell via the world handler.
+                    click(node->getWindow(), grid.x + 3 + 108 + 16, grid.y + 108 + 16);
+                    drain();
+                    requireWide(vm->_mouseInfo->getObject() == first,
+                                "cannot select reordered spell for map use");
+                    mouse(220, 240, SDL_EVENT_MOUSE_MOTION);
+                    mouse(220, 240, SDL_EVENT_MOUSE_BUTTON_DOWN);
+                    mouse(220, 240, SDL_EVENT_MOUSE_BUTTON_UP);
+                    drain();
+                    requireWide(!vm->_mouseInfo->getObject(),
+                                "map click did not consume spell cursor");
+                    location(first, 3, 3);
+                    ++clicks;
+                    // Reload retires the queued world action without advancing the simulation.
+                    requireWide(vm->loadGameState(18) == kNoError, "cannot reset map spell action");
+                    updateContainerWindows();
+                    first = GameObject::objectAddress(spellIDs[0]);
+                    second = GameObject::objectAddress(spellIDs[1]);
+                    node = vm->_cnm->find(ActorBaseID + brother, ContainerNode::kMentalType);
+                    click(node->getWindow(), grid.x + 3 + 108 + 16, grid.y + 108 + 16);
+                    drain();
+                    requireWide(vm->_mouseInfo->getObject() == first, "double-click setup failed");
+                    quickClick = true;
+                    click(node->getWindow(), grid.x + 3 + 108 + 16, grid.y + 108 + 16);
+                    drain();
+                    quickClick = false;
+                    requireWide(!vm->_mouseInfo->getObject() &&
+                                    getPlayerActorAddress(brother)->getActor()->_moveTask,
+                                "spell double-click did not queue the original use action");
+                    location(first, 3, 3);
+                    ++clicks;
+                    requireWide(vm->loadGameState(18) == kNoError,
+                                "cannot reset double-click action");
+                    updateContainerWindows();
+                    first = GameObject::objectAddress(spellIDs[0]);
+                    second = GameObject::objectAddress(spellIDs[1]);
+                    node = vm->_cnm->find(ActorBaseID + brother, ContainerNode::kMentalType);
+                    reDrawScreen();
+                    g_platform->capture(output / String::format("spell-order-%d-%d-%d-%d.ppm", wide,
+                                                                sidebar, group, brother).c_str());
+                    ++captures;
+                    ++loads;
+                    beginCurrent();
+                    key(SDLK_ESCAPE);
+                    drain();
+                    updateContainerWindows();
+                    requireWide(
+                        !vm->_cnm->find(ActorBaseID + brother, ContainerNode::kMentalType) &&
+                            vm->_cnm->_mouseText[0] == 0,
+                        "Escape retained reordered spell window or tooltip");
+                    cancelled();
+                }
+    requireWide(vm->loadGameState(17) == kNoError, "cannot restore spell order fixture");
+    vm->_rnd->setSeed(seed);
+    std::ofstream(output / "spell-order.json")
+        << "{\"status\":\"passed\",\"layouts\":4,\"panels\":2,\"brothers\":3,\"moves\":" << moves
+        << ",\"swaps\":" << swaps << ",\"cancels\":" << cancels << ",\"wheel_checks\":" << wheels
+        << ",\"redraw_checks\":" << redraws << ",\"click_checks\":" << clicks
+        << ",\"save_load_checks\":" << loads << ",\"captures\":" << captures
+        << ",\"fixture_restored\":true}\n";
+}
+
 static void verifyMentalScrolling(const Path& output) {
     using namespace Saga2;
     auto vm = g_vm;
@@ -2316,6 +2692,342 @@ static void verifyInventoryUI(const Path& output) {
         << ",\"save_load_checks\":4,\"fixture_restored\":true}\n";
 }
 
+static void verifyPhysicalOrdering(const Path& output) {
+    using namespace Saga2;
+    auto vm = g_vm;
+    requireWide(vm->saveGameState(19, "Physical order checkpoint", false) == kNoError,
+                "cannot checkpoint physical ordering");
+    const auto seed = vm->_rnd->getSeed();
+    int bagProto = -1;
+    for (size_t i = 0; i < vm->_objectProtos.size(); ++i)
+        if (dynamic_cast<PhysicalContainerProto*>(vm->_objectProtos[i])) {
+            bagProto = int(i);
+            break;
+        }
+    requireWide(bagProto >= 0, "physical ordering needs a bag prototype");
+    const auto appearance = vm->_objectProtos[bagProto]->appearanceType;
+    uint32 timestamp = g_platform->getMillis();
+    int cases = 0, swaps = 0, priorities = 0, guards = 0, redraws = 0, loads = 0;
+    auto drain = [&] {
+        if (GameMode::_newmodeFlag)
+            GameMode::update();
+        Event event;
+        while (g_platform->pollEvent(event)) {
+            if (event.type == EVENT_KEYDOWN)
+                vm->_toolBase->handleKeyStroke(event);
+            else if (event.type == EVENT_MOUSEMOVE || event.type == EVENT_LBUTTONDOWN ||
+                     event.type == EVENT_LBUTTONUP || event.type == EVENT_MOUSEWHEEL) {
+                if (event.type == EVENT_LBUTTONDOWN)
+                    timestamp += 400;
+                vm->_toolBase->handleMouse(event, timestamp);
+            }
+        }
+    };
+    for (int wide = 0; wide < 2; ++wide)
+        for (int sidebar = 0; sidebar < 2; ++sidebar)
+            for (int brother = 0; brother < 3; ++brother) {
+                requireWide(vm->loadGameState(19) == kNoError, "cannot reset physical ordering");
+                ConfMan.setBool("widescreen", bool(wide));
+                ConfMan.setBool("alternate_sidebar", bool(sidebar));
+                requestDisplayModeChange();
+                applyPendingDisplayMode();
+                setCenterBrother(brother);
+                updateContainerWindows();
+                auto actor = getCenterActor();
+                auto cancelTask = [&] {
+                    actor->setInterruptablity(true);
+                    actor->stopMoving();
+                    vm->_mTaskList->collectRetired();
+                };
+                cancelTask();
+                auto create = [&](int prototype, ObjectID parent, int row, int col, int amount) {
+                    auto object = GameObject::newObject();
+                    requireWide(object != nullptr, "no spare object for physical ordering");
+                    object->setProtoNum(prototype);
+                    object->setExtra(amount);
+                    object->move(Location(row, col, 1, parent));
+                    return object;
+                };
+                auto bag = create(bagProto, actor->thisID(), 0, 0, 0);
+                auto outer = create(bagProto, actor->thisID(), 0, 1, 0);
+                auto nested = create(bagProto, bag->thisID(), 0, 3, 0);
+                auto first = create(352, bag->thisID(), 0, 0, 1);
+                auto second = create(354, bag->thisID(), 0, 1, 30);
+                auto hidden = create(352, outer->thisID(), 0, 0, 1);
+                auto coins = create(354, outer->thisID(), 0, 1, 20);
+                requireWide(!first->isMergeable() && second->isMergeable(),
+                            "physical ordering fixture prototype mismatch");
+                bag->proto()->appearanceType = cases % 4;
+                auto node =
+                    new ContainerNode(*vm->_cnm, bag->thisID(), ContainerNode::kPhysicalType);
+                bag->setFlags(kObjectOpen, kObjectOpen);
+                node->show();
+                auto window = node->getWindow();
+                // Exercise a moved window and the original absolute-slot mapping.
+                const Rect16 box(30 + brother * 3, 60, window->getExtent().width,
+                                 window->getExtent().height);
+                window->setExtent(box);
+                auto& view = window->getView();
+                const auto grid = view.getExtent();
+                const int gx = box.x + grid.x, gy = box.y + grid.y;
+                const int x = gx + view._iconOrigin.x + 16;
+                const int y = gy + view._iconOrigin.y + 16;
+                const int dx = 32 + view._iconSpacing.x;
+                auto clickAt = [&](int px, int py) {
+                    for (auto type : {SDL_EVENT_MOUSE_MOTION, SDL_EVENT_MOUSE_BUTTON_DOWN,
+                                      SDL_EVENT_MOUSE_BUTTON_UP})
+                        mouse(px, py, type);
+                    drain();
+                };
+                auto pick = [&](int col) {
+                    clickAt(x + col * dx, y);
+                    requireWide(vm->_mouseInfo->getObject() != nullptr,
+                                "physical click did not pick up an item");
+                };
+                auto at = [&](GameObject* object, int row, int col, int z = 1) {
+                    requireWide(object->IDParent() == bag->thisID() &&
+                                    object->getLocation() == TilePoint(row, col, z),
+                                "physical ordering changed identity, owner or stack coordinates");
+                };
+                auto parity = [&] {
+                    const auto before = region(gx, gy, grid.width, grid.height);
+                    reDrawScreen();
+                    requireWide(before == region(gx, gy, grid.width, grid.height),
+                                "physical ordering partial redraw differs from full redraw");
+                    ++redraws;
+                };
+                auto reset = [&] {
+                    vm->_mouseInfo->replaceObject();
+                    cancelTask();
+                    first->move(Location(0, 0, 1, bag->thisID()));
+                    second->move(Location(0, 1, 1, bag->thisID()));
+                    hidden->move(Location(0, 0, 1, outer->thisID()));
+                    coins->move(Location(0, 1, 1, outer->thisID()));
+                    view._scrollPosition = 0;
+                    view._wheelRemainder = 0;
+                    reDrawScreen();
+                };
+                reset();
+                const auto fixtureSeed = vm->_rnd->getSeed();
+                const auto mass = bag->totalContainedMass(), bulk = bag->totalContainedBulk();
+                pick(0);
+                clickAt(x + dx, y);
+                at(first, 0, 1);
+                at(second, 0, 0);
+                requireWide(!actor->_moveTask && !vm->_mouseInfo->getObject() &&
+                                second->getExtra() == 30 && vm->_rnd->getSeed() == fixtureSeed &&
+                                mass == bag->totalContainedMass() &&
+                                bulk == bag->totalContainedBulk(),
+                            "pure physical swap changed actions, quantity, weight, volume or RNG");
+                parity();
+                ++swaps;
+                pick(1);
+                clickAt(x, y);
+                at(first, 0, 0);
+                at(second, 0, 1);
+                parity();
+                ++swaps;
+                pick(0);
+                clickAt(x, y);
+                at(first, 0, 0);
+                requireWide(!actor->_moveTask, "same-slot drop queued an action");
+                ++guards;
+                // Every hidden member of an incompatible destination stack travels with its base.
+                reset();
+                first->setLocation(TilePoint(0, 1, 2));
+                hidden->move(Location(0, 1, 0, bag->thisID()));
+                second->setLocation(TilePoint(0, 0, 1));
+                reDrawScreen();
+                pick(0);
+                clickAt(x + dx, y);
+                at(second, 0, 1);
+                at(first, 0, 0, 2);
+                at(hidden, 0, 0, 0);
+                parity();
+                ++swaps;
+                // A source stack or partially selected merged pile cannot vacate its entire slot.
+                pick(0);
+                clickAt(x + dx, y);
+                at(first, 0, 0, 2);
+                at(hidden, 0, 0, 0);
+                at(second, 0, 1);
+                requireWide(actor->_moveTask, "source-stack drop bypassed original handling");
+                ++guards;
+                reset();
+                pick(1);
+                vm->_mouseInfo->setMoveCount(5);
+                clickAt(x, y);
+                at(first, 0, 0);
+                at(second, 0, 1);
+                requireWide(actor->_moveTask && second->getExtra() == 30,
+                            "partial pile was exchanged or split by reordering");
+                ++guards;
+                // Original merging, stacking, empty-slot drops and nested insertion still queue
+                // actions. Ground fixtures avoid the carrier's capacity limit from the three large
+                // chests.
+                bag->move(Location(actor->getLocation(), actor->IDParent()));
+                outer->move(Location(actor->getLocation(), actor->IDParent()));
+                reset();
+                coins->move(Location(0, 2, 1, bag->thisID()));
+                reDrawScreen();
+                pick(2);
+                vm->_mouseInfo->setMoveCount(5);
+                clickAt(x + dx, y);
+                requireWide(actor->_moveTask && coins->getExtra() == 20 && second->getExtra() == 30,
+                            "merge drop was replaced by a swap");
+                cancelTask();
+                const bool merged = coins->dropOn(actor->thisID(), second->thisID(), 5);
+                // Original partial merging can replace the source with an extracted remainder.
+                coins = view.getObject(TilePoint(0, 2, 1));
+                requireWide(merged && coins && coins->getExtra() == 15 && second->getExtra() == 35,
+                            String::format("original coin merge: result=%d source=%p remaining=%d "
+                                           "target=%d capacity=%d bulk=%d mass=%d",
+                                           merged, static_cast<void*>(coins),
+                                           coins ? coins->getExtra() : -1, second->getExtra(),
+                                           bag->bulkCapacity(), bag->totalContainedBulk(),
+                                           bag->totalContainedMass())
+                                .c_str());
+                second->setExtra(30);
+                coins->setExtra(20);
+                ++priorities;
+                reset();
+                hidden->move(Location(0, 2, 1, bag->thisID()));
+                reDrawScreen();
+                pick(2);
+                clickAt(x, y);
+                requireWide(actor->_moveTask, "stack drop was replaced by a swap");
+                cancelTask();
+                requireWide(hidden->dropOn(actor->thisID(), first->thisID()),
+                            "original stack action failed");
+                requireWide(first->getLocation().u == hidden->getLocation().u &&
+                                first->getLocation().v == hidden->getLocation().v,
+                            "original stacking did not combine slots");
+                ++priorities;
+                reset();
+                pick(0);
+                clickAt(x + 2 * dx, y);
+                requireWide(actor->_moveTask, "empty-slot drop bypassed original handling");
+                ++priorities;
+                reset();
+                pick(0);
+                clickAt(x + 3 * dx, y);
+                requireWide(actor->_moveTask && nested->getLocation() == TilePoint(0, 3, 1),
+                            "nested-container drop was replaced by a swap");
+                cancelTask();
+                requireWide(first->dropOn(actor->thisID(), nested->thisID()) &&
+                                first->IDParent() == nested->thisID(),
+                            "original nested insertion failed");
+                ++priorities;
+                reset();
+                nested->setFlags(kObjectLocked, kObjectLocked);
+                pick(0);
+                clickAt(x + 3 * dx, y);
+                requireWide(actor->_moveTask && nested->getLocation() == TilePoint(0, 3, 1),
+                            "locked nested container triggered a swap");
+                cancelTask();
+                first->dropOn(actor->thisID(), nested->thisID());
+                requireWide(nested->getLocation() == TilePoint(0, 3, 1) &&
+                                first->IDParent() != nested->thisID(),
+                            "failed insertion exchanged or entered a locked bag");
+                nested->setFlags(0, kObjectLocked);
+                ++priorities;
+                reset();
+                pick(0);
+                vm->_mouseInfo->setIntent(GrabInfo::kIntUse);
+                clickAt(x + dx, y);
+                requireWide(actor->_moveTask && first->getLocation() == TilePoint(0, 0, 1) &&
+                                second->getLocation() == TilePoint(0, 1, 1),
+                            "use cursor invoked a physical swap");
+                ++priorities;
+                // Only the front window receives a click; a foreign source never swaps.
+                reset();
+                auto cover =
+                    new ContainerNode(*vm->_cnm, outer->thisID(), ContainerNode::kPhysicalType);
+                outer->setFlags(kObjectOpen, kObjectOpen);
+                cover->show();
+                cover->getWindow()->setExtent(box);
+                clickAt(x + dx, y);
+                requireWide(vm->_mouseInfo->getObject() == coins, "covered window received pickup");
+                delete cover;
+                outer->setFlags(0, kObjectOpen);
+                clickAt(x, y);
+                at(first, 0, 0);
+                requireWide(coins->IDParent() == outer->thisID() && actor->_moveTask,
+                            "cross-container drop exchanged items");
+                ++guards;
+                reset();
+                {
+                    ModalWindow modal(Rect16(0, 0, 100, 100), 0, nullptr);
+                    modal.open();
+                    clickAt(x, y);
+                    requireWide(!vm->_mouseInfo->getObject(), "modal allowed container pickup");
+                    modal.close();
+                }
+                ++guards;
+                reset();
+                second->setLocation(TilePoint(view._visibleRows - 1, view._visibleCols - 1, 1));
+                reDrawScreen();
+                clickAt(gx, gy);
+                requireWide(vm->_mouseInfo->getObject() == first, "first grid pixel missed pickup");
+                clickAt(std::min(gx + grid.width, int(box.x + box.width)) - 1,
+                        gy + grid.height - 1);
+                at(first, view._visibleRows - 1, view._visibleCols - 1);
+                at(second, 0, 0);
+                parity();
+                ++swaps;
+                // Wheel scrolling with a held object preserves its absolute source slot.
+                reset();
+                second->setLocation(TilePoint(view._totalRows - 1, 1, 1));
+                reDrawScreen();
+                pick(0);
+                Event wheel;
+                wheel.type = EVENT_MOUSEWHEEL;
+                wheel.mouse = Point(x, y);
+                wheel.wheelY = -100;
+                vm->_toolBase->handleMouse(wheel, timestamp);
+                requireWide(view._scrollPosition == view._totalRows - view._visibleRows,
+                            "held physical object blocked wheel scrolling");
+                const int bottom = y + (view._visibleRows - 1) * (32 + view._iconSpacing.y);
+                clickAt(x + dx, bottom);
+                at(first, view._totalRows - 1, 1);
+                at(second, 0, 0);
+                parity();
+                ++swaps;
+                const auto bagID = bag->thisID(), firstID = first->thisID(),
+                           secondID = second->thisID();
+                const int lastRow = view._totalRows - 1;
+                g_platform->capture(
+                    output /
+                    String::format("physical-order-%d-%d-%d.ppm", wide, sidebar, brother).c_str());
+                requireWide(vm->saveGameState(20, "Physical order fixture", false) == kNoError &&
+                                vm->loadGameState(20) == kNoError,
+                            "cannot reload physical ordering");
+                requireWide(GameObject::objectAddress(firstID)->IDParent() == bagID &&
+                                GameObject::objectAddress(firstID)->getLocation().u == lastRow &&
+                                GameObject::objectAddress(secondID)->IDParent() == bagID &&
+                                GameObject::objectAddress(secondID)->getLocation() ==
+                                    TilePoint(0, 0, 1),
+                            "save/load changed physical ordering");
+                ++loads;
+                updateContainerWindows();
+                key(SDLK_ESCAPE);
+                drain();
+                updateContainerWindows();
+                requireWide(!vm->_cnm->find(bagID) && !vm->_mouseInfo->getObject() &&
+                                vm->_cnm->_mouseText[0] == 0,
+                            "Escape retained physical ordering window or tooltip");
+                ++cases;
+            }
+    vm->_objectProtos[bagProto]->appearanceType = appearance;
+    requireWide(vm->loadGameState(19) == kNoError, "cannot restore physical order fixture");
+    vm->_rnd->setSeed(seed);
+    std::ofstream(output / "physical-order.json")
+        << "{\"status\":\"passed\",\"cases\":" << cases << ",\"swaps\":" << swaps
+        << ",\"priority_checks\":" << priorities << ",\"guard_checks\":" << guards
+        << ",\"redraw_checks\":" << redraws << ",\"save_load_checks\":" << loads
+        << ",\"fixture_restored\":true}\n";
+}
+
 void verifyContainerOwners(const Path& output) {
     using namespace Saga2;
     auto vm = g_vm;
@@ -2533,7 +3245,9 @@ void verifyContainerOwners(const Path& output) {
     proto->appearanceType = appearance;
     verifyMentalOwners(output);
     verifyMentalScrolling(output);
+    verifySpellOrdering(output);
     verifyInventoryUI(output);
+    verifyPhysicalOrdering(output);
     requireWide(vm->loadGameState(9) == kNoError, "cannot restore container owner fixture");
     ConfMan.setBool("widescreen", originalWide);
     ConfMan.setBool("alternate_sidebar", originalSidebar);

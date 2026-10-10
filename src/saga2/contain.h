@@ -27,6 +27,7 @@
 #define SAGA2_CONTAIN_H
 
 #include "saga2/floating.h"
+#include "saga2/tcoords.h"
 
 namespace Saga2 {
 
@@ -91,6 +92,8 @@ public:
 	float _wheelRemainder = 0;
 	bool supportsGridScrolling() const;
 	void handleWheel(Point16 position, float delta);
+	bool isSpellDragging() const { return _spellDragging; }
+	void cancelSpellDrag();
 
 	//  Pointer to the object that this control is showing the
 	//  contents of.
@@ -178,12 +181,22 @@ protected: // actions within a container
 
 	virtual void pointerMove(gPanelMessage &msg);
 	virtual bool pointerHit(gPanelMessage &msg);
+	void pointerDrag(gPanelMessage &msg) override;
 	virtual void pointerRelease(gPanelMessage &msg);
 	virtual void timerTick(gPanelMessage &msg);
 
 	void dblClick(GameObject *mouseObject, GameObject *slotObject, gPanelMessage &msg);
 
 private:
+	ObjectID _spellDragObject = Nothing;
+	ObjectID _spellDragContainer = Nothing;
+	TilePoint _spellDragSlot;
+	Point16 _spellDragStart;
+	bool _spellDragging = false;
+	bool validSpellDrag() const;
+	bool gridDropInside(Point16 position) const;
+	bool trySwapPhysical(Point16 position, GameObject *source, GameObject *target, int16 count);
+
 	//  Container manipulation functions
 	void add(ObjectID newObj);
 	void remove(ObjectID obj);

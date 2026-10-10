@@ -1,0 +1,97 @@
+{
+  "version": "0.1.36",
+  "status": "development-alpha",
+  "changes": {
+    "spells_only_drag_reorder": true,
+    "occupied_slot_swaps": true,
+    "drag_wheel_over_own_grid": true,
+    "original_click_map_and_double_click_preserved": true,
+    "existing_save_slot_coordinates_preserve_order": true
+  },
+  "gesture": {
+    "button": "left",
+    "threshold_logical_pixels_per_axis": 4,
+    "outside_drop": "cancel",
+    "grid": {
+      "rows": 20,
+      "columns": 4,
+      "visible_rows": 4
+    },
+    "scope": "Spells for each brother, both display modes and sidebar layouts"
+  },
+  "fixture_per_process": {
+    "status": "passed",
+    "layouts": 4,
+    "panels": 2,
+    "brothers": 3,
+    "moves": 96,
+    "swaps": 24,
+    "cancels": 288,
+    "wheel_checks": 168,
+    "redraw_checks": 264,
+    "click_checks": 72,
+    "save_load_checks": 24,
+    "captures": 24,
+    "fixture_restored": true
+  },
+  "fixture_isolation": "Two existing original spell objects are temporarily moved; other category objects are hidden in the isolated fixture. Checkpoints restore all parents, locations, queued actions and RNG. Original data is never edited.",
+  "checks": {
+    "linux_release_build": true,
+    "windows_zig_release_build": true,
+    "linux_ctest": "7/7",
+    "windows_native_ctest": "7/7",
+    "asan_lsan_ctest": "7/7",
+    "linux_classic_processes": 2,
+    "linux_widescreen_processes": 2,
+    "windows_classic_processes": 1,
+    "windows_widescreen_processes": 2,
+    "windows_native_video_runtime": true,
+    "windows_voice_processes": 4,
+    "asan_lsan_widescreen_processes": 2,
+    "asan_lsan_classic_processes": 2,
+    "linux_death_processes": 8,
+    "windows_death_processes": 8,
+    "asan_lsan_death_processes": 8,
+    "widescreen_captures_match_linux_windows": [
+      381,
+      381
+    ],
+    "death_captures_match_linux_windows": 8,
+    "classic_reference": {
+      "screenshots": 2,
+      "checkpoints": 4,
+      "original_chunks_per_save": 30,
+      "saves": 2,
+      "linux_processes": 2,
+      "windows_processes": 1,
+      "asan_lsan_processes": 2,
+      "reference_build_and_fresh_run": true
+    },
+    "original_files_unchanged": 54,
+    "previous_archives_preserved": 7
+  },
+  "delivery": {
+    "archive": "dist/fta2-native-0.1.36-Windows-x86_64.zip",
+    "zip_downloads_for_release": 1,
+    "verified_data_files": 8,
+    "verified_voice_archives": 1,
+    "validated_executable_sha256": "b5daf49bf908925cd46de78ad87e9783f6a783056ca08f8c909027d88a4c4fd0"
+  },
+  "limitations": [
+    "Gameplay uses dummy SDL backends and injected mouse/key/focus events; native Windows video is tested separately.",
+    "No manual hardware drag/wheel test, full playthrough, macOS or remote CI execution."
+  ],
+  "evidence": [
+    ".cache/spell-036-wide-final/result.json",
+    ".cache/spell-036-windows-final-validation/validation.json",
+    ".cache/spell-036-asan-wide/result.json",
+    ".cache/spell-036-asan-classic.log",
+    ".cache/spell-036-parity.json",
+    ".cache/spell-036-parity-restart.json",
+    ".cache/spell-036-windows-parity.json",
+    ".cache/spell-036-asan-parity.json",
+    ".cache/spell-036-asan-parity-restart.json",
+    ".cache/spell-036-data-verify.json",
+    ".cache/spell-036-package-audit.json"
+  ]
+}

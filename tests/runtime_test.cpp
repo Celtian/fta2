@@ -82,6 +82,25 @@ static void mustFail(const std::function<void()>& fn) {
 int main() {
     try {
         {
+            const std::u8string unicode = u8"paths-\u017e-\u4e16";
+            const std::string utf8(unicode.begin(), unicode.end());
+            const auto expected = std::filesystem::path(unicode).native();
+            std::string mutableUtf8 = utf8;
+            const String nativeString(utf8);
+            check(Path(utf8).native() == expected && Path(std::string(utf8)).native() == expected &&
+                      Path(utf8.c_str()).native() == expected &&
+                      Path(mutableUtf8.data()).native() == expected &&
+                      Path("paths-\xc5\xbe-\xe4\xb8\x96").native() == expected &&
+                      Path(nativeString).native() == expected &&
+                      Path(String(utf8)).native() == expected,
+                  "Narrow paths must consistently decode UTF-8, including mutable argv strings");
+            check(Path(std::filesystem::path(unicode)).native() == expected,
+                  "Native filesystem paths must preserve their original encoding");
+            Path assigned;
+            assigned = mutableUtf8.data();
+            check(assigned.native() == expected, "Assigned narrow paths must decode UTF-8");
+        }
+        {
             Saga2::gDisplayPort port;
             Saga2::gMousePointer pointer(port);
             byte pixels[] = {0, 1, 2, 3};
@@ -442,6 +461,11 @@ int main() {
                   "Character selection key translation or dialog text changed");
         }
         check(!platform.pollEvent(nativeEvent), "Unexpected event after digit input");
+        SDL_Event focusLost{};
+        focusLost.type = SDL_EVENT_WINDOW_FOCUS_LOST;
+        check(SDL_PushEvent(&focusLost), "Cannot inject focus loss");
+        check(platform.pollEvent(nativeEvent) && nativeEvent.type == EVENT_FOCUSLOST,
+              "Focus loss must reach the UI so active spell drags can be cancelled");
         for (auto modifiers :
              {SDL_KMOD_NONE, SDL_KMOD_LSHIFT, SDL_KMOD_RSHIFT, SDL_KMOD_LCTRL, SDL_KMOD_RALT}) {
             SDL_SetModState(modifiers);

@@ -191,6 +191,10 @@ static int runGame(int argc, char** argv) {
 }
 
 int main(int argc, char** argv) {
-    // SDL supplies UTF-8 command-line arguments on Windows.
+#ifdef _WIN32
+    // A null argv asks SDL to convert the Windows Unicode command line to UTF-8.
+    return SDL_RunApp(0, nullptr, runGame, nullptr);
+#else
     return SDL_RunApp(argc, argv, runGame, nullptr);
+#endif
 }

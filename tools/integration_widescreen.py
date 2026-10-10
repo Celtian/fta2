@@ -68,6 +68,39 @@ def validate_mental_scrolling(output):
     return result
 
 
+def validate_spell_ordering(output):
+    """Check original spell identities, drag gestures and save persistence."""
+    result = json.loads((output / "spell-order.json").read_text())
+    assert result == {"status": "passed", "layouts": 4, "panels": 2, "brothers": 3,
+                      "moves": 96, "swaps": 24, "cancels": 288, "wheel_checks": 168,
+                      "redraw_checks": 264, "click_checks": 72, "save_load_checks": 24,
+                      "captures": 24, "fixture_restored": True}
+    for wide, width in ((0, 640), (1, 854)):
+        for sidebar in range(2):
+            for group in range(2):
+                for brother in range(3):
+                    image = (output / f"spell-order-{wide}-{sidebar}-{group}-{brother}.ppm").read_bytes()
+                    header = f"P6\n{width} 480\n255\n".encode()
+                    assert image.startswith(header) and len(image) == len(header) + width * 480 * 3
+    return result
+
+
+def validate_physical_ordering(output):
+    """Check same-container swaps, original drop priorities and save persistence."""
+    result = json.loads((output / "physical-order.json").read_text())
+    assert result == {"status": "passed", "cases": 12, "swaps": 60,
+                      "priority_checks": 72, "guard_checks": 60,
+                      "redraw_checks": 60, "save_load_checks": 12,
+                      "fixture_restored": True}
+    for wide, width in ((0, 640), (1, 854)):
+        for sidebar in range(2):
+            for brother in range(3):
+                image = (output / f"physical-order-{wide}-{sidebar}-{brother}.ppm").read_bytes()
+                header = f"P6\n{width} 480\n255\n".encode()
+                assert image.startswith(header) and len(image) == len(header) + width * 480 * 3
+    return result
+
+
 def validate_inventory_ui(output):
     """Check physical wheel/placeholder and game-clock integration evidence."""
     result = json.loads((output / "inventory-ui.json").read_text())
@@ -130,6 +163,8 @@ def validate_container_owners(output):
     validate_mental_owners(output)
     validate_inventory_ui(output)
     validate_mental_scrolling(output)
+    validate_spell_ordering(output)
+    validate_physical_ordering(output)
     for wide in range(2):
         for sidebar in range(2):
             for pregame in range(2):

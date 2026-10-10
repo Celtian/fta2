@@ -417,6 +417,10 @@ bool Platform::pollEvent(Event& out) {
     SDL_Event ev;
     while (SDL_PollEvent(&ev)) {
         out = {};
+        if (ev.type == SDL_EVENT_WINDOW_FOCUS_LOST) {
+            out.type = EVENT_FOCUSLOST;
+            return true;
+        }
         if (ev.type == SDL_EVENT_WINDOW_RESIZED || ev.type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED)
             refreshMousePosition();
         if (ev.type == SDL_EVENT_KEY_DOWN && !ev.key.repeat)
