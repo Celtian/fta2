@@ -48,5 +48,35 @@
     ".cache/ci-fix-linux-ctest-verified.log",
     ".cache/ci-fix-windows-ctest-verified.log",
     ".cache/ci-fix-asan-ctest-verified.log"
-  ]
+  ],
+  "macos_follow_up": {
+    "supplied_log_start_utc": "2026-10-10T22:06:15.7550880Z",
+    "failure": "AppleClang rejects StaticPoint32(px, py) in the carried-storage probe at line 3458.",
+    "correction": "Use StaticPoint32{px, py}; preserve the aggregate type and coordinate values.",
+    "checks": {
+      "linux_release_build": true,
+      "windows_zig_release_build": true,
+      "linux_ctest": 7,
+      "windows_ctest": 7,
+      "native_windows_process_execution": true,
+      "clang_21_probe_syntax_check": true,
+      "native_probe_ast_parenthesized_aggregates_before": 1,
+      "native_probe_ast_parenthesized_aggregates_after": 0,
+      "native_macos_build": false
+    },
+    "limitations": [
+      "Clang 21 syntax/AST inspection runs on Linux and does not replace AppleClang 15 or macOS execution.",
+      "Original-data integration, sanitizers and packaging were not rerun for this expression-only compiler portability fix."
+    ],
+    "evidence": [
+      ".cache/macos-aggregate-linux-build.log",
+      ".cache/macos-aggregate-windows-build.log",
+      ".cache/macos-aggregate-linux-ctest.log",
+      ".cache/macos-aggregate-windows-ctest.log",
+      ".cache/macos-aggregate-before-ast.log",
+      ".cache/macos-aggregate-before-ast-errors.log",
+      ".cache/macos-aggregate-native-ast.log",
+      ".cache/macos-aggregate-native-ast-errors.log"
+    ]
+  }
 }

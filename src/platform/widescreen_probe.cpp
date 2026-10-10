@@ -3455,7 +3455,7 @@ static void verifyCarriedStorage(const Path& output) {
                 StaticTilePoint pickedPosition;
                 for (int py = projected.y - 70; py <= projected.y && hit.x < 0; ++py)
                     for (int px = projected.x - 24; px <= projected.x + 24; ++px)
-                        if (pickObject(StaticPoint32(px, py), pickedPosition) == actor->thisID()) {
+                        if (pickObject(StaticPoint32{px, py}, pickedPosition) == actor->thisID()) {
                             hit = Point16(px, py);
                             break;
                         }
