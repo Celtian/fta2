@@ -1,0 +1,99 @@
+src/platform/runtime.cpp
+  s_2adb1a9ac6dc39::t_00c11cd18456e2 420-423
+docs/validation.md
+  s_2adb1a9ac6dc39::t_1e62755cf83237 285-288
+  s_2adb1a9ac6dc39::t_b60b0331af92da 289
+  s_2adb1a9ac6dc39::t_cc07ea823cca9d 292-302
+  s_2adb1a9ac6dc39::t_98c07d2f883f30 290-291
+  s_2adb1a9ac6dc39::t_4d86049528abbe 274-284
+src/saga2/main.cpp
+  s_2adb1a9ac6dc39::t_00c11cd18456e2 295
+README.md
+  s_2adb1a9ac6dc39::t_f072fa588ebd4b 57-59
+  s_2adb1a9ac6dc39::t_e9beb74adf4505 60-61
+src/platform/widescreen_probe.cpp
+  s_2adb1a9ac6dc39::t_c24708de199dcf 2860-2862
+  s_2adb1a9ac6dc39::t_95d386f798e2f0 2872-2875
+  s_2adb1a9ac6dc39::t_ee150b4c2de1cf 2876-2879
+  s_2adb1a9ac6dc39::t_6d8b90025090f1 1404-1410,1412-1414,1417-1424,1427-1458,1463-1475,1478-1493,1509-1512,1514-1580,1583-1613,1615-1656,1665-1673,1754,1757-1758,1760-1762,1768-1777
+  s_2adb1a9ac6dc39::t_28f5f4df0612e9 2956-2966
+  s_2adb1a9ac6dc39::t_13b7d7c8378b51 2695-2734,2737-2859,2863-2871,2880-2955,2967-2985,2987-2992,2994-3016,3018-3019,3024
+  s_2adb1a9ac6dc39::t_ea2583b631416e 2986,2993
+  s_2adb1a9ac6dc39::t_cc5f23c8a7e5d5 1415-1416,1425-1426,1459-1462,1476-1477,1498-1499,1581-1582,1661-1664,1681-1682,1706-1709,1718,1726-1727,1748-1749,1755,1763-1766
+  s_2adb1a9ac6dc39::t_d7c9102a601767 1513,1614
+  s_2adb1a9ac6dc39::t_eacdcba0b04115 2735-2736
+  s_2adb1a9ac6dc39::t_1041e6d60d7974 1411,1494-1497,1500-1507,1657-1660,1732-1743,1745-1747
+  s_2adb1a9ac6dc39::t_0f558dcd183bf6 1508,1744
+  s_2adb1a9ac6dc39::t_902c9fa8e3f8b9 1756,1778
+  s_2adb1a9ac6dc39::t_6e305b397dc394 20,1674-1680,1683-1705,1710-1717,1719-1725,1728-1731,1750-1753,1759,1767
+  s_2adb1a9ac6dc39::t_5e3b0b635fd3ff 3017,3020-3023,3025-3030,3248,3250
+src/saga2/panel.cpp
+  s_2adb1a9ac6dc39::t_00c11cd18456e2 758-763,790-794,1063-1066
+  s_2adb1a9ac6dc39::t_d227ad4dddeba9 1067-1068
+src/platform/runtime.h
+  s_2adb1a9ac6dc39::t_c4b6134d905d69 126-127
+  s_2adb1a9ac6dc39::t_00c11cd18456e2 426-427
+src/saga2/saga2.cpp
+  s_2adb1a9ac6dc39::t_00c11cd18456e2 196,221
+tests/diagnostics_test.cpp
+  s_2adb1a9ac6dc39::t_c5aa04715a0a1d 58-65
+tests/diagnostics_test.py
+  s_2adb1a9ac6dc39::t_c5aa04715a0a1d 12,29,31,33-36,41,43-45,61,68,76-88
+  s_2adb1a9ac6dc39::t_c4b6134d905d69 89
+tools/integration_widescreen.py
+  s_2adb1a9ac6dc39::t_28f5f4df0612e9 91,93
+  s_2adb1a9ac6dc39::t_ef1933df1ad452 88-90,92,94-103,167
+  s_2adb1a9ac6dc39::t_b081f9bc381a93 71-75,77-87,166
+  s_2adb1a9ac6dc39::t_1041e6d60d7974 76
+CMakeLists.txt
+  s_2adb1a9ac6dc39::t_c5aa04715a0a1d 66
+  s_2adb1a9ac6dc39::t_91959cbdbba56e 2
+tests/runtime_test.cpp
+  s_2adb1a9ac6dc39::t_c4b6134d905d69 85-89,91-92,94-98,102
+  s_2adb1a9ac6dc39::t_de19913b3b627b 90
+  s_2adb1a9ac6dc39::t_1c1a7d32160579 93,99-101
+  s_2adb1a9ac6dc39::t_25972bf14a5214 464-468
+  s_2adb1a9ac6dc39::t_32cc42e3f2b190 84
+src/main.cpp
+  s_2adb1a9ac6dc39::t_c5aa04715a0a1d 194-197,199
+docs/architecture.md
+  s_2adb1a9ac6dc39::t_f072fa588ebd4b 62-64
+  s_2adb1a9ac6dc39::t_ed97c3ead32c05 56,60-61
+src/saga2/contain.h
+  s_2adb1a9ac6dc39::t_91959cbdbba56e 197-198
+  s_2adb1a9ac6dc39::t_b25639929e76b9 30
+  s_2adb1a9ac6dc39::t_edd2d071281ccb 95-96,184,191-196,199
+research/container-order-validation.json
+  s_2adb1a9ac6dc39::t_cc07ea823cca9d 1-77
+src/saga2/contain.cpp
+  s_2adb1a9ac6dc39::t_d032ac1f2c969a 612,695
+  s_2adb1a9ac6dc39::t_91959cbdbba56e 623,757,779,882-892,894-929,944-947
+  s_2adb1a9ac6dc39::t_edd2d071281ccb 234,494,591-600,604-611,613-622,624-643,692-694,696,745-750,755-756,758-778,780-781,785
+  s_2adb1a9ac6dc39::t_82de412a6bf2fb 893
+  s_2adb1a9ac6dc39::t_abccc4aeefae27 735-738,782-784
+  s_2adb1a9ac6dc39::t_a9f78a7bb23b73 601-603
+  s_2adb1a9ac6dc39::t_00c11cd18456e2 41
+docs/windows-build.md
+  s_2adb1a9ac6dc39::t_bf1a64f5efd8a9 172-174
+  s_2adb1a9ac6dc39::t_c5fe5b2deda276 52,62-64,72,80,169-171
+src/saga2/panel.h
+  s_2adb1a9ac6dc39::t_00c11cd18456e2 531
+research/spell-order-validation.json
+  s_2adb1a9ac6dc39::t_4a0bf3a6ea5755 1-97
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b0b641b9275c988f6a4b237c3e4f7ae799b394f5",
+  "prompts": {},
+  "sessions": {
+    "s_2adb1a9ac6dc39": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a121a0-0d5a-7240-8278-e82003904d2a",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Celtian <dominik.hladik@seznam.cz>"
+    }
+  }
+}
