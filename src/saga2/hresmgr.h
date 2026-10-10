@@ -81,7 +81,7 @@ public:
 	}
 
 	uint32              resOffset() {
-		return (offset & 0x0FFFFFFFL);
+		return (offset & 0x7FFFFFFFL);
 	}
 	uint32              resSize() {
 		return (size & 0x00FFFFFF);

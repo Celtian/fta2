@@ -311,21 +311,21 @@ static const StaticRect optSpeechRect = {
 };
 
 static const StaticRect optNightRect = {
-	14 + 200,
-	98 + kOptTPHeight,
+	14,
+	(int16)(optSpeechRect.y + 23),
 	18,
 	17
 };
 
 static const StaticRect optWidescreenRect = {
-	optNightRect.x,
-	optWeaponRect.y,
+	214,
+	optAggressRect.y,
 	optNightRect.width,
 	optNightRect.height
 };
 
-static const StaticRect optSidebarLayoutRect = {214, optSpeechRect.y, 18, 17};
-static const StaticRect optGameTimeRect = {214, 206, 18, 17};
+static const StaticRect optSidebarLayoutRect = {214, optWeaponRect.y, 18, 17};
+static const StaticRect optGameTimeRect = {214, optSpeechRect.y, 18, 17};
 
 static const StaticRect optTopSliderRect = {
 	15,
@@ -809,8 +809,8 @@ static void showHotKeysDialog() {
 		{"B", "Toggle selected brother's party following"},
 		{"Shift+B", "Set all brothers' following from selected brother"},
 		{"I", "Open Ideas"},
-		{"S", "Open Skills"},
-		{"K", "Open Memories"},
+		{"S", "Open Spells"},
+		{"K", "Open Skills"},
 		{"G", "Use selected brother's map"},
 		{"M", "Toggle music"},
 		{"Space", "Dismiss speech and make selected brother wait"},
@@ -844,8 +844,6 @@ static void showHotKeysDialog() {
 		new CPlaqText(*win, Rect16(142, y, 327, 13), shortcuts[i].action,
 		              &SmallFont, kTextPosLeft, pal, 0, nullptr);
 	}
-	new CPlaqText(*win, Rect16(18, 250, 451, 14), "1 / 2 / 3 also work on the numeric keypad.",
-	              &SmallFont, kTextPosLeft, pal, 0, nullptr);
 	new CPlaqText(*win, Rect16(18, 264, 451, 14), "Gameplay shortcuts may be unavailable during dialogue.",
 	              &SmallFont, kTextPosLeft, pal, 0, nullptr);
 	GfxCompButton *close = new GfxCompButton(*win, Rect16(183, 282, kPushButtonWidth, kPushButtonHeight),
@@ -1013,8 +1011,6 @@ int16 OptionsDialog(bool disableSaveResume) {
 	for (int i = 1; i < kNumOptionsTexts; i++) {
 		new CPlaqText(*win, *optionsTextRects[i], textStrings[i], &SmallFont, kTextPosLeft, pal, 0, nullptr);
 	}
-	new CPlaqText(*win, Rect16(14, 224, 330, 14), "Text remains visible when voice audio is unavailable.",
-	              &SmallFont, kTextPosLeft, pal, 0, nullptr);
 
 	win->setDecorations(optionsDecorations,
 	                    ARRAYSIZE(optionsDecorations),
@@ -1973,7 +1969,6 @@ APPFUNC(cmdSetSpeechVolume) {
 	int16 v = quantizedVolume(ev.value);
 	ConfMan.setInt("speech_volume", v);
 	g_vm->syncSoundSettings();
-	volumeChanged();
 }
 
 // Set DIG sound volume for FTA

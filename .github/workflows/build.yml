@@ -41,7 +41,18 @@ jobs:
       - name: Corresponding source package
         working-directory: build
         run: cpack --config CPackSourceConfig.cmake
+      - name: Single runtime archive with corresponding source
+        shell: bash
+        run: |
+          python3 - <<'PYTHON'
+          from pathlib import Path
+          from tools.package_release import package_release
+          source = next(Path("build").glob("fta2-native-*-source.zip"))
+          for engine in Path("build").glob("fta2-native-*.zip"):
+              if engine != source:
+                  package_release(engine, source, Path("build/release") / engine.name)
+          PYTHON
       - uses: actions/upload-artifact@v4
         with:
           name: fta2-native-${{ matrix.name }}
-          path: build/fta2-native-*.zip
+          path: build/release/fta2-native-*.zip

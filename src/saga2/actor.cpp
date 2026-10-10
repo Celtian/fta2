@@ -23,6 +23,7 @@
  *   (c) 1993-1996 The Wyrmkeep Entertainment Co.
  */
 
+#include "platform/diagnostics.h"
 #include "platform/runtime.h"
 
 #include "saga2/saga2.h"
@@ -1525,6 +1526,7 @@ void Actor::stopMoving() {
 //	Cause this actor to die
 
 void Actor::die() {
+	Native::diagnosticMessage("ACTOR", "die actor=%u parent=%u position=(%d,%d,%d)", unsigned(thisID()), unsigned(_data.parentID), _data.location.u, _data.location.v, _data.location.z);
 	if (!isDead()) return;
 
 	ObjectID        dObj = thisID();

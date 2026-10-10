@@ -12,6 +12,7 @@
 #include "saga2/tcoords.h"
 #include "saga2/calendar.h"
 #include "saga2/inventory_ui.h"
+#include "saga2/motion.h"
 namespace Saga2 {
 extern gDisplayPort* globalPort;
 }
@@ -20,6 +21,21 @@ static void check(bool condition, const char* what) {
     if (!condition)
         throw std::runtime_error(what);
 }
+namespace Saga2 {
+struct MotionTaskTestAccess {
+    static bool repeatedRemoval(Saga2Engine& engine) {
+        auto retired = new MotionTask();
+        engine._mTaskList->_retired.push_back(retired);
+        const auto seed = engine._rnd->getSeed();
+        retired->remove();
+        retired->remove();
+        const bool unchanged = engine._mTaskList->_retired.size() == 1 &&
+                               engine._mTaskList->_list.empty() && engine._rnd->getSeed() == seed;
+        engine._mTaskList->collectRetired();
+        return unchanged && engine._mTaskList->_retired.empty();
+    }
+};
+} // namespace Saga2
 static void mustFail(const std::function<void()>& fn) {
     bool failed = false;
     try {
@@ -45,6 +61,9 @@ static void mustFail(const std::function<void()>& fn) {
                   "Large wheel input overflowed");
             check(slotNumber(0, 0, 4) == 1 && slotNumber(1, 0, 4) == 5 && slotNumber(7, 3, 4) == 32,
                   "Slot numbering must continue across all rows");
+            check(scrollRows(0, 4, 20, -100, remainder) == 16 &&
+                      scrollRows(16, 4, 20, 1, remainder) == 15 && slotNumber(19, 3, 4) == 80,
+                  "Mental inventory must retain its original twenty-row capacity");
             constexpr unsigned frames = Saga2::CalendarTime::kFramesPerHour;
             check(std::string(clockText(0, 5, 0, frames).data()) == "Day 1 05:00" &&
                       std::string(clockText(0, 5, frames / 2, frames).data()) == "Day 1 05:30" &&
@@ -183,7 +202,10 @@ int main() {
         platform.initGraphics(640, 480);
         {
             Saga2::Saga2Engine engine;
-            engine._audio = new Saga2::AudioInterface;
+            check(Saga2::MotionTaskTestAccess::repeatedRemoval(engine),
+                  "Repeated retirement changed its owner, RNG or deferred deletion queue");
+            auto testAudio = std::make_unique<Saga2::AudioInterface>();
+            engine._audio = testAudio.get();
             Saga2::globalPort = &engine._mainPort;
             struct RecordingWindow : Saga2::gWindow {
                 Saga2::Rect16 updated;
@@ -538,6 +560,56 @@ int main() {
         mixer.advance(2);
         check(!mixer.isSoundHandleActive(sound) && mixer.sampleCounts().second == 4,
               "Finite audio loop did not stop after two repetitions");
+        auto stereo = new Audio::AudioStream;
+        stereo->rate = 48000;
+        stereo->channels = 2;
+        stereo->samples = {0.25f, -0.75f, 0.5f, -0.5f};
+        mixer.playStream(Audio::Mixer::kSFXSoundType, &sound, stereo);
+        check(mixer.advance(2) == std::vector<float>({0.25f, -0.75f, 0.5f, -0.5f}) &&
+                  !mixer.isSoundHandleActive(sound),
+              "Stereo PCM channels or completion duration were changed");
+        {
+            auto tone = [](float sample) {
+                auto stream = new Audio::AudioStream;
+                stream->rate = 48000;
+                stream->samples = {sample};
+                stream->loop = true;
+                return stream;
+            };
+            Audio::SoundHandle voice, effect;
+            mixer.playStream(Audio::Mixer::kSpeechSoundType, &voice, tone(0.5f), -1, 128);
+            mixer.playStream(Audio::Mixer::kSFXSoundType, &effect, tone(0.25f));
+            mixer.setMusic(
+                [](float* out, int frames) { std::fill(out, out + frames * 2, 0.125f); });
+            ConfMan.setBool("speech_mute", false);
+            for (int volume : {0, 64, 128, 255, -20, 300, 0, 128}) {
+                ConfMan.setInt("speech_volume", volume);
+                mixer.syncSoundSettings();
+                const auto output = mixer.advance(4);
+                const float expected =
+                    0.375f + 0.5f * (128.0f / 255) * (std::clamp(volume, 0, 255) / 255.0f);
+                check(std::all_of(output.begin(), output.end(),
+                                  [expected](float sample) {
+                                      return std::abs(sample - expected) < 0.00001f;
+                                  }),
+                      "Live speech gain or isolation from music/effects is incorrect");
+                check(mixer.isSoundHandleActive(voice), "Speech gain restarted its stream");
+            }
+            ConfMan.setBool("speech_mute", true);
+            mixer.syncSoundSettings();
+            check(mixer.advance(1)[0] == 0.375f,
+                  "Speech mute silenced music/effects or leaked voice");
+            mixer.stopHandle(voice);
+            ConfMan.setBool("speech_mute", false);
+            ConfMan.setInt("speech_volume", 64);
+            mixer.syncSoundSettings();
+            mixer.playStream(Audio::Mixer::kSpeechSoundType, &voice, tone(0.5f));
+            check(std::abs(mixer.advance(1)[0] - (0.375f + 0.5f * 64 / 255)) < 0.00001f,
+                  "New speech stream did not use the current gain exactly once");
+            mixer.stopHandle(voice);
+            mixer.stopHandle(effect);
+            mixer.setMusic(nullptr);
+        }
         std::filesystem::remove_all(root);
         puts("Native runtime checks passed");
         return 0;

@@ -4,6 +4,8 @@
 namespace Native {
 extern std::function<void()> gameFrameHook;
 void configureSmokeProbe(const Path& output, int frames = 260);
+void configureVoiceProbe(const Path& output);
+void configureDeathProbe(const Path& output, uint16 actor);
 void configureWidescreenProbe(const Path& output);
 void verifyContainerOwners(const Path& output);
 } // namespace Native

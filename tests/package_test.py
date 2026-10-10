@@ -3,10 +3,14 @@ import hashlib
 import importlib.util
 import json
 from pathlib import Path
+import sys
 import tempfile
 import unittest
 from unittest.mock import patch
-from zipfile import ZipFile
+from zipfile import ZipFile, ZipInfo
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+import package_release
 
 spec = importlib.util.spec_from_file_location(
     "package_complete", Path(__file__).resolve().parents[1] / "tools/package_complete.py"
@@ -60,6 +64,40 @@ class PackageTests(unittest.TestCase):
         self.assertEqual(self.output.read_bytes(), second.read_bytes())
         self.assertTrue(all(p.read_bytes() == content for p, content in before.items()))
 
+    def test_single_package_with_verified_voices_and_sources(self):
+        source = self.root / "engine-source.zip"
+        with ZipFile(source, "w") as z:
+            z.writestr("engine-source/CMakeLists.txt", b"build")
+            z.writestr("engine-source/LICENSE", b"licence")
+        # Use a versioned runtime root as CPack does.
+        with ZipFile(self.engine, "w") as z:
+            z.writestr("engine-Windows/bin/fta2-native.exe", b"engine")
+            z.writestr("engine-Windows/bin/SDL3.dll", b"SDL")
+        voice = self.root / "voice.hrs"
+        voice.write_bytes(b"synthetic verified voice")
+        with patch.object(packager, "VOICE_SIZE", voice.stat().st_size), \
+                patch.object(packager, "VOICE_SHA256", hashlib.sha256(voice.read_bytes()).hexdigest()):
+            manifest = packager.package_complete(self.engine, self.game, self.output, source, voice)
+        with ZipFile(self.output) as z:
+            self.assertEqual(z.read("engine-Windows/media/FTAVOICE.HRS"), voice.read_bytes())
+            self.assertEqual(z.read("engine-Windows/" + manifest["source"]["file"]), source.read_bytes())
+            self.assertIn(b"voices are included", z.read("engine-Windows/START-HERE.txt"))
+        self.assertEqual(len(manifest["files"]), 8)
+
+    def test_invalid_voice_rejected_without_output(self):
+        with self.assertRaisesRegex(ValueError, "voice archive size"):
+            packager.package_complete(self.engine, self.game, self.output,
+                                      voice_file=self.game / "FTAVOICE.HRS")
+        self.assertFalse(self.output.exists())
+
+    def test_damaged_voice_hash_rejected_without_output(self):
+        voice = self.root / "bad-voice.hrs"
+        voice.write_bytes(b"damaged voice")
+        with patch.object(packager, "VOICE_SIZE", voice.stat().st_size):
+            with self.assertRaisesRegex(ValueError, "damaged voice archive"):
+                packager.package_complete(self.engine, self.game, self.output, voice_file=voice)
+        self.assertFalse(self.output.exists())
+
     def test_unknown_executable_is_rejected_before_output(self):
         (self.game / "FTA2.EXE").write_bytes(b"unknown exe")
         with self.assertRaisesRegex(ValueError, "FTA2.EXE: expected SHA-256"):
@@ -101,6 +139,82 @@ class PackageTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "already contains"):
             self.build()
         self.assertFalse(self.output.exists())
+
+
+class ReleaseTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.engine = self.root / "runtime.zip"
+        self.source = self.root / "game-1-source.zip"
+        self.output = self.root / "release.zip"
+        with ZipFile(self.engine, "w") as z:
+            z.writestr("game-1-Windows/bin/fta2-native.exe", b"engine")
+        with ZipFile(self.source, "w") as z:
+            z.writestr("game-1-source/CMakeLists.txt", b"build instructions")
+            z.writestr("game-1-source/LICENSE", b"licence")
+
+    def build(self):
+        return package_release.package_release(self.engine, self.source, self.output)
+
+    def test_source_is_inside_single_repeatable_runtime(self):
+        manifest = self.build()
+        with ZipFile(self.output) as z:
+            self.assertEqual(z.read("game-1-Windows/" + manifest["file"]), self.source.read_bytes())
+            self.assertEqual(z.read("game-1-Windows/bin/fta2-native.exe"), b"engine")
+        second = self.root / "second.zip"
+        package_release.package_release(self.engine, self.source, second)
+        self.assertEqual(self.output.read_bytes(), second.read_bytes())
+
+    def test_runtime_library_symlink_preserved(self):
+        link = ZipInfo("game-1-Windows/lib/libSDL3.so.0")
+        link.create_system = 3
+        link.external_attr = 0o120777 << 16
+        with ZipFile(self.engine, "a") as z:
+            z.writestr(link, b"libSDL3.so.0.4.18")
+        self.build()
+        with ZipFile(self.output) as z:
+            self.assertEqual(z.read(link.filename), b"libSDL3.so.0.4.18")
+            self.assertEqual(z.getinfo(link.filename).external_attr, link.external_attr)
+
+    def test_escaping_runtime_symlink_rejected(self):
+        link = ZipInfo("game-1-Windows/lib/bad")
+        link.create_system = 3
+        link.external_attr = 0o120777 << 16
+        with ZipFile(self.engine, "a") as z:
+            z.writestr(link, b"../../outside")
+        with self.assertRaisesRegex(ValueError, "unsafe symbolic link"):
+            self.build()
+        self.assertFalse(self.output.exists())
+
+    def test_source_version_mismatch(self):
+        with self.assertRaisesRegex(ValueError, "version does not match"):
+            package_release.source_additions(self.source, "game-2-Windows")
+        self.assertFalse(self.output.exists())
+
+    def test_source_data_and_unsafe_paths_rejected(self):
+        for name in ("original-game/FTA2.EXE", "media/FTAVOICE.HRS", "../escape", "data/save.sav"):
+            with self.subTest(name=name):
+                with ZipFile(self.source, "w") as z:
+                    z.writestr("game-1-source/CMakeLists.txt", b"build")
+                    z.writestr("game-1-source/LICENSE", b"licence")
+                    z.writestr("game-1-source/" + name, b"forbidden")
+                with self.assertRaises(ValueError):
+                    self.build()
+                self.assertFalse(self.output.exists())
+
+    def test_conflicting_entries_rejected(self):
+        with ZipFile(self.engine, "a") as z:
+            z.writestr("game-1-Windows/source/README.txt", b"conflict")
+        with self.assertRaisesRegex(ValueError, "conflicts"):
+            self.build()
+
+    def test_existing_output_preserved(self):
+        self.output.write_bytes(b"existing")
+        with self.assertRaisesRegex(ValueError, "already exists"):
+            self.build()
+        self.assertEqual(self.output.read_bytes(), b"existing")
 
 
 if __name__ == "__main__":

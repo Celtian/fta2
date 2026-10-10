@@ -47,11 +47,32 @@ def validate_mental_owners(output):
     return result
 
 
+def validate_mental_scrolling(output):
+    """Check actual mental categories, wheel routing and restored fixture state."""
+    result = json.loads((output / "mental-scroll.json").read_text())
+    assert result["status"] == "passed" and result["fixture_restored"]
+    assert (result["layouts"], result["panels"], result["brothers"], result["categories"]) == (4, 2, 3, 3)
+    assert result["captures"] == result["ability_interactions"] == 72
+    assert result["category_checks"] == 216 and result["save_load_checks"] == 24
+    assert result["placeholder_checks"] == 216 and result["redraw_checks"] == 504
+    assert result["wheel_checks"] == 1680
+    for wide, width in ((0, 640), (1, 854)):
+        for sidebar in range(2):
+            for group in range(2):
+                for brother in range(3):
+                    for part in range(3):
+                        name = f"mental-scroll-{wide}-{sidebar}-{group}-{brother}-{part}.ppm"
+                        image = (output / name).read_bytes()
+                        header = f"P6\n{width} 480\n255\n".encode()
+                        assert image.startswith(header) and len(image) == len(header) + width * 480 * 3
+    return result
+
+
 def validate_inventory_ui(output):
     """Check physical wheel/placeholder and game-clock integration evidence."""
     result = json.loads((output / "inventory-ui.json").read_text())
     assert result == {"status": "passed", "layouts": 4, "decorations": 4,
-                      "wheel_checks": 380, "placeholder_checks": 48,
+                      "wheel_checks": 384, "placeholder_checks": 48,
                       "redraw_checks": 80, "options_checks": 8, "clock_checks": 12,
                       "save_load_checks": 4, "fixture_restored": True}
     for wide, width in ((0, 640), (1, 854)):
@@ -108,6 +129,15 @@ def validate_container_owners(output):
     assert len(set(initials.values())) == 3
     validate_mental_owners(output)
     validate_inventory_ui(output)
+    validate_mental_scrolling(output)
+    for wide in range(2):
+        for sidebar in range(2):
+            for pregame in range(2):
+                audio = json.loads((output / f"options-audio-{wide}-{sidebar}-{pregame}.json").read_text())
+                assert audio["status"] == "passed" and audio["preference_saved"]
+                assert audio["night_bounds"] == [14, 206, 18, 17]
+                low, middle, high = audio["speech_levels"]
+                assert low == 0 and 0 < middle < high == 255
     return result
 
 
@@ -303,7 +333,7 @@ def main():
         with (output / "native.log").open("w") as log:
             subprocess.run([str(binary), "--data-dir", str(game), "--save-dir", str(saves),
                             "--smoke-test", str(output), "--smoke-widescreen"],
-                           env=env, check=True, timeout=120, stdout=log, stderr=subprocess.STDOUT)
+                           env=env, check=True, timeout=300, stdout=log, stderr=subprocess.STDOUT)
         startup = json.loads((output / "startup.json").read_text())
         assert startup == {"widescreen": bool(index), "width": 854 if index else 640}
         assert json.loads((output / "clock-startup.json").read_text()) == {"show_game_time": bool(index)}

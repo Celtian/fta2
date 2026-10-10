@@ -505,10 +505,10 @@ Path resolveDataFile(const Path& name);
 extern Native::Config ConfMan;
 extern Native::Cursor CursorMan;
 namespace Audio {
-enum { FLAG_UNSIGNED = 1, FLAG_16BITS = 2, FLAG_LITTLE_ENDIAN = 4 };
+enum { FLAG_UNSIGNED = 1, FLAG_16BITS = 2, FLAG_LITTLE_ENDIAN = 4, FLAG_STEREO = 8 };
 struct AudioStream {
     std::vector<float> samples;
-    int rate = 22050, loops = 1;
+    int rate = 22050, loops = 1, channels = 1;
     bool loop = false;
 };
 using SeekableAudioStream = AudioStream;
@@ -532,6 +532,7 @@ class Mixer {
     std::mutex _mutex;
     uint64 _id = 0;
     bool _paused = false;
+    int _speechVolume = 255;
     std::function<void(float*, int)> _music;
     uint64 _musicNonzero = 0, _effectsNonzero = 0;
     bool _deterministic = false;
@@ -547,10 +548,10 @@ class Mixer {
     bool isSoundHandleActive(SoundHandle);
     void setChannelVolume(SoundHandle, int);
     void pauseAll(bool);
-    void syncSoundSettings() {}
+    void syncSoundSettings();
     void setMusic(std::function<void(float*, int)>);
     void enableDeterministic();
-    void advance(int frames);
+    std::vector<float> advance(int frames);
     std::pair<uint64, uint64> sampleCounts();
 };
 } // namespace Audio

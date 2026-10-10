@@ -1,0 +1,237 @@
+{
+  "source_page": "https://www.myabandonware.com/game/halls-of-the-dead-faery-tale-adventure-ii-bsc",
+  "source_label": "Windows Full CD Version",
+  "download_authorized_by_user": true,
+  "zip_sha256": "c88a33e5cf2f2e35168affc746ef1ed2e22d8e8462d5ae15d7a3f46111e62a15",
+  "zip_size": 308652548,
+  "voice_size": 268574344,
+  "voice_sha256": "34bd5c7e3b5982df3f84b274c05a0f056a2932dfd03f02d880be44e5a81353c3",
+  "voice_recordings": 4320,
+  "shared_files": {
+    "FTA.HRS": {
+      "size": 213376,
+      "sha256": "1d4fc56861bdc3f0e1dda1a21f48991e350dd8213fb694484f0f7fa731c7055d",
+      "matches_dos": true
+    },
+    "FTA2.EXE": {
+      "size": 1093120,
+      "sha256": "95853bb7d638faa0beb8fc088f4e544955eb3510e8633b9869d79cab101478d7",
+      "matches_dos": false
+    },
+    "FTADATA.HRS": {
+      "size": 15042,
+      "sha256": "3b6d0475b1187e28d4387750391ce1d2a7791ab0fd7e706c1040ff16576cb0b5",
+      "matches_dos": true
+    },
+    "FTAIMAGE.HRS": {
+      "size": 21127397,
+      "sha256": "e8f0cf92507a11c1c6ec0bf790fa054a883d421689f5f3abd9b4e2c8f9172bec",
+      "matches_dos": true
+    },
+    "FTASOUND.HRS": {
+      "size": 12403350,
+      "sha256": "7eb5cc6a582abcfe91ab6b50d343c95cdc68be1fa439e464592fed9f7cbcfbf8",
+      "matches_dos": true
+    },
+    "SCRIPTS.HRS": {
+      "size": 1041948,
+      "sha256": "ddb3747ed47e1d6a420165d28e1d7f3e66abd64e1323690c11620b910dd05317",
+      "matches_dos": true
+    }
+  },
+  "engine_version": "0.1.32",
+  "decoder": {
+    "recordings_decoded": 4320,
+    "total_pcm_bytes": 724941216,
+    "sample_rate": 22050,
+    "pcm_format": "signed 16-bit little-endian mono",
+    "shorten_version": 1,
+    "block_samples": 256,
+    "pcm_matches_pinned_imported_decoder": 4320,
+    "native_pcm_audit_sha256": "79b6b5844c4a4c1c8d7a0ff574e6ddd3c2c6df2eae7c1da796f3d47692edb9a5",
+    "reference_pcm_audit_sha256": "bbd3a90945c27b9ad17c1bcd2546c8a4d33e9b16e287ca624a23e2239fe1d5f7",
+    "final_recording": "I194",
+    "final_recording_offset": 268444711
+  },
+  "integration_linux": {
+    "status": "passed",
+    "voice_sha256": "34bd5c7e3b5982df3f84b274c05a0f056a2932dfd03f02d880be44e5a81353c3",
+    "original_files_unchanged": 54,
+    "voice_unchanged": true,
+    "damaged_explicit_archive_rejected": true,
+    "runs": [
+      {
+        "widescreen": false,
+        "alternate_sidebar": false,
+        "status": "passed",
+        "recordings": 3,
+        "dialogue_variants": 3,
+        "large_archive_offset": true,
+        "pause": true,
+        "abort_queue": true,
+        "missing_fallback": true,
+        "muted_fallback": true,
+        "simulation_unchanged": true
+      },
+      {
+        "widescreen": false,
+        "alternate_sidebar": true,
+        "status": "passed",
+        "recordings": 3,
+        "dialogue_variants": 3,
+        "large_archive_offset": true,
+        "pause": true,
+        "abort_queue": true,
+        "missing_fallback": true,
+        "muted_fallback": true,
+        "simulation_unchanged": true
+      },
+      {
+        "widescreen": true,
+        "alternate_sidebar": false,
+        "status": "passed",
+        "recordings": 3,
+        "dialogue_variants": 3,
+        "large_archive_offset": true,
+        "pause": true,
+        "abort_queue": true,
+        "missing_fallback": true,
+        "muted_fallback": true,
+        "simulation_unchanged": true
+      },
+      {
+        "widescreen": true,
+        "alternate_sidebar": true,
+        "status": "passed",
+        "recordings": 3,
+        "dialogue_variants": 3,
+        "large_archive_offset": true,
+        "pause": true,
+        "abort_queue": true,
+        "missing_fallback": true,
+        "muted_fallback": true,
+        "simulation_unchanged": true
+      }
+    ]
+  },
+  "default_reference_comparison": {
+    "artifacts": "existing pinned reference; not rebuilt or rerun",
+    "screenshots": 2,
+    "checkpoints": 4,
+    "original_chunks_per_save": 30,
+    "compared_saves": 2
+  },
+  "development_status": "development-alpha",
+  "limitations": [
+    "No subjective speaker/listening comparison or full voiced playthrough",
+    "Not every script dialogue reference audited for recording coverage",
+    "macOS and MSVC execution not rerun"
+  ],
+  "public_tests": {
+    "linux_release": {
+      "passed": 6,
+      "total": 6
+    },
+    "windows_release": {
+      "passed": 6,
+      "total": 6
+    },
+    "linux_asan_lsan": {
+      "passed": 6,
+      "total": 6
+    },
+    "fixture_fix": "The existing UI runtime fixture now owns its allocated AudioInterface with unique_ptr."
+  },
+  "sanitizers": {
+    "voice_integration": {
+      "status": "passed",
+      "voice_sha256": "34bd5c7e3b5982df3f84b274c05a0f056a2932dfd03f02d880be44e5a81353c3",
+      "original_files_unchanged": 54,
+      "voice_unchanged": true,
+      "damaged_explicit_archive_rejected": true,
+      "runs": [
+        {
+          "widescreen": false,
+          "alternate_sidebar": false,
+          "status": "passed",
+          "recordings": 3,
+          "dialogue_variants": 3,
+          "large_archive_offset": true,
+          "pause": true,
+          "abort_queue": true,
+          "missing_fallback": true,
+          "muted_fallback": true,
+          "simulation_unchanged": true
+        },
+        {
+          "widescreen": false,
+          "alternate_sidebar": true,
+          "status": "passed",
+          "recordings": 3,
+          "dialogue_variants": 3,
+          "large_archive_offset": true,
+          "pause": true,
+          "abort_queue": true,
+          "missing_fallback": true,
+          "muted_fallback": true,
+          "simulation_unchanged": true
+        },
+        {
+          "widescreen": true,
+          "alternate_sidebar": false,
+          "status": "passed",
+          "recordings": 3,
+          "dialogue_variants": 3,
+          "large_archive_offset": true,
+          "pause": true,
+          "abort_queue": true,
+          "missing_fallback": true,
+          "muted_fallback": true,
+          "simulation_unchanged": true
+        },
+        {
+          "widescreen": true,
+          "alternate_sidebar": true,
+          "status": "passed",
+          "recordings": 3,
+          "dialogue_variants": 3,
+          "large_archive_offset": true,
+          "pause": true,
+          "abort_queue": true,
+          "missing_fallback": true,
+          "muted_fallback": true,
+          "simulation_unchanged": true
+        }
+      ]
+    },
+    "recordings_decoded": 4320,
+    "pcm_identical_to_release": true,
+    "classic_processes": 2
+  },
+  "windows_native": {
+    "wide_processes": 2,
+    "classic_processes": 1,
+    "version": "0.1.32",
+    "voice_processes": 4,
+    "decoded_recordings": 4320,
+    "native_windows_video": true,
+    "optional_media_auto_detected": true,
+    "data_files_unchanged": 8,
+    "status": "passed",
+    "executable_sha256": "55C43427DE92B350C21E8B3B02FF074F606B06E1AB7C996ED80C1449C4996F58"
+  },
+  "cross_platform": {
+    "decoded_pcm_recording_hash_matches": 4320,
+    "wide_capture_matches_per_process": [
+      285,
+      285
+    ]
+  },
+  "final_windows_executable_sha256": "cd9ef73094d71f770b9a8e6e9a61821ff978b6a9afb2bec898d765cf163b54b5",
+  "windows_rebuild_note": "After restoring decoder provenance comments, only PE build-identification metadata differs from the complete preflight; all program sections remain identical. All four voice combinations also pass with the exact final executable.",
+  "final_windows_executable_voice_check": {
+    "voice_processes": 4,
+    "status": "passed",
+    "executable_sha256": "CD9EF73094D71F770B9A8E6E9A61821FF978B6A9AFB2BEC898D765CF163B54B5"
+  }
+}

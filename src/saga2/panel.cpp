@@ -766,7 +766,7 @@ void gToolBase::handleMouse(Native::Event &event, uint32 time) {
 			const bool under = !covered && box.ptInside(position);
 			if (auto *container = dynamic_cast<ContainerWindow *>(window)) {
 				auto &view = container->getView();
-				if (under && view._node.getType() == ContainerNode::kPhysicalType &&
+				if (under && view.supportsGridScrolling() &&
 				    view.getExtent().ptInside(local)) wheelView = &view;
 				else view._wheelRemainder = 0;
 			}

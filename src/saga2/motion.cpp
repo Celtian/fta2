@@ -1071,6 +1071,12 @@ void MotionTask::write(Native::MemoryWriteStreamDynamic *out) {
 //	When a motion task is finished, call this function to delete it.
 
 void MotionTask::remove(int16 returnVal) {
+	// Death callbacks can retire the same motion before updatePositions finishes it.
+	// Ignore a second removal before it can repeat RNG, wakeups or deferred deletion.
+	const auto &active = g_vm->_mTaskList->_list;
+	if (std::find(active.begin(), active.end(), this) == active.end())
+		return;
+
 	if (g_vm->_mTaskList->_nextMT != g_vm->_mTaskList->_list.end() && *(g_vm->_mTaskList->_nextMT) == this)
 		++g_vm->_mTaskList->_nextMT;
 

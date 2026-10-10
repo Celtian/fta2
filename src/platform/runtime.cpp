@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "platform/runtime.h"
+#include "platform/diagnostics.h"
 #include "app-icon.h"
 #include <chrono>
 Native::Config ConfMan;
@@ -23,6 +24,7 @@ void warning(const char* fmt, ...) {
     va_start(ap, fmt);
     auto s = message(fmt, ap);
     va_end(ap);
+    Native::diagnosticMessage("WARNING", "%s", s.c_str());
     fprintf(stderr, "Warning: %s\n", s.c_str());
 }
 [[noreturn]] void error(const char* fmt, ...) {
@@ -30,6 +32,7 @@ void warning(const char* fmt, ...) {
     va_start(ap, fmt);
     auto s = message(fmt, ap);
     va_end(ap);
+    Native::diagnosticMessage("ERROR", "%s", s.c_str());
     throw std::runtime_error(s);
 }
 void debug(const char*, ...) {}
@@ -416,7 +419,14 @@ bool Platform::pollEvent(Event& out) {
         out = {};
         if (ev.type == SDL_EVENT_WINDOW_RESIZED || ev.type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED)
             refreshMousePosition();
+        if (ev.type == SDL_EVENT_KEY_DOWN && !ev.key.repeat)
+            diagnosticMessage("INPUT", "key=%u modifiers=%u", unsigned(ev.key.key),
+                              unsigned(ev.key.mod));
+        if (ev.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
+            diagnosticMessage("INPUT", "button=%u window_position=(%.1f,%.1f)",
+                              unsigned(ev.button.button), ev.button.x, ev.button.y);
         if (ev.type == SDL_EVENT_QUIT) {
+            diagnosticMessage("INPUT", "Window close requested");
             quitting = true;
             out.type = EVENT_QUIT;
             return true;
@@ -526,6 +536,7 @@ SeekableAudioStream* makeRawStream(const byte* p, uint32 n, int rate, int flags,
                                    DisposeAfterUse dispose) {
     auto stream = new AudioStream;
     stream->rate = rate;
+    stream->channels = flags & FLAG_STEREO ? 2 : 1;
     int step = flags & FLAG_16BITS ? 2 : 1;
     stream->samples.reserve(n / step);
     for (uint32 i = 0; i + step <= n; i += step) {
@@ -583,32 +594,40 @@ void Mixer::render(float* out, int frames) {
             ++_musicNonzero;
     for (auto& c : _channels) {
         float volume = float(c.volume) / 255;
+        if (c.type == kSpeechSoundType)
+            volume *= float(_speechVolume) / 255;
         for (int f = 0; f < frames; ++f) {
             size_t index = size_t(c.position);
-            if (index >= c.data->samples.size()) {
+            const size_t frameCount = c.data->samples.size() / c.data->channels;
+            if (index >= frameCount) {
                 if (c.data->samples.empty() || (!c.data->loop && c.data->loops <= 1))
                     break;
                 if (!c.data->loop)
                     --c.data->loops;
-                c.position = std::fmod(c.position, double(c.data->samples.size()));
+                c.position = std::fmod(c.position, double(frameCount));
                 index = size_t(c.position);
             }
-            float v = c.data->samples[index] * volume;
-            if (v != 0)
+            const size_t sample = index * c.data->channels;
+            float left = c.data->samples[sample] * volume;
+            float right = c.data->samples[sample + c.data->channels - 1] * volume;
+            if (left != 0 || right != 0)
                 ++_effectsNonzero;
-            out[f * 2] += v;
-            out[f * 2 + 1] += v;
+            out[f * 2] += left;
+            out[f * 2 + 1] += right;
             c.position += double(c.data->rate) / 48000;
         }
     }
     std::erase_if(_channels, [](const Channel& c) {
-        return !c.data->loop && c.data->loops <= 1 && c.position >= c.data->samples.size();
+        return !c.data->loop && c.data->loops <= 1 &&
+               c.position >= c.data->samples.size() / c.data->channels;
     });
     for (int i = 0; i < frames * 2; ++i)
         out[i] = std::clamp(out[i], -1.0f, 1.0f);
 }
 void Mixer::playStream(int type, SoundHandle* handle, AudioStream* stream, int, int volume) {
     std::lock_guard lock(_mutex);
+    if (!stream)
+        return;
     handle->id = ++_id;
     _channels.push_back({*handle, std::unique_ptr<AudioStream>(stream), 0, volume, type});
 }
@@ -630,6 +649,12 @@ void Mixer::setChannelVolume(SoundHandle h, int v) {
 void Mixer::pauseAll(bool v) {
     std::lock_guard lock(_mutex);
     _paused = v;
+}
+void Mixer::syncSoundSettings() {
+    const int volume = ConfMan.hasKey("speech_volume") ? ConfMan.getInt("speech_volume") : 255;
+    const bool muted = ConfMan.getBool("speech_mute");
+    std::lock_guard lock(_mutex);
+    _speechVolume = muted ? 0 : std::clamp(volume, 0, 255);
 }
 void Mixer::setMusic(std::function<void(float*, int)> fn) {
     std::lock_guard lock(_mutex);
@@ -661,9 +686,10 @@ void Audio::Mixer::enableDeterministic() {
     std::lock_guard lock(_mutex);
     _deterministic = true;
 }
-void Audio::Mixer::advance(int frames) {
+std::vector<float> Audio::Mixer::advance(int frames) {
     std::vector<float> buffer(frames * 2);
     render(buffer.data(), frames);
+    return buffer;
 }
 std::pair<uint64, uint64> Audio::Mixer::sampleCounts() {
     std::lock_guard lock(_mutex);

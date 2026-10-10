@@ -90,6 +90,7 @@ void setObjectSurface(GameObject *obj, StandingTileInfo &sti);
 //      can explode
 
 class MotionTask {
+	friend struct MotionTaskTestAccess;
 	friend class    MotionTaskList;
 	friend class    PathRequest;
 	friend class    DestinationPathRequest;
@@ -534,6 +535,7 @@ public:
 };
 
 class MotionTaskList {
+	friend struct MotionTaskTestAccess;
 	friend class    MotionTask;
 
 	Native::List<MotionTask *> _list;

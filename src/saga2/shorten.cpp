@@ -19,537 +19,245 @@
  *
  */
 
-#include "platform/runtime.h"
-
 #include "saga2/shorten.h"
+#include "platform/runtime.h"
+#include <bit>
 
-// Based on etree's Shorten tool, version 3.6.1
+// Original decoder based on etree's Shorten 3.6.1 and Java-Shorten-decoder:
 // http://shnutils.freeshell.org/shorten/
-// and
 // https://github.com/soiaf/Java-Shorten-decoder
-
-
-
+// Based on the imported SAGA2 Shorten decoder. Preserve the original raw PCM
+// format and 22050 Hz rate; bound reads and keep predictor history across blocks.
 namespace Saga2 {
+namespace {
+constexpr size_t kMaxDecodedBytes = 32 * 1024 * 1024;
+constexpr unsigned kMaxBlock = 65536;
+constexpr unsigned kMaxHistory = 64;
 
-#define MASKTABSIZE 33
-#define MAX_SUPPORTED_VERSION 3
-#define DEFAULT_BLOCK_SIZE 256
+class RiceReader {
+    Native::ReadStream& _stream;
+    byte _byte = 0;
+    unsigned _bits = 0;
 
-enum kShortenTypes {
-	kTypeAU1 = 0,		// lossless ulaw
-	kTypeS8 = 1,		// signed 8 bit
-	kTypeU8 = 2,		// unsigned 8 bit
-	kTypeS16HL = 3,		// signed 16 bit shorts: high-low
-	kTypeU16HL = 4,		// unsigned 16 bit shorts: high-low
-	kTypeS16LH = 5,		// signed 16 bit shorts: low-high
-	kTypeU16LH = 6,		// unsigned 16 bit shorts: low-high
-	kTypeULaw = 7,		// lossy ulaw
-	kTypeAU2 = 8,		// new ulaw with zero mapping
-	kTypeAU3 = 9,		// lossless alaw
-	kTypeALaw = 10,		// lossy alaw
-	kTypeWAV = 11,		// WAV
-	kTypeAIFF = 12,		// AIFF
-	kTypeEOF = 13,
-	kTypeGenericULaw = 128,
-	kTypeGenericALaw = 129
+    unsigned bit() {
+        if (!_bits) {
+            if (_stream.read(&_byte, 1) != 1)
+                throw std::runtime_error("Truncated Shorten bitstream");
+            _bits = 8;
+        }
+        return (_byte >> --_bits) & 1;
+    }
+
+  public:
+    explicit RiceReader(Native::ReadStream& stream) : _stream(stream) {}
+    uint32 rice(unsigned bits) {
+        if (bits > 31)
+            throw std::runtime_error("Invalid Shorten Rice width");
+        uint64 value = 0;
+        while (!bit()) {
+            if (++value > (UINT32_MAX >> bits))
+                throw std::runtime_error("Shorten Rice value overflow");
+        }
+        for (unsigned i = 0; i < bits; ++i)
+            value = value * 2 + bit();
+        return uint32(value);
+    }
+    int32 signedRice(int bits) {
+        if (bits < -1 || bits > 30)
+            throw std::runtime_error("Invalid Shorten residual width");
+        const uint32 value = rice(unsigned(bits + 1));
+        return value & 1 ? ~int32(value >> 1) : int32(value >> 1);
+    }
+    uint32 integer(unsigned bits, unsigned version) { return rice(version == 0 ? bits : rice(2)); }
 };
 
-enum kShortenCommands {
-	kCmdDiff0 = 0,
-	kCmdDiff1 = 1,
-	kCmdDiff2 = 2,
-	kCmdDiff3 = 3,
-	kCmdQuit = 4,
-	kCmdBlockSize = 5,
-	kCmdBitShift = 6,
-	kCmdQLPC = 7,
-	kCmdZero = 8,
-	kCmdVerbatim = 9
-};
-
-#ifndef M_LN2
-#define M_LN2 0.69314718055994530942
-#endif
-
-// ---------------------------------------------------------------------------
-
-class ShortenGolombReader {
-public:
-	ShortenGolombReader(Native::ReadStream *stream, int version);
-	~ShortenGolombReader() {}
-	uint32 getUint32(uint32 numBits);    // UINT_GET
-	uint32 getURice(uint32 numBits);     // uvar_get
-	int32 getSRice(uint32 numBits);      // var_get
-private:
-	int _version;
-	uint32 _nbitget;
-	uint32 _buf;
-	uint32 _masktab[MASKTABSIZE];
-	Native::ReadStream *_stream;
-};
-
-ShortenGolombReader::ShortenGolombReader(Native::ReadStream *stream, int version) {
-	_stream = stream;
-	_version = version;
-	uint32 val = 0;
-	_masktab[0] = 0;
-	_nbitget = 0;
-	_buf = 0;
-
-	for (int i = 1; i < MASKTABSIZE; i++) {
-		val <<= 1;
-		val |= 1;
-		_masktab[i] = val;
-	}
+int32 checkedSample(int64 value) {
+    if (value < INT32_MIN || value > INT32_MAX)
+        throw std::runtime_error("Shorten predictor overflow");
+    return int32(value);
 }
 
-uint32 ShortenGolombReader::getURice(uint32 numBits) {
-	uint32 result = 0;
+std::vector<byte> decode(Native::ReadStream& stream, byte& flags) {
+    byte header[5];
+    if (stream.read(header, sizeof(header)) != sizeof(header) || memcmp(header, "ajkg", 4) != 0 ||
+        header[4] > 3)
+        throw std::runtime_error("Unsupported Shorten header");
+    const unsigned version = header[4];
+    RiceReader reader(stream);
+    const unsigned type = reader.integer(4, version);
+    if (type < 1 || type > 6)
+        throw std::runtime_error("Unsupported Shorten PCM type");
+    const bool wide = type >= 3;
+    const bool unsignedPcm = type == 2 || type == 4 || type == 6;
+    flags = (wide ? Audio::FLAG_16BITS | Audio::FLAG_LITTLE_ENDIAN : 0) |
+            (unsignedPcm ? Audio::FLAG_UNSIGNED : 0);
+    const unsigned channels = reader.integer(0, version);
+    if (channels != 1 && channels != 2)
+        throw std::runtime_error("Unsupported Shorten channel count");
+    if (channels == 2)
+        flags |= Audio::FLAG_STEREO;
+    unsigned blockSize = 256, maxLpc = 0, meanCount = 0;
+    std::vector<byte> output;
+    auto append = [&](byte value) {
+        if (output.size() == kMaxDecodedBytes)
+            throw std::runtime_error("Shorten output exceeds voice limit");
+        output.push_back(value);
+    };
+    if (version) {
+        blockSize = reader.integer(8, version);
+        maxLpc = reader.integer(2, version);
+        meanCount = reader.integer(0, version);
+        const unsigned skip = reader.integer(1, version);
+        if (!blockSize || blockSize > kMaxBlock || maxLpc > kMaxHistory ||
+            meanCount > kMaxHistory || skip > 1024 * 1024)
+            throw std::runtime_error("Invalid Shorten buffer dimensions");
+        for (unsigned i = 0; i < skip; ++i)
+            append(byte(reader.integer(7, version)));
+    }
+    const unsigned wrap = std::max(3u, maxLpc);
+    const int32 initialOffset = unsignedPcm ? (wide ? 32768 : 128) : 0;
+    std::array<std::vector<int32>, 2> buffer, offsets;
+    for (unsigned channel = 0; channel < channels; ++channel) {
+        buffer[channel].resize(wrap + blockSize);
+        offsets[channel].assign(std::max(1u, meanCount), initialOffset);
+    }
+    unsigned channel = 0, shift = 0;
+    for (;;) {
+        const unsigned command = reader.rice(2);
+        if (command == 4) { // Quit.
+            if (channel || output.empty())
+                throw std::runtime_error("Incomplete Shorten audio block");
+            return output;
+        }
+        if (command == 5) { // Block size.
+            const unsigned next = reader.integer(std::bit_width(blockSize) - 1, version);
+            if (channel || !next || next > kMaxBlock)
+                throw std::runtime_error("Invalid Shorten block size");
+            blockSize = next;
+            for (unsigned c = 0; c < channels; ++c)
+                buffer[c].resize(wrap + blockSize);
+            continue;
+        }
+        if (command == 6) { // Bit shift.
+            shift = reader.rice(2);
+            if (shift > 32)
+                throw std::runtime_error("Invalid Shorten sample shift");
+            continue;
+        }
+        if (command == 9) { // Verbatim bytes (raw SAGA2 streams have no WAV header).
+            unsigned count = reader.rice(5);
+            if (count > kMaxDecodedBytes - output.size())
+                throw std::runtime_error("Invalid Shorten verbatim length");
+            while (count--)
+                append(byte(reader.rice(8)));
+            continue;
+        }
+        if (command > 8)
+            throw std::runtime_error("Unknown Shorten command");
+        const uint32 residual = command == 8 ? 0 : reader.rice(3);
+        if (residual > 31)
+            throw std::runtime_error("Invalid Shorten residual size");
+        const int energy = int(residual) - (version == 0 && command != 8 ? 1 : 0);
+        if (energy < -1 || energy > 30)
+            throw std::runtime_error("Invalid Shorten residual size");
+        auto& data = buffer[channel];
+        auto& offset = offsets[channel];
+        int64 center = offset[0];
+        if (meanCount) {
+            center = version < 2 ? 0 : meanCount / 2;
+            for (auto value : offset)
+                center += value;
+            center /= meanCount;
+            if (version >= 2)
+                center >>= shift;
+        }
+        unsigned order = command <= 3 ? command : 0;
+        std::array<int32, kMaxHistory> coefficients{};
+        if (command == 7) {
+            order = reader.rice(2);
+            if (order > maxLpc)
+                throw std::runtime_error("Shorten LPC order exceeds history");
+            for (unsigned i = 0; i < order; ++i) {
+                coefficients[i] = reader.signedRice(5);
+                if (coefficients[i] < -65535 || coefficients[i] > 65535)
+                    throw std::runtime_error("Invalid Shorten LPC coefficient");
+            }
+            for (unsigned i = wrap - order; i < wrap; ++i)
+                data[i] = checkedSample(int64(data[i]) - center);
+        } else if (order) {
+            coefficients[0] = order;
+            if (order >= 2)
+                coefficients[1] = order == 2 ? -1 : -3;
+            if (order == 3)
+                coefficients[2] = 1;
+        }
+        for (unsigned i = 0; i < blockSize; ++i) {
+            int64 value = 0;
+            if (command != 8) {
+                int64 prediction = command == 7 ? (version >= 2 ? 32 : 0) : (order ? 0 : center);
+                for (unsigned j = 0; j < order; ++j)
+                    prediction += int64(coefficients[j]) * data[wrap + i - j - 1];
+                if (command == 7)
+                    prediction >>= 5;
+                value = int64(reader.signedRice(energy)) + prediction;
+            }
+            data[wrap + i] = checkedSample(value);
+        }
+        if (command == 7)
+            for (unsigned i = 0; i < blockSize; ++i)
+                data[wrap + i] = checkedSample(int64(data[wrap + i]) + center);
+        if (meanCount) {
+            int64 sum = version < 2 ? 0 : blockSize / 2;
+            for (unsigned i = 0; i < blockSize; ++i)
+                sum += data[wrap + i];
+            std::move(offset.begin() + 1, offset.end(), offset.begin());
+            offset.back() =
+                checkedSample((sum / blockSize) * (version >= 2 ? int64(1) << shift : 1));
+        }
+        // Retain unshifted predictor history, including across short final blocks.
+        std::copy(data.begin() + blockSize, data.begin() + blockSize + wrap, data.begin());
+        for (unsigned i = 0; i < blockSize; ++i)
+            data[wrap + i] = shift == 32 ? 0 : checkedSample(int64(data[wrap + i]) * (int64(1) << shift));
+        if (++channel == channels) {
+            const int low = unsignedPcm ? 0 : (wide ? -32768 : -128);
+            const int high = unsignedPcm ? (wide ? 65535 : 255) : (wide ? 32767 : 127);
+            for (unsigned i = 0; i < blockSize; ++i) {
+                for (unsigned c = 0; c < channels; ++c) {
+                    const uint16 value = uint16(std::clamp(buffer[c][wrap + i], low, high));
+                    append(byte(value));
+                    if (wide)
+                        append(byte(value >> 8));
+                }
+            }
+            channel = 0;
+        }
+    }
+}
+} // namespace
 
-	if (!_nbitget) {
-		_buf = _stream->readUint32BE();
-		_nbitget = 32;
-	}
-
-	for (result = 0; !(_buf & (1L << --_nbitget)); result++) {
-		if (!_nbitget) {
-			_buf = _stream->readUint32BE();
-			_nbitget = 32;
-		}
-	}
-
-	while (numBits != 0) {
-		if (_nbitget >= numBits) {
-			result = (result << numBits) | ((_buf >> (_nbitget - numBits)) & _masktab[numBits]);
-			_nbitget -= numBits;
-			numBits = 0;
-		} else {
-			result = (result << _nbitget) | (_buf & _masktab[_nbitget]);
-			_buf = _stream->readUint32BE();
-			numBits -= _nbitget;
-			_nbitget = 32;
-		}
-	}
-
-	return result;
+byte* loadShortenFromStream(Native::ReadStream& stream, int& size, int& rate, byte& flags) {
+    size = 0;
+    rate = 22050;
+    flags = 0;
+    try {
+        auto pcm = decode(stream, flags);
+        auto* result = static_cast<byte*>(std::malloc(pcm.size()));
+        if (!result)
+            throw std::bad_alloc();
+        memcpy(result, pcm.data(), pcm.size());
+        size = int(pcm.size());
+        return result;
+    } catch (const std::exception& e) {
+        flags = 0;
+        warning("Cannot decode voice: %s", e.what());
+        return nullptr;
+    }
 }
 
-int32 ShortenGolombReader::getSRice(uint32 numBits) {
-	uint32 uvar = getURice(numBits + 1);
-	return (uvar & 1) ? (int32) ~(uvar >> 1) : (int32) (uvar >> 1);
+Audio::AudioStream* makeShortenStream(Native::SeekableReadStream& stream) {
+    int size, rate;
+    byte flags;
+    byte* data = loadShortenFromStream(stream, size, rate, flags);
+    return data ? Audio::makeRawStream(data, size, rate, flags) : nullptr;
 }
-
-uint32 ShortenGolombReader::getUint32(uint32 numBits) {
-	return (_version == 0) ? getURice(numBits) : getURice(getURice(2));
-}
-
-// ---------------------------------------------------------------------------
-
-byte *loadShortenFromStream(Native::ReadStream &stream, int &size, int &rate, byte &flags) {
-	int32 *buffer[2], *offset[2];	// up to 2 channels
-	int32 *oldValues[2];
-	byte *unpackedBuffer = nullptr;
-	byte *pBuf = unpackedBuffer;
-	int prevSize = 0;
-	int32 *lpc = nullptr;
-
-	ShortenGolombReader *gReader;
-	uint32 i, j, version, mean, type, channels, blockSize;
-	uint32 maxLPC = 0, lpcqOffset = 0;
-	int32 bitShift = 0, wrap = 0;
-	flags = 0;
-	size = 0;
-
-	// Read header
-	byte magic[4];
-	stream.read(magic, 4);
-	if (memcmp(magic, "ajkg", 4) != 0) {
-		warning("loadShortenFromStream: No 'ajkg' header");
-		return nullptr;
-	}
-
-	version = stream.readByte();
-
-	if (version > MAX_SUPPORTED_VERSION) {
-		warning("loadShortenFromStream: Can't decode version %d, maximum supported version is %d", version, MAX_SUPPORTED_VERSION);
-		return nullptr;
-	}
-
-	mean = (version < 2) ? 0 : 4;
-
-	gReader = new ShortenGolombReader(&stream, version);
-
-	// Get file type
-	type = gReader->getUint32(4);
-
-	switch (type) {
-		case kTypeS8:
-			mean = 0;
-			break;
-		case kTypeU8:
-			flags |= Audio::FLAG_UNSIGNED;
-			mean = 0x80;
-			break;
-		case kTypeS16LH:
-			flags |= Audio::FLAG_LITTLE_ENDIAN;
-			// fallthrough
-		case kTypeS16HL:
-			flags |= Audio::FLAG_16BITS;
-			mean = 0;
-			break;
-		case kTypeU16LH:
-			flags |= Audio::FLAG_LITTLE_ENDIAN;
-			// fallthrough
-		case kTypeU16HL:
-			flags |= Audio::FLAG_16BITS;
-			flags |= Audio::FLAG_UNSIGNED;
-			mean = 0x8000;
-			break;
-		case kTypeWAV:
-			// TODO: Perhaps implement this if we find WAV Shorten encoded files
-			warning("loadShortenFromStream: Type WAV is not supported");
-			delete gReader;
-			return nullptr;
-		case kTypeAIFF:
-			// TODO: Perhaps implement this if we find AIFF Shorten encoded files
-			warning("loadShortenFromStream: Type AIFF is not supported");
-			delete gReader;
-			return nullptr;
-		case kTypeAU1:
-		case kTypeAU2:
-		case kTypeAU3:
-		case kTypeULaw:
-		case kTypeALaw:
-		case kTypeEOF:
-		case kTypeGenericULaw:
-		case kTypeGenericALaw:
-		default:
-			warning("loadShortenFromStream: Type %d is not supported", type);
-			delete gReader;
-			return nullptr;
-	}
-
-	// Get channels
-	channels = gReader->getUint32(0);
-	if (channels != 1 && channels != 2) {
-		warning("loadShortenFromStream: Only 1 or 2 channels are supported, stream contains %d channels", channels);
-		delete gReader;
-		return nullptr;
-	}
-
-	// Get block size
-	if (version > 0) {
-		blockSize = gReader->getUint32((int)(log((double) DEFAULT_BLOCK_SIZE) / M_LN2));
-		maxLPC = gReader->getUint32(2);
-		mean = gReader->getUint32(0);
-		uint32 skipBytes = gReader->getUint32(1);
-		if (skipBytes > 0) {
-			prevSize = size;
-			size += skipBytes;
-			unpackedBuffer = (byte *) realloc(unpackedBuffer, size);
-			pBuf = unpackedBuffer + prevSize;
-			for (i = 0; i < skipBytes; i++) {
-				*pBuf++ = gReader->getUint32(7) & 0xFF;
-			}
-		}
-	} else {
-		blockSize = DEFAULT_BLOCK_SIZE;
-	}
-
-	wrap = MAX<uint32>(3, maxLPC);
-
-	// Initialize buffers
-	for (i = 0; i < channels; i++) {
-		buffer[i] = (int32 *)malloc((blockSize + wrap) * 4);
-		offset[i] = (int32 *)malloc((MAX<uint32>(1, mean)) * 4);
-		oldValues[i] = (int32 *)malloc(64 * 4);
-		memset(buffer[i], 0, (blockSize + wrap) * 4);
-		memset(offset[i], 0, (MAX<uint32>(1, mean)) * 4);
-		memset(oldValues[i], 0, 64 * 4);
-	}
-
-	if (maxLPC > 0)
-		lpc = (int32 *) malloc(maxLPC * 4);
-
-	if (version > 1)
-		lpcqOffset = 1 << 5;
-
-	// Init offset
-	int32 offsetMean = 0;
-	uint32 blocks = MAX<int>(1, mean);
-
-	if (type == kTypeU8)
-		offsetMean = 0x80;
-	else if (type == kTypeU16HL || type == kTypeU16LH)
-		offsetMean = 0x8000;
-
-	for (uint32 channel = 0; channel < channels; channel++)
-		for (uint32 block = 0; block < blocks; block++)
-			offset[channel][block] = offsetMean;
-
-
-	uint32 curChannel = 0, cmd = 0;
-
-	// Parse Shorten commands
-	while (true) {
-		cmd = gReader->getURice(2);
-
-		if (cmd == kCmdQuit)
-			break;
-
-		switch (cmd) {
-			case kCmdZero:
-			case kCmdDiff0:
-			case kCmdDiff1:
-			case kCmdDiff2:
-			case kCmdDiff3:
-			case kCmdQLPC:
-				{
-				int32 channelOffset = 0, energy = 0;
-				uint32 lpcNum = 0;
-
-				if (cmd != kCmdZero) {
-					energy = gReader->getURice(3);
-					// hack for version 0
-					if (version == 0)
-						energy--;
-				}
-
-				// Find mean offset (code duplicated below)
-				if (mean == 0) {
-					channelOffset = offset[curChannel][0];
-				} else {
-					int32 sum = (version < 2) ? 0 : mean / 2;
-					for (i = 0; i < mean; i++)
-						sum += offset[curChannel][i];
-
-					channelOffset = sum / mean;
-
-					if (version >= 2 && bitShift > 0)
-						channelOffset = (channelOffset >> (bitShift - 1)) >> 1;
-				}
-
-				switch (cmd) {
-					case kCmdZero:
-						for (i = 0; i < blockSize; i++)
-							buffer[curChannel][i] = 0;
-						break;
-					case kCmdDiff0:
-						for (i = 0; i < blockSize; i++)
-							buffer[curChannel][i] = gReader->getSRice(energy) + channelOffset;
-						break;
-					case kCmdDiff1:
-						for (i = 0; i < blockSize; i++) {
-							if (i == 0)
-								buffer[curChannel][i] = gReader->getSRice(energy) + oldValues[curChannel][0];
-							else
-								buffer[curChannel][i] = gReader->getSRice(energy) + buffer[curChannel][i - 1];
-						}
-						break;
-					case kCmdDiff2:
-						for (i = 0; i < blockSize; i++) {
-							if (i == 0)
-								buffer[curChannel][i] = gReader->getSRice(energy) + 2 * oldValues[curChannel][0] - oldValues[curChannel][1];
-							else if (i == 1)
-								buffer[curChannel][i] = gReader->getSRice(energy) + 2 * buffer[curChannel][0] - oldValues[curChannel][0];
-							else
-								buffer[curChannel][i] = gReader->getSRice(energy) + 2 * buffer[curChannel][i - 1] - buffer[curChannel][i - 2];
-						}
-						break;
-					case kCmdDiff3:
-						for (i = 0; i < blockSize; i++) {
-							if (i == 0)
-								buffer[curChannel][i] = gReader->getSRice(energy) + 3 * (oldValues[curChannel][0] - oldValues[curChannel][1]) + oldValues[curChannel][2];
-							else if (i == 1)
-								buffer[curChannel][i] = gReader->getSRice(energy) + 3 * (buffer[curChannel][0] - oldValues[curChannel][0]) + oldValues[curChannel][1];
-							else if (i == 2)
-								buffer[curChannel][i] = gReader->getSRice(energy) + 3 * (buffer[curChannel][1] - buffer[curChannel][0]) + oldValues[curChannel][0];
-							else
-								buffer[curChannel][i] = gReader->getSRice(energy) + 3 * (buffer[curChannel][i - 1] - buffer[curChannel][i - 2]) + buffer[curChannel][i - 3];
-						}
-						break;
-					case kCmdQLPC:
-						lpcNum = gReader->getURice(2);
-
-						// Safeguard: if maxLPC < lpcNum, realloc the lpc buffer
-						if (maxLPC < lpcNum) {
-							warning("Safeguard: maxLPC < lpcNum (should never happen)");
-							maxLPC = lpcNum;
-							int32 *tmp = (int32 *) realloc(lpc, maxLPC * 4);
-							if ((tmp != nullptr) || (maxLPC == 0)) {
-								lpc = tmp;
-							} else {
-								error("loadShortenFromStream(): Error while reallocating memory");
-							}
-						}
-
-						for (i = 0; i < lpcNum; i++)
-							lpc[i] = gReader->getSRice(5);
-
-						for (i = 0; i < lpcNum; i++)
-							buffer[curChannel][i - lpcNum] -= channelOffset;
-
-						for (i = 0; i < blockSize; i++) {
-							int32 sum = lpcqOffset;
-							for (j = 0; j < lpcNum; j++) {
-								// The original code did an invalid memory access here
-								// (if i and j are 0, the array index requested is -1)
-								// I've removed those invalid writes, since they happen all the time (even when curChannel is 0)
-								if (i <= j)	// ignore invalid table/memory access
-									continue;
-								sum += lpc[j] * buffer[curChannel][i - j - 1];
-							}
-							buffer[curChannel][i] = gReader->getSRice(energy) + (sum >> 5);
-						}
-
-						if (channelOffset > 0)
-							for (i = 0; i < blockSize; i++)
-								buffer[curChannel][i] += channelOffset;
-
-						break;
-					default:
-						break;
-				}
-
-				// Store mean value, if appropriate (duplicated code from above)
-				if (mean > 0) {
-					int32 sum = (version < 2) ? 0 : blockSize / 2;
-					for (i = 0; i < blockSize; i++)
-						sum += buffer[curChannel][i];
-
-					for (i = 1; i < mean; i++)
-						offset[curChannel][i - 1] = offset[curChannel][i];
-
-					offset[curChannel][mean - 1] = sum / blockSize;
-
-					if (version >= 2 && bitShift > 0)
-						offset[curChannel][mean - 1] = offset[curChannel][mean - 1] << bitShift;
-				}
-
-
-				// Do the wrap
-				for (i = 0; i < 64; ++i)
-					oldValues[curChannel][i] = 0;
-
-				uint arrayTerminator = MIN<int>(64, blockSize);
-				for (i = 0; i < arrayTerminator; ++i)
-					oldValues[curChannel][i] = buffer[curChannel][blockSize - (i + 1)];
-
-				// Fix bitshift
-				if (bitShift > 0) {
-					for (i = 0; i < blockSize; i++)
-						buffer[curChannel][i] <<= bitShift;
-				}
-
-				if (curChannel == channels - 1) {
-					int dataSize = (flags & Audio::FLAG_16BITS) ? 2 : 1;
-					int limit = (flags & Audio::FLAG_16BITS) ? 32767 : 127;
-					limit = (flags & Audio::FLAG_UNSIGNED) ? limit * 2 + 1 : limit;
-
-					prevSize = size;
-					size += (blockSize * dataSize);
-					byte *tmp = (byte *) realloc(unpackedBuffer, size);
-					if ((tmp != nullptr) || (size == 0)) {
-						unpackedBuffer = tmp;
-					} else {
-						error("loadShortenFromStream(): Error while reallocating memory");
-					}
-					pBuf = unpackedBuffer + prevSize;
-
-					if (flags & Audio::FLAG_16BITS) {
-						for (i = 0; i < blockSize; i++) {
-							for (j = 0; j < channels; j++) {
-								int16 val = (int16)(MIN<int32>(buffer[j][i], limit) & 0xFFFF);
-								// values are written in LE
-								*pBuf++ = (byte) (val & 0xFF);
-								*pBuf++ = (byte) ((val >> 8) & 0xFF);
-							}
-						}
-					} else {
-						for (i = 0; i < blockSize; i++)
-							for (j = 0; j < channels; j++)
-								*pBuf++ = (byte)(MIN<int32>(buffer[j][i], limit) & 0xFF);
-					}
-				}
-				curChannel = (curChannel + 1) % channels;
-
-				}
-				break;
-			case kCmdBlockSize:
-				blockSize = gReader->getUint32((uint32)log((double) blockSize / M_LN2));
-				break;
-			case kCmdBitShift:
-				bitShift = gReader->getURice(2);
-				break;
-			case kCmdVerbatim:
-				{
-
-				uint32 vLen = (uint32)gReader->getURice(5);
-				prevSize = size;
-				size += vLen;
-				byte *tmp = (byte *) realloc(unpackedBuffer, size);
-				if ((tmp != nullptr) || (size == 0)) {
-					unpackedBuffer = tmp;
-				} else {
-					error("loadShortenFromStream(): Error while reallocating memory");
-				}
-				pBuf = unpackedBuffer + prevSize;
-
-				while (vLen--) {
-					*pBuf++ = (byte)(gReader->getURice(8) & 0xFF);
-				}
-
-				}
-				break;
-			default:
-				warning("loadShortenFromStream: Unknown command: %d", cmd);
-
-				// Cleanup
-				for (i = 0; i < channels; i++) {
-					free(buffer[i]);
-					free(offset[i]);
-					free(oldValues[i]);
-				}
-
-				if (maxLPC > 0)
-					free(lpc);
-
-				if (size > 0)
-					free(unpackedBuffer);
-
-				delete gReader;
-				return nullptr;
-				break;
-		}
-	}
-
-	rate = 22050;
-
-	// Cleanup
-	for (i = 0; i < channels; i++) {
-		free(buffer[i]);
-		free(offset[i]);
-		free(oldValues[i]);
-	}
-
-	if (maxLPC > 0)
-		free(lpc);
-
-	delete gReader;
-	return unpackedBuffer;
-}
-
-Audio::AudioStream *makeShortenStream(Native::SeekableReadStream &stream) {
-	int size, rate;
-	byte *data, flags;
-	data = loadShortenFromStream(stream, size, rate, flags);
-
-	if (!data)
-		return nullptr;
-
-	// Since we allocated our own buffer for the data, we must specify DisposeAfterUse::YES.
-	return Audio::makeRawStream(data, size, rate, flags);
-}
-
-} // End of namespace Saga2
+} // namespace Saga2

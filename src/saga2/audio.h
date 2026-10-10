@@ -47,15 +47,20 @@ struct SoundInstance {
 	Point32 loc;
 };
 
+struct VoiceInstance {
+	SoundInstance sound;
+	std::unique_ptr<Audio::AudioStream> audio;
+};
+
 class AudioInterface {
 private:
 	enum {
 		kClickSounds = 3
 	};
 
-	SoundInstance _currentSpeech;
-	SoundInstance _currentLoop;
-	SoundInstance _currentMusic;
+	SoundInstance _currentSpeech{};
+	SoundInstance _currentLoop{};
+	SoundInstance _currentMusic{};
 
 public:
 	Audio::SoundHandle _speechSoundHandle;
@@ -64,7 +69,7 @@ public:
 	Audio::SoundHandle _clickSoundHandle;
 	Audio::SoundHandle _loopSoundHandle;
 
-	Native::List<SoundInstance> _speechQueue;
+	Native::List<VoiceInstance> _speechQueue;
 	Native::Queue<SoundInstance> _sfxQueue;
 
 	Audio::Mixer *_mixer;
@@ -101,8 +106,8 @@ public:
 	}
 
 	// voice calls
-	void queueVoice(uint32 s, Point32 where = Here);
-	void queueVoice(uint32 s[], Point32 where = Here);
+	bool queueVoice(uint32 s, Point32 where = Here);
+	bool queueVoice(uint32 s[], Point32 where = Here);
 	void stopVoice();
 	bool talking();
 	bool saying(uint32 s);

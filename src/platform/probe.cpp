@@ -163,7 +163,8 @@ struct HotKeysProbe {
         switch (phase) {
         case 0: {
             options = active;
-            require(options && options->getExtent().height == Saga2::kOptBoxYSize, "Options has wrong size");
+            require(options && options->getExtent().height == Saga2::kOptBoxYSize,
+                    "Options has wrong size");
             auto button = options->keyTest('H');
             require(button && button->getExtent().width == 121 && button->getExtent().height == 30,
                     "Hot Keys button is missing or resized");
@@ -742,6 +743,55 @@ struct SpeechToggleProbe {
                                                                  expected ? "on" : "off")
                                                       .c_str());
             phase = 3;
+            controls.clickAt(options, 15, 90);
+            break;
+        case 3:
+            if (ConfMan.getInt("speech_volume") != 0)
+                return;
+            controls.clickAt(options, 182, 90);
+            phase = 4;
+            break;
+        case 4:
+            if (ConfMan.getInt("speech_volume") != 255)
+                return;
+            controls.clickAt(options, 99, 90);
+            phase = 5;
+            break;
+        case 5: {
+            const int volume = ConfMan.getInt("speech_volume");
+            if (volume == 255)
+                return;
+            controls.require(volume > 0 && volume < 255, "Speech Volume midpoint is invalid");
+            vm->saveConfig();
+            Config saved;
+            saved.file = ConfMan.file;
+            saved.load();
+            controls.require(saved.getInt("speech_volume") == volume,
+                             "Speech Volume preference was not saved");
+            ConfMan.setInt("speech_volume", controls.volumes[2]);
+            vm->syncSoundSettings();
+            auto night = options->hitTest(Saga2::Point16(23, 214));
+            controls.require(night && night->getExtent() == Saga2::Rect16(14, 206, 18, 17),
+                             "Night checkbox is not below Speech Text");
+            std::ofstream(controls.output /
+                          (pregame ? "options-audio-pregame.json" : "options-audio-game.json"))
+                << "{\"status\":\"passed\",\"speech_levels\":[0," << volume
+                << ",255],\"preference_saved\":true,\"night_bounds\":[14,206,18,17]}\n";
+            controls.clickAt(options, 31, 222);
+            phase = 6;
+            break;
+        }
+        case 6:
+            if (vm->_showNight == controls.night)
+                return;
+            controls.clickAt(options, 14, 206);
+            phase = 7;
+            break;
+        case 7:
+            if (vm->_showNight != controls.night)
+                return;
+            controls.unchanged();
+            phase = 8;
             if (pregame)
                 static_cast<Saga2::requestInfo*>(options->_userData)->running = false;
             else
@@ -752,6 +802,139 @@ struct SpeechToggleProbe {
         }
     }
 };
+
+void verifyVoicePlayback(const Path& output) {
+    auto require = [](bool value, const char* message) {
+        if (!value)
+            throw std::runtime_error(std::string("Voice probe: ") + message);
+    };
+    auto vm = Saga2::g_vm;
+    auto audio = vm->_audio;
+    auto mixer = g_platform->getMixer();
+    require(vm->_speechVoice, "validated voice archive was not enabled");
+    require(Saga2::speechList.speechCount() == 0, "unexpected initial dialogue");
+    const auto rng = vm->_rnd->getSeed();
+    const auto actor = Saga2::getCenterActorID();
+    const auto position = Saga2::centerActorCoords();
+    const auto subtitles = ConfMan.getBool("subtitles");
+    const auto volume = ConfMan.getInt("speech_volume");
+    std::ifstream input(voiceArchive.c_str(), std::ios::binary);
+    byte header[12];
+    require(bool(input.read(reinterpret_cast<char*>(header), 12)), "cannot read voice header");
+    input.seekg(READ_LE_UINT32(header + 4));
+    require(bool(input.read(reinterpret_cast<char*>(header), 12)) && !memcmp(header, "TALK", 4),
+            "voice group is missing");
+    const uint32 table = READ_LE_UINT32(header + 4), length = READ_LE_UINT32(header + 8);
+    std::array<uint32, 3> ids{};
+    std::array<int, 2> samples{};
+    unsigned found = 0;
+    for (uint32 entry = 0; entry < length && found < 2; entry += 12) {
+        input.seekg(table + entry);
+        require(bool(input.read(reinterpret_cast<char*>(header), 12)), "cannot read voice entry");
+        if (header[0] < 'A' || header[0] > 'J' || !isDigit(header[1]) || !isDigit(header[2]) ||
+            !isDigit(header[3]))
+            continue;
+        int small = (header[0] - 'A') * 1000 + (header[1] - '0') * 100 + (header[2] - '0') * 10 +
+                    header[3] - '0';
+        if (!small)
+            continue;
+        ids[found] = READ_BE_UINT32(header);
+        samples[found++] = small;
+    }
+    require(found == 2, "not enough test recordings");
+    auto drain = [&] {
+        int ticks = 0;
+        while (audio->saying(ids[0]) || audio->saying(ids[1])) {
+            require(++ticks < 20000, "voice queue did not finish");
+            if (audio->playFlag())
+                audio->playMe();
+            mixer->advance(4800);
+        }
+        require(!audio->talking(), "finished voice still playing");
+    };
+    uint32 missing[] = {ids[0], MKTAG('Z', '9', '9', '9'), 0};
+    require(!Saga2::sayVoice(missing) && audio->_speechQueue.empty(),
+            "partially missing utterance was queued");
+    ConfMan.setInt("speech_volume", 0);
+    vm->syncSoundSettings();
+    require(!Saga2::sayVoice(ids.data()), "zero volume suppressed text fallback");
+    ConfMan.setInt("speech_volume", 192);
+    ConfMan.setBool("speech_mute", true);
+    vm->syncSoundSettings();
+    require(!Saga2::sayVoice(ids.data()), "muted voice suppressed text fallback");
+    ConfMan.setBool("speech_mute", false);
+    vm->syncSoundSettings();
+    require(!Saga2::sayVoiceAt(ids.data(), Saga2::Point32(10000, 10000)),
+            "inaudible distant voice suppressed text fallback");
+    require(Saga2::sayVoice(ids.data()) && audio->_speechQueue.size() == 2,
+            "valid utterance was not accepted before playback");
+    audio->playMe();
+    require(audio->talking(), "decoded recording did not start");
+    mixer->pauseAll(true);
+    mixer->advance(480000);
+    mixer->pauseAll(false);
+    require(audio->talking(), "pause advanced voice playback");
+    audio->stopVoice();
+    require(!audio->talking() && audio->_speechQueue.empty() && !audio->saying(ids[0]) &&
+                !audio->saying(ids[1]),
+            "aborting voice left pending segments");
+    require(Saga2::sayVoice(ids.data()), "voice replay failed");
+    drain();
+    uint32 tail[] = {MKTAG('I', '1', '9', '4'), 0};
+    require(Saga2::sayVoice(tail), "recording beyond the 256 MiB boundary was not loaded");
+    audio->playMe();
+    require(audio->talking(), "last archive recording did not start");
+    int tailTicks = 0;
+    while (audio->talking()) {
+        require(++tailTicks < 20000, "last archive recording did not finish");
+        mixer->advance(4800);
+    }
+    audio->playFlag();
+    require(!audio->saying(tail[0]), "last archive recording retained an active marker");
+    for (int variant = 0; variant < 3; ++variant) {
+        ConfMan.setBool("subtitles", variant == 0);
+        vm->syncSoundSettings();
+        auto speech = Saga2::speechList.newTask(actor, Saga2::Speech::kSpNoAnimate);
+        require(speech != nullptr, "cannot create voiced dialogue");
+        char plain[] = "Original voice playback regression.";
+        char choice[] = "Original voice playback regression.\n@Continue\n@Wait";
+        require(speech->append(variant == 2 ? choice : plain, samples[0]), "append failed");
+        char empty[] = "";
+        require(speech->append(empty, samples[1]), "second segment append failed");
+        speech->activate();
+        Saga2::updateSpeech();
+        require(Saga2::speechList.currentActive() == speech && !speech->longEnough(),
+                "dialogue completed while voice was queued");
+        const auto pixels = speech->_speechImage._data;
+        const auto bytes = speech->_speechImage.bytes();
+        const bool glyphs = pixels && std::any_of(pixels, pixels + bytes, [](byte p) { return p; });
+        require(glyphs == (variant != 1), "Speech Text did not follow voice availability");
+        require(Saga2::speechButtonCount == (variant == 2 ? 2 : 0), "voiced choices disappeared");
+        audio->playMe();
+        mixer->advance(1);
+        require(!speech->longEnough(), "dialogue ended before audio completion");
+        g_platform->capture(output / Path(String::format("voice-dialogue-%d.ppm", variant)));
+        if (variant == 1) {
+            speech->abortSpeech();
+            require(speech->longEnough() && audio->_speechQueue.empty(),
+                    "skipping dialogue retained voice segments");
+        } else {
+            drain();
+            require(speech->longEnough(), "dialogue did not finish with its voice");
+        }
+        speech->dispose();
+    }
+    ConfMan.setInt("speech_volume", volume);
+    ConfMan.setBool("subtitles", subtitles);
+    vm->syncSoundSettings();
+    require(vm->_rnd->getSeed() == rng && Saga2::getCenterActorID() == actor &&
+                Saga2::centerActorCoords() == position,
+            "voice test changed simulation state");
+    std::ofstream(output / "voice-playback.json")
+        << "{\"status\":\"passed\",\"recordings\":3,\"dialogue_variants\":3,"
+           "\"large_archive_offset\":true,\"pause\":true,\"abort_queue\":true,\"missing_fallback\":true,"
+           "\"muted_fallback\":true,\"simulation_unchanged\":true}\n";
+}
 
 struct SpeechFallbackProbe {
     HotKeysProbe controls;
@@ -1346,6 +1529,54 @@ struct MapShortcutProbe {
 };
 } // namespace
 
+void configureDeathProbe(const Path& output, uint16 actorID) {
+    std::filesystem::create_directories(output);
+    auto frames = std::make_shared<int>(0);
+    gameFrameHook = [output, actorID, frames] {
+        auto vm = Saga2::g_vm;
+        auto actor = static_cast<Saga2::Actor*>(Saga2::GameObject::objectAddress(actorID));
+        if (++*frames == 2) {
+            const auto location = actor->getLocation();
+            for (int i = 0; i < 3; ++i)
+                Saga2::getPlayerActorAddress(i)->getActor()->move(location);
+        }
+        if (*frames == 20) {
+            // Let the camera and active regions reach the villager before the animation.
+            actor->_effectiveStats.vitality = 0;
+            Saga2::MotionTask::die(*actor);
+        }
+        if (*frames == 250) {
+            if (!actor->isDead() || actor->_moveTask != nullptr)
+                throw std::runtime_error("Death probe: original death animation did not finish");
+            // Also exercise repeated retirement with the actual dead actor as owner.
+            Saga2::MotionTask::turn(*actor, static_cast<Saga2::Direction>(0));
+            auto motion = actor->_moveTask;
+            motion->finishTurn();
+            const auto seed = vm->_rnd->getSeed();
+            motion->finishTurn();
+            if (vm->_rnd->getSeed() != seed)
+                throw std::runtime_error("Death probe: repeated retirement consumed RNG");
+            vm->_mTaskList->collectRetired();
+            g_platform->capture(output / "villager-death.ppm");
+            std::ofstream(output / "villager-death.json")
+                << "{\"status\":\"passed\",\"actor\":" << actorID
+                << ",\"original_death_animation\":true,\"repeated_retirement_rng_unchanged\":true}\n";
+            vm->_gameRunning = false;
+        }
+    };
+}
+
+void configureVoiceProbe(const Path& output) {
+    std::filesystem::create_directories(output);
+    auto frames = std::make_shared<int>(0);
+    gameFrameHook = [output, frames] {
+        if (++*frames == 2) {
+            verifyVoicePlayback(output);
+            Saga2::g_vm->_gameRunning = false;
+        }
+    };
+}
+
 void configureSmokeProbe(const Path& output, int frames) {
     std::filesystem::create_directories(output);
     struct State {
@@ -1614,7 +1845,7 @@ void configureSmokeProbe(const Path& output, int frames) {
                     Saga2::OptionsDialog(pregame);
                     if (Saga2::GameMode::_newmodeFlag)
                         Saga2::GameMode::update();
-                    s.toggle->controls.require(s.toggle->phase == 3,
+                    s.toggle->controls.require(s.toggle->phase == 8,
                                                "Speech Text toggle scenario did not close");
                     s.toggle->controls.unchanged();
                     s.toggle.reset();

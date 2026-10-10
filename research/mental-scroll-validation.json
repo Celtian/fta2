@@ -1,0 +1,97 @@
+{
+  "version": "0.1.35",
+  "status": "development-alpha",
+  "changes": {
+    "mental_wheel_and_placeholders": true,
+    "category_change_resets_scroll": true,
+    "same_category_preserves_scroll": true,
+    "death_inventories_unchanged": true
+  },
+  "mental_geometry": {
+    "visible_rows": 4,
+    "columns": 4,
+    "total_rows": 20,
+    "last_scroll_row": 16,
+    "slot_numbers": [
+      1,
+      80
+    ],
+    "palette_foreground": 37,
+    "palette_outline": 24,
+    "font": "ThinFix8"
+  },
+  "mental_fixture_per_process": {
+    "status": "passed",
+    "layouts": 4,
+    "panels": 2,
+    "brothers": 3,
+    "categories": 3,
+    "wheel_checks": 1680,
+    "placeholder_checks": 216,
+    "redraw_checks": 504,
+    "category_checks": 216,
+    "ability_interactions": 72,
+    "save_load_checks": 24,
+    "captures": 72,
+    "fixture_restored": true
+  },
+  "fixture_isolation": "Existing abilities are temporarily relocated; empty categories borrow an original intangible. Locations and parents are restored before save/load. The initial checkpoint and RNG seed are restored after load-region activation.",
+  "checks": {
+    "linux_release_build": true,
+    "windows_zig_release_build": true,
+    "linux_ctest": "7/7",
+    "windows_native_ctest": "7/7",
+    "asan_lsan_ctest": "7/7",
+    "linux_classic_processes": 2,
+    "linux_widescreen_processes": 2,
+    "windows_classic_processes": 1,
+    "windows_widescreen_processes": 2,
+    "windows_native_video_runtime": true,
+    "windows_voice_processes": 4,
+    "asan_lsan_widescreen_processes": 2,
+    "asan_lsan_classic_processes": 2,
+    "linux_death_processes": 8,
+    "windows_death_processes": 8,
+    "asan_lsan_death_processes": 8,
+    "widescreen_captures_match_linux_windows": [
+      357,
+      357
+    ],
+    "death_captures_match_linux_windows": 8,
+    "classic_reference": {
+      "screenshots": 2,
+      "checkpoints": 4,
+      "original_chunks_per_save": 30,
+      "saves": 2,
+      "linux_processes": 2,
+      "windows_processes": 1,
+      "reference_build_and_fresh_run": true
+    },
+    "original_files_unchanged": 54,
+    "previous_archives_preserved": 6,
+    "empty_and_occupied_mental_captures_visually_inspected": true
+  },
+  "delivery": {
+    "archive": "dist/fta2-native-0.1.35-Windows-x86_64.zip",
+    "zip_downloads_for_release": 1,
+    "embedded_matching_sources": true,
+    "verified_data_files": 8,
+    "verified_voice_archives": 1,
+    "validated_executable_sha256": "022b4a3cdcbef91bab341c2f202f8d18a750ea36a7472dc033d919bb164f406a"
+  },
+  "limitations": [
+    "Gameplay uses dummy SDL backends and injected input; native Windows video is tested separately.",
+    "No manual wheel/trackpad test, full playthrough, macOS or remote CI execution."
+  ],
+  "evidence": [
+    ".cache/mental-035-wide-final/result.json",
+    ".cache/mental-035-windows-final-validation/validation.json",
+    ".cache/mental-035-asan-wide/result.json",
+    ".cache/mental-035-asan-classic-final.log",
+    ".cache/mental-035-parity.json",
+    ".cache/mental-035-parity-restart.json",
+    ".cache/mental-035-windows-parity.json",
+    ".cache/mental-035-data-verify.json",
+    ".cache/mental-035-package-audit.json"
+  ]
+}

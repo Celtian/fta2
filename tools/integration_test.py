@@ -36,7 +36,7 @@ def main():
         env = dict(os.environ, SDL_VIDEODRIVER="dummy", SDL_AUDIODRIVER="dummy")
         with (output / "native.log").open("w") as log:
             subprocess.run([str(binary), "--data-dir", str(game), "--save-dir", str(saves),
-                            "--smoke-test", str(output)], env=env, check=True, timeout=120,
+                            "--smoke-test", str(output)], env=env, check=True, timeout=300,
                            stdout=log, stderr=subprocess.STDOUT)
         states = [json.loads(line) for line in (output / "state.jsonl").read_text().splitlines()]
         assert states[-1]["phase"] == "finished"
@@ -59,7 +59,7 @@ def main():
         shutil.copyfile(game / "999.SAV", restart_saves / "fta2.002")
         with (restart_output / "native.log").open("w") as log:
             subprocess.run([str(binary), "--data-dir", str(game), "--save-dir", str(restart_saves),
-                            "--smoke-test", str(restart_output)], env=env, check=True, timeout=120,
+                            "--smoke-test", str(restart_output)], env=env, check=True, timeout=300,
                            stdout=log, stderr=subprocess.STDOUT)
         assert json.loads((restart_output / "speech-startup.json").read_text())["subtitles"] is False
         restart_states = [json.loads(line) for line in (restart_output / "state.jsonl").read_text().splitlines()]

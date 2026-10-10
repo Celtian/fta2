@@ -24,6 +24,8 @@
  */
 
 #include "platform/runtime.h"
+#include "platform/diagnostics.h"
+#include "platform/resources.h"
 #include "platform/probe.h"
 
 
@@ -253,6 +255,11 @@ void EventLoop(bool &running, bool) {
 void dumpGBASE(char *msg);
 
 void processEventLoop(bool updateScreen) {
+	if (getCenterActorPlayerID() < g_vm->_playerList.size() && getCenterActor()) {
+		const auto pos = centerActorCoords();
+		Native::diagnosticContext(gameTime, getCenterActorID(), g_vm->_currentMapNum, pos.u, pos.v, pos.z);
+	}
+	Native::diagnosticPhase("event loop");
 	if (Native::gameFrameHook) {
 		// A probe may install a nested modal hook while its current callback is running.
 		auto hook = Native::gameFrameHook;
@@ -268,12 +275,14 @@ void processEventLoop(bool updateScreen) {
 	}
 
 	debugC(1, kDebugEventLoop, "EventLoop: audio event loop");
+	Native::diagnosticPhase("audio event loop");
 	audioEventLoop();
 
 	debugC(1, kDebugEventLoop, "EventLoop: game mode update");
 	if (GameMode::_newmodeFlag)
 		GameMode::update();
 
+	Native::diagnosticPhase("input dispatch");
 	Native::Event event;
 	while (g_vm->getEventManager()->pollEvent(event)) {
 		switch (event.type) {
@@ -303,10 +312,12 @@ void processEventLoop(bool updateScreen) {
 	debugC(1, kDebugEventLoop, "EventLoop: timer update");
 	//  Handle the timer events
 	//  REM: Causing code corruption in windows for some reason...
+	Native::diagnosticPhase("UI timer");
 	g_vm->_toolBase->handleTimerTick(gameTime >> 2);
 
 	//  Handle updating of the display.
 	debugC(1, kDebugEventLoop, "EventLoop: display update");
+	Native::diagnosticPhase("world display");
 	if (!g_vm->checkVideo()) {
 		displayUpdate();
 	}
@@ -315,6 +326,7 @@ void processEventLoop(bool updateScreen) {
 		allPlayerActorsDead = false;
 		setLostroMode();
 	}
+	Native::diagnosticPhase("retired motion cleanup");
  g_vm->_mTaskList->collectRetired();
 }
 
@@ -323,6 +335,7 @@ void displayUpdate() {
 		//debugC(1, kDebugEventLoop, "EventLoop: daytime transition update loop");
 		dayNightUpdate();
 		//debugC(1, kDebugEventLoop, "EventLoop: Game mode handle task");
+		Native::diagnosticPhase("game tasks and scripts");
 		GameMode::_modeStackPtr[GameMode::_modeStackCtr - 1]->_handleTask();
 		g_vm->_lrate->updateFrameCount();
 		loops++;
@@ -342,10 +355,12 @@ void displayUpdate() {
 		//  Call asynchronous resource loader
 		debugC(1, kDebugEventLoop, "EventLoop: resource update");
 
+		Native::diagnosticPhase("audio event loop");
 		audioEventLoop();
 
 		//  Call the asynchronous path finder
 		debugC(1, kDebugEventLoop, "EventLoop: pathfinder update");
+		Native::diagnosticPhase("pathfinder update");
 		runPathFinder();
 
 		showDebugMessages();
@@ -563,12 +578,6 @@ static bool openResource(pHResource &hr, const char *fileName) {
 
 	hr = new hResource(fileName);
 
-	while (hr == nullptr || !hr->_valid) {
-		if (hr) delete hr;
-		hr = nullptr;
-		hr = new hResource(fileName);
-	}
-
 	if (hr == nullptr || !hr->_valid) {
 		error("openResource: Cannot open resource: %s", fileName);
 //		return false;
@@ -613,6 +622,8 @@ bool openResources() {
 			return false;
 	}
 
+	if (!Native::voiceArchive.empty())
+		openResource(voiceResFile, Native::voiceArchive.toString().c_str());
 	return true;
 }
 

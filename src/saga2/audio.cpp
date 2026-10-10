@@ -23,6 +23,7 @@
  *   (c) 1993-1996 The Wyrmkeep Entertainment Co.
  */
 
+#include "platform/diagnostics.h"
 #include "platform/runtime.h"
 #include "platform/runtime.h"
 #include "platform/runtime.h"
@@ -333,15 +334,7 @@ bool sayVoice(uint32 s[]) {
 
 	debugC(1, kDebugSound, "])");
 
-	bool worked = false;
-
-	if (hResCheckResID(voiceRes, s)) {
-		g_vm->_audio->queueVoice(s, Here);
-		if (g_vm->_audio->talking())
-			worked = true;
-	}
-
-	return worked;
+	return g_vm->_audio->queueVoice(s, Here);
 }
 
 //-----------------------------------------------------------------------
@@ -400,9 +393,9 @@ bool sayVoiceAt(uint32 s[], Point32 p) {
 
 	debugC(1, kDebugSound, "], %d,%d)", p.x, p.y);
 
-	g_vm->_audio->queueVoice(s, p);
-
-	return true;
+	if (!volumeFromDist(p, Audio::Mixer::kMaxMixerVolume))
+		return false;
+	return g_vm->_audio->queueVoice(s, p);
 }
 
 bool sayVoiceAt(uint32 s[], Location playAt) {
@@ -560,6 +553,8 @@ AudioInterface::AudioInterface() {
 }
 
 AudioInterface::~AudioInterface() {
+	stopVoice();
+	stopLoop();
 	delete _music;
 	free(_clickData[1]);
 	free(_clickData[2]);
@@ -578,19 +573,14 @@ bool AudioInterface::playFlag() {
 }
 
 void AudioInterface::playMe() {
-	if (_speechQueue.size() > 0 && !_mixer->isSoundHandleActive(_speechSoundHandle)) {
-		SoundInstance si = _speechQueue.front();
+	if (!_speechQueue.empty() && !_mixer->isSoundHandleActive(_speechSoundHandle)) {
+		VoiceInstance voice = std::move(_speechQueue.front());
 		_speechQueue.pop_front();
-
-		_currentSpeech = si;
-
-		Native::SeekableReadStream *stream = loadResourceToStream(voiceRes, si.seg, "voice data");
-		Audio::AudioStream *aud = makeShortenStream(*stream);
-		byte vol = g_vm->_speechVoice ? volumeFromDist(si.loc, getVolume(kVolVoice)) : 0;
-
-		_mixer->playStream(Audio::Mixer::kSpeechSoundType, &_speechSoundHandle, aud, -1, vol);
-
-		delete stream;
+		_currentSpeech = voice.sound;
+		// Decode before accepting dialogue; the mixer owns PCM until playback ends.
+		byte vol = volumeFromDist(voice.sound.loc, Audio::Mixer::kMaxMixerVolume);
+		_mixer->playStream(Audio::Mixer::kSpeechSoundType, &_speechSoundHandle,
+		                  voice.audio.release(), -1, vol);
 	}
 
 	if (_sfxQueue.size() > 0) {
@@ -653,33 +643,35 @@ void AudioInterface::setLoopPosition(Point32 newLoc) {
 	_mixer->setChannelVolume(_loopSoundHandle, vol);
 }
 
-void AudioInterface::queueVoice(uint32 s, Point32 where) {
-	if (!voiceRes || !voiceRes->size(s)) return;
-	SoundInstance si;
-
-	si.seg = s;
-	si.loop = false;
-	si.loc = where;
-
-	_speechQueue.push_back(si);
+bool AudioInterface::queueVoice(uint32 s, Point32 where) {
+	uint32 samples[] = {s, 0};
+	return queueVoice(samples, where);
 }
 
-void AudioInterface::queueVoice(uint32 s[], Point32 where) {
-	if (!voiceRes || !voiceRes->_valid) return;
-	SoundInstance si;
-
-	uint32 *p = s;
-	while (*p) {
-		si.seg = *p;
-		si.loop = false;
-		si.loc = where;
-
-		_speechQueue.push_back(si);
-		p++;
+bool AudioInterface::queueVoice(uint32 s[], Point32 where) {
+	if (!s || !s[0] || !voiceRes || !voiceRes->_valid)
+		return false;
+	Native::List<VoiceInstance> prepared;
+	for (uint32 *id = s; *id; ++id) {
+		Native::diagnosticMessage("VOICE", "Decode resource=0x%08x", unsigned(*id));
+		if (!voiceRes->size(*id))
+			return false;
+		std::unique_ptr<Native::SeekableReadStream> stream(
+		    loadResourceToStream(voiceRes, *id, "voice data"));
+		if (!stream)
+			return false;
+		std::unique_ptr<Audio::AudioStream> audio(makeShortenStream(*stream));
+		if (!audio || audio->samples.empty())
+			return false;
+		prepared.push_back({{*id, false, where}, std::move(audio)});
 	}
+	_speechQueue.splice(_speechQueue.end(), prepared);
+	return true;
 }
 
 void AudioInterface::stopVoice() {
+	_speechQueue.clear();
+	_currentSpeech.seg = 0;
 	_mixer->stopHandle(_speechSoundHandle);
 }
 
@@ -691,8 +683,8 @@ bool AudioInterface::saying(uint32 s) {
 	if (_currentSpeech.seg == s)
 		return true;
 
-	for (Native::List<SoundInstance>::iterator it = _speechQueue.begin(); it != _speechQueue.end(); ++it)
-		if (it->seg == s)
+	for (Native::List<VoiceInstance>::iterator it = _speechQueue.begin(); it != _speechQueue.end(); ++it)
+		if (it->sound.seg == s)
 			return true;
 
 	return false;

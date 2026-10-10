@@ -242,7 +242,7 @@ bool Speech::append(char *text, int32 sampID) {
 
 	//  Check to see if there's enough room in the character buffer
 	if (_charCount + len >= (long)sizeof(_speechBuffer)
-	        ||  _sampleCount >= MAX_SAMPLES) return false;
+	        ||  _sampleCount >= MAX_SAMPLES - 1) return false;
 
 	//  Copy text to end of text in buffer, including '\0'
 	memcpy(&_speechBuffer[_charCount], text, len + 1);
@@ -299,9 +299,8 @@ bool Speech::setupActive() {
 	_textPort.setColor(_penColor);                 // color of letters
 	_textPort.setMode(kDrawModeMatte);             // insure transparency
 
-	// Saved speech may retain a voice flag from another installation.
-	if (!g_vm->_speechVoice)
-		_speechFlags &= ~kSpHasVoice;
+	// Revalidate saved voice flags before layout, even with a usable archive.
+	_speechFlags &= ~kSpHasVoice;
 
 	setWidth();
 

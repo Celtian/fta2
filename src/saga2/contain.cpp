@@ -37,6 +37,7 @@
 #include "saga2/hresmgr.h"
 #include "saga2/fontlib.h"
 #include "saga2/inventory_ui.h"
+#include "saga2/gpointer.h"
 
 #include "saga2/pclass.r"
 
@@ -331,7 +332,7 @@ void ContainerView::drawClipped(
 	//  If there's no overlap between extent and clip, then return.
 	if (!_extent.overlap(r)) return;
 
-	if (_node.getType() == ContainerNode::kPhysicalType) {
+	if (supportsGridScrolling()) {
 		// Use a clean stamp so quantity text styles cannot leak into placeholders.
 		byte pixels[kIconWidth * kIconHeight]{};
 		gPixelMap stamp;
@@ -419,8 +420,13 @@ void ContainerView::drawClipped(
 	}
 }
 
+bool ContainerView::supportsGridScrolling() const {
+	return _node.getType() == ContainerNode::kPhysicalType ||
+	       _node.getType() == ContainerNode::kMentalType;
+}
+
 void ContainerView::handleWheel(Point16 position, float delta) {
-	if (_node.getType() != ContainerNode::kPhysicalType) return;
+	if (!supportsGridScrolling()) return;
 	const int next = InventoryUI::scrollRows(_scrollPosition, _visibleRows, _totalRows,
 	                                       delta, _wheelRemainder);
 	if (next == _scrollPosition) return;
@@ -483,8 +489,22 @@ void ContainerView::drawQuantity(
 }
 
 void ContainerView::setContainer(GameObject *containerObj) {
+	const bool changedCategory = _node.getType() == ContainerNode::kMentalType &&
+	                             _containerObject != containerObj;
 	_containerObject = containerObj;
 	totalObjects();
+	if (changedCategory) {
+		_scrollPosition = 0;
+		_wheelRemainder = 0;
+		if (g_vm->_toolBase->isMousePanel(this)) {
+			Point16 position, offset;
+			g_vm->_pointer->getImageCurPos(position);
+			g_vm->_pointer->getImage(offset);
+			const auto box = _window.getExtent();
+			position = position - offset - Point16(box.x + _extent.x, box.y + _extent.y);
+			updateMouseText(position);
+		}
+	}
 }
 
 

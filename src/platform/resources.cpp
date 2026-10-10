@@ -2,6 +2,7 @@
 #include "platform/resources.h"
 #include <bit>
 namespace Native {
+Path voiceArchive;
 String sha256(const byte* data, size_t size) {
     constexpr uint32 k[64] = {
         0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4,
@@ -105,6 +106,50 @@ void validateHrs(const byte* data, size_t size) {
         }
     }
 }
+// Optional CD speech is a media supplement; the verified DOS profile stays intact.
+void prepareVoiceArchive(const Path& requested) {
+    voiceArchive.clear();
+    std::vector<Path> candidates;
+    if (!requested.empty())
+        candidates.push_back(std::filesystem::absolute(requested));
+    else {
+        candidates.emplace_back(dataDirectory.parent_path() / "media" / "FTAVOICE.HRS");
+        auto original = resolveDataFile("FTAVOICE.HRS");
+        if (!original.empty())
+            candidates.push_back(original);
+    }
+    for (const auto& path : candidates) {
+        try {
+            if (!std::filesystem::is_regular_file(path)) {
+                if (!requested.empty())
+                    throw std::runtime_error("Voice archive not found: " + path.toString());
+                continue;
+            }
+            const auto size = std::filesystem::file_size(path);
+            // The DOS rip's fake archive is FTADATA.HRS (15042 bytes).
+            if (size == 15042 && requested.empty())
+                continue;
+            if (size != 268574344)
+                throw std::runtime_error("Unsupported voice archive size");
+            std::vector<byte> bytes(size);
+            std::ifstream input(path.c_str(), std::ios::binary);
+            if (!input.read(reinterpret_cast<char*>(bytes.data()), bytes.size()))
+                throw std::runtime_error("Cannot read voice archive");
+            validateHrs(bytes.data(), bytes.size());
+            const auto hash = sha256(bytes.data(), bytes.size());
+            if (hash != "34bd5c7e3b5982df3f84b274c05a0f056a2932dfd03f02d880be44e5a81353c3")
+                throw std::runtime_error("Unsupported or damaged voice archive (SHA-256 " +
+                                         std::string(hash) + ")");
+            voiceArchive = std::filesystem::canonical(path);
+            return;
+        } catch (const std::exception& e) {
+            if (!requested.empty())
+                throw;
+            warning("Ignoring optional voice archive %s: %s", path.toString().c_str(), e.what());
+        }
+    }
+}
+
 struct Asset {
     const char* name;
     uint32 offset, size;

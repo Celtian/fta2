@@ -19,6 +19,8 @@
  *
  */
 
+#include "platform/diagnostics.h"
+#include "platform/resources.h"
 #include "platform/runtime.h"
 #include "platform/saves.h"
 
@@ -191,6 +193,7 @@ Native::String Saga2Engine::getSavegameFile(int slot) {
     return Native::String::format("fta2.%03d", slot);
 }
 Native::Error Saga2Engine::saveGameState(int slot, const Native::String& desc, bool) {
+    Native::diagnosticMessage("SAVE", "Begin slot=%d", slot);
     pauseTimer();
     try {
         std::unique_ptr<Native::OutSaveFile> out(
@@ -209,16 +212,19 @@ Native::Error Saga2Engine::saveGameState(int slot, const Native::String& desc, b
         throw;
     }
     resumeTimer();
+    Native::diagnosticMessage("SAVE", "Completed slot=%d", slot);
     return Native::kNoError;
 }
 
 Native::Error Saga2Engine::loadGameState(int slot) {
+    Native::diagnosticMessage("LOAD", "Begin slot=%d", slot);
     std::unique_ptr<Native::InSaveFile> input(
         getSaveFileManager()->openForLoading(getSavegameFile(slot)));
     if (!input)
         error("Cannot open save slot %d", slot);
     Native::validateSave(*input);
     loadGame(slot);
+    Native::diagnosticMessage("LOAD", "Completed slot=%d", slot);
 
     return Native::kNoError;
 }
@@ -227,8 +233,9 @@ void Saga2Engine::syncSoundSettings() {
     g_platform->getMixer()->syncSoundSettings();
 
     _speechText = !ConfMan.hasKey("subtitles") || ConfMan.getBool("subtitles");
-    // Unvoiced dialogue uses the original text fallback, regardless of this preference.
-    _speechVoice = false;
+    // Silent or unavailable voices must retain the original text fallback.
+    _speechVoice = !Native::voiceArchive.empty() && !ConfMan.getBool("speech_mute") &&
+                   ConfMan.getInt("speech_volume") > 0;
 
     if (_audio && _audio->_music)
         _audio->_music->syncSoundSettings();

@@ -1114,11 +1114,10 @@ struct WidescreenProbe {
         }
         if (action == Sidebar) {
             if (modalPhase == 0) {
-                auto checkbox = dialog->hitTest(Saga2::Point16(223, 191));
-                requireWide(checkbox && checkbox->getExtent().width == 18 &&
-                                checkbox->getExtent().height == 17,
+                auto checkbox = dialog->hitTest(Saga2::Point16(223, 168));
+                requireWide(checkbox && checkbox->getExtent() == Saga2::Rect16(214, 160, 18, 17),
                             "missing New layout checkbox");
-                click(dialog, 231, 199); // Include the bottom-right hit/redraw edge.
+                click(dialog, 231, 176); // Include the bottom-right hit/redraw edge.
                 modalPhase = 1;
             } else if (modalPhase == 1 && ConfMan.getBool("alternate_sidebar") != sidebarBefore) {
                 const auto name = String::format(
@@ -1137,25 +1136,27 @@ struct WidescreenProbe {
         if (modalPhase == 0) {
             options = dialog;
             requireWide(r.height == 263 && r.y == 72, "Options geometry changed");
-            auto wide = dialog->hitTest(Saga2::Point16(223, 168));
-            auto night = dialog->hitTest(Saga2::Point16(223, 145));
-            auto weapon = dialog->hitTest(Saga2::Point16(23, 168));
-            requireWide(wide && night && weapon, "missing Options checkbox");
+            auto wide = dialog->hitTest(Saga2::Point16(223, 145));
+            auto night = dialog->hitTest(Saga2::Point16(23, 214));
+            auto aggression = dialog->hitTest(Saga2::Point16(23, 145));
+            requireWide(wide && night && aggression, "missing Options checkbox");
             const auto extent = wide->getExtent();
-            requireWide(extent.x == night->getExtent().x && extent.y == weapon->getExtent().y &&
+            requireWide(extent.x == 214 && extent.y == aggression->getExtent().y &&
                             extent.width == 18 && extent.height == 17,
                         "Widescreen checkbox is not aligned");
+            requireWide(night->getExtent() == Saga2::Rect16(14, 206, 18, 17),
+                        "Night checkbox is not at the bottom of the first column");
             requireWide(Saga2::TextWidth(&Saga2::Helv11Font, "Widescreen (16:9)", -1, 0) <= 95,
                         "Widescreen label does not fit its column");
             optionsLayouts |= 1 << ((activeDisplayMode == DisplayMode::Widescreen ? 2 : 0) +
                                     (pregameMenu ? 1 : 0));
             requested = !ConfMan.getBool("widescreen");
             checkboxPixels = {};
-            checkboxPixels[!requested] = region(r.x + 214, r.y + 160, 18, 17);
-            labelPixels = region(r.x + 235, r.y + 160, 95, 17);
+            checkboxPixels[!requested] = region(r.x + 214, r.y + 137, 18, 17);
+            labelPixels = region(r.x + 235, r.y + 137, 95, 17);
             checkboxClicks = 1;
             g_platform->capture(output / "wide-options.ppm");
-            click(dialog, 223, 168);
+            click(dialog, 223, 145);
             modalPhase = 1;
         } else if (modalPhase == 1) {
             const bool selected = checkboxClicks % 2 ? requested : !requested;
@@ -1163,13 +1164,13 @@ struct WidescreenProbe {
                 return;
             requireWide((activeDisplayMode == DisplayMode::Widescreen) != requested,
                         "mode changed before Options closed");
-            const auto pixels = region(r.x + 214, r.y + 160, 18, 17);
+            const auto pixels = region(r.x + 214, r.y + 137, 18, 17);
             if (checkboxPixels[selected].empty())
                 checkboxPixels[selected] = pixels;
             else
                 requireWide(checkboxPixels[selected] == pixels,
                             "checkbox retained pixels from the other state");
-            requireWide(labelPixels == region(r.x + 235, r.y + 160, 95, 17),
+            requireWide(labelPixels == region(r.x + 235, r.y + 137, 95, 17),
                         "checkbox redraw changed its label");
             const std::string capture =
                 std::string("options-") +
@@ -1183,7 +1184,7 @@ struct WidescreenProbe {
             }
             if (checkboxClicks < 5) {
                 // Exercise right, bottom and bottom-right pixels as real SDL clicks.
-                const Point points[] = {{231, 168}, {223, 176}, {231, 176}, {223, 168}};
+                const Point points[] = {{231, 145}, {223, 153}, {231, 153}, {223, 145}};
                 const auto point = points[checkboxClicks - 1];
                 ++checkboxClicks;
                 click(dialog, point.x, point.y);
@@ -1399,6 +1400,328 @@ struct WidescreenProbe {
 };
 } // namespace
 
+static void verifyMentalScrolling(const Path& output) {
+    using namespace Saga2;
+    auto vm = g_vm;
+    requireWide(vm->saveGameState(15, "Mental scroll checkpoint", false) == kNoError,
+                "cannot save mental scroll checkpoint");
+    const auto seed = vm->_rnd->getSeed();
+    auto drain = [&] {
+        if (GameMode::_newmodeFlag)
+            GameMode::update();
+        Event event;
+        while (g_platform->pollEvent(event)) {
+            if (event.type == EVENT_KEYDOWN)
+                vm->_toolBase->handleKeyStroke(event);
+            else if (event.type == EVENT_MOUSEMOVE || event.type == EVENT_LBUTTONDOWN ||
+                     event.type == EVENT_LBUTTONUP || event.type == EVENT_MOUSEWHEEL)
+                vm->_toolBase->handleMouse(event, g_platform->getMillis());
+        }
+    };
+    auto wheel = [&](int x, int y, float delta) {
+        int count = 0;
+        auto windows = SDL_GetWindows(&count);
+        requireWide(count == 1, "mental wheel fixture needs one SDL window");
+        auto window = windows[0];
+        SDL_free(windows);
+        SDL_Event event{};
+        event.type = SDL_EVENT_MOUSE_WHEEL;
+        event.wheel.windowID = SDL_GetWindowID(window);
+        requireWide(SDL_RenderCoordinatesToWindow(SDL_GetRenderer(window), x + 0.5f, y + 0.5f,
+                                                  &event.wheel.mouse_x, &event.wheel.mouse_y),
+                    "cannot map mental wheel");
+        event.wheel.y = delta;
+        requireWide(SDL_PushEvent(&event), "cannot inject mental wheel");
+        drain();
+    };
+    int wheels = 0, numbers = 0, redraws = 0, categories = 0, interactions = 0, loads = 0;
+    for (int wide = 0; wide < 2; ++wide)
+        for (int sidebar = 0; sidebar < 2; ++sidebar) {
+            ConfMan.setBool("widescreen", bool(wide));
+            ConfMan.setBool("alternate_sidebar", bool(sidebar));
+            requestDisplayModeChange();
+            applyPendingDisplayMode();
+            for (int group = 0; group < 2; ++group)
+                for (int brother = 0; brother < 3; ++brother) {
+                    for (int b = 0; b < 3; ++b)
+                        if (auto old = vm->_cnm->find(ActorBaseID + b, ContainerNode::kMentalType))
+                            delete old;
+                    setCenterBrother(brother);
+                    updateContainerWindows();
+                    if (group)
+                        setControlPanelsToTrioMode();
+                    else
+                        setControlPanelsToIndividualMode(brother);
+                    auto node = OpenMindContainer(brother, 1, 0);
+                    requireWide(node && node->getWindow(), "cannot open mental scroll fixture");
+                    auto window = node->getWindow();
+                    auto box = Rect16(30, 65, 158, 215);
+                    window->setExtent(box);
+                    for (int part = 0; part < 3; ++part) {
+                        click(window, part == 0 ? 55 : part == 1 ? 75 : 88, 10);
+                        drain();
+                        auto& view = window->getView();
+                        requireWide(node->_mindType == part && view._scrollPosition == 0 &&
+                                        view._wheelRemainder == 0 && view._totalRows == 20 &&
+                                        view._visibleRows == 4 && view._visibleCols == 4,
+                                    "mental category changed capacity or retained scroll offset");
+                        auto container = view._containerObject;
+                        std::vector<std::pair<ObjectID, TilePoint>> children;
+                        ContainerIterator iter(container);
+                        GameObject* child;
+                        while (iter.next(&child) != Nothing)
+                            children.emplace_back(child->thisID(), child->getLocation());
+                        ObjectID borrowedParent = Nothing;
+                        if (children.empty()) {
+                            // Empty original categories borrow one existing intangible for this
+                            // isolated test, then restore its location and original parent.
+                            for (int id = 0; id < objectCount; ++id) {
+                                auto candidate = GameObject::objectAddress(id);
+                                if (dynamic_cast<IntangibleObjProto*>(candidate->proto()) &&
+                                    isObject(candidate->IDParent())) {
+                                    borrowedParent = candidate->IDParent();
+                                    children.emplace_back(id, candidate->getLocation());
+                                    break;
+                                }
+                            }
+                        }
+                        requireWide(!children.empty(), "mental fixture needs an original ability");
+                        // Keep the actual category's abilities, temporarily out of visible rows.
+                        for (const auto& [id, location] : children)
+                            GameObject::objectAddress(id)->move(
+                                Location(TilePoint(19, 0, 1), container->thisID()));
+                        auto item = GameObject::objectAddress(children.front().first);
+                        item->move(Location(TilePoint(19, 3, 1), container->thisID()));
+                        reDrawScreen();
+                        const auto grid = view.getExtent();
+                        const int gx = box.x + grid.x, gy = box.y + grid.y;
+                        const int x = gx + view._iconOrigin.x + 16;
+                        const int y = gy + view._iconOrigin.y + 16;
+                        auto position = [&](int expected) {
+                            requireWide(view._scrollPosition == expected,
+                                        "mental wheel position mismatch");
+                            ++wheels;
+                        };
+                        auto parity = [&] {
+                            const auto before = region(gx, gy, grid.width, grid.height);
+                            reDrawScreen();
+                            requireWide(before == region(gx, gy, grid.width, grid.height),
+                                        "mental immediate redraw differs from full redraw");
+                            ++redraws;
+                        };
+                        auto slot = [&](int row, int col) {
+                            return region(gx + view._iconOrigin.x + col * 36,
+                                          gy + view._iconOrigin.y + row * 36, 32, 32);
+                        };
+                        const auto first = slot(0, 0);
+                        requireWide(std::count(first.begin(), first.end(), byte(37)) > 0 &&
+                                        std::count(first.begin(), first.end(), byte(24)) > 0,
+                                    "mental placeholder is missing muted digits or outline");
+                        ++numbers;
+                        mouse(x, y, SDL_EVENT_MOUSE_MOTION);
+                        drain();
+                        wheel(x, y, -0.25f);
+                        position(0);
+                        wheel(x, y, -0.75f);
+                        position(1);
+                        parity();
+                        requireWide(first != slot(0, 0), "mental numbering did not advance");
+                        ++numbers;
+                        wheel(x, y, -100);
+                        position(16);
+                        parity();
+                        wheel(x, y, -1);
+                        position(16);
+                        wheel(x, y, 1);
+                        position(15);
+                        wheel(x, y, 100);
+                        position(0);
+                        parity();
+                        wheel(x, y, -0.5f);
+                        mouse(10, 10, SDL_EVENT_MOUSE_MOTION);
+                        drain();
+                        mouse(x, y, SDL_EVENT_MOUSE_MOTION);
+                        drain();
+                        wheel(x, y, -0.5f);
+                        position(0);
+                        wheel(x, y, -0.5f);
+                        position(1);
+                        wheel(gx - 1, gy, -1);
+                        position(1);
+                        wheel(gx, gy - 1, -1);
+                        position(1);
+                        wheel(gx, gy, -1);
+                        position(2);
+                        wheel(gx + grid.width - 1, gy + grid.height - 1, -1);
+                        position(3);
+                        wheel(gx + grid.width, gy, -1);
+                        position(3);
+                        wheel(gx, gy + grid.height, -1);
+                        position(3);
+                        vm->_cnm->_objToGet = item;
+                        wheel(x, y, -1);
+                        position(3);
+                        vm->_cnm->_objToGet = nullptr;
+                        mouse(x, y, SDL_EVENT_MOUSE_BUTTON_DOWN);
+                        drain();
+                        wheel(x, y, -1);
+                        position(3);
+                        mouse(x, y, SDL_EVENT_MOUSE_BUTTON_UP);
+                        drain();
+                        // Cover this grid with another brother's real mental window.
+                        auto cover = new ContainerNode(*vm->_cnm, ActorBaseID + (brother + 1) % 3,
+                                                       ContainerNode::kMentalType);
+                        cover->show();
+                        cover->getWindow()->setExtent(box);
+                        wheel(x, y, -1);
+                        position(3);
+                        requireWide(cover->getView()->_scrollPosition == 1,
+                                    "frontmost mental window did not receive wheel");
+                        delete cover;
+                        wheel(x, y, -100);
+                        position(16);
+                        const int ix = x + 3 * 36, iy = y + 3 * 36;
+                        mouse(ix, iy, SDL_EVENT_MOUSE_MOTION);
+                        drain();
+                        requireWide(view.pickObject(Point16(view._iconOrigin.x + 3 * 36 + 16,
+                                                            view._iconOrigin.y + 3 * 36 + 16)) ==
+                                            item &&
+                                        vm->_cnm->_lastPickedObjectID == item->thisID(),
+                                    "last mental row does not resolve its actual ability");
+                        const auto occupied = slot(3, 3);
+                        // Use the original take/replace path on a newly revealed ability.
+                        click(window, grid.x + view._iconOrigin.x + 3 * 36 + 16,
+                              grid.y + view._iconOrigin.y + 3 * 36 + 16);
+                        drain();
+                        requireWide(
+                            vm->_mouseInfo->getObject() == (item->isTrueSkill() ? nullptr : item),
+                            String::format(
+                                "mental selection %d/%d/%d/%d/%d item=%u trueSkill=%d held=%u",
+                                wide, sidebar, group, brother, part, item->thisID(),
+                                item->isTrueSkill(), vm->_mouseInfo->getObjectId())
+                                .c_str());
+                        if (item->isTrueSkill())
+                            vm->_mouseInfo->copyObject(item);
+                        wheel(x, y, 1);
+                        position(15);
+                        vm->_mouseInfo->replaceObject();
+                        wheel(x, y, -1);
+                        position(16);
+                        window->update(grid);
+                        parity();
+                        requireWide(slot(3, 3) == occupied,
+                                    "mental take/replace changed ability artwork");
+                        ++interactions;
+                        item->move(Location(TilePoint(18, 3, 1), container->thisID()));
+                        window->update(grid);
+                        parity();
+                        const auto last = slot(3, 3);
+                        requireWide(last != occupied &&
+                                        std::count(last.begin(), last.end(), byte(37)) > 0,
+                                    "slot 80 did not regain its placeholder");
+                        ++numbers;
+                        mouse(10, 10, SDL_EVENT_MOUSE_MOTION);
+                        drain();
+                        mouse(ix, iy - 36, SDL_EVENT_MOUSE_MOTION);
+                        drain();
+                        requireWide(vm->_cnm->_lastPickedObjectID == item->thisID(),
+                                    "mental hover did not follow moved ability");
+                        wheel(ix, iy - 36, 1);
+                        position(15);
+                        requireWide(vm->_cnm->_lastPickedObjectID == Nothing &&
+                                        vm->_cnm->_mouseText[0] == 0,
+                                    "mental wheel retained stale tooltip under stationary pointer");
+                        wheel(x, y, -0.5f);
+                        OpenMindContainer(brother, 1, (part + 1) % 3);
+                        requireWide(view._scrollPosition == 0 && view._wheelRemainder == 0,
+                                    "sidebar category path did not reset mental scroll");
+                        ++categories;
+                        OpenMindContainer(brother, 1, part);
+                        wheel(x, y, -2.5f);
+                        position(2);
+                        OpenMindContainer(brother, 1, part);
+                        requireWide(view._scrollPosition == 2 && view._wheelRemainder == -0.5f,
+                                    "same category unexpectedly reset mental scroll");
+                        ++categories;
+                        // Keyboard changes must use the same reset, including a stationary grid
+                        // cursor.
+                        mouse(x, y, SDL_EVENT_MOUSE_MOTION);
+                        drain();
+                        key(part == 0 ? SDLK_S : part == 1 ? SDLK_K : SDLK_I);
+                        drain();
+                        requireWide(node->_mindType == (part + 1) % 3 &&
+                                        view._scrollPosition == 0 && view._wheelRemainder == 0,
+                                    "keyboard category path did not reset mental scroll");
+                        ++categories;
+                        OpenMindContainer(brother, 1, part);
+                        window->update(grid);
+                        parity();
+                        for (const auto& [id, location] : children)
+                            GameObject::objectAddress(id)->move(
+                                Location(location, borrowedParent == Nothing ? container->thisID()
+                                                                             : borrowedParent));
+                        wheel(x, y, -16);
+                        position(16);
+                        window->update(grid);
+                        parity();
+                        g_platform->capture(output /
+                                            String::format("mental-scroll-%d-%d-%d-%d-%d.ppm", wide,
+                                                           sidebar, group, brother, part)
+                                                .c_str());
+                    }
+                    // Moving the window retains scroll and uses its current grid bounds.
+                    box.x = 70;
+                    box.y = 90;
+                    window->setExtent(box);
+                    reDrawScreen();
+                    wheel(box.x + 20, box.y + 80, 1);
+                    requireWide(window->getView()._scrollPosition == 15,
+                                "moved mental window used old wheel bounds");
+                    ++wheels;
+                    node->getPosition() = box;
+                    requireWide(vm->saveGameState(16, "Mental scroll load fixture", false) ==
+                                        kNoError &&
+                                    vm->loadGameState(16) == kNoError,
+                                "cannot reload mental scroll fixture");
+                    updateContainerWindows();
+                    node = vm->_cnm->find(ActorBaseID + brother, ContainerNode::kMentalType);
+                    requireWide(
+                        node && node->getWindow() && node->_mindType == 2 &&
+                            node->getWindow()->getExtent() == box &&
+                            node->getView()->_scrollPosition == 0 &&
+                            node->getView()->_wheelRemainder == 0,
+                        String::format(
+                            "mental load %d/%d/%d/%d: node=%p window=%p type=%d rect=%d,%d row=%d "
+                            "remainder=%f center=%u",
+                            wide, sidebar, group, brother, node, node ? node->getWindow() : nullptr,
+                            node ? node->_mindType : -1,
+                            node && node->getWindow() ? node->getWindow()->getExtent().x : -1,
+                            node && node->getWindow() ? node->getWindow()->getExtent().y : -1,
+                            node && node->getView() ? node->getView()->_scrollPosition : -1,
+                            node && node->getView() ? node->getView()->_wheelRemainder : -1,
+                            getCenterActorID())
+                            .c_str());
+                    ++loads;
+                    key(SDLK_ESCAPE);
+                    drain();
+                    updateContainerWindows();
+                    requireWide(
+                        !vm->_cnm->find(ActorBaseID + brother, ContainerNode::kMentalType) &&
+                            vm->_cnm->_mouseText[0] == 0,
+                        "Escape retained mental window or tooltip");
+                }
+        }
+    requireWide(vm->loadGameState(15) == kNoError, "mental scroll fixture was not restored");
+    // Loading reactivates regions; discard any activation RNG used by this isolated fixture.
+    vm->_rnd->setSeed(seed);
+    std::ofstream(output / "mental-scroll.json")
+        << "{\"status\":\"passed\",\"layouts\":4,\"panels\":2,\"brothers\":3,\"categories\":3,"
+        << "\"wheel_checks\":" << wheels << ",\"placeholder_checks\":" << numbers
+        << ",\"redraw_checks\":" << redraws << ",\"category_checks\":" << categories
+        << ",\"ability_interactions\":" << interactions << ",\"save_load_checks\":" << loads
+        << ",\"captures\":72,\"fixture_restored\":true}\n";
+}
+
 static void verifyMentalOwners(const Path& output) {
     using namespace Saga2;
     auto vm = g_vm;
@@ -1612,7 +1935,8 @@ static void verifyInventoryUI(const Path& output) {
             item = object;
     }
     requireWide(item != nullptr, "inventory fixture needs an inventory item");
-    const std::array<ObjectID, 3> bagIDs = {bags[0]->thisID(), bags[1]->thisID(), bags[2]->thisID()};
+    const std::array<ObjectID, 3> bagIDs = {bags[0]->thisID(), bags[1]->thisID(),
+                                            bags[2]->thisID()};
     const ObjectID itemID = item->thisID();
     for (auto bag : bags) {
         while (auto child = bag->child())
@@ -1808,18 +2132,6 @@ static void verifyInventoryUI(const Path& output) {
                         vm->_mouseInfo->getObject(), ModalWindow::_current, lockUINest)
                         .c_str());
             }
-            if (auto old = vm->_cnm->find(getCenterActorID(), ContainerNode::kMentalType))
-                delete old;
-            auto mental =
-                new ContainerNode(*vm->_cnm, getCenterActorID(), ContainerNode::kMentalType);
-            mental->_mindType = 0;
-            mental->show();
-            mental->getWindow()->setExtent(Rect16(30, 65, 158, 215));
-            wheel(80, 176, -3);
-            requireWide(mental->getView()->_scrollPosition == 0,
-                        "wheel changed a mental inventory");
-            ++wheelChecks;
-            delete mental;
             for (int pregame = 0; pregame < 2; ++pregame) {
                 if (GameMode::_newmodeFlag)
                     GameMode::update();
@@ -1828,8 +2140,14 @@ static void verifyInventoryUI(const Path& output) {
                 bags[0]->setFlags(kObjectOpen, kObjectOpen);
                 beneath->show();
                 beneath->getWindow()->setExtent(Rect16(0, 150, 268, 320));
+                auto mentalBeneath =
+                    new ContainerNode(*vm->_cnm, getCenterActorID(), ContainerNode::kMentalType);
+                mentalBeneath->show();
+                mentalBeneath->getWindow()->setExtent(Rect16(300, 260, 158, 215));
                 int phase = 0;
                 const bool before = vm->_showGameTime;
+                const bool nightBefore = vm->_showNight;
+                const int speechBefore = ConfMan.getInt("speech_volume");
                 gameFrameHook = [&] {
                     auto dialog = ModalWindow::_current;
                     if (!dialog)
@@ -1839,10 +2157,14 @@ static void verifyInventoryUI(const Path& output) {
                         requireWide(beneath->getView()->_scrollPosition == 0,
                                     "modal dialog allowed inventory wheel through");
                         ++wheelChecks;
-                        auto control = dialog->hitTest(Point16(231, 222));
-                        requireWide(control && control->getExtent() == Rect16(214, 206, 18, 17),
+                        wheel(320, 400, -1);
+                        requireWide(mentalBeneath->getView()->_scrollPosition == 0,
+                                    "modal dialog allowed mental wheel through");
+                        ++wheelChecks;
+                        auto control = dialog->hitTest(Point16(231, 199));
+                        requireWide(control && control->getExtent() == Rect16(214, 183, 18, 17),
                                     "missing game-time checkbox or incorrect hit bounds");
-                        click(dialog, 231, 222);
+                        click(dialog, 231, 199);
                         ++phase;
                     } else if (phase == 1 && ConfMan.getBool("show_game_time") != before) {
                         requireWide(vm->_showGameTime == before,
@@ -1850,6 +2172,26 @@ static void verifyInventoryUI(const Path& output) {
                         g_platform->capture(output / String::format("clock-options-%d-%d-%d.ppm",
                                                                     wide, sidebar, pregame)
                                                          .c_str());
+                        click(dialog, 15, 90);
+                        ++phase;
+                    } else if (phase == 2 && ConfMan.getInt("speech_volume") == 0) {
+                        click(dialog, 182, 90);
+                        ++phase;
+                    } else if (phase == 3 && ConfMan.getInt("speech_volume") == 255) {
+                        click(dialog, 99, 90);
+                        ++phase;
+                    } else if (phase == 4 && ConfMan.getInt("speech_volume") != 255) {
+                        requireWide(ConfMan.getInt("speech_volume") > 0,
+                                    "Speech Volume midpoint is not audible");
+                        auto night = dialog->hitTest(Point16(31, 222));
+                        requireWide(night && night->getExtent() == Rect16(14, 206, 18, 17),
+                                    "Night is not below Speech Text");
+                        click(dialog, 31, 222);
+                        ++phase;
+                    } else if (phase == 5 && vm->_showNight != nightBefore) {
+                        click(dialog, 14, 206);
+                        ++phase;
+                    } else if (phase == 6 && vm->_showNight == nightBefore) {
                         if (pregame)
                             static_cast<requestInfo*>(dialog->_userData)->running = false;
                         else
@@ -1861,11 +2203,26 @@ static void verifyInventoryUI(const Path& output) {
                 gameFrameHook = hook;
                 if (GameMode::_newmodeFlag)
                     GameMode::update();
-                requireWide(phase == 2 && vm->_showGameTime == before,
+                requireWide(phase == 7 && vm->_showGameTime == before,
                             "clock checkbox timing failed");
+                Config saved;
+                saved.file = ConfMan.file;
+                saved.load();
+                const int speech = ConfMan.getInt("speech_volume");
+                requireWide(saved.getInt("speech_volume") == speech && speech > 0 && speech < 255,
+                            "Options did not save the adjusted Speech Volume");
+                std::ofstream(
+                    output /
+                    String::format("options-audio-%d-%d-%d.json", wide, sidebar, pregame).c_str())
+                    << "{\"status\":\"passed\",\"speech_levels\":[0," << speech
+                    << ",255],\"preference_saved\":true,\"night_bounds\":[14,206,18,17]}\n";
+                ConfMan.setInt("speech_volume", speechBefore);
+                vm->syncSoundSettings();
+                vm->saveConfig();
                 applyPendingDisplayMode();
                 requireWide(vm->_showGameTime != before,
                             "clock preference not applied after Options");
+                delete mentalBeneath;
                 delete beneath;
                 bags[0]->setFlags(0, kObjectOpen);
                 ++options;
@@ -1929,16 +2286,20 @@ static void verifyInventoryUI(const Path& output) {
             requireWide(vm->loadGameState(14) == kNoError && vm->_calendar->_hour == 0,
                         "loading did not restore game clock");
             // Loading rebuilds the object pool; retain IDs across that ownership boundary.
-            for (size_t i = 0; i < bags.size(); ++i) bags[i] = GameObject::objectAddress(bagIDs[i]);
+            for (size_t i = 0; i < bags.size(); ++i)
+                bags[i] = GameObject::objectAddress(bagIDs[i]);
             item = GameObject::objectAddress(itemID);
             updateContainerWindows();
             saved = vm->_cnm->find(bags[0]->thisID(), ContainerNode::kPhysicalType);
-            requireWide(saved && saved->getWindow() && saved->getView()->_scrollPosition == 0,
-                        String::format("loaded physical window %d/%d: node=%p window=%p row=%d owner=%d actor=%u parent=%u",
-                                       wide, sidebar, saved, saved ? saved->getWindow() : nullptr,
-                                       saved && saved->getView() ? saved->getView()->_scrollPosition : -1,
-                                       saved ? saved->getOwnerIndex() : -1,
-                                       getCenterActorID(), bags[0]->IDParent()).c_str());
+            requireWide(
+                saved && saved->getWindow() && saved->getView()->_scrollPosition == 0,
+                String::format("loaded physical window %d/%d: node=%p window=%p row=%d owner=%d "
+                               "actor=%u parent=%u",
+                               wide, sidebar, saved, saved ? saved->getWindow() : nullptr,
+                               saved && saved->getView() ? saved->getView()->_scrollPosition : -1,
+                               saved ? saved->getOwnerIndex() : -1, getCenterActorID(),
+                               bags[0]->IDParent())
+                    .c_str());
             delete saved;
             bags[0]->setFlags(0, kObjectOpen);
             *vm->_calendar = originalCalendar;
@@ -2171,6 +2532,7 @@ void verifyContainerOwners(const Path& output) {
     }
     proto->appearanceType = appearance;
     verifyMentalOwners(output);
+    verifyMentalScrolling(output);
     verifyInventoryUI(output);
     requireWide(vm->loadGameState(9) == kNoError, "cannot restore container owner fixture");
     ConfMan.setBool("widescreen", originalWide);
