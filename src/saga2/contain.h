@@ -47,6 +47,7 @@ class ContainerManager;
 struct ContainerAppearanceDef;
 
 class CMassWeightIndicator;
+class ContainerOwnerDisplay;
 class ProtoObj;
 
 class GfxCompButton;
@@ -280,6 +281,7 @@ class TangibleContainerWindow : public ScrollableContainerWindow {
 private:
 	GfxCompImage      *_containerSpriteImg;
 	CMassWeightIndicator *_massWeightIndicator;
+	ContainerOwnerDisplay *_ownerDisplay = nullptr;
 
 	Rect16          _objRect;
 	bool            _deathFlag;
@@ -297,6 +299,7 @@ public:
 
 	// this sets the mass and bulk gauges for physical containers
 	void massBulkUpdate();
+	void refreshOwner();
 };
 
 class IntangibleContainerWindow : public ScrollableContainerWindow {
@@ -304,10 +307,12 @@ protected:
 	friend  void setMindContainer(int index, IntangibleContainerWindow &cw);
 private:
 	GfxMultCompButton *_mindSelectorCompButton;
+	ContainerOwnerDisplay *_ownerDisplay;
 
 public:
 
 	IntangibleContainerWindow(ContainerNode &nd, const ContainerAppearanceDef &app);
+	~IntangibleContainerWindow();
 };
 
 class EnchantmentContainerWindow : public ContainerWindow {

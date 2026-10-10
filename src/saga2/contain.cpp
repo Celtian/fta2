@@ -1111,6 +1111,92 @@ ScrollableContainerWindow::ScrollableContainerWindow(
     TangibleContainerWindow member functions
  * ===================================================================== */
 
+// Physical windows show the live carrier; mental windows show their actor.
+class ContainerOwnerDisplay : public gControl {
+	ContainerNode &_node;
+	GfxCompImage *_containerImage;
+	PlayerActorID _carrier = ContainerNode::kNobody;
+
+	PlayerActorID carrier() const {
+		PlayerActorID player;
+		const ObjectID actor = _node.getType() == ContainerNode::kMentalType
+			? _node.getObject() : GameObject::objectAddress(_node.getObject())->possessor();
+		return actorIDToPlayerID(actor, player) ? player : ContainerNode::kNobody;
+	}
+	void tooltip() {
+		static const char *names[] = {"Carried by Julian", "Carried by Phillip", "Carried by Kevin"};
+		static const char *mentalNames[] = {"Julian's abilities", "Phillip's abilities", "Kevin's abilities"};
+		const char *text = _carrier < kNumViews
+			? (_node.getType() == ContainerNode::kMentalType ? mentalNames[_carrier] : names[_carrier])
+			: nullptr;
+		g_vm->_mouseInfo->setText(text);
+	}
+
+public:
+	ContainerOwnerDisplay(gPanelList &list, ContainerNode &node, const Rect16 &bounds,
+	                      GfxCompImage *containerImage = nullptr)
+		: gControl(list, bounds, nullptr, 0, nullptr), _node(node),
+		  _containerImage(containerImage) {
+		_carrier = carrier();
+	}
+	gPanel *hitTest(const Point16 &point) override {
+		return _carrier < kNumViews ? gControl::hitTest(point) : nullptr;
+	}
+	void pointerMove(gPanelMessage &message) override {
+		setMousePoll(!message._pointerLeave);
+		if (message._pointerLeave) g_vm->_mouseInfo->setText(nullptr);
+		else tooltip();
+	}
+	void refresh() {
+		const PlayerActorID current = carrier();
+		if (current == _carrier) return;
+		_carrier = current;
+		if (_window.isOpen()) {
+			invalidate(); // Window composition restores decoration when the marker disappears.
+			if (g_vm->_toolBase->isMousePanel(this)) tooltip();
+		}
+	}
+	void drawClipped(gPort &port, const Point16 &offset, const Rect16 &clip) override {
+		if (_carrier >= kNumViews || !_extent.overlap(clip)) return;
+		SAVE_GPORT_STATE(port);
+		// Compose one clean stamp: gDisplayPort presents blits, not direct setPixel writes.
+		byte pixels[25 * 21]{};
+		gPixelMap stamp;
+		stamp._size = Point16(25, 21);
+		stamp._data = pixels;
+		gPort stampPort;
+		stampPort.setMap(&stamp);
+		// Retain the original jewel shape with a larger faceted inset for the initial.
+		static const byte shades[3][3] = {{132, 131, 129}, {178, 175, 172}, {92, 90, 89}};
+		port.setMode(kDrawModeMatte);
+		for (int y = 0; y < _extent.height; ++y) {
+			for (int x = 0; x < _extent.width; ++x) {
+				const int distance = ABS(x - 12) * 10 + ABS(y - 10) * 12;
+				if (distance > 120) continue;
+				byte color;
+				if (distance > 108) color = 48;
+				else if (distance > 84) color = x + y < 22 ? 89 : 67;
+				else color = shades[_carrier][y < 7 ? 2 : (y < 14 ? 1 : 0)];
+				stampPort.setPixel(x, y, color);
+			}
+		}
+		static const char *initials[] = {"J", "P", "K"};
+		textPallete pal(67, 48, 34, 67, 48, 34);
+		// A fresh port also isolates text from inventory-quantity outline styles.
+		writePlaqText(stampPort, Rect16(5, 8, 15, 9), &ThinFix8Font, 0, pal, false,
+		              "%s", initials[_carrier]);
+		port.bltPixels(stamp, 0, 0, _extent.x - offset.x, _extent.y - offset.y, 25, 21);
+		if (_containerImage) {
+			// Large original chest sprites can reach the top of the badge: retain their pixels.
+			const Rect16 savedClip = port._clip;
+			port.setClip(intersect(port._clip, Rect16(_extent.x - offset.x, _extent.y - offset.y,
+			                                        _extent.width, _extent.height)));
+			_containerImage->drawClipped(port, offset, clip);
+			port.setClip(savedClip);
+		}
+	}
+};
+
 TangibleContainerWindow::TangibleContainerWindow(
     ContainerNode &nd, const ContainerAppearanceDef &app)
 	: ScrollableContainerWindow(nd, app, "ObjectWindow") {
@@ -1154,12 +1240,19 @@ TangibleContainerWindow::TangibleContainerWindow(
 		                          Point16(app.massRect.x, app.massRect.y),
 		                          weightIndicatorType,
 		                          _deathFlag);
+		_ownerDisplay = new ContainerOwnerDisplay(*this, nd, Rect16(119, 66, 25, 21), _containerSpriteImg);
+		_ownerDisplay->moveToFront(*this);
 	}
 }
 
 TangibleContainerWindow::~TangibleContainerWindow() {
+	delete _ownerDisplay;
 	if (_massWeightIndicator)    delete _massWeightIndicator;
 	if (_containerSpriteImg)     delete _containerSpriteImg;
+}
+
+void TangibleContainerWindow::refreshOwner() {
+	if (_ownerDisplay) _ownerDisplay->refresh();
 }
 
 void TangibleContainerWindow::setContainerSprite() {
@@ -1175,12 +1268,13 @@ void TangibleContainerWindow::setContainerSprite() {
 	sprPos.x = _objRect.x - (spr->size.x >> 1);  //_objRect.x + ( spr->size.x >> 1 );
 	sprPos.y = _objRect.y - (spr->size.y >> 1);
 
+	// Neighboring partial redraws must restore the entire actual sprite, including large chests.
 	_containerSpriteImg = new GfxSpriteImage(
 	                         *this,
 	                         Rect16(sprPos.x,
 	                                sprPos.y,
-	                                _objRect.height,
-	                                _objRect.width),
+		                                spr->size.x,
+		                                spr->size.y),
 	                         _view->_containerObject,
 	                         dummy,
 	                         0,
@@ -1231,6 +1325,12 @@ IntangibleContainerWindow::IntangibleContainerWindow(
 	               containerRes, 'F', 'R', 'M');
 
 	setMindContainer(nd._mindType, *this);
+	_ownerDisplay = new ContainerOwnerDisplay(*this, nd, Rect16(76, 42, 25, 21));
+	_ownerDisplay->moveToFront(*this);
+}
+
+IntangibleContainerWindow::~IntangibleContainerWindow() {
+	delete _ownerDisplay;
 }
 
 /* ===================================================================== *
@@ -1561,6 +1661,8 @@ void ContainerManager::doDeferredActions() {
 		}
 
 		n->_action = 0;
+		if (n->_type == ContainerNode::kPhysicalType && n->_window)
+			static_cast<TangibleContainerWindow *>(n->_window)->refreshOwner();
 	}
 }
 

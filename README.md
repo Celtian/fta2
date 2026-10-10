@@ -36,7 +36,9 @@ Exploration is shared by all three brothers within each world. The original reve
 
 Enable **New layout** in Options for a regular two-column, three-row grid beside each portrait, in both individual and group view. All six controls, including HP with its original frame, fit 28 × 27 pixels with five-pixel gaps. Clicking a group's Ideas/Spells/Skills control selects that brother and opens the chosen category while keeping group view. In the individual panel, their former bottom-row space shows the original coin artwork and that brother's exact Gold Coin total in a round gold medallion with a bronze interior and light gold digits. Gold, weight and volume share a continuous strip of original gold decoration, with evenly spaced medallions. This includes coins in closed and nested carried bags. The coin icon remains visible at zero. Hover over the medallion to see the exact amount in its Gold tooltip; it updates even while the pointer stays still. The counter updates after inventory changes and switching brothers. The option defaults to off, applies after Options closes and is remembered across restarts in both display modes. Jewellery and other gold-named items are not counted as currency.
 
-Ideas/Spells/Skills windows open over the right sidebar in both display modes, keeping their original size and vertical position. Remembered custom positions are retained when reopening.
+Ideas/Spells/Skills windows open over the right sidebar in both display modes, keeping their original size and vertical position. Remembered custom positions are retained when reopening. A red J, blue P or yellow K diamond in the head illustration identifies whose abilities are displayed. Hover shows the name, such as "Julian's abilities". This marker is always shown with either sidebar layout. Switching brothers retains the original automatic hiding and reopening of their windows.
+
+Physical inventory windows identify their current carrier with a large gold-rimmed diamond below the container icon, marked J, P or K: red for Julian, blue for Phillip and yellow for Kevin. Hover over it for the full name, such as "Carried by Julian". This works with either sidebar layout and both display modes, including bags inside other bags. The marker follows transfers between brothers and disappears for ground containers and containers carried by other characters. It identifies the carrier, rather than story ownership of a chest, and has no click action.
 
 The original controls are preserved: use the mouse, `1`/`2`/`3` (top row or numeric keypad) to switch brothers, `O` to open options including save/load, Escape to close the frontmost container and clear its hover text (or open Options when none is open), and Tab to switch between group and individual control.
 
@@ -69,7 +71,7 @@ cpack --config build/CPackConfig.cmake -C Release
 To create the complete Windows ZIP locally after packaging the Windows engine:
 
 ```sh
-python3 tools/package_complete.py --engine-package dist/fta2-native-0.1.23-Windows-x86_64.zip --data-dir original-game --output dist/fta2-native-0.1.23-Windows-x86_64-complete.zip
+python3 tools/package_complete.py --engine-package dist/fta2-native-0.1.27-Windows-x86_64.zip --data-dir original-game --output dist/fta2-native-0.1.27-Windows-x86_64-complete.zip
 ```
 
 The tool checks all eight data files against their known SHA-256 hashes, excludes original saves and unnecessary DOS files, and records a package manifest. It refuses unknown data, output inside the original installation, and overwriting an existing output ZIP.

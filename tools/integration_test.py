@@ -13,6 +13,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 from fta2_data import EXE_SHA256, extract, sha256
+from integration_widescreen import validate_container_owners
 
 
 def main():
@@ -83,6 +84,7 @@ def main():
                     header = b"P6\n640 480\n255\n"
                     assert screenshot.startswith(header) and len(screenshot) == len(header) + 640 * 480 * 3
         for capture_dir in (output, restart_output):
+            validate_container_owners(capture_dir)
             assert json.loads((capture_dir / "container-tooltip.json").read_text()) == {
                 "status": "passed", "physical_closes": 12, "delayed_text_cleared": True}
         for name in ("map-brother-1.ppm", "map-brother-2.ppm", "map-brother-3.ppm",

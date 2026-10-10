@@ -1,0 +1,285 @@
+{
+  "date": "2026-10-10",
+  "version": "0.1.24",
+  "status": "passed",
+  "development_status": "development-alpha",
+  "scope": "Live carrier gemstone and passive English tooltip in physical container windows",
+  "appearance": {
+    "bounds": [
+      125,
+      71,
+      13,
+      13
+    ],
+    "always_enabled": true,
+    "carrier_colors": {
+      "Julian": "red",
+      "Phillip": "blue",
+      "Kevin": "yellow"
+    },
+    "original_palette_shades": [
+      [
+        132,
+        131,
+        129
+      ],
+      [
+        178,
+        175,
+        172
+      ],
+      [
+        92,
+        90,
+        89
+      ]
+    ],
+    "gold_bezel": [
+      89,
+      67,
+      48
+    ],
+    "highlight": 34,
+    "original_icon": "Actual sprite bounds are used; nontransparent icon pixels over the badge are retained",
+    "ground_and_non_player_containers": "No marker or hover target",
+    "mental_and_death_containers": "Unchanged"
+  },
+  "ownership": {
+    "source": "GameObject::possessor() traverses nested parents",
+    "saved_node_owner": "Unchanged original window association",
+    "selection": "Unchanged; fixture deliberately transfers bags to unselected brothers",
+    "refresh": "Existing deferred container update, invalidation only on carrier change",
+    "tooltip": "Stationary live update, leave/hide/Escape/delete cleanup; passive clicks",
+    "configuration_and_save_format_changed": false
+  },
+  "fixture": {
+    "checks_per_process": {
+      "status": "passed",
+      "layouts": 4,
+      "decorations": 4,
+      "brothers": 3,
+      "redraw_checks": 176,
+      "tooltip_checks": 552,
+      "edge_checks": 256,
+      "transfers": 280,
+      "neutral_checks": 32,
+      "escape_closes": 16,
+      "save_load_checks": 4,
+      "captures": 48,
+      "fixture_restored": true
+    },
+    "coverage": [
+      "All brothers",
+      "Direct and nested bags",
+      "Outer-bag transfers",
+      "Ground drop and pickup",
+      "Non-player carrier",
+      "Four decoration variants",
+      "Both display modes",
+      "New layout on and off",
+      "Moved window coordinates",
+      "Four inside corners and four outside edges",
+      "Hide/reopen",
+      "Escape",
+      "Passive click",
+      "Save/load with different saved window association and actual carrier"
+    ],
+    "restoration": "Original-data objects are restored from an isolated checkpoint; actor, position and RNG checked",
+    "no_original_data_written": true
+  },
+  "linux": {
+    "release_build": "passed",
+    "build_log": ".cache/owner-024-linux-build.log",
+    "ctest": {
+      "passed": 5,
+      "total": 5,
+      "log": ".cache/owner-024-linux-ctest.log"
+    },
+    "wide_processes": 2,
+    "wide_result": ".cache/owner-024-wide-final3/result.json",
+    "classic_processes": 2,
+    "classic_output": ".cache/owner-024-classic-final3",
+    "reference": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "windows": {
+    "release_cross_build": "passed (Zig 0.16.0, official SDL 3.4.18 x64 DLL)",
+    "build_log": ".cache/owner-024-windows-build-final.log",
+    "ctest": {
+      "passed": 5,
+      "total": 5,
+      "log": ".cache/owner-024-windows-ctest.log",
+      "scope": "C++ and CLI cases run as native Windows processes; portable Python cases run on Linux"
+    },
+    "packaged_native_execution": true,
+    "runtime_passed": true,
+    "native_video_runtime_passed": true,
+    "wide_processes": 2,
+    "classic_processes": 1,
+    "classic_passed": true,
+    "packaged_data_files": 8,
+    "data_unchanged": true,
+    "bundled_data_discovery": true,
+    "executable_sha256": "a30b0fe303e7131a1e6a32dbc9fbf700014d79acff7fbdc9ec5b33b7c7fd91fa",
+    "result": ".cache/owner-024-final-windows-validation/result.json",
+    "capture_comparisons": [
+      {
+        "process": 0,
+        "matching_ppm_captures": 177,
+        "owners": {
+          "status": "passed",
+          "layouts": 4,
+          "decorations": 4,
+          "brothers": 3,
+          "redraw_checks": 176,
+          "tooltip_checks": 552,
+          "edge_checks": 256,
+          "transfers": 280,
+          "neutral_checks": 32,
+          "escape_closes": 16,
+          "save_load_checks": 4,
+          "captures": 48,
+          "fixture_restored": true
+        }
+      },
+      {
+        "process": 1,
+        "matching_ppm_captures": 177,
+        "owners": {
+          "status": "passed",
+          "layouts": 4,
+          "decorations": 4,
+          "brothers": 3,
+          "redraw_checks": 176,
+          "tooltip_checks": 552,
+          "edge_checks": 256,
+          "transfers": 280,
+          "neutral_checks": 32,
+          "escape_closes": 16,
+          "save_load_checks": 4,
+          "captures": 48,
+          "fixture_restored": true
+        }
+      }
+    ],
+    "reference": {
+      "screenshots": {
+        "initial.ppm": "d4d6934ddd00ae559deac10d7f2fbc0472a59ac4e8c25f490c053daa0147a28c",
+        "controlled.ppm": "89363eb8d556ceda731f7feabb4754d48301114312d8c6eccaf4b318d098991e"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "sanitizers": {
+    "address_sanitizer": "passed",
+    "leak_sanitizer": "passed",
+    "wide_processes": 2,
+    "classic_processes": 2,
+    "execution": "Outside sandbox for thread inspection",
+    "wide_result": ".cache/owner-024-wide-asan-final/result.json",
+    "classic_output": ".cache/owner-024-classic-asan-final"
+  },
+  "reference": {
+    "build": "passed",
+    "run": "passed",
+    "screenshots": 2,
+    "checkpoints": 4,
+    "original_chunks_per_save": 30,
+    "compared_saves": 2,
+    "build_log": ".cache/owner-024-reference-build.log",
+    "run_log": ".cache/owner-024-reference-run.log"
+  },
+  "original_files": {
+    "verified_files": 54
+  },
+  "backends": {
+    "gameplay_video": "dummy",
+    "audio": "dummy",
+    "input": "Injected SDL events at logical pixel centers",
+    "native_video_exception": "Separate native Windows runtime suite"
+  },
+  "limitations": [
+    "No manual hardware-input test, macOS execution or complete playthrough",
+    "The four frame variants are exercised using the same original-data container prototype",
+    "Fixture window movement uses the original setExtent path, not a manual mouse drag"
+  ]
+}

@@ -891,6 +891,7 @@ struct ContainerEscapeProbe {
         switch (phase) {
         case 0: {
             parent = tool->topWindow();
+            verifyContainerOwners(controls.output);
             auto position = Saga2::centerActorCoords();
             int nearest = 32767;
             for (int id = 0; id < Saga2::objectCount; ++id) {

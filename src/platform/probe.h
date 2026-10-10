@@ -5,4 +5,5 @@ namespace Native {
 extern std::function<void()> gameFrameHook;
 void configureSmokeProbe(const Path& output, int frames = 260);
 void configureWidescreenProbe(const Path& output);
+void verifyContainerOwners(const Path& output);
 } // namespace Native

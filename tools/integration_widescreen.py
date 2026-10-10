@@ -13,6 +13,84 @@ from compare_reference import chunks
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def validate_mental_owners(output):
+    """Check the owning actor's complete diamond, across categories and selection changes."""
+    result = json.loads((output / "mental-owner.json").read_text())
+    assert result == {"status": "passed", "layouts": 4, "panels": 2, "brothers": 3,
+                      "categories": 3, "redraw_checks": 288, "tooltip_checks": 744,
+                      "edge_checks": 576, "passive_clicks": 72, "escape_closes": 24,
+                      "save_load_checks": 24, "captures": 72, "fixture_restored": True}
+    diamonds = {}
+    for wide, width in ((0, 640), (1, 854)):
+        for sidebar in range(2):
+            for group in range(2):
+                for brother in range(3):
+                    for part in range(3):
+                        name = f"mental-owner-{wide}-{sidebar}-{group}-{brother}-{part}.ppm"
+                        image = (output / name).read_bytes()
+                        header = f"P6\n{width} 480\n255\n".encode()
+                        assert image.startswith(header) and len(image) == len(header) + width * 480 * 3
+                        pixels = image[len(header):]
+                        # The diamond overlays the head; compare its opaque pixels only.
+                        diamond = tuple(pixels[((112 + y) * width + 106 + x) * 3:][:3]
+                                        for y in range(21) for x in range(25)
+                                        if abs(x - 12) * 10 + abs(y - 10) * 12 <= 120)
+                        if brother in diamonds:
+                            assert diamonds[brother] == diamond, name
+                        else:
+                            diamonds[brother] = diamond
+                        glyph = tuple(pixels[((120 + y) * width + 110 + x) * 3:][:3]
+                                      == bytes((196, 192, 180))
+                                      for y in range(9) for x in range(13))
+                        assert sum(glyph) == (10, 15, 14)[brother], name
+    assert len(set(diamonds.values())) == 3
+    return result
+
+
+def validate_container_owners(output):
+    """Validate real container ownership, redraws and original-palette badge captures."""
+    result = json.loads((output / "container-owner.json").read_text())
+    assert result == {"status": "passed", "layouts": 4, "decorations": 4, "brothers": 3,
+                      "redraw_checks": 176, "tooltip_checks": 552, "edge_checks": 256,
+                      "transfers": 280, "neutral_checks": 32, "escape_closes": 16,
+                      "save_load_checks": 4, "captures": 48, "fixture_restored": True}
+    colors = {}
+    initials = {}
+    for wide, width in ((0, 640), (1, 854)):
+        for sidebar in range(2):
+            for decoration in range(4):
+                for brother in range(3):
+                    image = (output / f"owner-{wide}-{sidebar}-{decoration}-{brother}.ppm").read_bytes()
+                    header = f"P6\n{width} 480\n255\n".encode()
+                    assert image.startswith(header) and len(image) == len(header) + width * 480 * 3
+                    # Captured after transferring the outer bag to the next brother.
+                    carrier = (brother + 1) % 3
+                    # Sample the left facet, clear of the cursor's opaque hotspot.
+                    x, y = 30 + decoration * 8 + 125, 70 + 76
+                    pixel = image[len(header) + (y * width + x) * 3:][:3]
+                    if carrier in colors:
+                        assert pixel == colors[carrier], (wide, sidebar, decoration, brother)
+                    else:
+                        colors[carrier] = pixel
+                    # Original ThinFix8 initials must remain visible and identical across layouts.
+                    glyph = tuple(image[len(header) + (row * width + 30 + decoration * 8 + col) * 3:][:3]
+                                  == bytes((196, 192, 180))
+                                  for row in range(144, 153) for col in range(125, 138))
+                    # Keep every original-font pixel, including beneath oversized chest sprites.
+                    assert sum(glyph) == (10, 15, 14)[carrier], (wide, sidebar, decoration, brother)
+                    if carrier in initials:
+                        assert glyph == initials[carrier], (wide, sidebar, decoration, brother)
+                    else:
+                        initials[carrier] = glyph
+    red, blue, yellow = (colors[i] for i in range(3))
+    assert red[0] > red[1] and red[0] > red[2]
+    assert blue[2] > blue[0] and blue[2] > blue[1]
+    assert yellow[0] > yellow[2] and yellow[1] > yellow[2]
+    assert len(set(initials.values())) == 3
+    validate_mental_owners(output)
+    return result
+
+
 def validate_exploration(output, saves):
     """Check isolated exploration evidence, including actual rendered map interiors."""
     exploration = json.loads((output / "exploration.json").read_text())
@@ -215,6 +293,7 @@ def main():
         exploration = validate_exploration(output, saves)
         buttons = validate_buttons(output)
         sidebar = validate_sidebar(output, saves, bool(index))
+        owners = validate_container_owners(output)
         assert "widescreen=true" in (saves / "config.ini").read_text()
         for name in ("wide-group.ppm", "wide-individual.ppm", "wide-final.ppm"):
             image = (output / name).read_bytes()
@@ -226,7 +305,7 @@ def main():
                     image = (output / f"options-{mode}-{menu}-{state}.ppm").read_bytes()
                     header = f"P6\n{width} 480\n255\n".encode()
                     assert image.startswith(header) and len(image) == len(header) + width * 480 * 3
-        results.append({"startup": startup, "checks": result, "exploration": exploration, "buttons": buttons, "sidebar": sidebar})
+        results.append({"startup": startup, "checks": result, "exploration": exploration, "buttons": buttons, "sidebar": sidebar, "container_owners": owners})
     after = {str(p.relative_to(game)): sha256(p.read_bytes())
              for p in game.rglob("*") if p.is_file()}
     assert before == after

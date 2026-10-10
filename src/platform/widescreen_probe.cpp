@@ -1261,6 +1261,7 @@ struct WidescreenProbe {
         std::ofstream(output / "sidebar-startup.json")
             << "{\"alternate_sidebar\":"
             << (ConfMan.getBool("alternate_sidebar") ? "true" : "false") << "}\n";
+        verifyContainerOwners(output);
         ConfMan.setBool("alternate_sidebar", false);
         Saga2::requestDisplayModeChange();
         Saga2::applyPendingDisplayMode();
@@ -1390,6 +1391,432 @@ struct WidescreenProbe {
     }
 };
 } // namespace
+
+static void verifyMentalOwners(const Path& output) {
+    using namespace Saga2;
+    auto vm = g_vm;
+    requireWide(vm->saveGameState(11, "Mental owner checkpoint", false) == kNoError,
+                "cannot save mental owner checkpoint");
+    for (int brother = 0; brother < 3; ++brother)
+        if (auto node = vm->_cnm->find(ActorBaseID + brother, ContainerNode::kMentalType))
+            delete node;
+    auto drain = [&] {
+        Event event;
+        while (g_platform->pollEvent(event)) {
+            if (event.type == EVENT_KEYDOWN)
+                vm->_toolBase->handleKeyStroke(event);
+            else if (event.type == EVENT_MOUSEMOVE || event.type == EVENT_LBUTTONDOWN ||
+                     event.type == EVENT_LBUTTONUP)
+                vm->_toolBase->handleMouse(event, g_platform->getMillis());
+        }
+    };
+    int redraws = 0, tooltips = 0, edges = 0, passive = 0, closes = 0, loads = 0;
+    auto verifyText = [&](const char* expected) {
+        Point16 actualOffset, expectedOffset;
+        auto image = vm->_pointer->getImage(actualOffset);
+        const auto size = image->_size;
+        const std::vector<byte> pixels(image->_data, image->_data + size.x * size.y);
+        vm->_mouseInfo->setText(expected);
+        image = vm->_pointer->getImage(expectedOffset);
+        requireWide(size == image->_size && actualOffset == expectedOffset &&
+                        pixels == std::vector<byte>(image->_data, image->_data + size.x * size.y),
+                    String::format("mental owner tooltip %d expected %s (%d,%d -> %d,%d)", tooltips,
+                                   expected ? expected : "empty", size.x, size.y, image->_size.x,
+                                   image->_size.y)
+                        .c_str());
+        ++tooltips;
+    };
+    static const char* labels[] = {"Julian's abilities", "Phillip's abilities",
+                                   "Kevin's abilities"};
+    for (int wide = 0; wide < 2; ++wide)
+        for (int sidebar = 0; sidebar < 2; ++sidebar) {
+            ConfMan.setBool("widescreen", bool(wide));
+            ConfMan.setBool("alternate_sidebar", bool(sidebar));
+            requestDisplayModeChange();
+            applyPendingDisplayMode();
+            for (int group = 0; group < 2; ++group)
+                for (int brother = 0; brother < 3; ++brother) {
+                    setCenterBrother((brother + 1) % 3);
+                    if (group)
+                        setControlPanelsToTrioMode();
+                    else
+                        setControlPanelsToIndividualMode((brother + 1) % 3);
+                    auto node = new ContainerNode(*vm->_cnm, ActorBaseID + brother,
+                                                  ContainerNode::kMentalType);
+                    node->show();
+                    auto window = node->getWindow();
+                    auto box = window->getExtent();
+                    box.x = 30;
+                    box.y = 70;
+                    window->setExtent(box);
+                    reDrawScreen();
+                    auto hover = [&](int x, int y) {
+                        mouse(box.x + x, box.y + y, SDL_EVENT_MOUSE_MOTION);
+                        drain();
+                    };
+                    auto parity = [&] {
+                        const auto pixels = region(box.x + 76, box.y + 42, 25, 21);
+                        reDrawScreen();
+                        const auto after = region(box.x + 76, box.y + 42, 25, 21);
+                        if (pixels != after)
+                            for (size_t i = 0; i < pixels.size(); ++i)
+                                if (pixels[i] != after[i])
+                                    throw std::runtime_error(
+                                        String::format("Mental owner redraw %d at %d,%d (%u/%u)",
+                                                       redraws, int(i % 25), int(i / 25), pixels[i],
+                                                       after[i])
+                                            .c_str());
+                        ++redraws;
+                    };
+                    auto marker = window->hitTest(Point16(88, 52));
+                    requireWide(marker && marker->getExtent() == Rect16(76, 42, 25, 21) &&
+                                    window->getView().getExtent() == Rect16(2, 64, 156, 149) &&
+                                    box.width == 158 && box.height == 215,
+                                "mental owner marker changed window or grid geometry");
+                    for (int part = 0; part < 3; ++part) {
+                        // Original header category regions remain available above the badge.
+                        click(window, part == 0 ? 55 : part == 1 ? 75 : 88, 10);
+                        drain();
+                        updateContainerWindows();
+                        requireWide(node->getWindow() == window && node->_mindType == part,
+                                    "mental header category change did not reuse its window");
+                        parity();
+                        hover(88, 52);
+                        verifyText(labels[brother]);
+                        for (auto point : {Point16(76, 42), Point16(100, 42), Point16(76, 62),
+                                           Point16(100, 62)}) {
+                            requireWide(window->hitTest(point) == marker,
+                                        "mental owner marker inside edge misses");
+                            hover(point.x, point.y);
+                            verifyText(labels[brother]);
+                            ++edges;
+                        }
+                        for (auto point : {Point16(75, 52), Point16(101, 52), Point16(88, 41),
+                                           Point16(88, 63)}) {
+                            requireWide(window->hitTest(point) != marker,
+                                        "mental owner marker extends outside its bounds");
+                            ++edges;
+                        }
+                        vm->_toolBase->leavePanel();
+                        verifyText(nullptr);
+                        const auto selected = getCenterActorID();
+                        const auto seed = vm->_rnd->getSeed();
+                        click(window, 88, 52);
+                        drain();
+                        verifyText(labels[brother]);
+                        requireWide(getCenterActorID() == selected && vm->_rnd->getSeed() == seed &&
+                                        node->_mindType == part && node->getWindow() == window,
+                                    "mental owner badge click changed gameplay or category");
+                        ++passive;
+                        parity();
+                        setCenterBrother((brother + part + 1) % 3);
+                        updateIndicators();
+                        updateContainerWindows();
+                        // Preserve the original selection-driven hide/show behavior.
+                        const bool hidden = getCenterActorID() != ActorBaseID + brother;
+                        requireWide(bool(node->getWindow()) != hidden,
+                                    "selection changed the original mental window visibility");
+                        if (hidden)
+                            verifyText(nullptr);
+                        // Explicitly show an unselected actor's node to check its own identity.
+                        node->show();
+                        window = node->getWindow();
+                        marker = window->hitTest(Point16(88, 52));
+                        requireWide(window->getExtent() == box && marker &&
+                                        marker->getExtent() == Rect16(76, 42, 25, 21),
+                                    "reopened mental owner geometry changed");
+                        hover(88, 52);
+                        verifyText(labels[brother]);
+                        parity();
+                        hover(100, 52); // Keep the actual cursor clear of the initial.
+                        captureWithCursor(output / String::format("mental-owner-%d-%d-%d-%d-%d.ppm",
+                                                                  wide, sidebar, group, brother,
+                                                                  part)
+                                                       .c_str());
+                    }
+                    const auto previous = box;
+                    box.x = 60;
+                    box.y = 80;
+                    window->setExtent(box);
+                    updateWindowSection(previous);
+                    updateWindowSection(box);
+                    hover(88, 52);
+                    verifyText(labels[brother]);
+                    parity();
+                    node->hide();
+                    verifyText(nullptr);
+                    node->show();
+                    window = node->getWindow();
+                    hover(88, 52);
+                    verifyText(labels[brother]);
+                    parity();
+                    requireWide(vm->saveGameState(12, "Mental owner load fixture", false) ==
+                                        kNoError &&
+                                    vm->loadGameState(12) == kNoError,
+                                "cannot reload mental owner fixture");
+                    updateContainerWindows();
+                    node = vm->_cnm->find(ActorBaseID + brother, ContainerNode::kMentalType);
+                    requireWide(node && node->getWindow() && node->_mindType == 2 &&
+                                    node->getWindow()->getExtent() == box,
+                                "saved mental owner window was not restored");
+                    window = node->getWindow();
+                    hover(88, 52);
+                    verifyText(labels[brother]);
+                    parity();
+                    ++loads;
+                    key(SDLK_ESCAPE);
+                    drain();
+                    updateContainerWindows();
+                    verifyText(nullptr);
+                    requireWide(!vm->_cnm->find(ActorBaseID + brother, ContainerNode::kMentalType),
+                                "Escape retained mental owner window");
+                    ++closes;
+                }
+        }
+    requireWide(vm->loadGameState(11) == kNoError, "cannot restore mental owner fixture");
+    std::ofstream(output / "mental-owner.json")
+        << "{\"status\":\"passed\",\"layouts\":4,\"panels\":2,\"brothers\":3,\"categories\":3,"
+        << "\"redraw_checks\":" << redraws << ",\"tooltip_checks\":" << tooltips
+        << ",\"edge_checks\":" << edges << ",\"passive_clicks\":" << passive
+        << ",\"escape_closes\":" << closes << ",\"save_load_checks\":" << loads
+        << ",\"captures\":72,\"fixture_restored\":true}\n";
+}
+
+void verifyContainerOwners(const Path& output) {
+    using namespace Saga2;
+    auto vm = g_vm;
+    const bool originalWide = ConfMan.getBool("widescreen");
+    const bool originalSidebar = ConfMan.getBool("alternate_sidebar");
+    const auto actor = getCenterActorID();
+    const auto position = centerActorCoords();
+    const auto seed = vm->_rnd->getSeed();
+    requireWide(vm->saveGameState(9, "Container owner checkpoint", false) == kNoError,
+                "cannot save container owner checkpoint");
+    std::array<GameObject*, 2> bags{};
+    int found = 0;
+    for (int id = 0; id < objectCount && found < 2; ++id) {
+        auto object = GameObject::objectAddress(id);
+        if (dynamic_cast<PhysicalContainerProto*>(object->proto()) && !object->isOpen() &&
+            !vm->_cnm->find(id))
+            bags[found++] = object;
+    }
+    requireWide(found == 2, "owner fixture needs two original physical containers");
+    const ObjectID bagID = bags[0]->thisID(), outerID = bags[1]->thisID();
+    auto proto = bags[0]->proto();
+    const auto appearance = proto->appearanceType;
+    auto drain = [&] {
+        Event event;
+        while (g_platform->pollEvent(event)) {
+            if (event.type == EVENT_KEYDOWN)
+                vm->_toolBase->handleKeyStroke(event);
+            else if (event.type == EVENT_MOUSEMOVE || event.type == EVENT_LBUTTONDOWN ||
+                     event.type == EVENT_LBUTTONUP)
+                vm->_toolBase->handleMouse(event, g_platform->getMillis());
+        }
+    };
+    int redraws = 0, tooltips = 0, transfers = 0, edges = 0, neutral = 0, closes = 0;
+    auto verifyText = [&](const char* expected) {
+        Point16 actualOffset, expectedOffset;
+        auto image = vm->_pointer->getImage(actualOffset);
+        const auto size = image->_size;
+        const std::vector<byte> pixels(image->_data, image->_data + size.x * size.y);
+        vm->_mouseInfo->setText(expected);
+        image = vm->_pointer->getImage(expectedOffset);
+        requireWide(size == image->_size && actualOffset == expectedOffset &&
+                        pixels == std::vector<byte>(image->_data, image->_data + size.x * size.y),
+                    String::format("owner tooltip check %d expected %s (size %d,%d -> %d,%d)",
+                                   tooltips, expected ? expected : "empty", size.x, size.y,
+                                   image->_size.x, image->_size.y)
+                        .c_str());
+        ++tooltips;
+    };
+    auto moveInto = [&](GameObject* item, ObjectID parent) {
+        item->move(Location(TilePoint(0, 0, 0), parent));
+        ++transfers;
+    };
+    static const char* labels[] = {"Carried by Julian", "Carried by Phillip", "Carried by Kevin"};
+    ObjectID npc = Nothing;
+    for (int i = 3; i < kActorCount; ++i) {
+        auto candidate = GameObject::objectAddress(ActorBaseID + i);
+        if (candidate->proto()) {
+            npc = candidate->thisID();
+            break;
+        }
+    }
+    requireWide(npc != Nothing, "owner fixture needs a non-player actor");
+    for (int wide = 0; wide < 2; ++wide) {
+        for (int sidebar = 0; sidebar < 2; ++sidebar) {
+            ConfMan.setBool("widescreen", bool(wide));
+            ConfMan.setBool("alternate_sidebar", bool(sidebar));
+            requestDisplayModeChange();
+            applyPendingDisplayMode();
+            for (int decoration = 0; decoration < 4; ++decoration) {
+                proto->appearanceType = decoration;
+                moveInto(bags[0], actor);
+                moveInto(bags[1], actor);
+                auto node = new ContainerNode(*vm->_cnm, bagID, ContainerNode::kPhysicalType);
+                bags[0]->setFlags(kObjectOpen, kObjectOpen);
+                node->show();
+                auto window = node->getWindow();
+                const auto association = node->getOwnerIndex();
+                requireWide(window && window->isOpen(), "owner fixture window did not open");
+                auto box = window->getExtent();
+                box.x = 30 + decoration * 8;
+                box.y = 70;
+                window->setExtent(box);
+                reDrawScreen();
+                auto hover = [&](int x, int y) {
+                    mouse(box.x + x, box.y + y, SDL_EVENT_MOUSE_MOTION);
+                    drain();
+                };
+                auto parity = [&] {
+                    const auto pixels = region(box.x, box.y, box.width, box.height);
+                    reDrawScreen();
+                    const auto after = region(box.x, box.y, box.width, box.height);
+                    if (pixels != after) {
+                        for (size_t i = 0; i < pixels.size(); ++i)
+                            if (pixels[i] != after[i])
+                                throw std::runtime_error(
+                                    String::format(
+                                        "Owner redraw %d: first difference at %d,%d (%u/%u)",
+                                        redraws, int(i % box.width), int(i / box.width), pixels[i],
+                                        after[i])
+                                        .c_str());
+                    }
+                    ++redraws;
+                };
+                auto marker = window->hitTest(Point16(131, 77));
+                requireWide(marker && marker->getExtent() == Rect16(119, 66, 25, 21),
+                            "owner marker has wrong bounds");
+                for (int brother = 0; brother < 3; ++brother) {
+                    moveInto(bags[0], ActorBaseID + brother);
+                    updateContainerWindows();
+                    parity();
+                    for (auto point :
+                         {Point16(119, 66), Point16(143, 66), Point16(119, 86), Point16(143, 86)}) {
+                        requireWide(window->hitTest(point) == marker, "owner marker edge misses");
+                        hover(point.x, point.y);
+                        verifyText(labels[brother]);
+                        ++edges;
+                    }
+                    hover(131, 77);
+                    verifyText(labels[brother]);
+                    const auto pixels = region(box.x + 119, box.y + 66, 25, 21);
+                    moveInto(bags[0], outerID);
+                    moveInto(bags[1], ActorBaseID + brother);
+                    updateContainerWindows();
+                    verifyText(labels[brother]);
+                    requireWide(pixels == region(box.x + 119, box.y + 66, 25, 21),
+                                "nested container has a different owner marker");
+                    parity();
+                    // Transfer the outer bag while the pointer stays over the inner badge.
+                    moveInto(bags[1], ActorBaseID + (brother + 1) % 3);
+                    updateContainerWindows();
+                    verifyText(labels[(brother + 1) % 3]);
+                    parity();
+                    // Keep the cursor clear of the initial in the visual evidence.
+                    hover(143, 77);
+                    captureWithCursor(output / String::format("owner-%d-%d-%d-%d.ppm", wide,
+                                                              sidebar, decoration, brother)
+                                                   .c_str());
+                    hover(131, 77);
+                    requireWide(node->getOwnerIndex() == association && getCenterActorID() == actor,
+                                "owner display changed original selection or node association");
+                }
+                for (auto parent : {getCenterActor()->IDParent(), npc}) {
+                    moveInto(bags[0], parent);
+                    if (parent != npc)
+                        bags[0]->move(Location(position, parent));
+                    updateContainerWindows();
+                    verifyText(nullptr);
+                    requireWide(window->hitTest(Point16(131, 77)) != marker,
+                                "neutral container retained owner hover region");
+                    parity();
+                    ++neutral;
+                }
+                moveInto(bags[0], actor);
+                updateContainerWindows();
+                hover(131, 77);
+                verifyText(labels[actor - ActorBaseID]);
+                const auto pixels = region(box.x + 119, box.y + 66, 25, 21);
+                click(window, 131, 77);
+                drain();
+                requireWide(pixels == region(box.x + 119, box.y + 66, 25, 21) &&
+                                getCenterActorID() == actor && node->getOwnerIndex() == association,
+                            "owner badge click changed state");
+                for (auto point :
+                     {Point16(118, 77), Point16(144, 77), Point16(131, 65), Point16(131, 87)}) {
+                    requireWide(window->hitTest(point) != marker,
+                                "owner marker extends outside bounds");
+                    hover(point.x, point.y);
+                    verifyText(nullptr);
+                    hover(131, 77);
+                    verifyText(labels[actor - ActorBaseID]);
+                    ++edges;
+                }
+                if (decoration % 2) {
+                    node->hide();
+                    verifyText(nullptr);
+                    node->show();
+                    window = node->getWindow();
+                    box = window->getExtent();
+                    hover(131, 77);
+                    verifyText(labels[actor - ActorBaseID]);
+                }
+                key(SDLK_ESCAPE);
+                drain();
+                updateContainerWindows();
+                verifyText(nullptr);
+                requireWide(!vm->_cnm->find(bagID), "Escape retained owner fixture window");
+                ++closes;
+            }
+            proto->appearanceType = appearance;
+            // Reopening from a save must resolve current possession, not cached ownership.
+            moveInto(bags[0], actor);
+            auto node = new ContainerNode(*vm->_cnm, bagID, ContainerNode::kPhysicalType);
+            bags[0]->setFlags(kObjectOpen, kObjectOpen);
+            node->show();
+            moveInto(bags[0], ActorBaseID + (actor - ActorBaseID + 1) % 3);
+            updateContainerWindows();
+            requireWide(vm->saveGameState(10, "Container owner load fixture", false) == kNoError &&
+                            vm->loadGameState(10) == kNoError,
+                        "cannot reload owner fixture");
+            updateContainerWindows();
+            bags = {GameObject::objectAddress(bagID), GameObject::objectAddress(outerID)};
+            proto = bags[0]->proto();
+            node = vm->_cnm->find(bagID);
+            requireWide(node && node->getWindow(), "saved owner window was not restored");
+            auto window = node->getWindow();
+            const auto box = window->getExtent();
+            mouse(box.x + 131, box.y + 77, SDL_EVENT_MOUSE_MOTION);
+            drain();
+            verifyText(labels[(actor - ActorBaseID + 1) % 3]);
+            delete node;
+            bags[0]->setFlags(0, kObjectOpen);
+            verifyText(nullptr);
+        }
+    }
+    proto->appearanceType = appearance;
+    verifyMentalOwners(output);
+    requireWide(vm->loadGameState(9) == kNoError, "cannot restore container owner fixture");
+    ConfMan.setBool("widescreen", originalWide);
+    ConfMan.setBool("alternate_sidebar", originalSidebar);
+    requestDisplayModeChange();
+    applyPendingDisplayMode();
+    requireWide(getCenterActorID() == actor && centerActorCoords() == position &&
+                    vm->_rnd->getSeed() == seed,
+                String::format("owner fixture state: actor %u/%u position %d,%d/%d,%d RNG %u/%u",
+                               getCenterActorID(), actor, centerActorCoords().u,
+                               centerActorCoords().v, position.u, position.v, vm->_rnd->getSeed(),
+                               seed)
+                    .c_str());
+    std::ofstream(output / "container-owner.json")
+        << "{\"status\":\"passed\",\"layouts\":4,\"decorations\":4,\"brothers\":3,"
+        << "\"redraw_checks\":" << redraws << ",\"tooltip_checks\":" << tooltips
+        << ",\"edge_checks\":" << edges << ",\"transfers\":" << transfers
+        << ",\"neutral_checks\":" << neutral << ",\"escape_closes\":" << closes
+        << ",\"save_load_checks\":4,\"captures\":48,\"fixture_restored\":true}\n";
+}
 
 void configureWidescreenProbe(const Path& output) {
     std::filesystem::create_directories(output);
