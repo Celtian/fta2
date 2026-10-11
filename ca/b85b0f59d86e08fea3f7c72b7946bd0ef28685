@@ -1,0 +1,44 @@
+docs/player-guide.md
+  s_763c5106900d9d::t_cc3d5c19aa0bc5 57
+docs/validation.md
+  s_763c5106900d9d::t_fed5d67e7927e4 30-31
+  s_763c5106900d9d::t_aab9546454db66 7-27,32-50
+  s_763c5106900d9d::t_1d006870422249 28-29
+docs/windows-build.md
+  s_763c5106900d9d::t_cc3d5c19aa0bc5 3-4
+README.md
+  s_763c5106900d9d::t_cc3d5c19aa0bc5 71
+research/map-arrow-validation.json
+  s_763c5106900d9d::t_85d22cab641185 1-163
+CMakeLists.txt
+  s_763c5106900d9d::t_ac95ddd45ecb6a 45
+src/saga2/automap.cpp
+  s_763c5106900d9d::t_ac95ddd45ecb6a 272-287,291-292,304-307
+src/platform/widescreen_probe.cpp
+  s_763c5106900d9d::t_956d8e5302efe9 146-147,160-170,173-215,218-258,261-281,284-286,1233-1235,1461
+  s_763c5106900d9d::t_f8afa2c5c8d0b3 171-172,216-217,259-260,282-283
+tools/integration_widescreen.py
+  s_763c5106900d9d::t_956d8e5302efe9 397-406,423
+docs/architecture.md
+  s_763c5106900d9d::t_cc3d5c19aa0bc5 29-30
+third_party/README.md
+  s_763c5106900d9d::t_cc3d5c19aa0bc5 80-81
+src/saga2/panel.cpp
+  s_763c5106900d9d::t_44ee9e54ba3d3c 1106-1108
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "cab85b0f59d86e08fea3f7c72b7946bd0ef28685",
+  "prompts": {},
+  "sessions": {
+    "s_763c5106900d9d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a129c5-c6f5-7441-9620-636f1239c421",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Celtian <dominik.hladik@seznam.cz>"
+    }
+  }
+}
