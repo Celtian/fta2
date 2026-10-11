@@ -1,5 +1,7 @@
 """Synthetic public-release gates; no proprietary game data or GitHub access."""
 import hashlib
+import contextlib
+import io
 import json
 from pathlib import Path
 import sys
@@ -129,6 +131,62 @@ class VersionTests(unittest.TestCase):
         self.assert_unchanged()
         self.assertEqual(release.git(self.root, 'status', '--porcelain'), '')
         self.assertEqual(release.git(self.root, 'tag', '--list'), '')
+
+    def test_manual_branch_release_without_tag_uses_current_commit(self):
+        target = release.resolve_target(self.root, ref='refs/heads/master')
+        self.assertEqual(target, {'tag': 'v1.2.3', 'commit': self.head})
+        self.assertEqual(release.git(self.root, 'tag', '--list'), '')
+        self.assert_unchanged()
+
+    def test_existing_tag_pins_sources_when_branch_has_moved(self):
+        release.git(self.root, 'tag', '-a', 'v1.2.3', '-m', 'Original release')
+        self.readme.write_bytes(self.readme.read_bytes() + b'Later documentation\n')
+        release.git(self.root, 'add', '.')
+        release.git(self.root, 'commit', '-m', 'Move branch after tag')
+        for ref in ('refs/heads/master', 'refs/tags/v1.2.3'):
+            with self.subTest(ref=ref):
+                target = release.resolve_target(self.root, ref=ref)
+                self.assertEqual(target, {'tag': 'v1.2.3', 'commit': self.head})
+
+    def test_manual_input_can_select_existing_older_version(self):
+        release.git(self.root, 'tag', 'v1.2.3')
+        release.prepare_version(self.root, 'minor')
+        target = release.resolve_target(self.root, tag='v1.2.3', ref='refs/heads/master')
+        self.assertEqual(target, {'tag': 'v1.2.3', 'commit': self.head})
+        current = release.resolve_target(self.root, ref='refs/heads/master')
+        self.assertEqual(current['tag'], 'v1.3.0')
+        self.assertEqual(current['commit'], release.git(self.root, 'rev-parse', 'HEAD'))
+
+    def test_invalid_and_missing_mismatched_tags_rejected(self):
+        for tag in ('master', 'v01.2.3', 'v1.2.3\ncommit=bad', '$(echo v1.2.3)', 'v1.2.4'):
+            with self.subTest(tag=tag), self.assertRaises(ValueError):
+                release.resolve_target(self.root, tag=tag, ref='refs/heads/master')
+        self.assert_unchanged()
+        self.assertEqual(release.git(self.root, 'tag', '--list'), '')
+
+    def test_existing_tag_must_match_its_source_cmake_version(self):
+        release.git(self.root, 'tag', 'v9.9.9')
+        with self.assertRaisesRegex(ValueError, 'Release tag must equal v1.2.3'):
+            release.resolve_target(self.root, tag='v9.9.9')
+
+    def test_tag_trigger_requires_existing_matching_tag(self):
+        with self.assertRaisesRegex(ValueError, 'Workflow tag is missing'):
+            release.resolve_target(self.root, ref='refs/tags/v1.2.3')
+        with self.assertRaisesRegex(ValueError, 'differs from the workflow tag'):
+            release.resolve_target(self.root, tag='v1.2.4', ref='refs/tags/v1.2.3')
+        self.assert_unchanged()
+
+    def test_resolve_cli_appends_safe_github_outputs(self):
+        output = self.root / 'job-outputs'
+        output.write_bytes(b'existing=value\n')
+        stdout = io.StringIO()
+        args = ['release.py', 'resolve', '--ref', 'refs/heads/master', '--github-output', str(output)]
+        with patch.object(release, 'ROOT', self.root), patch.object(sys, 'argv', args):
+            with contextlib.redirect_stdout(stdout):
+                release.main()
+        self.assertEqual(json.loads(stdout.getvalue()), {'tag': 'v1.2.3', 'commit': self.head})
+        self.assertEqual(output.read_bytes(), f'existing=value\ntag=v1.2.3\ncommit={self.head}\n'.encode())
+        self.assert_unchanged()
 
 
 class ReleaseTests(unittest.TestCase):

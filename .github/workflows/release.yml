@@ -4,47 +4,59 @@ on:
   push:
     tags: ['v*']
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Version tag (leave empty to use the selected branch CMake version)'
+        required: false
+        default: ''
+        type: string
 
 permissions:
   contents: read
 
 concurrency:
-  group: release-${{ github.ref }}
+  group: github-release
   cancel-in-progress: false
 
 jobs:
   version:
-    name: 🔎 Verify release tag
+    name: 🔎 Resolve release version and commit
     runs-on: ubuntu-22.04
+    outputs:
+      tag: ${{ steps.target.outputs.tag }}
+      commit: ${{ steps.target.outputs.commit }}
     steps:
       - name: 🗜️ Checkout
         uses: actions/checkout@v4
-      - name: 🔎 Require a tag matching CMake
+        with:
+          fetch-depth: 0
+      - name: 🔎 Select release sources
+        id: target
         env:
-          RELEASE_TAG: ${{ github.ref_name }}
+          REQUESTED_TAG: ${{ inputs.tag }}
         run: |
-          if [[ "$GITHUB_REF" != refs/tags/* ]]; then
-            echo 'Select an existing version tag when running this workflow manually.' >&2
-            exit 1
-          fi
-          python3 tools/release.py version --tag "$RELEASE_TAG"
+          python3 tools/release.py resolve --tag "$REQUESTED_TAG" --ref "$GITHUB_REF" --github-output "$GITHUB_OUTPUT"
 
   desktop:
     name: 🧪 Validate & Package
     needs: version
     uses: ./.github/workflows/desktop.yml
     with:
-      release-tag: ${{ github.ref_name }}
+      release-tag: ${{ needs.version.outputs.tag }}
+      checkout-ref: ${{ needs.version.outputs.commit }}
 
   publish:
     name: 🚀 Publish development alpha
-    needs: desktop
+    needs: [version, desktop]
     runs-on: ubuntu-22.04
     permissions:
       contents: write
     steps:
       - name: 🗜️ Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.version.outputs.commit }}
+          fetch-depth: 0
       - name: 📥 Download all desktop packages
         uses: actions/download-artifact@v4
         with:
@@ -53,14 +65,22 @@ jobs:
           merge-multiple: true
       - name: 🔎 Audit packages and generate SHA-256 checksums
         env:
-          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_TAG: ${{ needs.version.outputs.tag }}
         run: python3 tools/release.py checksums --assets artifacts --tag "$RELEASE_TAG" --all-platforms
       - name: 🚀 Create GitHub prerelease with downloads
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_TAG: ${{ needs.version.outputs.tag }}
+          RELEASE_COMMIT: ${{ needs.version.outputs.commit }}
         run: |
+          if git show-ref --verify --quiet "refs/tags/$RELEASE_TAG"; then
+            tagged_commit=$(git rev-parse "refs/tags/$RELEASE_TAG^{commit}")
+            if [[ "$tagged_commit" != "$RELEASE_COMMIT" ]]; then
+              echo 'Release tag changed after the build; refusing to publish different sources.' >&2
+              exit 1
+            fi
+          fi
           gh release create "$RELEASE_TAG" artifacts/*.zip artifacts/SHA256SUMS \
-            --repo "$GITHUB_REPOSITORY" --verify-tag --prerelease \
+            --repo "$GITHUB_REPOSITORY" --target "$RELEASE_COMMIT" --prerelease \
             --title "🧚 Community Edition $RELEASE_TAG — development alpha" \
             --generate-notes --notes-file packaging/RELEASE-NOTES.md

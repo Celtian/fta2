@@ -86,7 +86,29 @@ def prepare_version(root, part, dry_run=False):
         git(root, "tag", "-a", tag, "-m", f"Community Edition {version} development alpha")
     except ValueError as error:
         raise ValueError(f"Version commit created, but {tag} was not tagged: {error}") from error
-    return f"Created commit and tag {tag}. Publish with: git push origin HEAD {tag}"
+    return (f"Created commit and tag {tag}. Publish with: git push origin HEAD {tag}\n"
+            "A branch-only push runs Desktop builds. For a manual release, push the branch "
+            "and run GitHub release from Actions.")
+
+
+def resolve_target(root, tag="", ref=""):
+    """Resolve manual branch runs and tag pushes to one immutable source commit."""
+    pushed_tag = ref.removeprefix("refs/tags/") if ref.startswith("refs/tags/") else ""
+    if pushed_tag and tag and tag != pushed_tag:
+        raise ValueError("Requested release tag differs from the workflow tag")
+    version = cmake_version((root / "CMakeLists.txt").read_text(encoding="utf-8"))
+    tag = pushed_tag or tag or "v" + version
+    if not re.fullmatch(r"v(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)", tag):
+        raise ValueError("Release tag must use vMAJOR.MINOR.PATCH")
+    if git(root, "tag", "--list", tag):
+        commit = git(root, "rev-parse", "--verify", f"refs/tags/{tag}^{{commit}}")
+        version = cmake_version(git(root, "show", f"{commit}:CMakeLists.txt"))
+    else:
+        if pushed_tag:
+            raise ValueError(f"Workflow tag is missing from the checkout: {tag}")
+        commit = git(root, "rev-parse", "HEAD")
+    verify_tag(version, tag)
+    return {"tag": tag, "commit": commit}
 
 
 def runtime_names(version):
@@ -167,6 +189,10 @@ def main():
     commands = parser.add_subparsers(dest="command", required=True)
     version_parser = commands.add_parser("version", help="Read CMake version and optionally verify its tag")
     version_parser.add_argument("--tag", default="")
+    resolve_parser = commands.add_parser("resolve", help="Resolve a manual or tagged release to a commit")
+    resolve_parser.add_argument("--tag", default="")
+    resolve_parser.add_argument("--ref", default="")
+    resolve_parser.add_argument("--github-output", type=Path, help="Append tag and commit job outputs")
     for part in ("patch", "minor", "major"):
         bump_parser = commands.add_parser(part, help=f"Bump {part}, commit and create an annotated tag")
         bump_parser.add_argument("--dry-run", action="store_true", help="Preview without changing files or Git")
@@ -182,6 +208,12 @@ def main():
         version = cmake_version((ROOT / "CMakeLists.txt").read_text(encoding="utf-8"))
         if args.command in ("patch", "minor", "major"):
             result = prepare_version(ROOT, args.command, args.dry_run)
+        elif args.command == "resolve":
+            target = resolve_target(ROOT, args.tag, args.ref)
+            if args.github_output:
+                with args.github_output.open("a", encoding="utf-8", newline="\n") as stream:
+                    stream.writelines(f"{key}={value}\n" for key, value in target.items())
+            result = json.dumps(target)
         elif args.command == "version":
             if args.tag:
                 verify_tag(version, args.tag)

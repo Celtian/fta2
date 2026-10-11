@@ -4,6 +4,27 @@ The result is a standalone C++20 engine using SDL 3.4.18. It was built and run o
 
 The reference is a separate SAGA2 build at revision `1a3e816afd5ddc41cc2a5c51a5da292e6d61758c`, modified only by the supplied reference patches. Successful startup with DOS resources was verified before separating the engine. The missing `FTA2WIN.EXE` dependency was resolved by extracting the actual DOS resources.
 
+## Manual branch releases (2026-10-11)
+
+The supplied 17:44 UTC workflow log selected `master` and stopped before building
+because release dispatch previously required `refs/tags/*`. Manual dispatch now
+accepts a branch and an optional version tag. Resolution uses the existing tag's
+commit when available, otherwise the selected commit and its matching CMake
+version. Platform builds and publication check out that same immutable commit.
+A missing tag is created only during publication after package audits. Branch
+pushes continue to run Desktop builds; automatic releases additionally require
+pushing the tag printed by the version command.
+
+Linux CTest passes 12/12, including the expanded 26-case release suite. Actionlint
+1.7.12 accepts all three workflows. Local execution of the actual resolution and
+publication shell steps passes three synthetic scenarios: missing tag, existing
+tag and refusal to publish after a tag changes commit. Each successful scenario
+assembles and audits three synthetic platform ZIPs plus SHA256SUMS; GitHub CLI
+publication is replaced with an argument-recording stub and receives the resolved
+commit. This is local regression evidence, not a hosted Actions or live GitHub
+release result. No remote tag, release or asset was written. Gameplay and native
+platform builds were not rerun for this workflow/tooling change.
+
 ## Release version commands (2026-10-11)
 
 `tools/release.py patch|minor|major` updates the CMake and current README version,

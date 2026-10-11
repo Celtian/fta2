@@ -141,6 +141,14 @@ Windows packages install a small GUI launcher named `Faery Tale Adventure II.exe
 
 ## Player package contents
 
+Manual release requests resolve the selected CMake version or an explicit tag to
+one commit before building. Existing tags select their original source commit;
+missing matching tags are created only after all platform builds and package
+audits pass. The reusable desktop workflow accepts that source commit, and the
+publication job checks out the same commit. Branch pushes retain ordinary CI;
+tag pushes additionally start automatic publication. Public releases remain
+development-alpha prereleases with no original game data.
+
 Runtime installation uses a common `bin/`, `licenses/`, `source/` layout, with shared SDL libraries under `lib/` on Linux/macOS. Each platform installs one root launcher and `START-HERE.txt`. Unix launchers resolve their own directory, quote paths and forward arguments with `exec`; they do not depend on the caller's working directory. `tools/package_release.py` validates an explicit player-file allowlist before adding the source ZIP. Loose desktop icons, headers, static/debug libraries, development executables and documentation are rejected. CMake no longer installs developer README/AGENTS files, docs, localization workflow, research records, complete third-party development history or loose Windows icon copies. These remain in the matching data-free source ZIP. Complete local Windows releases add exactly eight verified DOS inputs under `data/`, one verified English archive under `media/`, the source ZIP under `source/`, and `START-HERE.txt`. `bin/package.json` consolidates file/source/voice hashes and original-data copyright notices; redundant voice and source README manifests are omitted. Existing release ZIPs are preserved.
 
 

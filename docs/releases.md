@@ -55,16 +55,36 @@ git push origin HEAD v0.0.2
 ```
 
 This pushes the branch commit and that release tag, starting the release workflow.
+An ordinary branch push, including a GUI's default Push action, starts only
+Desktop builds; it does not send the local version tag. Use the exact command
+above for an automatic release, or use the manual path below after a branch push.
 To release the current version without increasing it, create its annotated tag
 manually, for example `git tag -a v0.0.1 -m 'Community Edition 0.0.1 development alpha'`,
 then push the branch and that tag with `git push origin HEAD v0.0.1`.
 
-A pushed `v*` tag starts the release workflow. Its tag must equal `v` plus the
-CMake version; mismatches stop before the platform builds. To start a manual run
-for an existing tag, use `gh workflow run release.yml --ref v0.0.2`, replacing the
-tag with your version. Selecting a branch fails with an explanatory message.
-No personal access token is needed:
-only the final publication job has `contents: write`, using `GITHUB_TOKEN`.
+A pushed `v*` tag starts the release workflow. Its tag must equal `v` plus its
+source's CMake version; mismatches stop before the platform builds.
+
+### 🖱️ Manual release from GitHub Actions
+
+1. Push your committed branch changes, including the updated release workflow.
+2. Open **Actions → 🚀 GitHub release → Run workflow**.
+3. Select your branch, normally **master**. Leave **Tag** empty to use `v` plus
+   that branch's CMake version, or enter an existing version tag such as `v0.0.2`.
+4. Click **Run workflow**.
+
+If the resolved tag already exists on GitHub, the workflow builds that tag's exact
+commit, even if the selected branch has since advanced. If it does not exist,
+the version must match the selected branch; the workflow builds that branch's
+checked-out commit and creates the tag only during publication after all checks.
+Every platform and the publication job use the same resolved commit, so later
+branch changes cannot alter the release sources. Concurrent release workflows
+are serialized. Existing releases and tags are never replaced.
+
+The CLI equivalent is `gh workflow run release.yml --ref master`, optionally
+adding `-f tag=v0.0.2` for an existing version. Manual runs on existing tag refs
+also remain supported. No personal access token is needed: only the final
+publication job has `contents: write`, using `GITHUB_TOKEN`.
 
 After all three builds pass, the publication job audits every ZIP again, verifies
 that all required platform filenames are present and writes `SHA256SUMS`. It then

@@ -110,8 +110,9 @@ python3 tools/release.py major
 
 Choose one command with a clean working tree. It updates the version, commits and
 creates an annotated tag; then run the printed Git push command to start the
-release pipeline. Add `--dry-run` to preview. See [release instructions](docs/releases.md)
-for examples and manual workflow runs.
+release pipeline. Add `--dry-run` to preview. Alternatively, push the branch and
+open **Actions → 🚀 GitHub release → Run workflow**, select **master** and leave
+**Tag** empty. See [release instructions](docs/releases.md) for the full procedure.
 
 - 🧩 [Architecture](docs/architecture.md) and [original resources](docs/dos-resources.md)
 - 🧪 [Validation and outstanding acceptance checks](docs/validation.md)
