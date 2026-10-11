@@ -1,0 +1,30 @@
+docs/validation.md
+  s_7b28c1cd1fed4a::t_ed50cc8252ea06 7-23
+docs/releases.md
+  s_7b28c1cd1fed4a::t_bb250a740dab12 28-29,31-60,63-66
+tests/release_test.py
+  s_7b28c1cd1fed4a::t_07082f34cdc54f 8,17-61,63-103,118-131
+  s_7b28c1cd1fed4a::t_04fe23e49a5828 62,104-117
+  s_7b28c1cd1fed4a::t_e7def6917af397 132-133
+README.md
+  s_7b28c1cd1fed4a::t_bb250a740dab12 103-114
+tools/release.py
+  s_7b28c1cd1fed4a::t_bb250a740dab12 56-57
+  s_7b28c1cd1fed4a::t_0d459dfe98e82e 2,8,31-55,58-91,170-172,183-185
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "fc2d8095ed1338f353d19a8b26fb21e65d8682dd",
+  "prompts": {},
+  "sessions": {
+    "s_7b28c1cd1fed4a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12bfa-aa04-7b50-a63f-c2f415c319a9",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Celtian <dominik.hladik@seznam.cz>"
+    }
+  }
+}
