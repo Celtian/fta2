@@ -1,0 +1,63 @@
+packaging/RELEASE-NOTES.md
+  s_7b28c1cd1fed4a::t_82272efc90a611 13-24
+tools/package_complete.py
+  s_7b28c1cd1fed4a::t_86e451c63498ea 7,53-54
+  s_7b28c1cd1fed4a::t_fea964d2623489 2,10,52,62-65,92-95,104,106-107
+docs/player-guide.md
+  s_7b28c1cd1fed4a::t_82272efc90a611 88-92
+  s_7b28c1cd1fed4a::t_724d255b55cd87 123
+docs/validation.md
+  s_7b28c1cd1fed4a::t_3440eab4ac4503 632-637
+docs/architecture.md
+  s_7b28c1cd1fed4a::t_724d255b55cd87 110,149-151,153
+packaging/release-data.json
+  s_7b28c1cd1fed4a::t_5a8f53d4ec63bd 1-6
+.github/workflows/release.yml
+  s_7b28c1cd1fed4a::t_5a8f53d4ec63bd 66-76,79,93
+AGENTS.md
+  s_7b28c1cd1fed4a::t_724d255b55cd87 18,71
+tools/release.py
+  s_7b28c1cd1fed4a::t_5a8f53d4ec63bd 2,13-14,125,136-156,158-160,164-167,170-171,199-224,234,261-265,270,288-289,292
+tests/release_test.py
+  s_7b28c1cd1fed4a::t_90de29b166ea33 11
+  s_7b28c1cd1fed4a::t_4e403ef3b3853d 15-16,264-339
+  s_7b28c1cd1fed4a::t_0cfed856b39b41 340
+README.md
+  s_7b28c1cd1fed4a::t_82272efc90a611 32-35,39-41,48-49
+docs/releases.md
+  s_7b28c1cd1fed4a::t_82272efc90a611 24-26,96-100,112,114-124,129-144,159-160
+research/complete-release-validation.json
+  s_7b28c1cd1fed4a::t_b0d509a3209aa4 1-83
+packaging/THIRD-PARTY.txt
+  s_7b28c1cd1fed4a::t_82272efc90a611 28
+tests/package_test.py
+  s_7b28c1cd1fed4a::t_5c9af1d305e5d8 7,10,267-293
+  s_7b28c1cd1fed4a::t_86e451c63498ea 16,154,166-266
+  s_3d52ef11d925c4::t_2aa255b10b44c7 294-295
+tools/release_data.py
+  s_7b28c1cd1fed4a::t_fea964d2623489 1-115
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a9c5a841a0b93495a4a09d6b9557bf9fb4939903",
+  "prompts": {},
+  "sessions": {
+    "s_3d52ef11d925c4": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12c4d-a23e-7622-9ce7-344c45ba0be6",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Celtian <dominik.hladik@seznam.cz>"
+    },
+    "s_7b28c1cd1fed4a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12bfa-aa04-7b50-a63f-c2f415c319a9",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Celtian <dominik.hladik@seznam.cz>"
+    }
+  }
+}
