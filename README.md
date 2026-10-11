@@ -12,7 +12,7 @@ macOS, without DOSBox or a ScummVM installation.
 
 *Actual gameplay at 854 × 480. Original game artwork retains its copyright.*
 
-**🚧 Development alpha · version 0.0.3.** Version numbering restarts with
+**🚧 Development alpha · version 0.0.4.** Version numbering restarts with
 Community Edition; earlier 0.1.x packages remain historical development builds.
 A full playthrough, complete translation review and macOS runtime validation are
 still pending. See the [validation record](docs/validation.md).
