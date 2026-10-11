@@ -247,12 +247,12 @@ bool Speech::append(char *text, int32 sampID, const char *translated) {
 	//  Check to see if there's enough room in the character buffer
 	if (_charCount + len >= sizeof(_speechBuffer)
 	        || _sampleCount >= MAX_SAMPLES - 1) {
-		if (_textLanguage == Native::Language::Czech)
+		if (_textLanguage != Native::Language::English)
 			Native::reportTextOverflow("speech assembly buffer", _charCount + len, _sampleCount + 1,
 			                          sizeof(_speechBuffer) - 1, MAX_SAMPLES - 1);
 		return false;
 	}
-	if (_textLanguage == Native::Language::Czech &&
+	if (_textLanguage != Native::Language::English &&
 	    _displayBuffer.size() + strlen(translated ? translated : text) > 8192) {
 		Native::reportTextOverflow("localized speech buffer",
 		                          _displayBuffer.size() + strlen(translated ? translated : text), 1, 8192, 1);
@@ -264,7 +264,7 @@ bool Speech::append(char *text, int32 sampID, const char *translated) {
 	//  Copy text to end of text in buffer, including '\0'
 	memcpy(&_speechBuffer[_charCount], text, len + 1);
 	_charCount += len;
-	if (_textLanguage == Native::Language::Czech)
+	if (_textLanguage != Native::Language::English)
 		_displayBuffer += translated ? translated : text;
 
 	//  Append sample ID to list of samples.
@@ -354,7 +354,7 @@ bool Speech::setupActive() {
 	_bounds.height =
 	    (speechLineCount * (_textPort._font->height + lineLeading))
 	    + outlineWidth * 2;
-	if (_textLanguage == Native::Language::Czech) {
+	if (_textLanguage != Native::Language::English) {
 		const int availableWidth = maxWidth + Native::displayLayout().sidebarOffset;
 		const int availableHeight = Native::displayLayout().mapHeight - 50 - kTileRectY - 8;
 		if (_bounds.width > availableWidth || _bounds.height > availableHeight)
@@ -980,16 +980,16 @@ void SpeechTaskList::saveLocalization(Native::OutSaveFile *outS) {
 	speeches.insert(speeches.end(), _inactiveList.begin(), _inactiveList.end());
 	uint16 count = 0;
 	for (auto *sp : speeches)
-		if (sp->_textLanguage == Native::Language::Czech) ++count;
+		if (sp->_textLanguage != Native::Language::English) ++count;
 	if (!count) return;
 	Native::MemoryWriteStreamDynamic out(DisposeAfterUse::YES);
 	out.writeUint16LE(1);
 	out.writeUint16LE(count);
 	for (uint16 i = 0; i < speeches.size(); ++i) {
 		auto *sp = speeches[i];
-		if (sp->_textLanguage != Native::Language::Czech) continue;
+		if (sp->_textLanguage == Native::Language::English) continue;
 		out.writeUint16LE(i);
-		out.writeByte(1);
+		out.writeByte(static_cast<uint8>(sp->_textLanguage));
 		out.writeByte(0);
 		const auto hash = Native::sha256(reinterpret_cast<const byte *>(sp->_speechBuffer), sp->_charCount);
 		out.write(hash.data(), hash.size());
@@ -1010,7 +1010,9 @@ void SpeechTaskList::loadLocalization(Native::InSaveFile *in, uint32 size) {
 	if (version != 1) error("Unsupported native localization save version");
 	for (int i = 0; i < count; ++i) {
 		const auto index = in->readUint16LE();
-		in->skip(2);
+		const auto language = in->readByte();
+		if (!language || !Native::validLanguage(language) || in->readByte() != 0)
+			error("Invalid native localization language");
 		char hash[65] = {};
 		in->read(hash, 64);
 		const auto length = in->readUint16LE();
@@ -1023,7 +1025,7 @@ void SpeechTaskList::loadLocalization(Native::InSaveFile *in, uint32 size) {
 		if (std::count(text.begin(), text.end(), '@') != std::count(sp->_speechBuffer, sp->_speechBuffer + sp->_charCount, '@'))
 			error("Native localization changed dialogue choices");
 		sp->_displayBuffer = std::move(text);
-		sp->_textLanguage = Native::Language::Czech;
+		sp->_textLanguage = static_cast<Native::Language>(language);
 	}
 	if (in->pos() != end) error("Native localization chunk size mismatch");
 }

@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "reviewer": "Codex",
+  "entries": {
+    "name:3": {
+      "source_sha256": "fd7a68944a8d7ad7022d007ce86f38c1f1a91d24ebc493dfa0e7d924058011dd",
+      "translation_sha256": "8ecec001b647b262117853c27996accf63c8d81925a8a9636fe7283b93f6e62a",
+      "status": "reviewed",
+      "reason": "Meaning, number and terminology checked against the original text and related item labels."
+    },
+    "name:33": {
+      "source_sha256": "f223faa96f22916294922b171a2696d868fd1f9129302eb41a45b2a2ea2ebbfd",
+      "translation_sha256": "5795b07249101ff3a8efedbebc7d4d1282026403b0a1a063cf9931d105776570",
+      "status": "reviewed",
+      "reason": "Base item label checked against the original and the explicit counted-item terminology; singular form and lowercase common noun retained."
+    },
+    "script:126:2:141": {
+      "source_sha256": "4ad8ead375fdde01ed0a63a7b1a535410c7c157499226c48f41f8410c6209ecb",
+      "translation_sha256": "00874cb81d3136ed20e5c0aa774eeecc51da42b8c97f72fbf84abb46c9307366",
+      "status": "reviewed",
+      "reason": "Meaning, number and terminology checked against the original text and related item labels."
+    },
+    "script:71:2:64": {
+      "source_sha256": "542a08871fde66815815e86b281a1c3c0665a432b6a53cfc3026762c5f77b303",
+      "translation_sha256": "2797fb87b27b9eeee28b45a0b6df0f873267c57ef3dbebef156581a4b90e52e0",
+      "status": "reviewed",
+      "reason": "Sign wording checked against the complete original; rephrased for the fixed placard at the original font size."
+    },
+    "script:71:2:67": {
+      "source_sha256": "bc93163c7149114360150979b72697fd5f36dcb88eb278b9917f7e12c02ecca3",
+      "translation_sha256": "c442eec78d97c80d9963144b76e67a8b9f3d3cdfc323e10f2a0674606221c1cf",
+      "status": "reviewed",
+      "reason": "Sign wording checked against the complete original; rephrased for the fixed placard at the original font size."
+    },
+    "script:71:2:74": {
+      "source_sha256": "cacff308482c0770934445eb5a4d9784b6658bddae8f874ac3eabb63006b0707",
+      "translation_sha256": "c7104f1132fa2dfbf89812c12be5c0428cfc5b0a3f812ef8924999214e4f7019",
+      "status": "reviewed",
+      "reason": "Sign wording checked against the complete original; rephrased for the fixed placard at the original font size."
+    },
+    "script:71:2:75": {
+      "source_sha256": "9f59adbec6767956234e28f5fd40d4ac5091f75c9af78403ff963c73a03ece07",
+      "translation_sha256": "771c3d15b9917daff05c11dc01cce3e076d7b4c88cfb0cf661662cecddda0a83",
+      "status": "reviewed",
+      "reason": "Sign wording checked against the complete original; rephrased for the fixed placard at the original font size."
+    },
+    "name:751": {
+      "source_sha256": "8ead7a2567d2a4b1bb9179b4c5a2e6d5c0f79797880d173b1a4aa0433e97ee9a",
+      "translation_sha256": "6f5a964ddb76a46b14b6eb38f4e81089fccef2c181722ec3facb41570e242e2a",
+      "status": "reviewed",
+      "reason": "Base item label checked against the original and the explicit counted-item terminology; singular form and lowercase common noun retained."
+    },
+    "name:42": {
+      "source_sha256": "05800e70aa10c86f5ab898d18ad6884245a149f3b945bb0bd8cd05a8e469cd27",
+      "translation_sha256": "cafe2b6d0e107214636784fb916282afde368101ff699c83b6a3e5a747a7fa0c",
+      "status": "reviewed",
+      "reason": "Base item label checked against the original and the explicit counted-item terminology; singular form and lowercase common noun retained."
+    },
+    "name:437": {
+      "source_sha256": "96960859445843e1e25783f66a148648d5e6a8553d5650af31de72eec1fd1adb",
+      "translation_sha256": "b81005e07be64dea5263d923d02305b9f8967ad36787eefbde87d34857f029ed",
+      "status": "reviewed",
+      "reason": "Base item label checked against the original and the explicit counted-item terminology; singular form and lowercase common noun retained."
+    },
+    "name:439": {
+      "source_sha256": "ac44191793542e454c10bad6b7b4b775b455198365112b1f76f34b30fd45e41d",
+      "translation_sha256": "88634cbf36f3d490c861300fadae1f784fd3068ce4ae9cf02ff65d361235de07",
+      "status": "reviewed",
+      "reason": "Base item label checked against the original and the explicit counted-item terminology; singular form and lowercase common noun retained."
+    },
+    "name:929": {
+      "source_sha256": "c63786f264ce26d49d68f6b4d44a3ec74a1aae556a227c1c32a7948007e2b142",
+      "translation_sha256": "202c22d164d66cc15d0caa860025d134bed2b31898cc51131a5524d0e094075c",
+      "status": "reviewed",
+      "reason": "Base item label checked against the original and the explicit counted-item terminology; singular form and lowercase common noun retained."
+    },
+    "name:261": {
+      "source_sha256": "22c746762022bf97702777fde6176fd5be3219988aec1b8563d4869025f7b478",
+      "translation_sha256": "753a900b90ab2115ba037df2dc28e52f2152e2a3904c32e6a156cfc25fe30baf",
+      "status": "reviewed",
+      "reason": "Base item label checked against the original and the explicit counted-item terminology; singular form and lowercase common noun retained."
+    },
+    "name:335": {
+      "source_sha256": "03320ccd56818f6c51b51ee0d9cf1b4f9ca755f0c3aec55a93fd9f03d5f97148",
+      "translation_sha256": "07c8c087321835611bd84defc2cad23974ba36d690fd595411acedc9ef11ddd4",
+      "status": "reviewed",
+      "reason": "Base item label checked against the original and the explicit counted-item terminology; singular form and lowercase common noun retained."
+    },
+    "name:374": {
+      "source_sha256": "e46a2cb143ee373cd1b82304efdffd7d6060190d57dfbaf6b0beaeaf039d7664",
+      "translation_sha256": "e9c93461c2eabe2e8aa718c5965aabfd49aaa88396b4dd71f74c3df35e72930a",
+      "status": "reviewed",
+      "reason": "Base item label checked against the original and the explicit counted-item terminology; singular form and lowercase common noun retained."
+    },
+    "name:396": {
+      "source_sha256": "d87b1938041f781d10071b542c309870ca700c3d8de335e9f96060ff4a86bb24",
+      "translation_sha256": "b242e835457d6762ce968fd1b5b80e6325f6be643beb9b4d6dbca18bf31b1797",
+      "status": "reviewed",
+      "reason": "Base item label checked against the original and the explicit counted-item terminology; singular form and lowercase common noun retained."
+    },
+    "name:405": {
+      "source_sha256": "8c703ba822bcf059b4cd7b104853144794400ac1c32ed3df62f8fcbb0f00b84a",
+      "translation_sha256": "2b10fa17aeccffcaee5ee0edf4d0d29c8c16fdd2b95b330e880a287d8e943dac",
+      "status": "reviewed",
+      "reason": "Base item label checked against the original and the explicit counted-item terminology; singular form and lowercase common noun retained."
+    },
+    "name:1020": {
+      "source_sha256": "b7697335eb6dd04f01aa1dff2a1e7216986138357b8900cebbe8a92a49c7895f",
+      "translation_sha256": "93744aa0eb883fd75ac84ea09e1481609781d0fa9869c4c84764adc35368f43e",
+      "status": "reviewed",
+      "reason": "Base item label checked against the original and the explicit counted-item terminology; singular form and lowercase common noun retained."
+    }
+  }
+}

@@ -148,7 +148,7 @@ CDocument::CDocument(CDocumentAppearance &dApp,
 
 	// get the org text size
 	_textSize = clamp(0, strlen(buffer), _maxSize);
-	if (Native::language() == Native::Language::Czech && strlen(buffer) > _maxSize)
+	if (Native::language() != Native::Language::English && strlen(buffer) > _maxSize)
 		Native::reportTextOverflow("document buffer", strlen(buffer), 1, _maxSize, 1);
 
 	// set the original text pointer
@@ -563,7 +563,7 @@ void CDocument::makePages() {
 				// remaining number of characters in string
 				_lineLen[pageIndex][lineIndex] = strlen(str);
 			}
-			if (Native::language() == Native::Language::Czech) {
+			if (Native::language() != Native::Language::English) {
 				const uint16 length = _lineLen[pageIndex][lineIndex];
 				Native::String line(str, length);
 				while (!line.empty() && (line.back() == ' ' || line.back() == '\n' || line.back() == '\r')) line.pop_back();
@@ -584,7 +584,7 @@ void CDocument::makePages() {
 	}
 
 	_pages = pageIndex;
-	if (Native::language() == Native::Language::Czech && offset >= 0)
+	if (Native::language() != Native::Language::English && offset >= 0)
 		Native::reportTextOverflow("document pages", pageIndex + 1, 1, kMaxPages, 1);
 }
 
@@ -727,7 +727,7 @@ char            bookText[_textSize] = { "" };
 
 void appendBookText(char *string) {
 	if (string) {
-		if (Native::language() == Native::Language::Czech && strlen(bookText) + strlen(string) >= _textSize - 1)
+		if (Native::language() != Native::Language::English && strlen(bookText) + strlen(string) >= _textSize - 1)
 			Native::reportTextOverflow("book assembly buffer", strlen(bookText) + strlen(string), 1, _textSize - 2, 1);
 		Native::strlcat(bookText, string, _textSize - 1);
 		bookText[_textSize - 1] = 0;

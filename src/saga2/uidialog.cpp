@@ -910,15 +910,16 @@ public:
 struct LanguageRequest {
 	requestInfo result;
 	Native::Language selected;
-	LanguageRadio *english = nullptr, *czech = nullptr;
+	std::array<LanguageRadio *, 4> choices{};
 };
 
 static APPFUNC(cmdChooseLanguage) {
 	if (!ev.panel || !isUserAction(ev)) return;
 	auto *state = static_cast<LanguageRequest *>(ev.panel->getWindow()->_userData);
-	state->selected = ev.panel->_id == 1 ? Native::Language::English : Native::Language::Czech;
-	state->english->select(state->selected == Native::Language::English);
-	state->czech->select(state->selected == Native::Language::Czech);
+	if (ev.panel->_id < 1 || ev.panel->_id > state->choices.size()) return;
+	state->selected = static_cast<Native::Language>(ev.panel->_id - 1);
+	for (size_t i = 0; i < state->choices.size(); ++i)
+		state->choices[i]->select(i == static_cast<size_t>(state->selected));
 }
 
 static APPFUNC(cmdLanguageFinish) {
@@ -948,15 +949,17 @@ static bool showLanguageDialog() {
 	              &Plate18Font, 0, pal, 0, nullptr);
 	new CPlaqText(*win, Rect16(30, 55, 420, 20), Native::ui("Select language"),
 	              &SmallFont, kTextPosLeft, pal, 0, nullptr);
-	state.english = new LanguageRadio(*win, Rect16(55, 96, 160, 20), "English",
-	                                 &SmallFont, pal, 1, cmdChooseLanguage);
-	state.czech = new LanguageRadio(*win, Rect16(255, 96, 160, 20), "\310e\232tina",
-	                               Native::localizedFont(&SmallFont, Native::Language::Czech),
-	                               pal, 2, cmdChooseLanguage);
-	state.english->select(state.selected == Native::Language::English);
-	state.czech->select(state.selected == Native::Language::Czech);
-	state.english->_accelKey = 'E';
-	state.czech->_accelKey = 'C';
+	const char *labels[] = {"English", "\310e\232tina", "Espa\361ol", "Fran\347ais"};
+	const char shortcuts[] = {'E', 'C', 'S', 'F'};
+	for (size_t i = 0; i < state.choices.size(); ++i) {
+		auto language = static_cast<Native::Language>(i);
+		state.choices[i] = new LanguageRadio(*win,
+		        Rect16(i % 2 ? 255 : 55, i < 2 ? 84 : 112, 160, 20), labels[i],
+		        Native::localizedFont(&SmallFont, language), pal, i + 1, cmdChooseLanguage);
+		state.choices[i]->select(state.selected == language);
+		state.choices[i]->_accelKey = shortcuts[i];
+	}
+
 	auto *apply = new GfxCompButton(*win, Rect16(100, 140, 121, 30), buttons,
 	                               kNumBtnImages, Native::ui("Apply"), pal, 1, cmdLanguageFinish);
 	apply->_accelKey = '\r';
@@ -1559,13 +1562,13 @@ void CPlacardWindow::positionText(
 		int16   fontHeight = _textFont->height;
 
 		// make a copy of the window text string
-		if (Native::language() == Native::Language::Czech && strlen(windowText) >= sizeof(_titleBuf))
+		if (Native::language() != Native::Language::English && strlen(windowText) >= sizeof(_titleBuf))
 			Native::reportTextOverflow("placard buffer", strlen(windowText), 1, sizeof(_titleBuf) - 1, 1);
 		Native::sprintf_s(_titleBuf, "%s", windowText);
 
 		//  break up the title text string
 		_titleCount = SplitString(_titleBuf, _titleStrings, kMaxLines, '\n');
-		if (Native::language() == Native::Language::Czech) {
+		if (Native::language() != Native::Language::English) {
 			int lines = 1;
 			for (const char *p = windowText; *p; ++p) if (*p == '\n') ++lines;
 			if (lines > kMaxLines || lines * fontHeight + 2 > textArea.height - 12)
@@ -1681,13 +1684,13 @@ void CPlacardPanel::positionText(const char *windowText, const Rect16 &textArea)
 		int16   fontHeight = _buttonFont->height;
 
 		// make a copy of the window text string
-		if (Native::language() == Native::Language::Czech && strlen(windowText) >= sizeof(_titleBuf))
+		if (Native::language() != Native::Language::English && strlen(windowText) >= sizeof(_titleBuf))
 			Native::reportTextOverflow("message buffer", strlen(windowText), 1, sizeof(_titleBuf) - 1, 1);
 		Native::sprintf_s(_titleBuf, "%s", windowText);
 
 		//  break up the title text string
 		_titleCount = SplitString(_titleBuf, _titleStrings, kMaxLines, '\n');
-		if (Native::language() == Native::Language::Czech) {
+		if (Native::language() != Native::Language::English) {
 			int lines = 1;
 			for (const char *p = windowText; *p; ++p) if (*p == '\n') ++lines;
 			if (lines > kMaxLines || lines * fontHeight + 2 > textArea.height)

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "platform/saves.h"
+#include "platform/localization.h"
 #include "platform/resources.h"
 #include <set>
 namespace Native {
@@ -59,7 +60,8 @@ uint32 validateSave(SeekableReadStream& in) {
                 if (end - in.pos() < 70)
                     throw std::runtime_error("Truncated native localization record");
                 const auto index = in.readUint16LE();
-                if (index >= 20 || !indices.insert(index).second || in.readByte() != 1 ||
+                const auto language = in.readByte();
+                if (index >= 20 || !indices.insert(index).second || !language || !validLanguage(language) ||
                     in.readByte() != 0)
                     throw std::runtime_error("Invalid native localization record");
                 char hash[65] = {};

@@ -1,0 +1,415 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-11",
+  "version": "0.1.48",
+  "status": "development-alpha",
+  "changes": [
+    "Spanish and French UI/game catalogs with stable keys and original-byte fingerprints; story entries remain drafts until reviewed.",
+    "Four radio choices in two rows, E/C/S/F, immediate Apply and persistent en/cs/es/fr preferences.",
+    "Per-language Windows-1250/1252 font copies, accent/cedilla/tilde/ligature recipes, correctly rotated Spanish punctuation.",
+    "Spanish singular/plural and French zero/one singular counts; captured active and pending mixed-language speech in unchanged NLOC version 1 records."
+  ],
+  "builds": {
+    "linux_release": "passed",
+    "zig_windows_x64_release": "passed",
+    "linux_asan_debug": "passed",
+    "sdl": "3.4.18"
+  },
+  "ctest": {
+    "linux": {
+      "passed": 10,
+      "total": 10
+    },
+    "windows": {
+      "passed": 10,
+      "total": 10
+    },
+    "asan": {
+      "passed": 10,
+      "total": 10
+    }
+  },
+  "python_catalog_tests": 12,
+  "catalogs": {
+    "cs": {
+      "entries": 19023,
+      "missing": 0,
+      "invalid": 0,
+      "drafts": 4227,
+      "complete": false,
+      "review_missing": 15598,
+      "review_invalid": 0
+    },
+    "es": {
+      "entries": 19023,
+      "missing": 0,
+      "invalid": 0,
+      "drafts": 8292,
+      "complete": false,
+      "review_missing": 19005,
+      "review_invalid": 0
+    },
+    "fr": {
+      "entries": 19023,
+      "missing": 0,
+      "invalid": 0,
+      "drafts": 8447,
+      "complete": false,
+      "review_missing": 18949,
+      "review_invalid": 0
+    }
+  },
+  "integration": {
+    "linux_with_voices": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 64,
+          "mana_tooltip_cases": 288,
+          "name_tooltip_cases": 3453,
+          "live_options_cases": 64,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "mixed_speech_save_roundtrip": true,
+          "voice_variants": 9,
+          "radio_clicks": 192,
+          "status_queue_refresh": true,
+          "immediate_language_apply": true,
+          "same_language_preserves_subtitles": true,
+          "modal_screenshots": 192,
+          "gameplay_screenshots": 1,
+          "document_screenshots": 24,
+          "document_spreads": 7828,
+          "placard_cases": 1328,
+          "file_dialog_cases": 32,
+          "startup_language": "es",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 7828,
+            "redraw_comparisons": 23948,
+            "wheel_checks": 14200,
+            "multipage_documents": 1456
+          }
+        },
+        {
+          "status": "passed",
+          "menu_cases": 64,
+          "mana_tooltip_cases": 288,
+          "name_tooltip_cases": 3453,
+          "live_options_cases": 64,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "mixed_speech_save_roundtrip": true,
+          "voice_variants": 9,
+          "radio_clicks": 192,
+          "status_queue_refresh": true,
+          "immediate_language_apply": true,
+          "same_language_preserves_subtitles": true,
+          "modal_screenshots": 192,
+          "gameplay_screenshots": 1,
+          "document_screenshots": 24,
+          "document_spreads": 7828,
+          "placard_cases": 1328,
+          "file_dialog_cases": 32,
+          "startup_language": "fr",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 7828,
+            "redraw_comparisons": 23948,
+            "wheel_checks": 14200,
+            "multipage_documents": 1456
+          }
+        }
+      ],
+      "verified_original_files": 54
+    },
+    "linux_final_count_recheck": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 64,
+          "mana_tooltip_cases": 288,
+          "name_tooltip_cases": 3453,
+          "live_options_cases": 64,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "mixed_speech_save_roundtrip": true,
+          "voice_variants": 9,
+          "radio_clicks": 192,
+          "status_queue_refresh": true,
+          "immediate_language_apply": true,
+          "same_language_preserves_subtitles": true,
+          "modal_screenshots": 192,
+          "gameplay_screenshots": 1,
+          "document_screenshots": 24,
+          "document_spreads": 7828,
+          "placard_cases": 1328,
+          "file_dialog_cases": 32,
+          "startup_language": "fr",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 7828,
+            "redraw_comparisons": 23948,
+            "wheel_checks": 14200,
+            "multipage_documents": 1456
+          }
+        }
+      ],
+      "verified_original_files": 54
+    },
+    "windows_with_voices": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 64,
+          "mana_tooltip_cases": 288,
+          "name_tooltip_cases": 3453,
+          "live_options_cases": 64,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "mixed_speech_save_roundtrip": true,
+          "voice_variants": 9,
+          "radio_clicks": 192,
+          "status_queue_refresh": true,
+          "immediate_language_apply": true,
+          "same_language_preserves_subtitles": true,
+          "modal_screenshots": 192,
+          "gameplay_screenshots": 1,
+          "document_screenshots": 24,
+          "document_spreads": 7828,
+          "placard_cases": 1328,
+          "file_dialog_cases": 32,
+          "startup_language": "es",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 7828,
+            "redraw_comparisons": 23948,
+            "wheel_checks": 14200,
+            "multipage_documents": 1456
+          }
+        },
+        {
+          "status": "passed",
+          "menu_cases": 64,
+          "mana_tooltip_cases": 288,
+          "name_tooltip_cases": 3453,
+          "live_options_cases": 64,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "mixed_speech_save_roundtrip": true,
+          "voice_variants": 9,
+          "radio_clicks": 192,
+          "status_queue_refresh": true,
+          "immediate_language_apply": true,
+          "same_language_preserves_subtitles": true,
+          "modal_screenshots": 192,
+          "gameplay_screenshots": 1,
+          "document_screenshots": 24,
+          "document_spreads": 7828,
+          "placard_cases": 1328,
+          "file_dialog_cases": 32,
+          "startup_language": "fr",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 7828,
+            "redraw_comparisons": 23948,
+            "wheel_checks": 14200,
+            "multipage_documents": 1456
+          }
+        }
+      ],
+      "verified_original_files": 54
+    },
+    "windows_final_count_recheck": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 64,
+          "mana_tooltip_cases": 288,
+          "name_tooltip_cases": 3453,
+          "live_options_cases": 64,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "mixed_speech_save_roundtrip": true,
+          "voice_variants": 9,
+          "radio_clicks": 192,
+          "status_queue_refresh": true,
+          "immediate_language_apply": true,
+          "same_language_preserves_subtitles": true,
+          "modal_screenshots": 192,
+          "gameplay_screenshots": 1,
+          "document_screenshots": 24,
+          "document_spreads": 7828,
+          "placard_cases": 1328,
+          "file_dialog_cases": 32,
+          "startup_language": "fr",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 7828,
+            "redraw_comparisons": 23948,
+            "wheel_checks": 14200,
+            "multipage_documents": 1456
+          }
+        }
+      ],
+      "verified_original_files": 54
+    },
+    "asan_lsan_without_voices": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 64,
+          "mana_tooltip_cases": 288,
+          "name_tooltip_cases": 3453,
+          "live_options_cases": 64,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "mixed_speech_save_roundtrip": true,
+          "voice_variants": 9,
+          "radio_clicks": 192,
+          "status_queue_refresh": true,
+          "immediate_language_apply": true,
+          "same_language_preserves_subtitles": true,
+          "modal_screenshots": 192,
+          "gameplay_screenshots": 1,
+          "document_screenshots": 24,
+          "document_spreads": 7828,
+          "placard_cases": 1328,
+          "file_dialog_cases": 32,
+          "startup_language": "en",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 7828,
+            "redraw_comparisons": 23948,
+            "wheel_checks": 14200,
+            "multipage_documents": 1456
+          }
+        },
+        {
+          "status": "passed",
+          "menu_cases": 64,
+          "mana_tooltip_cases": 288,
+          "name_tooltip_cases": 3453,
+          "live_options_cases": 64,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "mixed_speech_save_roundtrip": true,
+          "voice_variants": 9,
+          "radio_clicks": 192,
+          "status_queue_refresh": true,
+          "immediate_language_apply": true,
+          "same_language_preserves_subtitles": true,
+          "modal_screenshots": 192,
+          "gameplay_screenshots": 1,
+          "document_screenshots": 24,
+          "document_spreads": 7828,
+          "placard_cases": 1328,
+          "file_dialog_cases": 32,
+          "startup_language": "cs",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 7828,
+            "redraw_comparisons": 23948,
+            "wheel_checks": 14200,
+            "multipage_documents": 1456
+          }
+        }
+      ],
+      "verified_original_files": 54
+    },
+    "asan_lsan_final_count_recheck": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 64,
+          "mana_tooltip_cases": 288,
+          "name_tooltip_cases": 3453,
+          "live_options_cases": 64,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "mixed_speech_save_roundtrip": true,
+          "voice_variants": 9,
+          "radio_clicks": 192,
+          "status_queue_refresh": true,
+          "immediate_language_apply": true,
+          "same_language_preserves_subtitles": true,
+          "modal_screenshots": 192,
+          "gameplay_screenshots": 1,
+          "document_screenshots": 24,
+          "document_spreads": 7828,
+          "placard_cases": 1328,
+          "file_dialog_cases": 32,
+          "startup_language": "fr",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 7828,
+            "redraw_comparisons": 23948,
+            "wheel_checks": 14200,
+            "multipage_documents": 1456
+          }
+        }
+      ],
+      "verified_original_files": 54
+    }
+  },
+  "capture_parity": {
+    "es": {
+      "ppm_matches": 687,
+      "portrait_buffers": 12,
+      "png_payload_matches": 217
+    },
+    "fr": {
+      "ppm_matches": 687,
+      "portrait_buffers": 12,
+      "png_payload_matches": 217
+    }
+  },
+  "final_count_recheck_capture_parity": {
+    "ppm_matches": 687,
+    "raw_matches": 12,
+    "png_payload_matches": 217
+  },
+  "reference": {
+    "incremental_pinned_build": "passed",
+    "fresh_run": "passed",
+    "linux_first_restart": "passed",
+    "native_windows_classic": "passed",
+    "each_comparison": {
+      "images": 2,
+      "checkpoints": 4,
+      "original_chunks_per_save": 30,
+      "saves": 2
+    }
+  },
+  "visual_review": [
+    "Spanish and French compact radio modal with accented endonyms",
+    "French Options and Hot Keys",
+    "Restored Spanish choice text",
+    "French Credits headings/roles and scrolled French document page"
+  ],
+  "original_files_unchanged": 54,
+  "older_release_zips_unchanged": 7,
+  "limitations": [
+    "No complete Spanish/French or Czech linguistic review; machine drafts remain clearly recorded in catalogs and completeness audits.",
+    "Not all story branches and substitutions have been exercised; available document scripts and name resources are covered by the automated scenario.",
+    "No full playthrough, native MSVC/macOS build or manual physical-keyboard/audio validation in this turn.",
+    "Original voice recordings remain English.",
+    "Package icon/relocation/English reference checks used the corrected preflight before the final French zero-count-only change; final binaries passed all public tests and the four-language runtime matrix again.",
+    "Final ZIP content/source audit and checksum are recorded outside embedded sources after packaging."
+  ]
+}

@@ -32,11 +32,33 @@ def check_speech(path: Path) -> None:
     assert "Zkouška: @Ano@Ne".encode("cp1250") in localized
 
 
+def check_mixed_speech(path: Path) -> None:
+    data = chunks(path)
+    canonical, localized = data[b"SPCH"], data[b"NLOC"]
+    assert b"Synthetic choice: @Yes@No" in canonical
+    assert b"Synthetic continued speech" in canonical
+    assert struct.unpack_from("<HH", localized) == (1, 2)
+    offset, languages = 4, []
+    for _ in range(2):
+        ordinal, language, reserved = struct.unpack_from("<HBB", localized, offset)
+        size, = struct.unpack_from("<H", localized, offset + 68)
+        offset += 70
+        text = localized[offset:offset + size]
+        offset += size
+        assert ordinal == len(languages) and reserved == 0
+        languages.append(language)
+        expected = "Prueba: @Sí@No" if language == 2 else "Réplique française"
+        assert text == expected.encode("cp1252")
+        assert text not in canonical
+    assert languages == [2, 3] and offset == len(localized)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--binary", type=Path, required=True)
     parser.add_argument("--data-dir", type=Path, default=ROOT / "original-game")
     parser.add_argument("--voice-file", type=Path)
+    parser.add_argument("--initial-languages", nargs="+", choices=("en", "cs", "es", "fr"), default=("en", "cs"))
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     game, work, binary = args.data_dir.resolve(), args.output.resolve(), args.binary.resolve()
@@ -46,13 +68,13 @@ def main() -> None:
               for p in game.rglob("*") if p.is_file()}
     env = dict(os.environ, SDL_VIDEODRIVER="dummy", SDL_AUDIODRIVER="dummy")
     results = []
-    for initial_language in ("en", "cs"):
+    for initial_language in args.initial_languages:
         run = work / initial_language
         saves, output = run / "saves", run / "output"
         saves.mkdir(parents=True)
         output.mkdir()
-        if initial_language == "en":
-            (saves / "config.ini").write_text("language=en\nsubtitles=false\n")
+        if initial_language != "cs" or not (work / "en/saves/config.ini").exists():
+            (saves / "config.ini").write_text(f"language={initial_language}\nsubtitles=false\n")
         else:
             # Restart with the previous process's saved language and a later user choice to hide subtitles.
             previous = (work / "en/saves/config.ini").read_text()
@@ -65,23 +87,24 @@ def main() -> None:
             subprocess.run(command, env=env, stdout=log, stderr=subprocess.STDOUT,
                            check=True, timeout=300)
         result = json.loads((output / "localization.json").read_text())
-        assert result["status"] == "passed" and result["menu_cases"] == 32
+        assert result["status"] == "passed" and result["menu_cases"] == 64
         assert result["startup_language"] == initial_language and not result["startup_subtitles"]
         assert result["text_overflows"] == 0
-        assert result["radio_clicks"] == 96 and result["status_queue_refresh"]
+        assert result["radio_clicks"] == 192 and result["status_queue_refresh"]
         assert result["immediate_language_apply"] and result["same_language_preserves_subtitles"]
-        assert result["live_options_cases"] == 32
+        assert result["live_options_cases"] == 64
         screenshots = list((output / "application/screenshots").glob("*.png"))
-        assert result["modal_screenshots"] == 96 and result["document_screenshots"] == 12
-        assert result["gameplay_screenshots"] == 1 and len(screenshots) == 109
+        assert result["modal_screenshots"] == 192 and result["document_screenshots"] == 24
+        assert result["gameplay_screenshots"] == 1 and len(screenshots) == 217
         sizes = set()
         for screenshot in screenshots:
             raw = screenshot.read_bytes()
             assert raw[:8] == b"\x89PNG\r\n\x1a\n" and raw[12:16] == b"IHDR"
             sizes.add(struct.unpack_from(">II", raw, 16))
         assert sizes == {(640, 480), (854, 480)}
-        assert result["mana_tooltip_cases"] == 144
-        assert result["file_dialog_cases"] == 16 and result["placard_cases"] == 664
+        assert result["mana_tooltip_cases"] == 288
+        assert result["name_tooltip_cases"] > 3000
+        assert result["file_dialog_cases"] == 32 and result["placard_cases"] == 1328
         documents = json.loads((output / "documents.json").read_text())
         assert documents["page_spreads"] == result["document_spreads"]
         assert documents["redraw_comparisons"] > 2 * documents["page_spreads"]
@@ -89,6 +112,8 @@ def main() -> None:
         result["document_rendering"] = documents
         assert "language=cs" in (saves / "config.ini").read_text()
         for slot in (9, 10): check_speech(saves / f"fta2.{slot:03}")
+        assert result["mixed_speech_save_roundtrip"] and result["voice_variants"] == 9
+        for slot in (11, 12): check_mixed_speech(saves / f"fta2.{slot:03}")
         results.append(result)
     after = {str(p.relative_to(game)): hashlib.sha256(p.read_bytes()).hexdigest()
              for p in game.rglob("*") if p.is_file()}

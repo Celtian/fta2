@@ -1,0 +1,1239 @@
+{
+  "schema_version": 1,
+  "language": "es",
+  "entries": {
+    "ui:c94fa93f339cdbc5d5f76ad6b6275c15e9ea155d0085b82b2826c0f95f6d7de4": {
+      "source": "Empty Slot",
+      "source_sha256": "c94fa93f339cdbc5d5f76ad6b6275c15e9ea155d0085b82b2826c0f95f6d7de4",
+      "text": "Hueco vacío",
+      "status": "reviewed"
+    },
+    "ui:d64f623d896f49ded5b0afac113260a116fd2dbb8ee638d94a9b2f82f4198a72": {
+      "source": "Save Game",
+      "source_sha256": "d64f623d896f49ded5b0afac113260a116fd2dbb8ee638d94a9b2f82f4198a72",
+      "text": "Guardar partida",
+      "status": "reviewed"
+    },
+    "ui:19766ed6ccb2f4a32778eed80d1928d2c87a18d7c275ccb163ec6709d3eb2e27": {
+      "source": "Cancel",
+      "source_sha256": "19766ed6ccb2f4a32778eed80d1928d2c87a18d7c275ccb163ec6709d3eb2e27",
+      "text": "Cancelar",
+      "status": "reviewed"
+    },
+    "ui:1509f561f2416598629b886ad7d3c05a7e221e4e0675c84bbff4ee6d9e03913d": {
+      "source": "Save",
+      "source_sha256": "1509f561f2416598629b886ad7d3c05a7e221e4e0675c84bbff4ee6d9e03913d",
+      "text": "Guardar",
+      "status": "reviewed"
+    },
+    "ui:dc415dbd4b1a1abe033c1a27ea11939a5aefeb2ec417d4d37f8977e04c2f7f28": {
+      "source": "Load Game",
+      "source_sha256": "dc415dbd4b1a1abe033c1a27ea11939a5aefeb2ec417d4d37f8977e04c2f7f28",
+      "text": "Cargar partida",
+      "status": "reviewed"
+    },
+    "ui:8a6bdb6b18da586fe7f2acbd8f1055533f2cd97a3681b3652bcd712224df45c3": {
+      "source": "Load",
+      "source_sha256": "8a6bdb6b18da586fe7f2acbd8f1055533f2cd97a3681b3652bcd712224df45c3",
+      "text": "Cargar",
+      "status": "reviewed"
+    },
+    "ui:d0db8b5e364b6989e4b8f38a2b3846b87d99a51c1592ebf35d21cc66405a8e39": {
+      "source": "Options",
+      "source_sha256": "d0db8b5e364b6989e4b8f38a2b3846b87d99a51c1592ebf35d21cc66405a8e39",
+      "text": "Opciones",
+      "status": "reviewed"
+    },
+    "ui:5b7610d20b8fcd2f850209b43594cbf5771caa80d28affa6e8c1cffc53394b1c": {
+      "source": "Sound Effects Volume",
+      "source_sha256": "5b7610d20b8fcd2f850209b43594cbf5771caa80d28affa6e8c1cffc53394b1c",
+      "text": "Volumen de efectos",
+      "status": "reviewed"
+    },
+    "ui:b5bc6094eb14b3f8ce64d6bf6cfbd59143137455f5128b49294ac45da9cc35fc": {
+      "source": "Speech Volume",
+      "source_sha256": "b5bc6094eb14b3f8ce64d6bf6cfbd59143137455f5128b49294ac45da9cc35fc",
+      "text": "Volumen de voces",
+      "status": "reviewed"
+    },
+    "ui:b3f848c2a09aa9edaeebc4ebd601839b2777403991aa366387d7c13cea1945b3": {
+      "source": "Music Volume",
+      "source_sha256": "b3f848c2a09aa9edaeebc4ebd601839b2777403991aa366387d7c13cea1945b3",
+      "text": "Volumen de música",
+      "status": "reviewed"
+    },
+    "ui:af1109a14aca98da00575e1ab37eaf1b49c712e3424248eb15a6bec8953398da": {
+      "source": "Auto-Aggression",
+      "source_sha256": "af1109a14aca98da00575e1ab37eaf1b49c712e3424248eb15a6bec8953398da",
+      "text": "Ataque automático",
+      "status": "reviewed"
+    },
+    "ui:472073865d5b8e91550fa72d898a5c4067c6303196e841a296e260da0447cb6b": {
+      "source": "Auto-Wield Weapon",
+      "source_sha256": "472073865d5b8e91550fa72d898a5c4067c6303196e841a296e260da0447cb6b",
+      "text": "Equipar arma",
+      "status": "reviewed"
+    },
+    "ui:3511aa93b2b5a967bdde2e33734f1a1dc49dfe7ad8ec8eebb46fe05a249afc3d": {
+      "source": "Speech Text",
+      "source_sha256": "3511aa93b2b5a967bdde2e33734f1a1dc49dfe7ad8ec8eebb46fe05a249afc3d",
+      "text": "Subtítulos",
+      "status": "reviewed"
+    },
+    "ui:4e9f8db8242b57e72e00bab464a2f4166b694160e621fefd5aae48ea457e373c": {
+      "source": "Night",
+      "source_sha256": "4e9f8db8242b57e72e00bab464a2f4166b694160e621fefd5aae48ea457e373c",
+      "text": "Noche",
+      "status": "reviewed"
+    },
+    "ui:ed14ea706f9043c230d257cc0ba468a6af466ef771c15485bba84f85d18e6ec6": {
+      "source": "Resume Play",
+      "source_sha256": "ed14ea706f9043c230d257cc0ba468a6af466ef771c15485bba84f85d18e6ec6",
+      "text": "Continuar",
+      "status": "reviewed"
+    },
+    "ui:b3eb37acb66ba4bbe8fb1ba296815daf194be94f5a5fb50dab2fb5e4a57ba29e": {
+      "source": "Quit",
+      "source_sha256": "b3eb37acb66ba4bbe8fb1ba296815daf194be94f5a5fb50dab2fb5e4a57ba29e",
+      "text": "Salir",
+      "status": "reviewed"
+    },
+    "ui:2a6b24ad287220345e96eb8021fe29d42b0785766c8df658827e7251da2d36dc": {
+      "source": "Credits",
+      "source_sha256": "2a6b24ad287220345e96eb8021fe29d42b0785766c8df658827e7251da2d36dc",
+      "text": "Créditos",
+      "status": "reviewed"
+    },
+    "ui:28f9044138a54b95f198b450b2b02af43921f0d50450885875653e6443115f35": {
+      "source": "New Game",
+      "source_sha256": "28f9044138a54b95f198b450b2b02af43921f0d50450885875653e6443115f35",
+      "text": "Nueva partida",
+      "status": "reviewed"
+    },
+    "ui:e3871b6dfb636ac304f98dd1c585526573bc5e888d4fcd30a341d62153e671b0": {
+      "source": "Hot Keys",
+      "source_sha256": "e3871b6dfb636ac304f98dd1c585526573bc5e888d4fcd30a341d62153e671b0",
+      "text": "Teclas",
+      "status": "reviewed"
+    },
+    "ui:7d9eb7acb13e24625c404401d8e88b2350e32162455885f18276cf802f7701ed": {
+      "source": "Close",
+      "source_sha256": "7d9eb7acb13e24625c404401d8e88b2350e32162455885f18276cf802f7701ed",
+      "text": "Cerrar",
+      "status": "reviewed"
+    },
+    "ui:4afd0204cb6ae7717bb85124852ee8aa0253461592d584b74d5db117b9ac5302": {
+      "source": "Faery Tale Adventure",
+      "source_sha256": "4afd0204cb6ae7717bb85124852ee8aa0253461592d584b74d5db117b9ac5302",
+      "text": "Faery Tale Adventure",
+      "status": "reviewed"
+    },
+    "ui:d79ca15851b0197f4190aaae6e0fdc7e20c5c5fbb4fddcafced6e0c3d9aeb846": {
+      "source": "Do you really want to quit?",
+      "source_sha256": "d79ca15851b0197f4190aaae6e0fdc7e20c5c5fbb4fddcafced6e0c3d9aeb846",
+      "text": "¿Seguro que quieres salir?",
+      "status": "reviewed"
+    },
+    "ui:8e6e1e52ae543bd0848f0088245286ebacb25688c97087a645b9169dc310f66a": {
+      "source": "_Quit",
+      "source_sha256": "8e6e1e52ae543bd0848f0088245286ebacb25688c97087a645b9169dc310f66a",
+      "text": "_Salir",
+      "status": "reviewed"
+    },
+    "ui:0d9c606e76d58f4d862f24642b35d5b769210f3271e812c7356b0cab611d398b": {
+      "source": "_Continue",
+      "source_sha256": "0d9c606e76d58f4d862f24642b35d5b769210f3271e812c7356b0cab611d398b",
+      "text": "_Continuar",
+      "status": "reviewed"
+    },
+    "ui:c1cb95c795bd5afe78a145ac078d59f683b57154d1dc55650e7e03a1702067fe": {
+      "source": "Required allocation failed",
+      "source_sha256": "c1cb95c795bd5afe78a145ac078d59f683b57154d1dc55650e7e03a1702067fe",
+      "text": "No se pudo reservar memoria",
+      "status": "reviewed"
+    },
+    "ui:7772599c77c9f32f3e344852b33aee5b3b50f574c0c5b7a58c738a9576711839": {
+      "source": "Memory heap exhausted",
+      "source_sha256": "7772599c77c9f32f3e344852b33aee5b3b50f574c0c5b7a58c738a9576711839",
+      "text": "Memoria agotada",
+      "status": "reviewed"
+    },
+    "ui:0bd49906cf61c40f41eb9a0c0ac551eeb62d6662cf23e8fc55538700ac89ca0a": {
+      "source": "%s is badly wounded!",
+      "source_sha256": "0bd49906cf61c40f41eb9a0c0ac551eeb62d6662cf23e8fc55538700ac89ca0a",
+      "text": "¡%s está malherido!",
+      "status": "reviewed"
+    },
+    "ui:fedbb2bd8960b342ba606af246dd05bc6ef03e1f9b5d8be083c8bec008b2c992": {
+      "source": "%s is hurt.",
+      "source_sha256": "fedbb2bd8960b342ba606af246dd05bc6ef03e1f9b5d8be083c8bec008b2c992",
+      "text": "%s está herido.",
+      "status": "reviewed"
+    },
+    "ui:ce47715d05aba172a1c5e8486268b459570cfaa0e9bdf52dd72881cb52745116": {
+      "source": "It is %s, day %d, week %d.",
+      "source_sha256": "ce47715d05aba172a1c5e8486268b459570cfaa0e9bdf52dd72881cb52745116",
+      "text": "Es %s, día %d, semana %d.",
+      "status": "reviewed"
+    },
+    "ui:35af25f5a5fdac6401dd4baf949794b59db80168d69c80e7f2cfd83999e2feff": {
+      "source": "midnight",
+      "source_sha256": "35af25f5a5fdac6401dd4baf949794b59db80168d69c80e7f2cfd83999e2feff",
+      "text": "medianoche",
+      "status": "reviewed"
+    },
+    "ui:c23b31a0179b550f8a18fb06bc52a26e32333540369073d646da5c84a4dc341f": {
+      "source": "morning",
+      "source_sha256": "c23b31a0179b550f8a18fb06bc52a26e32333540369073d646da5c84a4dc341f",
+      "text": "por la mañana",
+      "status": "reviewed"
+    },
+    "ui:7910ad21683c82fcb1c7c5a6401cbc33b850444c20e701f54ba0dc55315a0671": {
+      "source": "mid-morning",
+      "source_sha256": "7910ad21683c82fcb1c7c5a6401cbc33b850444c20e701f54ba0dc55315a0671",
+      "text": "media mañana",
+      "status": "reviewed"
+    },
+    "ui:b198f3cd8e7048e4a523671b589864cf91401cc04a889a0e42215b3750edb6ff": {
+      "source": "noon",
+      "source_sha256": "b198f3cd8e7048e4a523671b589864cf91401cc04a889a0e42215b3750edb6ff",
+      "text": "mediodía",
+      "status": "reviewed"
+    },
+    "ui:fff62d0593d2dfc5e6f70c3de68e151fcc4c025bf66359db9a2d3433fb2ccd0b": {
+      "source": "mid-afternoon",
+      "source_sha256": "fff62d0593d2dfc5e6f70c3de68e151fcc4c025bf66359db9a2d3433fb2ccd0b",
+      "text": "media tarde",
+      "status": "reviewed"
+    },
+    "ui:e5bd0801d10e5965354604c20443ddf47fdfc375115151277a525467ad4816a3": {
+      "source": "evening",
+      "source_sha256": "e5bd0801d10e5965354604c20443ddf47fdfc375115151277a525467ad4816a3",
+      "text": "por la noche",
+      "status": "reviewed"
+    },
+    "ui:1c403a939dd46fcbdccb824dbbcabde4039750531e25d93409cf94e9ad83eb20": {
+      "source": "Ideas",
+      "source_sha256": "1c403a939dd46fcbdccb824dbbcabde4039750531e25d93409cf94e9ad83eb20",
+      "text": "Ideas",
+      "status": "reviewed"
+    },
+    "ui:6a0a0288ac6b0b743b5b1e8aea8ef6929f655f3abccb4d473ab297bbcddaf2b0": {
+      "source": "Spells",
+      "source_sha256": "6a0a0288ac6b0b743b5b1e8aea8ef6929f655f3abccb4d473ab297bbcddaf2b0",
+      "text": "Hechizos",
+      "status": "reviewed"
+    },
+    "ui:66d0f523a379b2de6f8d5fba3a817ebc395f7bcaa54cc132ca9dfa665d1e9378": {
+      "source": "Skills",
+      "source_sha256": "66d0f523a379b2de6f8d5fba3a817ebc395f7bcaa54cc132ca9dfa665d1e9378",
+      "text": "Habilidades",
+      "status": "reviewed"
+    },
+    "ui:4b57bde3d5e1b4c33118a8ba49a26b41a39ef26bd32f54e4352572503cf6c138": {
+      "source": "Scroll Inventory",
+      "source_sha256": "4b57bde3d5e1b4c33118a8ba49a26b41a39ef26bd32f54e4352572503cf6c138",
+      "text": "Desplazar inventario",
+      "status": "reviewed"
+    },
+    "ui:60135e8f5cbb2d4f622d09a73a661e39b48456a939aa57b1c24943eead9e764b": {
+      "source": "Asleep",
+      "source_sha256": "60135e8f5cbb2d4f622d09a73a661e39b48456a939aa57b1c24943eead9e764b",
+      "text": "Dormido",
+      "status": "reviewed"
+    },
+    "ui:a3b8507af3c4724861574f0bf2da8bfdbd9cf4f5968027049253c6b044805a86": {
+      "source": "Paralysed",
+      "source_sha256": "a3b8507af3c4724861574f0bf2da8bfdbd9cf4f5968027049253c6b044805a86",
+      "text": "Paralizado",
+      "status": "reviewed"
+    },
+    "ui:64c82aaed1b4155efc23d5cfcea6ec22f8ee5826dd26f5f1274e44fe905d4fb1": {
+      "source": "Blind",
+      "source_sha256": "64c82aaed1b4155efc23d5cfcea6ec22f8ee5826dd26f5f1274e44fe905d4fb1",
+      "text": "Ciego",
+      "status": "reviewed"
+    },
+    "ui:622b605ba6f49394e27f73d7bfe27e19bb6da1848cb118741a3fe4603b4d1a19": {
+      "source": "Afraid",
+      "source_sha256": "622b605ba6f49394e27f73d7bfe27e19bb6da1848cb118741a3fe4603b4d1a19",
+      "text": "Asustado",
+      "status": "reviewed"
+    },
+    "ui:c553665085d3840af3fd2852f49c29046a1ff3142702eecf4a1833e4a49e9281": {
+      "source": "Angry",
+      "source_sha256": "c553665085d3840af3fd2852f49c29046a1ff3142702eecf4a1833e4a49e9281",
+      "text": "Enfadado",
+      "status": "reviewed"
+    },
+    "ui:956ae48c0cdd7ad2229b2e61e9e6f35cbc989f242979ee4961840b5a3c6d70a6": {
+      "source": "Badly Wounded",
+      "source_sha256": "956ae48c0cdd7ad2229b2e61e9e6f35cbc989f242979ee4961840b5a3c6d70a6",
+      "text": "Malherido",
+      "status": "reviewed"
+    },
+    "ui:24e55158795b08b433e977690358d12fc9ea131316dda87a165eb63b402740f3": {
+      "source": "Hurt",
+      "source_sha256": "24e55158795b08b433e977690358d12fc9ea131316dda87a165eb63b402740f3",
+      "text": "Herido",
+      "status": "reviewed"
+    },
+    "ui:6dc21afe4edec3c11b085c474e88026cefc74581cca0c738a9fcca1466b7ff99": {
+      "source": "Poisoned",
+      "source_sha256": "6dc21afe4edec3c11b085c474e88026cefc74581cca0c738a9fcca1466b7ff99",
+      "text": "Envenenado",
+      "status": "reviewed"
+    },
+    "ui:ebac393d44b1ddbf5797bf37ad9f87da90d934035263017357c53fe32a1f683e": {
+      "source": "Diseased",
+      "source_sha256": "ebac393d44b1ddbf5797bf37ad9f87da90d934035263017357c53fe32a1f683e",
+      "text": "Enfermo",
+      "status": "reviewed"
+    },
+    "ui:a7248eeb45eb1ce247f81693283e22e8b39e8a50890cecd22d02e75025547d90": {
+      "source": "Normal",
+      "source_sha256": "a7248eeb45eb1ce247f81693283e22e8b39e8a50890cecd22d02e75025547d90",
+      "text": "Normal",
+      "status": "reviewed"
+    },
+    "ui:ec9b10a4a79c4e8a4a23be6edb064854d91b9aebf348d9a910fe6b38cad08022": {
+      "source": "Dead",
+      "source_sha256": "ec9b10a4a79c4e8a4a23be6edb064854d91b9aebf348d9a910fe6b38cad08022",
+      "text": "Muerto",
+      "status": "reviewed"
+    },
+    "ui:dccf8f76c338ec2cff4439891e1f3012423f2c3fbc507ef3738f817d845d1b89": {
+      "source": "Julian is: ",
+      "source_sha256": "dccf8f76c338ec2cff4439891e1f3012423f2c3fbc507ef3738f817d845d1b89",
+      "text": "Julian: ",
+      "status": "reviewed"
+    },
+    "ui:5d31a3e01ccf14c8e751bee08cab023947b3fc2e9bd7a9cd654cea2d03bbc6de": {
+      "source": "Phillip is: ",
+      "source_sha256": "5d31a3e01ccf14c8e751bee08cab023947b3fc2e9bd7a9cd654cea2d03bbc6de",
+      "text": "Phillip: ",
+      "status": "reviewed"
+    },
+    "ui:25feb6ab7ff47e6689301ddc68e4a69d54fbbe27364db6f5ad2d1fedacb2a742": {
+      "source": "Kevin is: ",
+      "source_sha256": "25feb6ab7ff47e6689301ddc68e4a69d54fbbe27364db6f5ad2d1fedacb2a742",
+      "text": "Kevin: ",
+      "status": "reviewed"
+    },
+    "ui:0be72a19b080d3d999d67d7f43439ef25a4af3fe8694518a8df3cf44614666ad": {
+      "source": "Agression: On",
+      "source_sha256": "0be72a19b080d3d999d67d7f43439ef25a4af3fe8694518a8df3cf44614666ad",
+      "text": "Ataque: sí",
+      "status": "reviewed"
+    },
+    "ui:3be1c7728b8d66921c2a08e379e8791f93a76ce53180ff9ce3e50041aab64d58": {
+      "source": "Agression: Off",
+      "source_sha256": "3be1c7728b8d66921c2a08e379e8791f93a76ce53180ff9ce3e50041aab64d58",
+      "text": "Ataque: no",
+      "status": "reviewed"
+    },
+    "ui:8bb90e0d0c2498af869711d7f9b8070a83266564c43627b411803defba2545c9": {
+      "source": "No Armor Worn",
+      "source_sha256": "8bb90e0d0c2498af869711d7f9b8070a83266564c43627b411803defba2545c9",
+      "text": "Sin armadura",
+      "status": "reviewed"
+    },
+    "ui:350aa798f30e0371338e4a11599bf98d043fe9109a98e301d849e2f3721df2a7": {
+      "source": "Absorb:%d, Reduce:/%d, Defense:+%d",
+      "source_sha256": "350aa798f30e0371338e4a11599bf98d043fe9109a98e301d849e2f3721df2a7",
+      "text": "Absorbe:%d, Reduce:/%d, Defensa:+%d",
+      "status": "reviewed"
+    },
+    "ui:4ec47e4a943e86f4e14fec4f26551a8d6ab5fe7486c679a2095e81fa4d654769": {
+      "source": "Center: On",
+      "source_sha256": "4ec47e4a943e86f4e14fec4f26551a8d6ab5fe7486c679a2095e81fa4d654769",
+      "text": "Centrar: sí",
+      "status": "reviewed"
+    },
+    "ui:407fb2c4a43d7d1b980ed0558756b161174ac741aafd48f1c282ec2f424c45b8": {
+      "source": "Center: Off",
+      "source_sha256": "407fb2c4a43d7d1b980ed0558756b161174ac741aafd48f1c282ec2f424c45b8",
+      "text": "Centrar: no",
+      "status": "reviewed"
+    },
+    "ui:8a31df01bd59d4bd40f786f934de7b5561cff662846c6ba4a158d537b2821e4f": {
+      "source": "Banding: On",
+      "source_sha256": "8a31df01bd59d4bd40f786f934de7b5561cff662846c6ba4a158d537b2821e4f",
+      "text": "Seguir: sí",
+      "status": "reviewed"
+    },
+    "ui:a066dedc5174d7d7fc007d92ea95baf5ec0d5fb4cbad97a3ee66607a9dd6f11e": {
+      "source": "Banding: Off",
+      "source_sha256": "a066dedc5174d7d7fc007d92ea95baf5ec0d5fb4cbad97a3ee66607a9dd6f11e",
+      "text": "Seguir: no",
+      "status": "reviewed"
+    },
+    "ui:b7e631fcc56aa52930c0a38ade45a159289d545a585aaaabc4493d3c81e1d3fb": {
+      "source": "Options Panel",
+      "source_sha256": "b7e631fcc56aa52930c0a38ade45a159289d545a585aaaabc4493d3c81e1d3fb",
+      "text": "Opciones",
+      "status": "reviewed"
+    },
+    "ui:ac2be4a4248d9be4a529d4205d941b96975175a0a69e3ade89d7eadc42a1c8e9": {
+      "source": "Health:",
+      "source_sha256": "ac2be4a4248d9be4a529d4205d941b96975175a0a69e3ade89d7eadc42a1c8e9",
+      "text": "Salud:",
+      "status": "reviewed"
+    },
+    "ui:4687b3a20a89cd14c8caca47efc789ec61f95543d005f452f4f14792b7d8a986": {
+      "source": "Weight:",
+      "source_sha256": "4687b3a20a89cd14c8caca47efc789ec61f95543d005f452f4f14792b7d8a986",
+      "text": "Peso:",
+      "status": "reviewed"
+    },
+    "ui:4ef9180a9b9e73f2bf1ffa31213e80909b50054f071e6716893ee44cb9dae6da": {
+      "source": "Gold:",
+      "source_sha256": "4ef9180a9b9e73f2bf1ffa31213e80909b50054f071e6716893ee44cb9dae6da",
+      "text": "Oro:",
+      "status": "reviewed"
+    },
+    "ui:48ad100580490a6a75c2c16d4016168d89656eec19cae34d5b497beb441450f4": {
+      "source": "Bulk:",
+      "source_sha256": "48ad100580490a6a75c2c16d4016168d89656eec19cae34d5b497beb441450f4",
+      "text": "Volumen:",
+      "status": "reviewed"
+    },
+    "ui:e2f79e5b60330bba4c289962231b6ba2957d0b14e7deb3110417003c79dea635": {
+      "source": "N/A",
+      "source_sha256": "e2f79e5b60330bba4c289962231b6ba2957d0b14e7deb3110417003c79dea635",
+      "text": "---",
+      "status": "reviewed"
+    },
+    "ui:7972ff7c1d31b699b503405ca2344235c4d43016a277a30a7d51373d6acc2ff0": {
+      "source": "Red Mana:",
+      "source_sha256": "7972ff7c1d31b699b503405ca2344235c4d43016a277a30a7d51373d6acc2ff0",
+      "text": "Maná rojo:",
+      "status": "reviewed"
+    },
+    "ui:45e27cf3a532d44b711916ff6ab2f8195c02585921d8cadd0bcd7f84319b47d2": {
+      "source": "Orange Mana:",
+      "source_sha256": "45e27cf3a532d44b711916ff6ab2f8195c02585921d8cadd0bcd7f84319b47d2",
+      "text": "Maná naranja:",
+      "status": "reviewed"
+    },
+    "ui:1df474134ea999fd9c2b9d3142d254dc5c4eae4052399e146cf33ae06f48384f": {
+      "source": "Yellow Mana:",
+      "source_sha256": "1df474134ea999fd9c2b9d3142d254dc5c4eae4052399e146cf33ae06f48384f",
+      "text": "Maná amarillo:",
+      "status": "reviewed"
+    },
+    "ui:ce3e28b0c8bde3e148fe7cf33c40937280deb333d2276b5ddcaa3237b9bc9803": {
+      "source": "Green Mana:",
+      "source_sha256": "ce3e28b0c8bde3e148fe7cf33c40937280deb333d2276b5ddcaa3237b9bc9803",
+      "text": "Maná verde:",
+      "status": "reviewed"
+    },
+    "ui:0fb9be862a8f519d140c62acf5e7a2970b136252bf35b4591c53ec642bb2538d": {
+      "source": "Blue Mana:",
+      "source_sha256": "0fb9be862a8f519d140c62acf5e7a2970b136252bf35b4591c53ec642bb2538d",
+      "text": "Maná azul:",
+      "status": "reviewed"
+    },
+    "ui:7a95c7039e764a742267af69dd29a0c422a506a471a6fa6725482bd0df467265": {
+      "source": "Purple Mana:",
+      "source_sha256": "7a95c7039e764a742267af69dd29a0c422a506a471a6fa6725482bd0df467265",
+      "text": "Maná violeta:",
+      "status": "reviewed"
+    },
+    "ui:41c0a75050b2b2b243870eb7b4f403334a61dbe6efd54d48e6ca63811e439410": {
+      "source": "Syntax : FTA2 \n",
+      "source_sha256": "41c0a75050b2b2b243870eb7b4f403334a61dbe6efd54d48e6ca63811e439410",
+      "text": "Sintaxis: FTA2 \n",
+      "status": "reviewed"
+    },
+    "ui:3be184f0c5297ac20f44ba7970b028bbe297a237ee7479f57fc41ff992053a9c": {
+      "source": "%s, %d Charge",
+      "source_sha256": "3be184f0c5297ac20f44ba7970b028bbe297a237ee7479f57fc41ff992053a9c",
+      "text": "%s, %d carga",
+      "status": "reviewed"
+    },
+    "ui:95d20fad926eeb0db9b099575c7383122db422a66c5b8f0ecd797590710a5e90": {
+      "source": "%s, %d Charges",
+      "source_sha256": "95d20fad926eeb0db9b099575c7383122db422a66c5b8f0ecd797590710a5e90",
+      "text": "%s, %d cargas",
+      "status": "reviewed"
+    },
+    "ui:e2c670529dd076fff501ae4f7a6bd5c15dbe87e14d50fbd5836769a07e395ad7": {
+      "source": "%d %ss",
+      "source_sha256": "e2c670529dd076fff501ae4f7a6bd5c15dbe87e14d50fbd5836769a07e395ad7",
+      "text": "%d x %s",
+      "status": "reviewed"
+    },
+    "ui:28b57c16bc27a11f429ba68feba5c3f706748849986d81984eef77bf87c5ca68": {
+      "source": "Mental Inventory: Ideas",
+      "source_sha256": "28b57c16bc27a11f429ba68feba5c3f706748849986d81984eef77bf87c5ca68",
+      "text": "Ideas",
+      "status": "reviewed"
+    },
+    "ui:78ba97e79717b95a2403985d5284f2f8501ec2827e8d32d9b8f7797912674dc6": {
+      "source": "Mental Inventory: Spells",
+      "source_sha256": "78ba97e79717b95a2403985d5284f2f8501ec2827e8d32d9b8f7797912674dc6",
+      "text": "Hechizos",
+      "status": "reviewed"
+    },
+    "ui:8f1938e981a5315caa2e18becbb6efd8cfb135ddffa77ebbbc759b28ec46444b": {
+      "source": "Mental Inventory: Skills",
+      "source_sha256": "8f1938e981a5315caa2e18becbb6efd8cfb135ddffa77ebbbc759b28ec46444b",
+      "text": "Habilidades",
+      "status": "reviewed"
+    },
+    "ui:54a0e8c17ebb21a11f8a25b8042786ef7efe52441e6cc87e92c67e0c4c0c6e78": {
+      "source": "Error",
+      "source_sha256": "54a0e8c17ebb21a11f8a25b8042786ef7efe52441e6cc87e92c67e0c4c0c6e78",
+      "text": "Error",
+      "status": "reviewed"
+    },
+    "ui:565339bc4d33d72817b583024112eb7f5cdf3e5eef0252d6ec1b9c9a94e12bb3": {
+      "source": "OK",
+      "source_sha256": "565339bc4d33d72817b583024112eb7f5cdf3e5eef0252d6ec1b9c9a94e12bb3",
+      "text": "OK",
+      "status": "reviewed"
+    },
+    "ui:00481df3c779b715b62a4dfe5ee9f9739426c4d6cc090e8d37b34b2cdfaa6bb7": {
+      "source": "_Retry",
+      "source_sha256": "00481df3c779b715b62a4dfe5ee9f9739426c4d6cc090e8d37b34b2cdfaa6bb7",
+      "text": "_Reintentar",
+      "status": "reviewed"
+    },
+    "ui:4ce3f5980497dfdf679bce9de9c0d516d4dd1ba5769ac8a62450f28ed8517496": {
+      "source": "_Cancel",
+      "source_sha256": "4ce3f5980497dfdf679bce9de9c0d516d4dd1ba5769ac8a62450f28ed8517496",
+      "text": "_Cancelar",
+      "status": "reviewed"
+    },
+    "ui:b481b4157abdbb423dc6a1f2e0a20d4d0e9b6eb0cd783b823c50bb0349c739df": {
+      "source": "_Yes",
+      "source_sha256": "b481b4157abdbb423dc6a1f2e0a20d4d0e9b6eb0cd783b823c50bb0349c739df",
+      "text": "_Sí",
+      "status": "reviewed"
+    },
+    "ui:bae768bf530b4ffa442bb8cf3bdd2b91f396a00a6b27dfa52e231c3cbb2b1096": {
+      "source": "_No",
+      "source_sha256": "bae768bf530b4ffa442bb8cf3bdd2b91f396a00a6b27dfa52e231c3cbb2b1096",
+      "text": "_No",
+      "status": "reviewed"
+    },
+    "ui:8c2b9adeb32bfc6cbdaec8cda2dcf854dcf42b1de094343de80282d753498a80": {
+      "source": "archery skill",
+      "source_sha256": "8c2b9adeb32bfc6cbdaec8cda2dcf854dcf42b1de094343de80282d753498a80",
+      "text": "tiro con arco",
+      "status": "reviewed"
+    },
+    "ui:45747a309ed8138152852c1d54e7cfa8a489c0b2facfd46e85a39a9d9ed55db0": {
+      "source": "swordcraft skill",
+      "source_sha256": "45747a309ed8138152852c1d54e7cfa8a489c0b2facfd46e85a39a9d9ed55db0",
+      "text": "esgrima",
+      "status": "reviewed"
+    },
+    "ui:52010d43d4a30dcd3feffa3fbb0e47df56940280fafe3563a401535075a0f0a0": {
+      "source": "shieldcraft skill",
+      "source_sha256": "52010d43d4a30dcd3feffa3fbb0e47df56940280fafe3563a401535075a0f0a0",
+      "text": "uso del escudo",
+      "status": "reviewed"
+    },
+    "ui:4b6eaf4c224f6d6703b80211b6638f67c6ccc95e90247ed9acdc688cc99217d8": {
+      "source": "bludgeon skill",
+      "source_sha256": "4b6eaf4c224f6d6703b80211b6638f67c6ccc95e90247ed9acdc688cc99217d8",
+      "text": "armas contundentes",
+      "status": "reviewed"
+    },
+    "ui:1702eb2b18067d7f1613d064ed4a8dd4f06f9a76ea254031d8e53fed926967bb": {
+      "source": "spellcraft",
+      "source_sha256": "1702eb2b18067d7f1613d064ed4a8dd4f06f9a76ea254031d8e53fed926967bb",
+      "text": "magia",
+      "status": "reviewed"
+    },
+    "ui:b22bacd700565d3972cceed017d92f0eaa48eabadb3c4607c77d3c4b45c084cd": {
+      "source": "agility",
+      "source_sha256": "b22bacd700565d3972cceed017d92f0eaa48eabadb3c4607c77d3c4b45c084cd",
+      "text": "agilidad",
+      "status": "reviewed"
+    },
+    "ui:b9012328c76a348098e1e2de7d7dec0f91cbdc20f152c72543f27b84b22b6140": {
+      "source": "brawn",
+      "source_sha256": "b9012328c76a348098e1e2de7d7dec0f91cbdc20f152c72543f27b84b22b6140",
+      "text": "fuerza",
+      "status": "reviewed"
+    },
+    "ui:6f9ac4ea7af7fae1091ae6a6a0f1b7ba5b59d88dbcaeb3b00afe7e3665ab6c03": {
+      "source": "%s's %s has increased.",
+      "source_sha256": "6f9ac4ea7af7fae1091ae6a6a0f1b7ba5b59d88dbcaeb3b00afe7e3665ab6c03",
+      "text": "%s: mejora en %s.",
+      "status": "reviewed"
+    },
+    "ui:c3b419a868d084394c8c6268b1eb61e7583c3f6e0d1e923d78c8c3dd47938c13": {
+      "source": "%s's vitality has increased.",
+      "source_sha256": "c3b419a868d084394c8c6268b1eb61e7583c3f6e0d1e923d78c8c3dd47938c13",
+      "text": "%s: aumenta su vitalidad.",
+      "status": "reviewed"
+    },
+    "ui:a250a88b01ef56b2d60e03e0f41fe8a550fefc6eb8d5b431a05b00ed08351904": {
+      "source": "%s is under attack!",
+      "source_sha256": "a250a88b01ef56b2d60e03e0f41fe8a550fefc6eb8d5b431a05b00ed08351904",
+      "text": "¡Atacan a %s!",
+      "status": "reviewed"
+    },
+    "ui:6c4de76bb6ac7f17ea5dc3fd4915e56374ee6e32e805c8f7395eab00cc2cb1af": {
+      "source": "%s has died!",
+      "source_sha256": "6c4de76bb6ac7f17ea5dc3fd4915e56374ee6e32e805c8f7395eab00cc2cb1af",
+      "text": "¡%s ha muerto!",
+      "status": "reviewed"
+    },
+    "ui:99a52df3ff3d499488e2fa28150c4106a2cb5e928891a830a9aa3922b2d32160": {
+      "source": "Key",
+      "source_sha256": "99a52df3ff3d499488e2fa28150c4106a2cb5e928891a830a9aa3922b2d32160",
+      "text": "Tecla",
+      "status": "reviewed"
+    },
+    "ui:64cff1319d2fd2cbb7a1e84ccecf22c1cc07b24435cdb522f8c0aa525d6002a6": {
+      "source": "Action",
+      "source_sha256": "64cff1319d2fd2cbb7a1e84ccecf22c1cc07b24435cdb522f8c0aa525d6002a6",
+      "text": "Acción",
+      "status": "reviewed"
+    },
+    "ui:dfb91ef80849a7cd8c47601403f4c66c8452b52ff79d9bfa6f119dfc23a0649e": {
+      "source": "Select Julian / Philip / Kevin",
+      "source_sha256": "dfb91ef80849a7cd8c47601403f4c66c8452b52ff79d9bfa6f119dfc23a0649e",
+      "text": "Elegir Julian / Phillip / Kevin",
+      "status": "reviewed"
+    },
+    "ui:cb2ca1bdac3bdd9073c309a840eef10567fb4ca92e2a32e3591993016ed20021": {
+      "source": "Switch individual / group control panels",
+      "source_sha256": "cb2ca1bdac3bdd9073c309a840eef10567fb4ca92e2a32e3591993016ed20021",
+      "text": "Cambiar panel individual / grupo",
+      "status": "reviewed"
+    },
+    "ui:509161e153b7de48f19358ee8ea90fcb3cceab38f90212bb76b4a8ee14ac759b": {
+      "source": "Toggle selected brother's aggression",
+      "source_sha256": "509161e153b7de48f19358ee8ea90fcb3cceab38f90212bb76b4a8ee14ac759b",
+      "text": "Cambiar ataque del hermano elegido",
+      "status": "reviewed"
+    },
+    "ui:fdd368666e9749986d55e734352ba09e504d68e8c477d69a6db7ccfe09d93044": {
+      "source": "Set all brothers' aggression from selected brother",
+      "source_sha256": "fdd368666e9749986d55e734352ba09e504d68e8c477d69a6db7ccfe09d93044",
+      "text": "Copiar su modo de ataque a todos",
+      "status": "reviewed"
+    },
+    "ui:26430894eda77d2f62f4907f3620ba6f2758b9edc62365b2ecda4571b20adeb7": {
+      "source": "Toggle selected brother's party following",
+      "source_sha256": "26430894eda77d2f62f4907f3620ba6f2758b9edc62365b2ecda4571b20adeb7",
+      "text": "Cambiar seguimiento del hermano elegido",
+      "status": "reviewed"
+    },
+    "ui:a5bcbb67f956908addbd3b35ffdf2cbd2400f81f2928364420fcf3c91920d3f8": {
+      "source": "Set all brothers' following from selected brother",
+      "source_sha256": "a5bcbb67f956908addbd3b35ffdf2cbd2400f81f2928364420fcf3c91920d3f8",
+      "text": "Copiar su modo de seguimiento a todos",
+      "status": "reviewed"
+    },
+    "ui:9bb383306aa0f7eaf5d4c4b38b4ff0ca8310b10dd547b0b1ab2ca52b0b2926c3": {
+      "source": "Open Ideas",
+      "source_sha256": "9bb383306aa0f7eaf5d4c4b38b4ff0ca8310b10dd547b0b1ab2ca52b0b2926c3",
+      "text": "Abrir ideas",
+      "status": "reviewed"
+    },
+    "ui:43e332fddf6cb9057c3c7c1254798719425bc70aa2e5aee245f2034bf4bcf568": {
+      "source": "Open Spells",
+      "source_sha256": "43e332fddf6cb9057c3c7c1254798719425bc70aa2e5aee245f2034bf4bcf568",
+      "text": "Abrir hechizos",
+      "status": "reviewed"
+    },
+    "ui:7aebbafca025c8980cef19a5c189a1ddc13e38f12b85ff24ec2aa8cff91931f5": {
+      "source": "Open Skills",
+      "source_sha256": "7aebbafca025c8980cef19a5c189a1ddc13e38f12b85ff24ec2aa8cff91931f5",
+      "text": "Abrir habilidades",
+      "status": "reviewed"
+    },
+    "ui:d6cb71536a5d74db3577d40f9c6fd797bde58fc0efd505bd10d4bd17b679006a": {
+      "source": "Use selected brother's map",
+      "source_sha256": "d6cb71536a5d74db3577d40f9c6fd797bde58fc0efd505bd10d4bd17b679006a",
+      "text": "Usar mapa del hermano elegido",
+      "status": "reviewed"
+    },
+    "ui:bdba04dfaca6b2b8068828a4066e47c8c855c4e799b30ed67ccda1956b047cd2": {
+      "source": "Toggle music",
+      "source_sha256": "bdba04dfaca6b2b8068828a4066e47c8c855c4e799b30ed67ccda1956b047cd2",
+      "text": "Activar / desactivar música",
+      "status": "reviewed"
+    },
+    "ui:a9a51a410723ad237a3c075ec7ecf3a925dd6e0155a45e45fb317a6a87ac5d76": {
+      "source": "Dismiss speech and make selected brother wait",
+      "source_sha256": "a9a51a410723ad237a3c075ec7ecf3a925dd6e0155a45e45fb317a6a87ac5d76",
+      "text": "Cerrar diálogo y esperar con ese hermano",
+      "status": "reviewed"
+    },
+    "ui:434264b6671bace7fd2bba7243b83ac9cab812b9fd6a51b0f29fc148a8de0888": {
+      "source": "Options / close container (Esc)",
+      "source_sha256": "434264b6671bace7fd2bba7243b83ac9cab812b9fd6a51b0f29fc148a8de0888",
+      "text": "Opciones / cerrar inventario (Esc)",
+      "status": "reviewed"
+    },
+    "ui:26e93912c922b6cafce8148fd5d471e546890f99105d86a40af918c8e79846db": {
+      "source": "Switch fullscreen / window",
+      "source_sha256": "26e93912c922b6cafce8148fd5d471e546890f99105d86a40af918c8e79846db",
+      "text": "Pantalla completa / ventana",
+      "status": "reviewed"
+    },
+    "ui:ca8b40236ec3e044fc65325b9a1f76cfe471bf7f2f90c96f295b5e0b4d2d579a": {
+      "source": "Gameplay shortcuts may be unavailable during dialogue.",
+      "source_sha256": "ca8b40236ec3e044fc65325b9a1f76cfe471bf7f2f90c96f295b5e0b4d2d579a",
+      "text": "Algunas teclas no están disponibles durante el diálogo.",
+      "status": "reviewed"
+    },
+    "ui:1440ad5e3dd609d792bd878f52de661aab8d3efba0d0161aaa4db20a4acd4650": {
+      "source": "Widescreen (16:9)",
+      "source_sha256": "1440ad5e3dd609d792bd878f52de661aab8d3efba0d0161aaa4db20a4acd4650",
+      "text": "Ancho (16:9)",
+      "status": "reviewed"
+    },
+    "ui:ef02e11e380cc6986a581d5ce98cf9afc7583858bc94ca7d35e9b5e2253e3b9f": {
+      "source": "New layout",
+      "source_sha256": "ef02e11e380cc6986a581d5ce98cf9afc7583858bc94ca7d35e9b5e2253e3b9f",
+      "text": "Nuevo diseño",
+      "status": "reviewed"
+    },
+    "ui:1b50f7ffe3bbed771c9fa038d1b6333f982a6878201a0faf0572ca77f28122df": {
+      "source": "Show game time",
+      "source_sha256": "1b50f7ffe3bbed771c9fa038d1b6333f982a6878201a0faf0572ca77f28122df",
+      "text": "Hora del juego",
+      "status": "reviewed"
+    },
+    "ui:8af6ab2764d98e1e60cfbb2bad928d9b452e847e1aaf316d78bb124cd83aeae1": {
+      "source": "No saved games yet.\nUse Save in Options to create one.",
+      "source_sha256": "8af6ab2764d98e1e60cfbb2bad928d9b452e847e1aaf316d78bb124cd83aeae1",
+      "text": "No hay partidas guardadas.\nUsa Guardar en Opciones.",
+      "status": "reviewed"
+    },
+    "ui:e64d790715d21a043719bab24dfdf7e79166b11bd6c98e70b82db0f7160d7657": {
+      "source": "No map carried by the selected brother.",
+      "source_sha256": "e64d790715d21a043719bab24dfdf7e79166b11bd6c98e70b82db0f7160d7657",
+      "text": "El hermano elegido no lleva mapa.",
+      "status": "reviewed"
+    },
+    "ui:d1a744c88504e58a2dd248096248e00f03f608552a041551bd06d0e87901f6c7": {
+      "source": "Carried by Julian",
+      "source_sha256": "d1a744c88504e58a2dd248096248e00f03f608552a041551bd06d0e87901f6c7",
+      "text": "Lo lleva Julian",
+      "status": "reviewed"
+    },
+    "ui:e8d0c59516f4a272f301c715b5a2392f2ca3fae8c344f74446cfca5335237f7a": {
+      "source": "Carried by Phillip",
+      "source_sha256": "e8d0c59516f4a272f301c715b5a2392f2ca3fae8c344f74446cfca5335237f7a",
+      "text": "Lo lleva Phillip",
+      "status": "reviewed"
+    },
+    "ui:a8514f6ca0b13983c26396bce133df072fc0ed8b2836a9a47d3048e19b38aa0d": {
+      "source": "Carried by Kevin",
+      "source_sha256": "a8514f6ca0b13983c26396bce133df072fc0ed8b2836a9a47d3048e19b38aa0d",
+      "text": "Lo lleva Kevin",
+      "status": "reviewed"
+    },
+    "ui:df85c6dcbbd30c8424f15b365b730dbd30ea91805ecc9d743f30667b248391d6": {
+      "source": "Julian's abilities",
+      "source_sha256": "df85c6dcbbd30c8424f15b365b730dbd30ea91805ecc9d743f30667b248391d6",
+      "text": "Habilidades de Julian",
+      "status": "reviewed"
+    },
+    "ui:75456de92968e14dd275801a675604a0e87ee39f78d57a63b906413f0d85679e": {
+      "source": "Phillip's abilities",
+      "source_sha256": "75456de92968e14dd275801a675604a0e87ee39f78d57a63b906413f0d85679e",
+      "text": "Habilidades de Phillip",
+      "status": "reviewed"
+    },
+    "ui:0a254d0af7d68a06ee134cdd12d6f3d1f44f65e53c5d909b0e5ba5734173b41c": {
+      "source": "Kevin's abilities",
+      "source_sha256": "0a254d0af7d68a06ee134cdd12d6f3d1f44f65e53c5d909b0e5ba5734173b41c",
+      "text": "Habilidades de Kevin",
+      "status": "reviewed"
+    },
+    "ui:bd6f30ebb8914b66bbf7539813894537d6c4c8afe39905fa24bee31e8afce958": {
+      "source": "Day %u %02u:%02u",
+      "source_sha256": "bd6f30ebb8914b66bbf7539813894537d6c4c8afe39905fa24bee31e8afce958",
+      "text": "Día %u %02u:%02u",
+      "status": "reviewed"
+    },
+    "ui:a4fe65264ef7dbb38d104b1e81eb3350f3142f3d16f32bdec39b1d9b42c1b8d1": {
+      "source": "Language",
+      "source_sha256": "a4fe65264ef7dbb38d104b1e81eb3350f3142f3d16f32bdec39b1d9b42c1b8d1",
+      "text": "Idioma",
+      "status": "reviewed"
+    },
+    "ui:45b3adaa971661a112590c4fbc0aac4f48f31fc0e79a0665a64738121c462924": {
+      "source": "Language...",
+      "source_sha256": "45b3adaa971661a112590c4fbc0aac4f48f31fc0e79a0665a64738121c462924",
+      "text": "Idioma...",
+      "status": "reviewed"
+    },
+    "ui:31e392d1c0378beca611de66c0f4c71cba29159905cc54242d9bddee5b23d851": {
+      "source": "Apply",
+      "source_sha256": "31e392d1c0378beca611de66c0f4c71cba29159905cc54242d9bddee5b23d851",
+      "text": "Aplicar",
+      "status": "reviewed"
+    },
+    "ui:71a202e247217cea345210f334794edc727449c48507b5234ab73099284c4ba5": {
+      "source": "Select language",
+      "source_sha256": "71a202e247217cea345210f334794edc727449c48507b5234ab73099284c4ba5",
+      "text": "Elige un idioma",
+      "status": "reviewed"
+    },
+    "ui:fac7d0835a7256747702d2a902d22f0470197e81eac99166c1bd7ffb21ea6b94": {
+      "source": "%s has killed %s%s.",
+      "source_sha256": "fac7d0835a7256747702d2a902d22f0470197e81eac99166c1bd7ffb21ea6b94",
+      "text": "%s ha matado a %s%s.",
+      "status": "reviewed"
+    },
+    "ui:bae089c6e5aee3e71e49053617e78e5ccc81d04c41ee7ce3a063a48746c37753": {
+      "source": "%s, %d charges",
+      "source_sha256": "bae089c6e5aee3e71e49053617e78e5ccc81d04c41ee7ce3a063a48746c37753",
+      "text": "%s, %d cargas",
+      "status": "reviewed"
+    },
+    "ui:94eb20117a83d5e8199cb027f2ded90fa1a92b136509d8e106b59662a6f7a385": {
+      "source": "%s, %d charge",
+      "source_sha256": "94eb20117a83d5e8199cb027f2ded90fa1a92b136509d8e106b59662a6f7a385",
+      "text": "%s, %d carga",
+      "status": "reviewed"
+    },
+    "ui:plural.33.0": {
+      "source_sha256": "f223faa96f22916294922b171a2696d868fd1f9129302eb41a45b2a2ea2ebbfd",
+      "text": "manzana",
+      "status": "reviewed"
+    },
+    "ui:plural.33.1": {
+      "source_sha256": "f223faa96f22916294922b171a2696d868fd1f9129302eb41a45b2a2ea2ebbfd",
+      "text": "manzanas",
+      "status": "reviewed"
+    },
+    "ui:plural.33.2": {
+      "source_sha256": "f223faa96f22916294922b171a2696d868fd1f9129302eb41a45b2a2ea2ebbfd",
+      "text": "manzanas",
+      "status": "reviewed"
+    },
+    "ui:plural.42.0": {
+      "source_sha256": "05800e70aa10c86f5ab898d18ad6884245a149f3b945bb0bd8cd05a8e469cd27",
+      "text": "flecha",
+      "status": "reviewed"
+    },
+    "ui:plural.42.1": {
+      "source_sha256": "05800e70aa10c86f5ab898d18ad6884245a149f3b945bb0bd8cd05a8e469cd27",
+      "text": "flechas",
+      "status": "reviewed"
+    },
+    "ui:plural.42.2": {
+      "source_sha256": "05800e70aa10c86f5ab898d18ad6884245a149f3b945bb0bd8cd05a8e469cd27",
+      "text": "flechas",
+      "status": "reviewed"
+    },
+    "ui:plural.437.0": {
+      "source_sha256": "96960859445843e1e25783f66a148648d5e6a8553d5650af31de72eec1fd1adb",
+      "text": "moneda de oro",
+      "status": "reviewed"
+    },
+    "ui:plural.437.1": {
+      "source_sha256": "96960859445843e1e25783f66a148648d5e6a8553d5650af31de72eec1fd1adb",
+      "text": "monedas de oro",
+      "status": "reviewed"
+    },
+    "ui:plural.437.2": {
+      "source_sha256": "96960859445843e1e25783f66a148648d5e6a8553d5650af31de72eec1fd1adb",
+      "text": "monedas de oro",
+      "status": "reviewed"
+    },
+    "ui:plural.439.0": {
+      "source_sha256": "ac44191793542e454c10bad6b7b4b775b455198365112b1f76f34b30fd45e41d",
+      "text": "pepita de oro",
+      "status": "reviewed"
+    },
+    "ui:plural.439.1": {
+      "source_sha256": "ac44191793542e454c10bad6b7b4b775b455198365112b1f76f34b30fd45e41d",
+      "text": "pepitas de oro",
+      "status": "reviewed"
+    },
+    "ui:plural.439.2": {
+      "source_sha256": "ac44191793542e454c10bad6b7b4b775b455198365112b1f76f34b30fd45e41d",
+      "text": "pepitas de oro",
+      "status": "reviewed"
+    },
+    "ui:plural.929.0": {
+      "source_sha256": "c63786f264ce26d49d68f6b4d44a3ec74a1aae556a227c1c32a7948007e2b142",
+      "text": "pepita de plata",
+      "status": "reviewed"
+    },
+    "ui:plural.929.1": {
+      "source_sha256": "c63786f264ce26d49d68f6b4d44a3ec74a1aae556a227c1c32a7948007e2b142",
+      "text": "pepitas de plata",
+      "status": "reviewed"
+    },
+    "ui:plural.929.2": {
+      "source_sha256": "c63786f264ce26d49d68f6b4d44a3ec74a1aae556a227c1c32a7948007e2b142",
+      "text": "pepitas de plata",
+      "status": "reviewed"
+    },
+    "ui:plural.261.0": {
+      "source_sha256": "22c746762022bf97702777fde6176fd5be3219988aec1b8563d4869025f7b478",
+      "text": "flecha de viento",
+      "status": "reviewed"
+    },
+    "ui:plural.261.1": {
+      "source_sha256": "22c746762022bf97702777fde6176fd5be3219988aec1b8563d4869025f7b478",
+      "text": "flechas de viento",
+      "status": "reviewed"
+    },
+    "ui:plural.261.2": {
+      "source_sha256": "22c746762022bf97702777fde6176fd5be3219988aec1b8563d4869025f7b478",
+      "text": "flechas de viento",
+      "status": "reviewed"
+    },
+    "ui:plural.335.0": {
+      "source_sha256": "03320ccd56818f6c51b51ee0d9cf1b4f9ca755f0c3aec55a93fd9f03d5f97148",
+      "text": "flecha encantada",
+      "status": "reviewed"
+    },
+    "ui:plural.335.1": {
+      "source_sha256": "03320ccd56818f6c51b51ee0d9cf1b4f9ca755f0c3aec55a93fd9f03d5f97148",
+      "text": "flechas encantadas",
+      "status": "reviewed"
+    },
+    "ui:plural.335.2": {
+      "source_sha256": "03320ccd56818f6c51b51ee0d9cf1b4f9ca755f0c3aec55a93fd9f03d5f97148",
+      "text": "flechas encantadas",
+      "status": "reviewed"
+    },
+    "ui:plural.374.0": {
+      "source_sha256": "e46a2cb143ee373cd1b82304efdffd7d6060190d57dfbaf6b0beaeaf039d7664",
+      "text": "flecha de fuego",
+      "status": "reviewed"
+    },
+    "ui:plural.374.1": {
+      "source_sha256": "e46a2cb143ee373cd1b82304efdffd7d6060190d57dfbaf6b0beaeaf039d7664",
+      "text": "flechas de fuego",
+      "status": "reviewed"
+    },
+    "ui:plural.374.2": {
+      "source_sha256": "e46a2cb143ee373cd1b82304efdffd7d6060190d57dfbaf6b0beaeaf039d7664",
+      "text": "flechas de fuego",
+      "status": "reviewed"
+    },
+    "ui:plural.396.0": {
+      "source_sha256": "d87b1938041f781d10071b542c309870ca700c3d8de335e9f96060ff4a86bb24",
+      "text": "flecha de hielo",
+      "status": "reviewed"
+    },
+    "ui:plural.396.1": {
+      "source_sha256": "d87b1938041f781d10071b542c309870ca700c3d8de335e9f96060ff4a86bb24",
+      "text": "flechas de hielo",
+      "status": "reviewed"
+    },
+    "ui:plural.396.2": {
+      "source_sha256": "d87b1938041f781d10071b542c309870ca700c3d8de335e9f96060ff4a86bb24",
+      "text": "flechas de hielo",
+      "status": "reviewed"
+    },
+    "ui:plural.405.0": {
+      "source_sha256": "8c703ba822bcf059b4cd7b104853144794400ac1c32ed3df62f8fcbb0f00b84a",
+      "text": "gema",
+      "status": "reviewed"
+    },
+    "ui:plural.405.1": {
+      "source_sha256": "8c703ba822bcf059b4cd7b104853144794400ac1c32ed3df62f8fcbb0f00b84a",
+      "text": "gemas",
+      "status": "reviewed"
+    },
+    "ui:plural.405.2": {
+      "source_sha256": "8c703ba822bcf059b4cd7b104853144794400ac1c32ed3df62f8fcbb0f00b84a",
+      "text": "gemas",
+      "status": "reviewed"
+    },
+    "ui:plural.1020.0": {
+      "source_sha256": "b7697335eb6dd04f01aa1dff2a1e7216986138357b8900cebbe8a92a49c7895f",
+      "text": "flecha solar",
+      "status": "reviewed"
+    },
+    "ui:plural.1020.1": {
+      "source_sha256": "b7697335eb6dd04f01aa1dff2a1e7216986138357b8900cebbe8a92a49c7895f",
+      "text": "flechas solares",
+      "status": "reviewed"
+    },
+    "ui:plural.1020.2": {
+      "source_sha256": "b7697335eb6dd04f01aa1dff2a1e7216986138357b8900cebbe8a92a49c7895f",
+      "text": "flechas solares",
+      "status": "reviewed"
+    },
+    "ui:4ee447c54034cee13e9a49e783d669f045a0f7a69fa26693cb9de6bdc449e794": {
+      "source": "Invisible",
+      "source_sha256": "4ee447c54034cee13e9a49e783d669f045a0f7a69fa26693cb9de6bdc449e794",
+      "text": "Invisible",
+      "status": "reviewed"
+    },
+    "ui:ca3d51a3342bacb6794caf3416ab06a3408ca6d17c844e92e8e8087d92d82743": {
+      "source": "Detect Poison",
+      "source_sha256": "ca3d51a3342bacb6794caf3416ab06a3408ca6d17c844e92e8e8087d92d82743",
+      "text": "Detectar veneno",
+      "status": "reviewed"
+    },
+    "ui:d200426bc3a6577ddda71995e78f33175f7a2ecf35292be6105a1b4ffe68c999": {
+      "source": "Soul Sight",
+      "source_sha256": "d200426bc3a6577ddda71995e78f33175f7a2ecf35292be6105a1b4ffe68c999",
+      "text": "Visión del alma",
+      "status": "reviewed"
+    },
+    "ui:c70f173cfd76693793ac133b3bbb2bc79fce03ee1ff75e0715cfcbb9f275aad1": {
+      "source": "Clumsy",
+      "source_sha256": "c70f173cfd76693793ac133b3bbb2bc79fce03ee1ff75e0715cfcbb9f275aad1",
+      "text": "Torpe",
+      "status": "reviewed"
+    },
+    "ui:8fdac69c6fe9cdbc7838eb4a48aa6f6bcfc35088370847233061054f30f25b34": {
+      "source": "Frozen",
+      "source_sha256": "8fdac69c6fe9cdbc7838eb4a48aa6f6bcfc35088370847233061054f30f25b34",
+      "text": "Congelado",
+      "status": "reviewed"
+    },
+    "ui:ea39975f597730facca467b31c88c11999a3d55104668cf733deb8e03b4a6420": {
+      "source": "Constrained",
+      "source_sha256": "ea39975f597730facca467b31c88c11999a3d55104668cf733deb8e03b4a6420",
+      "text": "Inmovilizado",
+      "status": "reviewed"
+    },
+    "ui:82621de39a42bb193c88f1cadb96f266a8c4dc01f6122d15f1541eeaf00f007c": {
+      "source": "Seawalk",
+      "source_sha256": "82621de39a42bb193c88f1cadb96f266a8c4dc01f6122d15f1541eeaf00f007c",
+      "text": "Caminar sobre el mar",
+      "status": "reviewed"
+    },
+    "ui:de3b46da4da8a98c381a34e6ef1326411f01962e4bb094b007055b41e1d37ce4": {
+      "source": "Haste",
+      "source_sha256": "de3b46da4da8a98c381a34e6ef1326411f01962e4bb094b007055b41e1d37ce4",
+      "text": "Prisa",
+      "status": "reviewed"
+    },
+    "ui:e0a9c259faa32c4394d0aaa77b8e832d75be57067e58bf7a0c3516c6975df2a5": {
+      "source": "Fire Walk",
+      "source_sha256": "e0a9c259faa32c4394d0aaa77b8e832d75be57067e58bf7a0c3516c6975df2a5",
+      "text": "Caminar sobre fuego",
+      "status": "reviewed"
+    },
+    "ui:b46c31b017bcaf97fd8d88b585f68e24edf37bcbcbf09d651cd4b735c4acca18": {
+      "source": "Surestrike",
+      "source_sha256": "b46c31b017bcaf97fd8d88b585f68e24edf37bcbcbf09d651cd4b735c4acca18",
+      "text": "Golpe certero",
+      "status": "reviewed"
+    },
+    "ui:af14467fe30ef5e4bf19a26b0cdc504bd64e054aa00586945c51521234b076dc": {
+      "source": "Adrenal Fervor",
+      "source_sha256": "af14467fe30ef5e4bf19a26b0cdc504bd64e054aa00586945c51521234b076dc",
+      "text": "Fervor de adrenalina",
+      "status": "reviewed"
+    },
+    "ui:ac9db26b5fd79884752aa2ce6c6ddbbe167c257fba9b9f4ead9431a38009b2b6": {
+      "source": "Inner Balance",
+      "source_sha256": "ac9db26b5fd79884752aa2ce6c6ddbbe167c257fba9b9f4ead9431a38009b2b6",
+      "text": "Equilibrio interior",
+      "status": "reviewed"
+    },
+    "ui:93aaff1c9efb4c2875d92a1fc4eafc68b4c3ef35dfebb222e3f5535466265b50": {
+      "source": "Shadow Walk",
+      "source_sha256": "93aaff1c9efb4c2875d92a1fc4eafc68b4c3ef35dfebb222e3f5535466265b50",
+      "text": "Caminar entre sombras",
+      "status": "reviewed"
+    },
+    "ui:636e0314fde9342b800bf9620d1c6d575008242bd2b83333b58992a3ede1a7e9": {
+      "source": "Battle Fever",
+      "source_sha256": "636e0314fde9342b800bf9620d1c6d575008242bd2b83333b58992a3ede1a7e9",
+      "text": "Furia de batalla",
+      "status": "reviewed"
+    },
+    "ui:e4ba133ebf4933a3a27306808f86d692c204116eb3d838318d25135fbcc7eefa": {
+      "source": "Sun Ward",
+      "source_sha256": "e4ba133ebf4933a3a27306808f86d692c204116eb3d838318d25135fbcc7eefa",
+      "text": "Protección solar",
+      "status": "reviewed"
+    },
+    "ui:c752254602d6442686c05b78c649bada74120a4d771ef5e64a9ab3b8720d7dfd": {
+      "source": "Nether Ward",
+      "source_sha256": "c752254602d6442686c05b78c649bada74120a4d771ef5e64a9ab3b8720d7dfd",
+      "text": "Protección del inframundo",
+      "status": "reviewed"
+    },
+    "ui:605f0f2df525d1bc16e3945e524f2b534e96530837cecdae2bc74a5b4feba45b": {
+      "source": "Spell Barrier",
+      "source_sha256": "605f0f2df525d1bc16e3945e524f2b534e96530837cecdae2bc74a5b4feba45b",
+      "text": "Barrera mágica",
+      "status": "reviewed"
+    },
+    "ui:7bf3364687f63e953496087100ea3ecc78ffdafbc6893fd3599f8a9933c70472": {
+      "source": "Ironskin",
+      "source_sha256": "7bf3364687f63e953496087100ea3ecc78ffdafbc6893fd3599f8a9933c70472",
+      "text": "Piel de hierro",
+      "status": "reviewed"
+    },
+    "ui:81fca4fb2ea7e46e773372bc22e11754b19655cb24f3bc047f378513804b5aa5": {
+      "source": "Numbscent",
+      "source_sha256": "81fca4fb2ea7e46e773372bc22e11754b19655cb24f3bc047f378513804b5aa5",
+      "text": "Sin olor",
+      "status": "reviewed"
+    },
+    "ui:ed08d8a7bd34dce3d61ff6c2fe17536b928446196242bdb1e2deac4e956eae26": {
+      "source": "Protection from Evil",
+      "source_sha256": "ed08d8a7bd34dce3d61ff6c2fe17536b928446196242bdb1e2deac4e956eae26",
+      "text": "Protección contra el mal",
+      "status": "reviewed"
+    },
+    "ui:5c6c4be59408fb2c8fd5fd00b55c02514b19aefdbf8bffc81acbba71fc873dab": {
+      "source": "Protection from Undead",
+      "source_sha256": "5c6c4be59408fb2c8fd5fd00b55c02514b19aefdbf8bffc81acbba71fc873dab",
+      "text": "Protección contra no muertos",
+      "status": "reviewed"
+    },
+    "ui:b310af16f9430b1d83f1f44f83a2c477f0ab452577f239df4a1c07ba0a17f7e3": {
+      "source": "Protection from Ghosts",
+      "source_sha256": "b310af16f9430b1d83f1f44f83a2c477f0ab452577f239df4a1c07ba0a17f7e3",
+      "text": "Protección contra fantasmas",
+      "status": "reviewed"
+    },
+    "ui:1d9547574fc13531e0ec53240124a2f95e293e2ce679212817484ae30bb7717e": {
+      "source": "Cushion of Air",
+      "source_sha256": "1d9547574fc13531e0ec53240124a2f95e293e2ce679212817484ae30bb7717e",
+      "text": "Colchón de aire",
+      "status": "reviewed"
+    },
+    "ui:86c720feec1f90f11f2cc40b48ce5adf4be87b8c4563514df859c302b6ece3ce": {
+      "source": "Resist impact damage",
+      "source_sha256": "86c720feec1f90f11f2cc40b48ce5adf4be87b8c4563514df859c302b6ece3ce",
+      "text": "Resistir golpes",
+      "status": "reviewed"
+    },
+    "ui:45cb954049cc2a464ae4825ad7609ea21a3c6c0c764f3a42dbbdff5bfb95f8da": {
+      "source": "Resist slashing damage",
+      "source_sha256": "45cb954049cc2a464ae4825ad7609ea21a3c6c0c764f3a42dbbdff5bfb95f8da",
+      "text": "Resistir cortes",
+      "status": "reviewed"
+    },
+    "ui:4a69caa137fcdb4b84a39b764ab50d42f82f4cf9676287b561cfa5457cbbd204": {
+      "source": "Resist projectile damage",
+      "source_sha256": "4a69caa137fcdb4b84a39b764ab50d42f82f4cf9676287b561cfa5457cbbd204",
+      "text": "Resistir proyectiles",
+      "status": "reviewed"
+    },
+    "ui:3e0d702d057bd687dc0e200eb4d3be519dbe3610bea6b0d73afd1a2b45eeef5a": {
+      "source": "Resist Fire / Yellow Magic",
+      "source_sha256": "3e0d702d057bd687dc0e200eb4d3be519dbe3610bea6b0d73afd1a2b45eeef5a",
+      "text": "Resistir fuego / magia amarilla",
+      "status": "reviewed"
+    },
+    "ui:8b73cb7696b55d11899fffede5d532412f297103ac1b53ed8ad859bd4d70370d": {
+      "source": "Resist Acid / Violet Magic",
+      "source_sha256": "8b73cb7696b55d11899fffede5d532412f297103ac1b53ed8ad859bd4d70370d",
+      "text": "Resistir ácido / magia violeta",
+      "status": "reviewed"
+    },
+    "ui:9593f7d8f38b1ee83b45b8deb8a930c29ce48aca2aec89a013242eb448ec97d0": {
+      "source": "Resist Heat / Red Magic",
+      "source_sha256": "9593f7d8f38b1ee83b45b8deb8a930c29ce48aca2aec89a013242eb448ec97d0",
+      "text": "Resistir calor / magia roja",
+      "status": "reviewed"
+    },
+    "ui:164a48781d99016ca662bf4174550bfe0d2a752eca6ec4dcce3c149ec77cc22a": {
+      "source": "Resist Cold / Blue Magic",
+      "source_sha256": "164a48781d99016ca662bf4174550bfe0d2a752eca6ec4dcce3c149ec77cc22a",
+      "text": "Resistir frío / magia azul",
+      "status": "reviewed"
+    },
+    "ui:4198d9e6e642ea67989508d70770118dbeb8c71a4b02cf1562542f4a33f77030": {
+      "source": "Resist Lightning / Orange Magic",
+      "source_sha256": "4198d9e6e642ea67989508d70770118dbeb8c71a4b02cf1562542f4a33f77030",
+      "text": "Resistir rayos / magia naranja",
+      "status": "reviewed"
+    },
+    "ui:e26eb2518104cff83eb81a450fefc78c856c907a5b1cb0caab915f7be35cea98": {
+      "source": "Resist Poison / Green Magic",
+      "source_sha256": "e26eb2518104cff83eb81a450fefc78c856c907a5b1cb0caab915f7be35cea98",
+      "text": "Resistir veneno / magia verde",
+      "status": "reviewed"
+    },
+    "ui:f4bfab4005eeef417d185db0daf3be76da29dfdb3b1a7da8dc35b246c2e61818": {
+      "source": "Resist Mental Damage",
+      "source_sha256": "f4bfab4005eeef417d185db0daf3be76da29dfdb3b1a7da8dc35b246c2e61818",
+      "text": "Resistir daño mental",
+      "status": "reviewed"
+    },
+    "ui:a418854ac3307429bb2d5e611df9144d80caa600a719a419ed536002477bd61c": {
+      "source": "Resist Direct Magic",
+      "source_sha256": "a418854ac3307429bb2d5e611df9144d80caa600a719a419ed536002477bd61c",
+      "text": "Resistir magia directa",
+      "status": "reviewed"
+    },
+    "ui:81f8a5c6893c53526cd50fcbb24193b81daf63a0ac586bb142ff088abc23a629": {
+      "source": "Immunity to Fire / Yellow Magic",
+      "source_sha256": "81f8a5c6893c53526cd50fcbb24193b81daf63a0ac586bb142ff088abc23a629",
+      "text": "Inmune a fuego / magia amarilla",
+      "status": "reviewed"
+    },
+    "ui:d665a88a9d2d0d66f7d1772864b8f73d860345b3a70362638fbc2f094a0d3e05": {
+      "source": "Immunity to Acid / Violet Magic",
+      "source_sha256": "d665a88a9d2d0d66f7d1772864b8f73d860345b3a70362638fbc2f094a0d3e05",
+      "text": "Inmune a ácido / magia violeta",
+      "status": "reviewed"
+    },
+    "ui:caced26f481dd0ec3086b7de01947dc97e6fc542a786e8fbb20b4184d0a8642e": {
+      "source": "Immunity to Heat / Red Magic",
+      "source_sha256": "caced26f481dd0ec3086b7de01947dc97e6fc542a786e8fbb20b4184d0a8642e",
+      "text": "Inmune a calor / magia roja",
+      "status": "reviewed"
+    },
+    "ui:3d7e8261097167c85fd23590db8f2bb03c8caa5b1cfaa152546a00207a980958": {
+      "source": "Immunity to Cold / Blue Magic",
+      "source_sha256": "3d7e8261097167c85fd23590db8f2bb03c8caa5b1cfaa152546a00207a980958",
+      "text": "Inmune a frío / magia azul",
+      "status": "reviewed"
+    },
+    "ui:831dbd2d3d37a5380503b965145558c83cd75ec5c1bc7877068b275785b4f08b": {
+      "source": "Immunity to Lightning / Orange Magic",
+      "source_sha256": "831dbd2d3d37a5380503b965145558c83cd75ec5c1bc7877068b275785b4f08b",
+      "text": "Inmune a rayos / magia naranja",
+      "status": "reviewed"
+    },
+    "ui:a440eaeb924f5387e85a6bd03ba8ece279770411fdd1d5d3a072968c4cb93b29": {
+      "source": "Immunity to Poison / Green Magic",
+      "source_sha256": "a440eaeb924f5387e85a6bd03ba8ece279770411fdd1d5d3a072968c4cb93b29",
+      "text": "Inmune a veneno / magia verde",
+      "status": "reviewed"
+    },
+    "ui:fa296f65b871f73825c13d75ceaf157113cd1dd3686e31d6773d8e25b9df77ca": {
+      "source": "Immunity to Mental Damage",
+      "source_sha256": "fa296f65b871f73825c13d75ceaf157113cd1dd3686e31d6773d8e25b9df77ca",
+      "text": "Inmune al daño mental",
+      "status": "reviewed"
+    },
+    "ui:474bb293f12db7c5957bb5faa63cdf3bde7cca431854db3b75ebfa6e806918db": {
+      "source": "Save screenshot",
+      "source_sha256": "474bb293f12db7c5957bb5faa63cdf3bde7cca431854db3b75ebfa6e806918db",
+      "text": "Guardar captura",
+      "status": "reviewed"
+    },
+    "ui:b2f50b9fd37c4a88ee2e2a7e066604e1fd4ced7fe5e3938a29af6dba5fd519ff": {
+      "source": "Screenshot saved.",
+      "source_sha256": "b2f50b9fd37c4a88ee2e2a7e066604e1fd4ced7fe5e3938a29af6dba5fd519ff",
+      "text": "Captura guardada.",
+      "status": "reviewed"
+    },
+    "ui:a2c4dd75212cacfb34406d968a2fb41b11e57977da440b792ade6bed06f972de": {
+      "source": "Screenshot saved in user folder.",
+      "source_sha256": "a2c4dd75212cacfb34406d968a2fb41b11e57977da440b792ade6bed06f972de",
+      "text": "Captura en la carpeta de usuario.",
+      "status": "reviewed"
+    },
+    "ui:bd8dcb94543a04e8529edc3055d610831859d7ff4a9fd1e9483a4f25864f391e": {
+      "source": "Screenshot failed.",
+      "source_sha256": "bd8dcb94543a04e8529edc3055d610831859d7ff4a9fd1e9483a4f25864f391e",
+      "text": "No se pudo guardar la captura.",
+      "status": "reviewed"
+    }
+  }
+}

@@ -609,7 +609,7 @@ Location GameObject::notGetWorldLocation() {
 void GameObject::objCursorText(char nameBuf[], const int8 size, int16 count) {
 	const int addTextSize   = 10;
 	auto checkSize = [&](size_t length) {
-		if (Native::language() == Native::Language::Czech && length >= (size_t)size)
+		if (Native::language() != Native::Language::English && length >= (size_t)size)
 			Native::reportTextOverflow("object tooltip buffer", length, 1, size - 1, 1);
 	};
 	auto copyName = [&](const char *text) {
@@ -634,7 +634,7 @@ void GameObject::objCursorText(char nameBuf[], const int8 size, int16 count) {
 		        &&  _data.bParam != Permanent) {
 			uint16 charges = _data.bParam;
 
-			if (charges == 1) {
+			if (charges == 1 || (Native::language() == Native::Language::French && charges == 0)) {
 				formatName(SINGLE_CHARGE, objName(), charges);
 			} else {
 				formatName(

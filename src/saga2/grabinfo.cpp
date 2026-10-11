@@ -334,7 +334,7 @@ void GrabInfo::replaceObject() {
 void GrabInfo::setText(const char *txt) {
 	txt = Native::ui(txt);
 	if ((txt != nullptr) && strlen(txt)) {
-		if (Native::language() == Native::Language::Czech && strlen(txt) >= kBufSize)
+		if (Native::language() != Native::Language::English && strlen(txt) >= kBufSize)
 			Native::reportTextOverflow("hover text buffer", strlen(txt), 1, kBufSize - 1, 1);
 		Native::strlcpy(_textBuf, txt, kBufSize);
 		if (_grabObj == nullptr)

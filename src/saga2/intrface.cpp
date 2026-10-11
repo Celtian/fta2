@@ -339,7 +339,7 @@ ResName broNames[] = {
 class LocalizedNamePlate : public GfxCompImage {
 	void drawClipped(gPort &port, const Point16 &offset, const Rect16 &clip) override {
 		void *image = getCurrentCompImage();
-		if (Native::language() == Native::Language::English || image == namePlateImages[2]) {
+		if (Native::language() != Native::Language::Czech || image == namePlateImages[2]) {
 			GfxCompImage::drawClipped(port, offset, clip);
 			return;
 		}
@@ -1714,7 +1714,7 @@ void writePlaqText(gPort            &port,
 	cnt = Native::vsprintf_s(lineBuf, msg, argptr);
 	va_end(argptr);
 	if (cnt >= (int)sizeof(lineBuf)) {
-		if (Native::language() == Native::Language::Czech)
+		if (Native::language() != Native::Language::English)
 			Native::reportTextOverflow("embossed text buffer", cnt, 1, sizeof(lineBuf) - 1, 1);
 		cnt = strlen(lineBuf);
 	}

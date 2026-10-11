@@ -10,7 +10,10 @@ struct gFont;
 }
 
 namespace Native {
-enum class Language : uint8 { English, Czech };
+// Values are persisted in optional NLOC speech records; never reorder them.
+enum class Language : uint8 { English, Czech, Spanish, French };
+const char* languageCode(Language value);
+bool validLanguage(uint8 value);
 // Owned presentation inputs can be rendered again after the language changes.
 struct LocalizedMessage {
     String key, original;

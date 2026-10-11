@@ -50,13 +50,58 @@ class LocalizationTests(unittest.TestCase):
                 l10n.read_catalog(path)
 
     def test_distributed_catalogs_have_no_original_game_corpus(self):
-        for path in sorted((ROOT / "localization").glob("cs-*.json")):
+        for path in sorted(path for pattern in ("*-ui.json", "*-game.json")
+                           for path in (ROOT / "localization").glob(pattern)):
             entries = l10n.read_catalog(path)
             for key, value in entries.items():
                 if not key.startswith("ui:"):
                     self.assertNotIn("source", value)
                     if value["status"] == "preserve":
                         self.assertEqual(value["text"], "")
+
+    def test_catalogs_are_scoped_by_language_and_encoding(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            paths = []
+            for language, text in (("cs", "Čeština"), ("es", "Español"), ("fr", "Français, cœur")):
+                path = Path(tmp) / f"{language}.json"
+                path.write_text(json.dumps({"schema_version": 1, "language": language,
+                    "entries": {"ui:same": {"source_sha256": "0" * 64,
+                    "text": text, "status": "reviewed"}}}), encoding="utf-8")
+                paths.append(path)
+            target = Path(tmp) / "catalog.inc"
+            l10n.compile_catalog(paths, target)
+            result = target.read_text()
+            for language in ("cs", "es", "fr"):
+                self.assertIn(f'"{language}:ui:same"', result)
+            for glyph in (r"\310", r"\361", r"\347", r"\234"):
+                self.assertIn(glyph, result)
+            with self.assertRaises(l10n.DataError):
+                l10n.compile_catalog(paths + paths[:1], target)
+
+    def test_new_languages_cover_the_catalog_and_keep_original_fingerprints(self):
+        names = l10n.read_catalog(ROOT / "localization/cs-game.json")
+        interface = l10n.read_catalog(ROOT / "localization/cs-ui.json")
+        for language in ("es", "fr"):
+            for kind, original in (("game", names), ("ui", interface)):
+                entries = l10n.read_catalog(ROOT / f"localization/{language}-{kind}.json")
+                self.assertEqual(entries.keys(), original.keys())
+                for key, value in entries.items():
+                    self.assertEqual(value["source_sha256"], original[key]["source_sha256"])
+                    if "source" in value:
+                        self.assertEqual(l10n.TOKENS.findall(value["source"]),
+                                         l10n.TOKENS.findall(value["text"]))
+            self.assertFalse(any(v["status"] == "draft" for v in entries.values()))
+
+    def test_new_name_buffers_and_counted_item_terminology(self):
+        for language in ("es", "fr"):
+            game = l10n.read_catalog(ROOT / f"localization/{language}-game.json")
+            ui = l10n.read_catalog(ROOT / f"localization/{language}-ui.json")
+            for key, value in game.items():
+                if key.startswith("name:"):
+                    self.assertLess(len(value["text"].encode("cp1252")), 54, key)
+            for key, value in ui.items():
+                if key.startswith("ui:plural.") and key.endswith(".0"):
+                    self.assertEqual(game["name:" + key.split(".")[1]]["text"], value["text"])
 
     def test_drafts_do_not_count_as_complete(self):
         with tempfile.TemporaryDirectory() as tmp:

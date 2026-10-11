@@ -12,7 +12,8 @@ static void check(bool value, const char* message) {
 }
 
 static std::vector<byte> speechSave(const String& display, unsigned ordinal = 0,
-                                    bool validHash = true, bool localization = true) {
+                                    bool validHash = true, bool localization = true,
+                                    unsigned language = 1) {
     MemoryWriteStreamDynamic out;
     byte header[128]{};
     memcpy(header, "FTA2", 4);
@@ -40,7 +41,7 @@ static std::vector<byte> speechSave(const String& display, unsigned ordinal = 0,
         out.writeUint16LE(1);
         out.writeUint16LE(1);
         out.writeUint16LE(ordinal);
-        out.writeByte(1);
+        out.writeByte(language);
         out.writeByte(0);
         auto hash = sha256(reinterpret_cast<const byte*>(original.data()), original.size());
         if (!validHash)
@@ -110,6 +111,40 @@ int main() {
         check(language() == Language::Czech && !ConfMan.getBool("subtitles"),
               "Language/subtitle preferences did not survive reload");
 
+        for (auto value : {Language::Spanish, Language::French}) {
+            requestLanguage(value);
+            check(applyPendingLanguage() && ConfMan.getBool("subtitles"),
+                  "A new translated language must enable subtitles");
+            check(ConfMan.getPath("language").toString() == languageCode(value),
+                  "Language code was not persisted");
+            check(String(ui("Language")) == (value == Language::Spanish ? "Idioma" : "Langue"),
+                  "New interface catalog lookup failed");
+            check(String(localizedName(545, "Julian")) == "Julian",
+                  "New languages changed the original brother name");
+            check(countedName(437, "Gold Coin", 2) ==
+                      (value == Language::Spanish ? "2 monedas de oro" : "2 pi\350ces d'or"),
+                  "New languages used English or Czech plural suffixes");
+            check(countedName(437, "Gold Coin", 0) ==
+                      (value == Language::Spanish ? "0 monedas de oro" : "0 pi\350ce d'or"),
+                  "Zero items did not use the language-specific number form");
+            check(countedName(437, "Gold Coin", 1) ==
+                      (value == Language::Spanish ? "1 moneda de oro" : "1 pi\350ce d'or"),
+                  "One item did not use the singular form");
+            ConfMan.setBool("subtitles", false);
+            requestLanguage(value);
+            check(!applyPendingLanguage() && !ConfMan.getBool("subtitles"),
+                  "Same-language Apply enabled subtitles again");
+            ConfMan.flushToDisk();
+            ConfMan.load();
+            initializeLanguage();
+            check(language() == value && !ConfMan.getBool("subtitles"),
+                  "New language preference did not survive restart");
+        }
+        check(validLanguage(0) && validLanguage(3) && !validLanguage(4) && !validLanguage(255),
+              "Saved language range is invalid");
+        requestLanguage(Language::Czech);
+        applyPendingLanguage();
+
         Saga2::gFont font{};
         font.height = 11;
         font.baseLine = 8;
@@ -122,6 +157,13 @@ int main() {
             for (int y = 3; y < 8; ++y)
                 original[y * font.rowMod + c] = 0x70;
         }
+        // An asymmetric question mark distinguishes rotation from a vertical reflection.
+        for (int y = 0; y < font.height; ++y)
+            original[y * font.rowMod + '?'] = 0;
+        original[3 * font.rowMod + '?'] = 0x80;
+        original[4 * font.rowMod + '?'] = 0x40;
+        original[5 * font.rowMod + '?'] = 0x20;
+        original[7 * font.rowMod + '?'] = 0x20;
         font.fontdata = original.data();
         const auto baseline = original;
         auto* cs = localizedFont(&font, Language::Czech);
@@ -134,6 +176,33 @@ int main() {
             check(cs->fontdata[cs->charXOffset[c]] != 0 ||
                       cs->fontdata[cs->rowMod + cs->charXOffset[c]] != 0,
                   "Czech accent is missing");
+        }
+        auto* es = localizedFont(&font, Language::Spanish);
+        auto* fr = localizedFont(&font, Language::French);
+        check(es != cs && fr != cs && es != fr && original == baseline,
+              "Western fonts reused the Czech encoding or modified original pixels");
+        for (auto* western : {es, fr}) {
+            for (byte c : {byte(0xf1), byte(0xe0), byte(0xea), byte(0xef), byte(0xfc)})
+                check(western->charWidth[c] == 5 && western->charSpace[c] == 6 &&
+                          western->fontdata[western->charXOffset[c]] != 0,
+                      "Western accent or original glyph advance was lost");
+            for (int y = 3; y <= 7; ++y)
+                for (int x = 0; x < 5; ++x) {
+                    const bool sourceInk =
+                        original[(10 - y) * font.rowMod + '?'] & (0x80 >> (4 - x));
+                    const bool invertedInk =
+                        western->fontdata[y * western->rowMod + western->charXOffset[0xbf]] &
+                        (0x80 >> x);
+                    check(sourceInk == invertedInk,
+                          "Spanish inverted question mark is not rotated 180 degrees");
+                }
+            check(western->charWidth[0x9c] == 10 && western->charSpace[0x9c] == 12,
+                  "French oe ligature metrics are invalid");
+            check(western->fontdata[8 * western->rowMod + western->charXOffset[0xe7]] != 0 &&
+                      western->fontdata[9 * western->rowMod + western->charXOffset[0xe7]] != 0,
+                  "French cedilla is missing below the baseline");
+            check(localizedFont(western, Language::Czech) == western,
+                  "An explicitly bound foreign-language label was recoded");
         }
         {
             Saga2::gPixelMap bitmap;
@@ -156,9 +225,17 @@ int main() {
             MemoryReadStream input(bytes.data(), bytes.size());
             validateSave(input);
         }
+        for (unsigned value : {2u, 3u}) {
+            auto bytes = speechSave("Synthetic: @Oui@Non", 0, true, true, value);
+            MemoryReadStream input(bytes.data(), bytes.size());
+            validateSave(input);
+        }
         for (auto bytes :
              {speechSave("Zkou\232ka: @Ano"), speechSave("Zkou\232ka: @Ano@Ne", 1),
-              speechSave("Zkou\232ka: @Ano@Ne", 0, false), speechSave(String("bad\0text", 8))}) {
+              speechSave("Zkou\232ka: @Ano@Ne", 0, false), speechSave(String("bad\0text", 8)),
+              speechSave("Synthetic: @Yes@No", 0, true, true, 0),
+              speechSave("Synthetic: @Yes@No", 0, true, true, 4),
+              speechSave("Synthetic: @Yes@No", 0, true, true, 255)}) {
             MemoryReadStream input(bytes.data(), bytes.size());
             bool rejected = false;
             try {

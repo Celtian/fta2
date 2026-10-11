@@ -19,6 +19,7 @@ INPUT_HASHES = {
     "FTA.HRS": "1d4fc56861bdc3f0e1dda1a21f48991e350dd8213fb694484f0f7fa731c7055d",
     "SCRIPTS.HRS": "ddb3747ed47e1d6a420165d28e1d7f3e66abd64e1323690c11620b910dd05317",
 }
+ENCODINGS = {"cs": "cp1250", "es": "cp1252", "fr": "cp1252"}
 
 
 def fingerprint(data: bytes) -> str:
@@ -103,7 +104,7 @@ def unique_object(pairs: list[tuple[str, object]]) -> dict:
 
 def read_catalog(path: Path) -> dict:
     obj = json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=unique_object)
-    if obj.get("schema_version") != 1 or obj.get("language") != "cs":
+    if obj.get("schema_version") != 1 or obj.get("language") not in ENCODINGS:
         raise DataError("Unsupported localization catalog")
     entries = obj["entries"]
     if not isinstance(entries, dict):
@@ -119,7 +120,7 @@ def read_catalog(path: Path) -> dict:
             raise DataError(f"Preserved originals must not be embedded in the catalog: {key}")
         if "\0" in value["text"]:
             raise DataError(f"Embedded NUL: {key}")
-        value["text"].encode("cp1250")
+        value["text"].encode(ENCODINGS[obj["language"]])
         if "source" in value and TOKENS.findall(value["source"]) != TOKENS.findall(value["text"]):
             raise DataError(f"Changed formatting markers: {key}")
         if not key.startswith("ui:") and "source" in value:
@@ -127,21 +128,23 @@ def read_catalog(path: Path) -> dict:
     return entries
 
 
-def cpp_bytes(text: str) -> str:
-    return '"' + "".join(f"\\{c:03o}" for c in text.encode("cp1250")) + '"'
+def cpp_bytes(text: str, encoding: str = "cp1250") -> str:
+    return '"' + "".join(f"\\{c:03o}" for c in text.encode(encoding)) + '"'
 
 
 def compile_catalog(paths: list[Path], output: Path) -> None:
     entries = {}
     for path in paths:
+        language = json.loads(path.read_text(encoding="utf-8"))["language"]
         for key, value in read_catalog(path).items():
-            if key in entries:
+            qualified = language + ":" + key
+            if qualified in entries:
                 raise DataError(f"Duplicate localization key: {key}")
-            entries[key] = value
+            entries[qualified] = (value, ENCODINGS[language])
     lines = ["// Generated from UTF-8 translation catalogs; do not edit.",
              "static const CatalogEntry catalog[] = {"]
-    for key, value in sorted(entries.items()):
-        text = "nullptr" if value["status"] == "preserve" else cpp_bytes(value["text"])
+    for key, (value, encoding) in sorted(entries.items()):
+        text = "nullptr" if value["status"] == "preserve" else cpp_bytes(value["text"], encoding)
         lines.append(f'    {{"{key}", "{value["source_sha256"]}", {text}}},')
     lines.append("};\n")
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -205,7 +208,7 @@ def main() -> int:
     p = sub.add_parser("audit")
     p.add_argument("--catalog", type=Path, action="append", required=True)
     p.add_argument("--evidence", type=Path, required=True)
-    p.add_argument("--review", type=Path, default=ROOT / "localization/review.json",
+    p.add_argument("--review", type=Path, default=None,
                    help="Per-key linguistic review decisions (required by the completeness gate)")
     args = parser.parse_args()
     try:
@@ -220,7 +223,13 @@ def main() -> int:
         elif args.command == "compile":
             compile_catalog(args.catalog, args.output)
         else:
-            journal = json.loads(args.review.read_text(encoding="utf-8"), object_pairs_hook=unique_object)
+            languages = {json.loads(path.read_text(encoding="utf-8"))["language"] for path in args.catalog}
+            if len(languages) != 1:
+                raise DataError("Audit one language at a time")
+            language = languages.pop()
+            review = args.review or ROOT / "localization" / (
+                "review.json" if language == "cs" else f"review-{language}.json")
+            journal = json.loads(review.read_text(encoding="utf-8"), object_pairs_hook=unique_object)
             result = audit(args.catalog, json.loads(args.evidence.read_text(encoding="utf-8")), journal)
             print(json.dumps(result, indent=2))
             return 0 if result["complete"] else 1

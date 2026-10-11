@@ -1,0 +1,450 @@
+{
+  "schema_version": 1,
+  "reviewer": "Codex",
+  "entries": {
+    "name:3": {
+      "source_sha256": "fd7a68944a8d7ad7022d007ce86f38c1f1a91d24ebc493dfa0e7d924058011dd",
+      "translation_sha256": "190cd5aff2153f83e37c56d28a26df9b5b2370a495e553a68bcd88d0e2b74723",
+      "status": "reviewed",
+      "reason": "Meaning, number and terminology checked against the original text and related item labels."
+    },
+    "name:33": {
+      "source_sha256": "f223faa96f22916294922b171a2696d868fd1f9129302eb41a45b2a2ea2ebbfd",
+      "translation_sha256": "9169bf3e501fea19614cacd6d646b50b63aa822bc2360a4db06aee4cd504cb4f",
+      "status": "reviewed",
+      "reason": "Base item label checked against the original and the explicit counted-item terminology; singular form and lowercase common noun retained."
+    },
+    "script:71:2:4": {
+      "source_sha256": "d8b55e786ea923330c3a3a1a8e84530bf3dbf653d46c407da7e59b51d6e28cee",
+      "translation_sha256": "d1ea81bdd598e8f3173af1de69e981acfa05f9b2f7bd21d39872847cc2f9d58e",
+      "status": "reviewed",
+      "reason": "Sign wording checked against the complete original; rephrased for the fixed placard at the original font size."
+    },
+    "script:71:2:10": {
+      "source_sha256": "f7bfb237c969a3c4e742367e28c122034a4ee82bfc65cd13f90dc1c63b7f5354",
+      "translation_sha256": "4a4345a0e0edad7550f391ab1627ba6ef69f5e255089751242cf2b175daf7458",
+      "status": "reviewed",
+      "reason": "Sign wording checked against the complete original; rephrased for the fixed placard at the original font size."
+    },
+    "script:71:2:13": {
+      "source_sha256": "f7bfb237c969a3c4e742367e28c122034a4ee82bfc65cd13f90dc1c63b7f5354",
+      "translation_sha256": "4a4345a0e0edad7550f391ab1627ba6ef69f5e255089751242cf2b175daf7458",
+      "status": "reviewed",
+      "reason": "Sign wording checked against the complete original; rephrased for the fixed placard at the original font size."
+    },
+    "script:71:2:42": {
+      "source_sha256": "1f60e712435fe903cae2a2d8f3544a76fa1a5a2f170f375759241642b8ffa638",
+      "translation_sha256": "f16dcef63155af9d3862816ed53238bc0d212c1fe8d82b760511092a54d3336f",
+      "status": "reviewed",
+      "reason": "Sign wording checked against the complete original; rephrased for the fixed placard at the original font size."
+    },
+    "script:71:2:46": {
+      "source_sha256": "816b49a086caeecfc951d01131f5a9a526c2372570b61cc6f0b510c59adf5b01",
+      "translation_sha256": "71b2cb4ceddb7cc4344a5aeeef3fe4c15ff53be24f10711cd0db23982f90bd27",
+      "status": "reviewed",
+      "reason": "Sign wording checked against the complete original; rephrased for the fixed placard at the original font size."
+    },
+    "script:71:2:56": {
+      "source_sha256": "7abd8447ad16714f31f1cb823f47668846d271c30c27a7be745d4be414d081b6",
+      "translation_sha256": "5f07a130af73d5bcecb9f12a1686de7b9d1635447738b126a5ddab73aaf72479",
+      "status": "reviewed",
+      "reason": "Sign wording checked against the complete original; rephrased for the fixed placard at the original font size."
+    },
+    "script:71:2:67": {
+      "source_sha256": "bc93163c7149114360150979b72697fd5f36dcb88eb278b9917f7e12c02ecca3",
+      "translation_sha256": "3e247aeccc6553deedf25f3d615acdc91ad863cd00110204a0678146d2db14f8",
+      "status": "reviewed",
+      "reason": "Sign wording checked against the complete original; rephrased for the fixed placard at the original font size."
+    },
+    "script:71:2:68": {
+      "source_sha256": "94bacf1ee01b4029049dfe0063409fc419144730a705b6f1a4686b5acab7bbb4",
+      "translation_sha256": "e11b00aea6c2770004c70b9d29bb073bb1363784c23df93cfe27c6c853218c1f",
+      "status": "reviewed",
+      "reason": "Sign wording checked against the complete original; rephrased for the fixed placard at the original font size."
+    },
+    "script:71:2:69": {
+      "source_sha256": "a53ba643032969d972f18363245a19a306b5e17832d864e1d010b06e2562f4eb",
+      "translation_sha256": "f2755f7765ab163625ecfe97b100063f9155f463f14a6d8dc723ec7b1e014ea7",
+      "status": "reviewed",
+      "reason": "Sign wording checked against the complete original; rephrased for the fixed placard at the original font size."
+    },
+    "script:71:2:73": {
+      "source_sha256": "44ddebf4e6c565bfbacce997b55723b398206ff9ef4f6411810c7833447af9dc",
+      "translation_sha256": "4cedfbba94c8265a89aae0f5f1b5fb9622ad7b8c8389c1d309480f5d6a46d18b",
+      "status": "reviewed",
+      "reason": "Sign wording checked against the complete original; rephrased for the fixed placard at the original font size."
+    },
+    "script:71:2:74": {
+      "source_sha256": "cacff308482c0770934445eb5a4d9784b6658bddae8f874ac3eabb63006b0707",
+      "translation_sha256": "a6043dfd74995d5e83fa87884545c39e0856061f1b7c663a05e717c0551d9306",
+      "status": "reviewed",
+      "reason": "Sign wording checked against the complete original; rephrased for the fixed placard at the original font size."
+    },
+    "script:71:2:75": {
+      "source_sha256": "9f59adbec6767956234e28f5fd40d4ac5091f75c9af78403ff963c73a03ece07",
+      "translation_sha256": "ea32d6476531610ced4ee7b66e96dff5a5b80ed6793e051c6c3ed381fd756ba3",
+      "status": "reviewed",
+      "reason": "Sign wording checked against the complete original; rephrased for the fixed placard at the original font size."
+    },
+    "script:71:2:78": {
+      "source_sha256": "384030a4ab141517cf30e632d5caf69ff421007fb2bf5ef66aa320288e94fac4",
+      "translation_sha256": "a9963cec2c151cc1ed06f3e6f5e6f59dc110e82068ec28b8fc31d1be7e022aaa",
+      "status": "reviewed",
+      "reason": "Sign wording checked against the complete original; rephrased for the fixed placard at the original font size."
+    },
+    "script:134:2:273": {
+      "source_sha256": "ef0860199d24d376dc10991ad57d5ffaba3f2553d807dac6218fa95fabd12a98",
+      "translation_sha256": "862a04fa86f7cc883545e812331a6fb2beaf450db1d7548922eab36e71937f34",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:274": {
+      "source_sha256": "ceb71df5b1a022b39a800821cd6f00f565f56b6b03d40366b72d7a776f0808f2",
+      "translation_sha256": "2a4f08fb2dd7cc9090259533a7b69f599ea9ec3257bb0bad3e5f5f96204e0b90",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:276": {
+      "source_sha256": "0811d68d1aab92398480c8a3691c41e93b76b74e9aa4c1c03bcc460ff5028c57",
+      "translation_sha256": "5b672dd3a91e8982ab0f9a99d8e609bda632ef710c737de5e12d3767a2a0ead8",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:278": {
+      "source_sha256": "c3178f7ce4bb94a266f8a49f5bee516ae1acda9c928fc474737eead3544a6ef8",
+      "translation_sha256": "7fa198c9c050c70de7f1b8f529a81f638f3782995738dcd9ab8e8407f924ddc6",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:280": {
+      "source_sha256": "7ece6881253412e4df26e568934599ef07f1cc2d49450ffd6ff40483968f4dcd",
+      "translation_sha256": "9c9658350246452305a46680538bf086e7557fc7fc1025f8f44929ed49051676",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:282": {
+      "source_sha256": "5b7231039be0733e5411d3263f23dd78bc34180b16cb44f18a39b3a4d1d54cfb",
+      "translation_sha256": "b5aab11731f6e9b06c5b0bcf76def6e09260fe43415abde05471a314d951e45b",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:284": {
+      "source_sha256": "b572a7ff176d634ae76d54794197e3fde5eb8e479885e1a0a2fd91486067cad7",
+      "translation_sha256": "e78e522b50512ec51d990494e0a0699b50a2ecfdfe8354d21357ee1795e22f29",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:286": {
+      "source_sha256": "0e058e8c0486dd9b0fd4be36a4b46124cf2ebb51c7fe85891e0b426b494d9b7c",
+      "translation_sha256": "40491d1dd721c164cabf9be12d6d27bdfef4d8a37f95e4461433f3fe5fe6b1ab",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:288": {
+      "source_sha256": "38ada72a4e9357598cc4def9a36b1759936e661f98dce785457cd0177fcececb",
+      "translation_sha256": "3c2b6f0712aa89e3a8eede9bec084b82dbbe80cf85587307103c17217db965a1",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:290": {
+      "source_sha256": "aa7f2f81cef1f0e7304a91c6fbf4f0c29e67be5c4976a5294806c310606e3eaa",
+      "translation_sha256": "1fefc3a90edf46388a500cf24551c637c903997950624090c425d50d58aa687f",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:292": {
+      "source_sha256": "97a9c7147e642be54a1e96d5b229e23e9647bc7400d40c9cbed304fe7ea4a212",
+      "translation_sha256": "f9035a2f5fcf674ee15df007f8bed83d91ffe386bff3d91b726aa9307cf5cd5b",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:294": {
+      "source_sha256": "8c5f6b889102f9874ba7df07f3078894051843ef2f694856a0437ff34a60f840",
+      "translation_sha256": "a8081a9cd9dce8cc4c0d4d7ec08b9ffe687ac8a991551c818ceeba74b288aa61",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:296": {
+      "source_sha256": "39e63836e43992df2a5bef6cb8e04e0e407e53212869d58d26cbc58f2027800c",
+      "translation_sha256": "bf9bf0a7ea77ea3be65861e1dd122b77355b6c1b618c2689247c1a47a594d0ce",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:298": {
+      "source_sha256": "0a6f5533fbc8646b78c244706ab4c65cd6bf96d3381ee70455adf6a024f3f5eb",
+      "translation_sha256": "56cadc8707bc41cb7480dfa60822ff620ce283445eac156acc68612555cc698e",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:300": {
+      "source_sha256": "f38f1ff0bcc6078f3d7b9a7b2154874ad76446acabc7d51b5276a950f63b2d7b",
+      "translation_sha256": "e430f983e30bf80ff237966fb38913e6430a57b2fcba14855fdd4cf2dba45541",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:302": {
+      "source_sha256": "346f160b0b707d8fee754602001ea7947afd308d1d8caf453cb85fab574bd99f",
+      "translation_sha256": "c840757e0d6ee895c52fc7dd1835d37daba38358e86ab1a04198c2f30ef90e62",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:304": {
+      "source_sha256": "68a113c669f1ea0e850d4b54110916afafdbacf40fb1a000220bcc112fd842dc",
+      "translation_sha256": "cae6e5169a30cd91e9c70925409dad48746f237035a2243a4000567456ff5d83",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:306": {
+      "source_sha256": "50f26e032a2a699f99beda231704e40b389789cb60723610d08a9008262fe996",
+      "translation_sha256": "41c60ed4355bc156502a79c1e769a5af1a9225100e00c8f497b9c7d16922c5fc",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:308": {
+      "source_sha256": "ac7310c12ae6ea420d9fea4e9229adfb7e47dce40d213d7d5e271b6f5035285b",
+      "translation_sha256": "c3fa2c4f193c973dd7d7a40c82e658b249a45657a6ecce46ed9815ddbfce9ede",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:310": {
+      "source_sha256": "afe863643635dc411bc77df24c92e8ee5204917a680a0eb92b4dab0f6dd9263a",
+      "translation_sha256": "3372875a97dfb560daccbc50664d24ceb9a05b54a9ca25f5ca0f9f52446058df",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:312": {
+      "source_sha256": "74bd30ab8a1221a3ac86c43ade3b9ae72a19f2fc5c39e553187c53f8f27af733",
+      "translation_sha256": "d7f75556f23f93c3e85311d5248340c40bfc6019193f8cf17db1bf4a27287507",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:314": {
+      "source_sha256": "75ac0478984f70a4acb3227c1cf2d0f5d20e620ff5b052686981f41bbc45fbc8",
+      "translation_sha256": "05eac6926233612a2c32e7b9da299d8d3de6024ae25a7fa21d381d8cf53ae15f",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:316": {
+      "source_sha256": "eda6a61184245b9f57a9263cf972987fc4fdb70648e9f5c71d2363223ca82c08",
+      "translation_sha256": "95cee30d757ad77ceec93eb9dfa80222456ff1e7ff006dc930bdc5492944330e",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:318": {
+      "source_sha256": "8ddb71c668fe3cb5feaf13ccafc6141557e8027aeea0a0c1bdfb7ebe4ef24ef1",
+      "translation_sha256": "102a531a81b8d899130d5702bd4746d668ead7a8ca224aca3195e105bc02966a",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:320": {
+      "source_sha256": "576951664fb706ab219e2798a5d63a33afdf2c36388b34c3ccc0c76a7363e668",
+      "translation_sha256": "6abb4eb0e66fff4ee276f4c28c2d85b76c6089ba80d7dc518080d792a786f3b2",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:322": {
+      "source_sha256": "de27a48cb7ea8d9a551719f62dc0c1f70ada4d87bfd8494607f3bfe48db323d5",
+      "translation_sha256": "136774aea0a5c570b4fb38dfd881590719d17ce02eb6fdde1ce1bffd712ce4ee",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:324": {
+      "source_sha256": "32bab2401e2597db28ab1aeb45eaffe6f8cf4d91fe025d6d8432b83766939793",
+      "translation_sha256": "e69b02d869fdd45be61425cf5321ba19daa68756f1fb248bf01f1ccd1874faf7",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:326": {
+      "source_sha256": "3c174a957a3356805759012667257912b8ae72c903e08492dde8d377e710c371",
+      "translation_sha256": "9346a127a47323cbb131d6e22a177d609142484e4cf2cce28f1397d78929914d",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:328": {
+      "source_sha256": "95f518bcca1c179364e1607d6babf847d49ecb71ec64dc8c57a89cb1456c9aff",
+      "translation_sha256": "dea2386a4923f2a2dd7f3de4a8087003ae5125b31dbc7d736155845221add896",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:330": {
+      "source_sha256": "d9c2bd33a9460094e42147259d961e798d88ba9ea567b50358da240202f6c429",
+      "translation_sha256": "2dff0403523cc42d346318a6e2a9d57a6a20601b986f92d7a3d4515d3181dc91",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:332": {
+      "source_sha256": "3d5462a9c94f62eeb0dbfa2de4d35e6e6ea85311b2ed519f48a33968201da012",
+      "translation_sha256": "9e79da8cef4037278abe4aa8dc0134ec5805e0501d2c10c16c83e18bdeeb8958",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:334": {
+      "source_sha256": "278ddab0aa13fb25cc676cac09040daf0088dd4ddbe8d0774400c0dea4da1cb4",
+      "translation_sha256": "d4ef5eff8613a7ff8ac3a08c5eb39072ed5689e3906a4a633ee6dee896bfee59",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:336": {
+      "source_sha256": "b874b6eb768f1d00c7ff290af7515db1adcb38d34fe243921345e5ae1aa50a8f",
+      "translation_sha256": "a3c79545274ae44d132d525f013f98cf028002dde33a19b8ca2389c853cd63fe",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:338": {
+      "source_sha256": "77e9a3f3a63bb4faf0c15e5f32b316c98796587e5f1bfa9f8b8ab3919c2b3b73",
+      "translation_sha256": "07b7bec92a92348acceef0a3796de42688fd1c223b880936cd5a1ff921e8ca7d",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:340": {
+      "source_sha256": "585f8846210946cbb50c57119b4ad8f9b0d35b70e1bec74aef18d46129b512d8",
+      "translation_sha256": "7bdfeb1f17537fb463dd40bd42d8ef98632113170a808b12bb3b4764c72802f8",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:342": {
+      "source_sha256": "9cd99aaffd4c55dc691436f3d64106eac00b1248d5fd246122180197b4625360",
+      "translation_sha256": "8847ac4695fccfee62fb4713e3a621ddcb50d32b90a2488e57f46a8f421abff8",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:344": {
+      "source_sha256": "1c203484a5220ba90bedfe8d50dd12668f2f3315d94e9aae5098f01f365a641f",
+      "translation_sha256": "34c305d3a78e958a2501b61e0afc8128b6d0a9c2ce52c5bbc8deb2933aa46983",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:346": {
+      "source_sha256": "c542d55d0582b762052e27271358ab46e0619e367bb4e125cad07227b80a8a17",
+      "translation_sha256": "67b2c1e15054f0eb796fd643735296c907e15e30f96f131fb9431e954097ee6b",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:348": {
+      "source_sha256": "25001e409434a5ea7b77f3388a0ab496725468248fa2a38606a56797c083f6fe",
+      "translation_sha256": "38ede249dd5f6734f87f411c4d47951dbcb3d6726d32ea57cf2c4594a7599b38",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:350": {
+      "source_sha256": "329ee8c5a951aa3f44f5a5bbaa794cd44a2caed67606b22163639aad4608aae5",
+      "translation_sha256": "6cdf8681bd122fd53550a21c473396245d1d2004022ecfb567a8a0f70da60a1d",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:352": {
+      "source_sha256": "e9566e7314ad11b43daa48da996c7711b23b2fc4c5310bd12b7af83570ee4272",
+      "translation_sha256": "f3f7acd0e5a5d093fc9539747f08bb0bfa5edf44f75072c2160a5cbc49a5900a",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:354": {
+      "source_sha256": "88ae94c6b84f17c8984e926655efa5dac990cbc01e5c81dd552f88feba304bb5",
+      "translation_sha256": "c3489a7b8064b0d05c482973669606c4ac3eaea15cc250b717d2956524bf2845",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:356": {
+      "source_sha256": "18304d0a6cb1ad427a6fd0f541f2a80c09328aca39f952f52860d1ca5c14a164",
+      "translation_sha256": "8ad7b25dfba04709a022762dc529caf748a0970d26ba8147c6fbbfe302ae2481",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:358": {
+      "source_sha256": "58b121246e0add02243fb9104f78ef5734d553dedc019b3890687017a43ac4b3",
+      "translation_sha256": "3945ff839a614efd0861500abb170b2ac25f7818b4576d8ac8762cd590bbb7a4",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:360": {
+      "source_sha256": "268e7e418929458bf3e983933d97e41d7f34a14caf7261792cc513a509c41423",
+      "translation_sha256": "9d1a0e00867bacf8450ce52b51ebc43e3204d3d4b733334368b46b74f49c35aa",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:362": {
+      "source_sha256": "b35c75e751967c9e526710ae05b934f93b98a4713be80fb9325ff7abb6caf284",
+      "translation_sha256": "a9042de4fee1145bc80f2e9066d0862f2fdf826f18d3818e15c1bc4ca2e31e8b",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:364": {
+      "source_sha256": "45eefdf1725744d94f831df1931634d3758583c60b49d80fe74c0d358387a125",
+      "translation_sha256": "401057e7e4f2977a81a06a4a311731bdd280f57b1b951330544fa6da747c4ebb",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "script:134:2:366": {
+      "source_sha256": "aeeb0dcd8f726132cc85bb1ba44394bd038bd1cfa2b70fe0ca430e8553259c00",
+      "translation_sha256": "090c41c662d425bab5e4afbde8f1c28972fe83a0b5d5000b015d77b581194673",
+      "status": "reviewed",
+      "reason": "Complete Book of Six and Ten read against the original; French prose edited with preserved paragraph order and a shorter assembled buffer."
+    },
+    "name:751": {
+      "source_sha256": "8ead7a2567d2a4b1bb9179b4c5a2e6d5c0f79797880d173b1a4aa0433e97ee9a",
+      "translation_sha256": "0ef0c49049e81e00254831f7a0e63b5683ec444e8868e2383f6ddcc3a9fbd69a",
+      "status": "reviewed",
+      "reason": "Base item label checked against the original and the explicit counted-item terminology; singular form and lowercase common noun retained."
+    },
+    "name:42": {
+      "source_sha256": "05800e70aa10c86f5ab898d18ad6884245a149f3b945bb0bd8cd05a8e469cd27",
+      "translation_sha256": "2d1c18bd6939bafa192969fbfd61508fae7f946babd754031f8f1828912406ff",
+      "status": "reviewed",
+      "reason": "Base item label checked against the original and the explicit counted-item terminology; singular form and lowercase common noun retained."
+    },
+    "name:437": {
+      "source_sha256": "96960859445843e1e25783f66a148648d5e6a8553d5650af31de72eec1fd1adb",
+      "translation_sha256": "a206c21c7513fa97a0ad98f3c5e863b91e8c5258fa37465e488444fa6fdc9383",
+      "status": "reviewed",
+      "reason": "Base item label checked against the original and the explicit counted-item terminology; singular form and lowercase common noun retained."
+    },
+    "name:439": {
+      "source_sha256": "ac44191793542e454c10bad6b7b4b775b455198365112b1f76f34b30fd45e41d",
+      "translation_sha256": "646ba2b11d20554c1059d4682b56ead803564ff737cc0dd7601ce695d0095507",
+      "status": "reviewed",
+      "reason": "Base item label checked against the original and the explicit counted-item terminology; singular form and lowercase common noun retained."
+    },
+    "name:929": {
+      "source_sha256": "c63786f264ce26d49d68f6b4d44a3ec74a1aae556a227c1c32a7948007e2b142",
+      "translation_sha256": "e2425a151eb9510dd937b4f96581fea672504377644f8676ccd0514912d9d565",
+      "status": "reviewed",
+      "reason": "Base item label checked against the original and the explicit counted-item terminology; singular form and lowercase common noun retained."
+    },
+    "name:261": {
+      "source_sha256": "22c746762022bf97702777fde6176fd5be3219988aec1b8563d4869025f7b478",
+      "translation_sha256": "72be2dbd4ab01fdb4140e777be917f6efc312146dead265dcb4a6b0fa28072f0",
+      "status": "reviewed",
+      "reason": "Base item label checked against the original and the explicit counted-item terminology; singular form and lowercase common noun retained."
+    },
+    "name:335": {
+      "source_sha256": "03320ccd56818f6c51b51ee0d9cf1b4f9ca755f0c3aec55a93fd9f03d5f97148",
+      "translation_sha256": "434ea851f1c0b453beb0ca4a3f9aea26da50c5fa6004e295a8e258cd03a2e4b1",
+      "status": "reviewed",
+      "reason": "Base item label checked against the original and the explicit counted-item terminology; singular form and lowercase common noun retained."
+    },
+    "name:374": {
+      "source_sha256": "e46a2cb143ee373cd1b82304efdffd7d6060190d57dfbaf6b0beaeaf039d7664",
+      "translation_sha256": "e1655e73e638136b38cd06fada79d2165ece82c0ba404a091d131dd4001776c9",
+      "status": "reviewed",
+      "reason": "Base item label checked against the original and the explicit counted-item terminology; singular form and lowercase common noun retained."
+    },
+    "name:396": {
+      "source_sha256": "d87b1938041f781d10071b542c309870ca700c3d8de335e9f96060ff4a86bb24",
+      "translation_sha256": "667344085deb061e127c572d91324e6010e55002bffdd0c28efc3bbbb37eed80",
+      "status": "reviewed",
+      "reason": "Base item label checked against the original and the explicit counted-item terminology; singular form and lowercase common noun retained."
+    },
+    "name:405": {
+      "source_sha256": "8c703ba822bcf059b4cd7b104853144794400ac1c32ed3df62f8fcbb0f00b84a",
+      "translation_sha256": "566002c972b25ad087b3920f35f4148ce472fe5212ad917c5d954e16243a1431",
+      "status": "reviewed",
+      "reason": "Base item label checked against the original and the explicit counted-item terminology; singular form and lowercase common noun retained."
+    },
+    "name:1020": {
+      "source_sha256": "b7697335eb6dd04f01aa1dff2a1e7216986138357b8900cebbe8a92a49c7895f",
+      "translation_sha256": "f205b6c49a8c08870d780b15ea724d0fe82ece3ceeac95df5965f87d8d7e0c88",
+      "status": "reviewed",
+      "reason": "Base item label checked against the original and the explicit counted-item terminology; singular form and lowercase common noun retained."
+    }
+  }
+}

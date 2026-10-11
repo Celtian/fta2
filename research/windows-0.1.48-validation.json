@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-11",
+  "version": "0.1.48",
+  "status": "development-alpha",
+  "native_windows_preflight": {
+    "windows": "Microsoft Windows NT 10.0.26200.0",
+    "tests": [
+      {
+        "name": "version",
+        "finished": true,
+        "exit_code": 0,
+        "stdout": "fta2-native 0.1.48 (SAGA2 1a3e816a; GPL-3.0-or-later)\r\n",
+        "stderr": ""
+      },
+      {
+        "name": "launcher-version",
+        "finished": true,
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "name": "launcher-invalid-argument",
+        "finished": true,
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "name": "root-launcher",
+        "finished": true,
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "name": "clean-startup",
+        "finished": true,
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": "Warning: STUB: initCleanup()\r\nWarning: MapID: MAP. 4d415000 res: MAP. 4d415000\r\nWarning: MapID: MAP. 4d415000 res: MAP. 4d415001\r\nWarning: MapID: MAP. 4d415000 res: MAP. 4d415002\r\nWarning: STUB: cleanupSystemTasks()\r\n"
+      },
+      {
+        "name": "moved-root-launcher",
+        "finished": true,
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "name": "moved-unicode",
+        "finished": true,
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": "Warning: STUB: initCleanup()\r\nWarning: MapID: MAP. 4d415000 res: MAP. 4d415000\r\nWarning: MapID: MAP. 4d415000 res: MAP. 4d415001\r\nWarning: MapID: MAP. 4d415000 res: MAP. 4d415002\r\nWarning: STUB: cleanupSystemTasks()\r\n"
+      },
+      {
+        "name": "bundled-over-remembered",
+        "finished": true,
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": "Warning: STUB: initCleanup()\r\nWarning: MapID: MAP. 4d415000 res: MAP. 4d415000\r\nWarning: MapID: MAP. 4d415000 res: MAP. 4d415001\r\nWarning: MapID: MAP. 4d415000 res: MAP. 4d415002\r\nWarning: Sector::getSector: Invalid sector: (8, 50) (sectorArraySize = 48)\r\nWarning: Sector::getSector: Invalid sector: (13, -7) (sectorArraySize = 48)\r\nWarning: STUB: cleanupSystemTasks()\r\n"
+      },
+      {
+        "name": "damaged-archive",
+        "finished": true,
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "fta2-native: Game data in C:/Users/domin/AppData/Local/Temp/fta2-release-0148-367c61d2f5a34de1b11b315049f908d5/Moved game - \u017e \u010d/data: Invalid game archive FTA.HRS: Missing HRES archive header\r\n\r\nDiagnostic log: C:/Users/domin/AppData/Local/Temp/fta2-release-0148-367c61d2f5a34de1b11b315049f908d5/remembered-saves/logs/fta2-20261011-121116-862-1528-1.log\r\n"
+      },
+      {
+        "name": "visible-damaged-error",
+        "finished": true,
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "fta2-native: Game data in C:/Users/domin/AppData/Local/Temp/fta2-release-0148-367c61d2f5a34de1b11b315049f908d5/Moved game - \u017e \u010d/data: Invalid game archive FTA.HRS: Missing HRES archive header\r\n\r\nDiagnostic log: C:/Users/domin/AppData/Local/Temp/fta2-release-0148-367c61d2f5a34de1b11b315049f908d5/remembered-saves/logs/fta2-20261011-121118-167-21532-1.log\r\n"
+      },
+      {
+        "name": "explicit-override",
+        "finished": true,
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": "Warning: STUB: initCleanup()\r\nWarning: MapID: MAP. 4d415000 res: MAP. 4d415000\r\nWarning: MapID: MAP. 4d415000 res: MAP. 4d415001\r\nWarning: MapID: MAP. 4d415000 res: MAP. 4d415002\r\nWarning: Sector::getSector: Invalid sector: (8, 50) (sectorArraySize = 48)\r\nWarning: Sector::getSector: Invalid sector: (13, -7) (sectorArraySize = 48)\r\nWarning: STUB: cleanupSystemTasks()\r\n"
+      },
+      {
+        "name": "missing-resource-source",
+        "finished": true,
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "fta2-native: Game data in C:/Users/domin/AppData/Local/Temp/fta2-release-0148-367c61d2f5a34de1b11b315049f908d5/Moved game - \u017e \u010d/data: Required resource source is missing: FTA2.EXE\r\n\r\nDiagnostic log: C:/Users/domin/AppData/Local/Temp/fta2-release-0148-367c61d2f5a34de1b11b315049f908d5/remembered-saves/logs/fta2-20261011-121202-588-39524-1.log\r\n"
+      }
+    ],
+    "bundled_files_unchanged": 8,
+    "relocated_unicode_path": true,
+    "unrelated_working_directory": true,
+    "data_override_used_for_startup": false,
+    "original_save_import": true,
+    "root_launcher_before_after_move": true,
+    "launcher_icon_matches": true,
+    "unicode_arguments_forwarded": true,
+    "native_printscreen_package_root_before_after_move": true,
+    "screenshot_repeat_ignored": true
+  },
+  "final_binary_four_language_recheck": {
+    "status": "passed",
+    "processes": [
+      {
+        "status": "passed",
+        "menu_cases": 64,
+        "mana_tooltip_cases": 288,
+        "name_tooltip_cases": 3453,
+        "live_options_cases": 64,
+        "text_overflows": 0,
+        "speech_save_roundtrip": true,
+        "mixed_speech_save_roundtrip": true,
+        "voice_variants": 9,
+        "radio_clicks": 192,
+        "status_queue_refresh": true,
+        "immediate_language_apply": true,
+        "same_language_preserves_subtitles": true,
+        "modal_screenshots": 192,
+        "gameplay_screenshots": 1,
+        "document_screenshots": 24,
+        "document_spreads": 7828,
+        "placard_cases": 1328,
+        "file_dialog_cases": 32,
+        "startup_language": "fr",
+        "startup_subtitles": false,
+        "document_rendering": {
+          "scripts": 185,
+          "page_spreads": 7828,
+          "redraw_comparisons": 23948,
+          "wheel_checks": 14200,
+          "multipage_documents": 1456
+        }
+      }
+    ],
+    "verified_original_files": 54
+  },
+  "reference": "passed",
+  "binary_recheck_note": "Package icon/relocation/English reference checks used the corrected preflight before the final French zero-count-only change; final binaries passed all public tests and the four-language runtime matrix again.",
+  "remaining_limitations": [
+    "No complete Spanish/French or Czech linguistic review; machine drafts remain clearly recorded in catalogs and completeness audits.",
+    "Not all story branches and substitutions have been exercised; available document scripts and name resources are covered by the automated scenario.",
+    "No full playthrough, native MSVC/macOS build or manual physical-keyboard/audio validation in this turn.",
+    "Original voice recordings remain English."
+  ]
+}

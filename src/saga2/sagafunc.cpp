@@ -124,7 +124,7 @@ int stringf(char *buffer, long maxlen, int formatStr, int16 *args,
 		} else *buffer++ = *fmt++;
 	}
 
-	if (language == Native::Language::Czech && (*fmt || truncated))
+	if (language != Native::Language::English && (*fmt || truncated))
 		Native::reportTextOverflow("formatted script buffer", maxlen, 1, maxlen - 1, 1);
 	*buffer++ = '\0';
 
