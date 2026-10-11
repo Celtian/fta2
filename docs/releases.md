@@ -21,7 +21,9 @@ The workflow uses the existing pinned SDL version and existing GitHub Action
 major versions. Each job runs CTest without proprietary data. CPack intermediates
 stay under `.cache/packages/`; `tools/release.py bundle` embeds the source ZIP,
 checks the minimal runtime layout and audits the corresponding source manifest.
-Only the final player ZIP is uploaded as a CI artifact, retained for 14 days.
+Only the engine-only player ZIP is uploaded as a CI artifact, retained for 14 days.
+The release publication job subsequently adds verified data and voices to all
+three packages before uploading the complete player downloads to GitHub Releases.
 
 ## 🏷️ Create a release
 
@@ -91,7 +93,11 @@ adding `-f tag=v0.0.2` for an existing version. Manual runs on existing tag refs
 also remain supported. No personal access token is needed: only the final
 publication job has `contents: write`, using `GITHUB_TOKEN`.
 
-After all three builds pass, the publication job audits every ZIP again, verifies
+After all three builds pass, the publication job downloads the pinned input from
+the maintainer draft `release-inputs-v1`, verifies its archive hash and all nine
+individual file hashes, and assembles complete packages with
+`tools/release.py complete`. There is no engine-only fallback if the input is
+missing or damaged. The job audits every complete ZIP again, verifies
 that all required platform filenames are present and writes `SHA256SUMS`. It then
 creates a **prerelease** with three downloadable player ZIPs and the checksum
 file. The source ZIP is embedded in each runtime ZIP rather than published as
@@ -103,19 +109,39 @@ overwritten. If a run fails before publication, fix the failure and rerun the
 failed jobs. If a partial release already exists, inspect it before manually
 recovering; the workflow deliberately does not use `--clobber` or delete releases.
 
-## 🔒 Public package boundaries
+## 📦 Complete releases and engine-only builds
 
-Public packages contain the engine, SDL, required notices, root launcher,
-`START-HERE.txt` and corresponding engine sources. They must exclude original
-archives/executables, voices, saves, extracted resources and development output.
+The user has explicitly requested ready-to-play GitHub downloads. Each complete
+release contains the engine, SDL, required notices, root launcher,
+`START-HERE.txt`, corresponding engine sources, exactly eight verified DOS inputs
+under `data/` and the verified English voice archive under `media/`. No original
+saves, unrelated DOS components, extracted resources or development output may
+be included. Original data and recordings retain their original copyright.
+
+Branch/pull-request CI and source archives remain data-free. Engine-only
+artifacts are audited with the strict runtime allowlist. Complete releases use
+`checksums --complete`, which additionally requires the exact data allowlist,
+known file hashes, verified voices and matching source/data provenance.
 The one explicitly requested README preview, `assets/gameplay.png`, is included
 in sources with an original-artwork copyright notice; it is not installed as a
 loose runtime asset. Other private captures stay under `.cache/`.
 
-The local complete Windows ZIP described in the [player guide](player-guide.md#validation-and-packaging)
-contains separately verified proprietary inputs and **must never be uploaded to
-GitHub Releases**. The release workflow packages a clean checkout and does not
-read `dist/`, `original-game/` or local complete archives.
+The repository's release input is prepared once from the existing local files:
+
+```sh
+python3 tools/release_data.py create --data-dir original-game --voice-file .cache/fta2-cd-voices/FTAVOICE.HRS --output .cache/release-inputs/fta2-verified-data-v1.zip
+```
+
+Its exact size and SHA-256 are pinned in `packaging/release-data.json`. The
+maintainer draft stores only release inputs and any preserved engine assets;
+it is not a player download. The publication job uses its existing repository
+`GITHUB_TOKEN` with `contents: write` to read that draft. No personal access token,
+game data in Git, runner-local installation or recurring manual data upload is
+needed. Updating the input requires a new reviewed archive and pin; existing
+inputs are not silently replaced. The game itself never downloads data.
+
+The [local packaging procedure](player-guide.md#validation-and-packaging) remains
+available for standalone builds.
 
 ## 🧪 Local release checks
 
@@ -130,6 +156,7 @@ python3 tools/release.py checksums --assets artifacts --tag v0.0.1
 
 Use fresh output directories; existing ZIPs/checksums are never overwritten.
 The publication job additionally passes `--all-platforms`, requiring all three
-ZIPs. An automated build or successful startup does not establish a complete
+ZIPs, and `--complete`, requiring their bundled data and voices. Engine-only
+local checks above deliberately omit `--complete`. An automated build or successful startup does not establish a complete
 playthrough or manual platform acceptance. Record actual checks and remaining
 limitations in [validation](validation.md).

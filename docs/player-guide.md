@@ -85,6 +85,11 @@ Version 0.1.45 fixes all six mana hover labels to use their existing Czech trans
 
 ## Game data
 
+Complete GitHub release ZIPs include the eight verified data files and English CD
+voices. Extract the entire ZIP and open its root launcher: no folder selection or
+separate original installation is needed. Engine-only CI artifacts and source
+builds still require a supported data installation as described below.
+
 The supported English DOS profile requires `FTA2.EXE`, `FTA.HRS`, `FTADATA.HRS`, `FTAIMAGE.HRS`, `FTASOUND.HRS`, `SCRIPTS.HRS`, and the instrument banks `DRIVERS/SAMPLE.AD` and `DRIVERS/SAMPLE.OPL`. The executable, main archives and banks are checked against SHA-256 hashes. Unknown executables are rejected; Windows executable offsets are never applied to the DOS executable.
 
 This installation's `FTAVOICE.HRS` is a copy of `FTADATA.HRS` and is ignored. Version 0.1.32 can use the English full CD's verified `FTAVOICE.HRS` as an optional supplement: 268,574,344 bytes, SHA-256 `34bd5c7e3b5982df3f84b274c05a0f056a2932dfd03f02d880be44e5a81353c3`, containing 4,320 original recordings (about 4 hours 34 minutes). The CD's five main HRES archives match the supported DOS data byte for byte; its Windows executable is not used. Missing videos remain skipped.
@@ -115,7 +120,7 @@ python3 tools/package_complete.py --engine-package .cache/release-0.0.1/fta2-ce-
 
 The tool verifies all eight data files and the optional voice archive against known size and SHA-256 values, embeds the matching data-free source ZIP, and records their hashes in the package manifest. Original saves and unnecessary DOS files are excluded. It refuses unknown data, output inside the original installation and overwriting an existing ZIP. Earlier releases remain available. Original game data and voices retain their copyright; the engine's GPL does not relicense them.
 
-Public CI uses `tools/package_release.py` to embed matching sources into each platform's engine ZIP, without proprietary data. CPack's engine/source archives are build intermediates, rather than separate user downloads. The legacy voice-add-on tool remains available for older releases.
+Desktop CI uses `tools/package_release.py` to embed matching sources into each platform's engine ZIP, without proprietary data. After all builds pass, the release publication job downloads a separately pinned, verified input and uses `tools/release.py complete` to add the eight required data files and English voices to every platform ZIP. The complete packages are audited before publication. See [release setup](releases.md). CPack's engine/source archives are build intermediates, rather than separate user downloads. The legacy voice-add-on tool remains available for older releases.
 
 The integration test requires original game data and a fresh output directory. Public CI tests use synthetic data only. Runtime packages include the engine, SDL and licences. For more information, see [DOS resources](dos-resources.md), the [development reference](../reference/README.md), [code provenance](../third_party/README.md) and the [remaining acceptance checks](validation.md).
 

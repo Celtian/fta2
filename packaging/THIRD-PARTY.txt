@@ -25,7 +25,7 @@ libc++, libc++abi and libunwind (Apache-2.0 with LLVM exceptions), MinGW-w64
 The applicable notices accompany Windows packages under windows-runtime/.
 
 Original game data and English voice recordings retain their original
-copyright. Their inclusion in a local complete package does not relicense
+copyright. Their inclusion in a complete release package does not relicense
 them under the engine GPL. No original game save is supplied.
 
 The matching source ZIP includes build instructions, dependency versions,

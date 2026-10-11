@@ -29,21 +29,24 @@ release pipeline.
 | Linux x64 | `Linux-x86_64.zip` | `Faery Tale Adventure II` |
 | macOS Apple Silicon / Intel | `Darwin-universal.zip` | `Faery Tale Adventure II.command` |
 
-Each ZIP includes SDL, licence notices and matching engine sources under `source/`.
+Each complete release ZIP includes verified game data under `data/`, original
+English voices under `media/`, SDL, licence notices and matching engine sources
+under `source/`. Extract the whole ZIP and open its launcher; no game-folder
+selection or separate original installation is needed.
 Checksums are in the release's `SHA256SUMS`. Keep the extracted folder together
 when moving the game. Linux/macOS may require allowing execution of the launcher.
 
-**💾 You need your own original game data.** Public downloads do not include the
-game, voices or saves. Select the supported English DOS installation with
-`--data-dir /path/to/game`; Windows also offers a folder picker. Required files:
+**💾 Source builds and desktop CI artifacts contain the engine only.** Supply
+the supported English DOS installation with `--data-dir /path/to/game`; Windows
+also offers a folder picker when bundled data is absent. Required files:
 
 ```text
 FTA2.EXE       FTA.HRS        FTADATA.HRS   FTAIMAGE.HRS
 FTASOUND.HRS   SCRIPTS.HRS    DRIVERS/SAMPLE.AD   DRIVERS/SAMPLE.OPL
 ```
 
-Files are validated before use and opened read-only. Optional verified English CD
-voices can be supplied separately. Saves, settings and logs go to your user
+Bundled and separately supplied files are validated before use and opened
+read-only. Saves, settings and logs go to your user
 profile. See the [player guide](docs/player-guide.md#game-data) for details.
 
 ## ✨ What's included

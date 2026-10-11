@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare versions, build and audit public releases without proprietary data."""
+"""Prepare versioned engine builds and complete GitHub release packages."""
 import argparse
 import hashlib
 import json
@@ -10,6 +10,8 @@ import tempfile
 from zipfile import BadZipFile, ZipFile
 
 from package_release import package_release, safe_members, source_additions, validate_runtime_layout
+from package_complete import package_complete
+from release_data import verify_payloads
 
 ROOT = Path(__file__).resolve().parents[1]
 PLATFORMS = ("Linux-x86_64", "Windows-x86_64", "Darwin-universal")
@@ -120,7 +122,7 @@ def runtime_names(version):
     return {f"fta2-ce-{version}-{platform}.zip" for platform in PLATFORMS}
 
 
-def audit_bundle(path, version):
+def audit_bundle(path, version, complete=False):
     if path.name not in runtime_names(version):
         raise ValueError(f"Unexpected release asset: {path.name}")
     expected_root = path.stem
@@ -131,15 +133,42 @@ def audit_bundle(path, version):
             raise ValueError(f"Runtime ZIP root does not match its filename: {root}")
         source_members = [(info, member) for info, member in members
                           if member.parts[1:2] == ("source",)]
+        package_manifest = None
+        if complete:
+            payloads = {str(member.relative_to(root)): archive.read(info)
+                        for info, member in members if not info.is_dir() and
+                        member.parts[1:2] in (("data",), ("media",))}
+            verify_payloads(payloads)
+            try:
+                package_manifest = json.loads(archive.read(f"{root}/bin/package.json"))
+                files = {name.removeprefix("data/"): {
+                    "size": len(payload), "sha256": hashlib.sha256(payload).hexdigest()}
+                    for name, payload in payloads.items() if name.startswith("data/")}
+                voice = payloads["media/FTAVOICE.HRS"]
+                expected_voice = {"file": "media/FTAVOICE.HRS", "size": len(voice),
+                                  "sha256": hashlib.sha256(voice).hexdigest(), "recordings": 4320,
+                                  "license": "Original game audio; not relicensed under the engine GPL"}
+                if (package_manifest["files"] != files or package_manifest["voice"] != expected_voice or
+                        package_manifest["profile"] != "english-dos-a7413ddf" or
+                        package_manifest["schema_version"] != 1):
+                    raise ValueError("Complete package provenance does not match its contents")
+            except (KeyError, TypeError) as error:
+                raise ValueError("Complete package is missing its data/source provenance") from error
         runtime_members = [(info, member) for info, member in members
-                           if member.parts[1:2] != ("source",)]
+                           if member.parts[1:2] != ("source",) and not (complete and
+                           (member.parts[1:2] in (("data",), ("media",)) or
+                            str(member.relative_to(root)) == "bin/package.json"))]
         validate_runtime_layout(root, runtime_members)
         actual_source = {str(member.relative_to(root)) for info, member in source_members
                          if not info.is_dir()}
-        if actual_source != {f"source/{source_name}", "source/manifest.json"}:
+        expected_source = {f"source/{source_name}"}
+        if not complete:
+            expected_source.add("source/manifest.json")
+        if actual_source != expected_source:
             raise ValueError("Runtime ZIP must embed exactly its corresponding source and manifest")
         payload = archive.read(f"{root}/source/{source_name}")
-        manifest = json.loads(archive.read(f"{root}/source/manifest.json"))
+        manifest = (package_manifest.get("source") if complete else
+                    json.loads(archive.read(f"{root}/source/manifest.json")))
         with tempfile.TemporaryDirectory() as temporary:
             source_path = Path(temporary) / source_name
             source_path.write_bytes(payload)
@@ -167,7 +196,32 @@ def bundle(packages, output, version):
     return destination
 
 
-def checksums(assets, version, all_platforms=False):
+def complete_packages(assets, data, voice, output, version):
+    paths = sorted(assets.iterdir())
+    if {path.name for path in paths} != runtime_names(version):
+        raise ValueError("Complete release requires exactly the three engine player ZIPs")
+    if output.exists():
+        raise ValueError(f"Output already exists: {output}")
+    for path in paths:
+        audit_bundle(path, version)
+    output.mkdir(parents=True)
+    for path in paths:
+        with tempfile.TemporaryDirectory() as temporary:
+            temporary = Path(temporary)
+            engine = temporary / "engine.zip"
+            source = temporary / f"fta2-ce-{version}-source.zip"
+            with ZipFile(path) as original, ZipFile(engine, "w") as runtime:
+                source.write_bytes(original.read(f"{path.stem}/source/{source.name}"))
+                for info in original.infolist():
+                    if not info.filename.startswith(f"{path.stem}/source/"):
+                        runtime.writestr(info, original.read(info))
+            destination = output / path.name
+            package_complete(engine, data, destination, source, voice)
+            audit_bundle(destination, version, complete=True)
+    return output
+
+
+def checksums(assets, version, all_platforms=False, complete=False):
     paths = sorted(assets.iterdir())
     names = {path.name for path in paths}
     expected = runtime_names(version)
@@ -177,7 +231,7 @@ def checksums(assets, version, all_platforms=False):
         raise ValueError("Release requires Linux x64, Windows x64 and macOS universal ZIPs")
     records = []
     for path in paths:
-        audit_bundle(path, version)
+        audit_bundle(path, version, complete=complete)
         with path.open("rb") as stream:
             hasher = hashlib.sha256()
             for block in iter(lambda: stream.read(1024 * 1024), b""):
@@ -204,10 +258,16 @@ def main():
     bundle_parser = commands.add_parser("bundle", help="Embed sources and audit the public player ZIP")
     bundle_parser.add_argument("--packages", type=Path, required=True)
     bundle_parser.add_argument("--output", type=Path, required=True)
+    complete_parser = commands.add_parser("complete", help="Add verified game data and voices to all player ZIPs")
+    complete_parser.add_argument("--assets", type=Path, required=True)
+    complete_parser.add_argument("--data-dir", type=Path, required=True)
+    complete_parser.add_argument("--voice-file", type=Path, required=True)
+    complete_parser.add_argument("--output", type=Path, required=True)
     checksum_parser = commands.add_parser("checksums", help="Audit assets before writing SHA256SUMS")
     checksum_parser.add_argument("--assets", type=Path, required=True)
     checksum_parser.add_argument("--tag", required=True)
     checksum_parser.add_argument("--all-platforms", action="store_true")
+    checksum_parser.add_argument("--complete", action="store_true", help="Require verified bundled data and voices")
     args = parser.parse_args()
     try:
         version = cmake_version((ROOT / "CMakeLists.txt").read_text(encoding="utf-8"))
@@ -225,9 +285,11 @@ def main():
             result = version
         elif args.command == "bundle":
             result = bundle(args.packages, args.output, version)
+        elif args.command == "complete":
+            result = complete_packages(args.assets, args.data_dir, args.voice_file, args.output, version)
         else:
             verify_tag(version, args.tag)
-            result = checksums(args.assets, version, args.all_platforms)
+            result = checksums(args.assets, version, args.all_platforms, args.complete)
     except (OSError, ValueError, KeyError, BadZipFile) as error:
         parser.exit(1, f"release: {error}\n")
     print(result)

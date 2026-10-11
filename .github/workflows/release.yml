@@ -63,10 +63,20 @@ jobs:
           pattern: fta2-ce-*
           path: artifacts
           merge-multiple: true
-      - name: 🔎 Audit packages and generate SHA-256 checksums
+      - name: 📥 Download and verify pinned game data and voices
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/release_data.py download --output .cache/release-inputs
+      - name: 📦 Assemble complete player packages
+        run: >-
+          python3 tools/release.py complete --assets artifacts
+          --data-dir .cache/release-inputs/verified/data
+          --voice-file .cache/release-inputs/verified/media/FTAVOICE.HRS
+          --output .cache/complete-assets
+      - name: 🔎 Audit complete packages and generate SHA-256 checksums
         env:
           RELEASE_TAG: ${{ needs.version.outputs.tag }}
-        run: python3 tools/release.py checksums --assets artifacts --tag "$RELEASE_TAG" --all-platforms
+        run: python3 tools/release.py checksums --assets .cache/complete-assets --tag "$RELEASE_TAG" --all-platforms --complete
       - name: 🚀 Create GitHub prerelease with downloads
         env:
           GH_TOKEN: ${{ github.token }}
@@ -80,7 +90,7 @@ jobs:
               exit 1
             fi
           fi
-          gh release create "$RELEASE_TAG" artifacts/*.zip artifacts/SHA256SUMS \
+          gh release create "$RELEASE_TAG" .cache/complete-assets/*.zip .cache/complete-assets/SHA256SUMS \
             --repo "$GITHUB_REPOSITORY" --target "$RELEASE_COMMIT" --prerelease \
             --title "🧚 Community Edition $RELEASE_TAG — development alpha" \
             --generate-notes --notes-file packaging/RELEASE-NOTES.md

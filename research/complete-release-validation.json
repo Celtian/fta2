@@ -1,0 +1,83 @@
+{
+  "date": "2026-10-11",
+  "purpose": "Complete GitHub releases with verified DOS data and English CD voices on all desktop platforms",
+  "release": "v0.0.4",
+  "engine_commit": "c3c7427e59890666abc05768529e3b099ad95764",
+  "runtime_and_embedded_source_bytes_preserved": true,
+  "unix_permissions_and_safe_library_links_preserved": true,
+  "data_files_per_runtime": 8,
+  "voice_archive_per_runtime": "media/FTAVOICE.HRS",
+  "original_saves_included": false,
+  "source_archives_contain_game_data": false,
+  "release_input": {
+    "release_tag": "release-inputs-v1",
+    "asset": "fta2-verified-data-v1.zip",
+    "size": 283170312,
+    "sha256": "338104ba1001a57a80eeb58e9ec69f941aa2c8c91ef5dfa545bc03c19be6d4ab"
+  },
+  "assets": {
+    "fta2-ce-0.0.4-Darwin-universal.zip": {
+      "size": 296361545,
+      "sha256": "2ede6ae9677769ee82b95009a45c3069e3fc054c59ffff1463ddc7d90bc4617a"
+    },
+    "fta2-ce-0.0.4-Linux-x86_64.zip": {
+      "size": 293417943,
+      "sha256": "1361b88dcf02d5d869cd47a85eb4e5730bc2569518903745f22f8546a715d35b"
+    },
+    "fta2-ce-0.0.4-Windows-x86_64.zip": {
+      "size": 293350362,
+      "sha256": "20bb38651186a7c65d5316bff8fae8a524a168ae70214941a7a7dd4ea9f01461"
+    }
+  },
+  "validation": {
+    "synthetic_package_tests": 28,
+    "synthetic_release_tests": 32,
+    "linux_ctest": "12/12 passed",
+    "actionlint": "passed",
+    "original_files_verified_unchanged": 54
+  },
+  "native_startup": {
+    "Windows-x86_64": {
+      "platform": "Windows-x86_64",
+      "status": "passed",
+      "no_data_or_voice_arguments": true,
+      "fresh_profile": true,
+      "unrelated_working_directory": true,
+      "voice_probe": {
+        "status": "passed",
+        "recordings": 3,
+        "dialogue_variants": 3,
+        "large_archive_offset": true,
+        "pause": true,
+        "abort_queue": true,
+        "missing_fallback": true,
+        "muted_fallback": true,
+        "simulation_unchanged": true
+      }
+    },
+    "Linux-x86_64": {
+      "platform": "Linux-x86_64",
+      "status": "passed",
+      "no_data_or_voice_arguments": true,
+      "fresh_profile": true,
+      "unrelated_working_directory": true,
+      "voice_probe": {
+        "status": "passed",
+        "recordings": 3,
+        "dialogue_variants": 3,
+        "large_archive_offset": true,
+        "pause": true,
+        "abort_queue": true,
+        "missing_fallback": true,
+        "muted_fallback": true,
+        "simulation_unchanged": true
+      }
+    }
+  },
+  "macos_native_startup": "not run; archive audit only",
+  "hosted_release_workflow": "not run with the new assembly steps",
+  "remote_publication": "pending explicit approval after automatic review rejected the maintainer-draft upload; no data uploaded",
+  "older_release_assets": "original engine ZIPs, checksums and release notes preserved locally; remote backup required before replacing assets",
+  "full_playthrough": false,
+  "evidence_directory": ".cache/release-0.0.4"
+}

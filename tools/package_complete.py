@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Build one Windows release with sources, verified local data and optional voices."""
+"""Build a desktop release with sources, verified game data and optional voices."""
 
 import argparse
 import hashlib
 import json
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from zipfile import BadZipFile, ZipFile
 
-from package_release import source_additions, write_bundle, validate_runtime_layout
+from package_release import safe_members, source_additions, write_bundle, validate_runtime_layout
 from package_voices import VOICE_SHA256, VOICE_SIZE
 
 PROFILE_PATH = Path(__file__).resolve().parents[1] / "research/original-files.json"
@@ -49,24 +49,9 @@ def package_complete(engine_package: Path, data_dir: Path, output: Path,
         manifest_files[name] = {"size": len(payload), "sha256": actual}
 
     with ZipFile(engine_package) as engine:
-        members, seen = [], set()
-        for info in engine.infolist():
-            path = PurePosixPath(info.filename)
-            if (path.is_absolute() or ".." in path.parts or "\\" in info.filename
-                    or not path.parts or ":" in info.filename):
-                raise ValueError(f"Unsafe engine ZIP entry: {info.filename}")
-            key = str(path).casefold()
-            if key in seen:
-                raise ValueError(f"Duplicate engine ZIP entry: {info.filename}")
-            seen.add(key)
-            members.append((info, path))
-        roots = {path.parts[0] for _, path in members}
-        if len(roots) != 1:
-            raise ValueError("Engine ZIP must contain a single package directory")
-        root = next(iter(roots))
-        for required in ("bin/fta2-ce.exe", "bin/SDL3.dll"):
-            if f"{root}/{required}".casefold() not in seen:
-                raise ValueError(f"Windows engine ZIP is missing {required}")
+        # Validate relative library links as well as names before copying ZIP entries.
+        root, members = safe_members(engine, allow_symlinks=True)
+        seen = {str(path).casefold() for _, path in members}
         for info, path in members:
             if (len(path.parts) > 1 and path.parts[1].casefold() == "data"
                     or path.suffix.casefold() in (".hrs", ".sav", ".ppm", ".bin")
@@ -74,6 +59,10 @@ def package_complete(engine_package: Path, data_dir: Path, output: Path,
                 raise ValueError(f"Engine ZIP already contains game/development data: {info.filename}")
 
         validate_runtime_layout(root, members)
+        windows = f"{root}/bin/fta2-ce.exe".casefold() in seen
+        mac = f"{root}/Faery Tale Adventure II.command".casefold() in seen
+        launcher = ("Faery Tale Adventure II.exe" if windows else
+                    "Faery Tale Adventure II.command" if mac else "Faery Tale Adventure II")
         manifest = {
             "schema_version": 1,
             "profile": "english-dos-a7413ddf",
@@ -100,10 +89,10 @@ def package_complete(engine_package: Path, data_dir: Path, output: Path,
             json.dumps(manifest, indent=2) + "\n"
         ).encode()
         additions[f"{root}/START-HERE.txt"] = (
-            "Faery Tale Adventure II: Community Edition - complete Windows package\n\n"
-            "Extract the entire ZIP and double-click Faery Tale Adventure II.exe.\n"
-            "You can also start bin/fta2-ce.exe directly.\n"
-            "Keep the extracted directory together when moving the game.\n"
+            "Faery Tale Adventure II: Community Edition - complete desktop package\n\n"
+            f"Extract the entire ZIP and open {launcher}.\n"
+            + ("On Linux/macOS, allow execution of the launcher if required.\n" if not windows else "")
+            + "Keep the extracted directory together when moving the game.\n"
             "Game data is included; no folder selection or separate installation is needed.\n"
             + ("Original English voices are included and detected automatically.\n"
                "Use Speech Volume and Speech Text in Options to adjust voices and subtitles.\n"
@@ -112,10 +101,10 @@ def package_complete(engine_package: Path, data_dir: Path, output: Path,
                "Build instructions, developer documentation and validation records are inside that ZIP.\n"
                if source_package is not None else "")
             + "Engine and third-party licence notices are under licenses/.\n"
-            "Saves and settings are stored in your Windows user profile.\n"
+            "Saves and settings are stored in your user profile.\n"
             "Print Screen saves a PNG, including the cursor, under screenshots/ beside this file.\n"
-            "If this directory is not writable, screenshots use the Windows user profile.\n"
-            "Diagnostic logs: %APPDATA%\\fta2-ce\\fta2-ce\\logs\n"
+            "If this directory is not writable, screenshots use the user profile.\n"
+            "Diagnostic logs are in logs/ under the selected user/save directory.\n"
             "When reporting a crash, include the latest .log and matching .dmp, if present.\n\n"
             "Original game data and audio retain their original copyright.\n"
             "This is a development alpha. A full playthrough remains pending.\n"

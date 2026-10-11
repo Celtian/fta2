@@ -4,13 +4,16 @@ import importlib.util
 import json
 from pathlib import Path, PurePosixPath
 import sys
+import subprocess
 import tempfile
 import unittest
+import warnings
 from unittest.mock import patch
 from zipfile import ZipFile, ZipInfo
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import package_release
+import release_data
 
 spec = importlib.util.spec_from_file_location(
     "package_complete", Path(__file__).resolve().parents[1] / "tools/package_complete.py"
@@ -148,7 +151,7 @@ class PackageTests(unittest.TestCase):
     def test_unsafe_engine_path_is_rejected(self):
         with ZipFile(self.engine, "a") as z:
             z.writestr("engine/../bad", b"bad")
-        with self.assertRaisesRegex(ValueError, "Unsafe engine ZIP"):
+        with self.assertRaisesRegex(ValueError, "Unsafe ZIP"):
             self.build()
         self.assertFalse(self.output.exists())
 
@@ -158,6 +161,136 @@ class PackageTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "already contains"):
             self.build()
         self.assertFalse(self.output.exists())
+
+
+class ReleaseDataTests(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        self.game = self.root / "original-game"
+        files = {}
+        for name in packager.GAME_FILES:
+            path = self.game / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            payload = name.encode()
+            path.write_bytes(payload)
+            files[name] = {"size": len(payload), "sha256": hashlib.sha256(payload).hexdigest()}
+        (self.game / "999.SAV").write_bytes(b"private save")
+        self.voice = self.root / "voice.hrs"
+        self.voice.write_bytes(b"synthetic verified voice")
+        self.profile = self.root / "profile.json"
+        self.profile.write_text(json.dumps({"files": files}))
+        self.config = self.root / "release-data.json"
+        for field, value in (("PROFILE_PATH", self.profile), ("CONFIG_PATH", self.config),
+                             ("VOICE_SIZE", self.voice.stat().st_size),
+                             ("VOICE_SHA256", hashlib.sha256(self.voice.read_bytes()).hexdigest())):
+            patcher = patch.object(release_data, field, value)
+            patcher.start()
+            self.addCleanup(patcher.stop)
+        self.archive = self.root / "release-input.zip"
+        self.output = self.root / "verified"
+
+    def prepare(self):
+        metadata = release_data.create(self.game, self.voice, self.archive)
+        self.config.write_text(json.dumps(metadata))
+        return metadata
+
+    def repin(self):
+        self.config.write_text(json.dumps({"size": self.archive.stat().st_size,
+                                          "sha256": hashlib.sha256(self.archive.read_bytes()).hexdigest()}))
+
+    def test_verified_round_trip_excludes_saves_and_preserves_inputs(self):
+        before = {path: path.read_bytes() for path in self.game.rglob("*") if path.is_file()}
+        self.prepare()
+        release_data.unpack(self.archive, self.output)
+        actual = {str(path.relative_to(self.output)).replace("\\", "/")
+                  for path in self.output.rglob("*") if path.is_file()}
+        self.assertEqual(actual, {"data/" + name for name in packager.GAME_FILES} | {"media/FTAVOICE.HRS"})
+        self.assertEqual((self.output / "media/FTAVOICE.HRS").read_bytes(), self.voice.read_bytes())
+        for path, payload in before.items():
+            self.assertEqual(path.read_bytes(), payload)
+
+    def test_changed_archive_pin_rejected_before_extraction(self):
+        self.prepare()
+        with self.archive.open("ab") as stream:
+            stream.write(b"changed")
+        with self.assertRaisesRegex(ValueError, "pinned size and SHA-256"):
+            release_data.unpack(self.archive, self.output)
+        self.assertFalse(self.output.exists())
+
+    def test_unexpected_and_duplicate_entries_rejected(self):
+        for extra in ("../outside", "data/999.SAV", "data/FTA2.EXE"):
+            with self.subTest(extra=extra):
+                self.archive.unlink(missing_ok=True)
+                self.prepare()
+                with ZipFile(self.archive, "a") as archive:
+                    # Deliberately duplicate an entry to exercise the archive guard.
+                    with warnings.catch_warnings():
+                        warnings.simplefilter("ignore", UserWarning)
+                        archive.writestr(extra, b"extra")
+                self.repin()
+                with self.assertRaisesRegex(ValueError, "Unexpected or duplicate"):
+                    release_data.unpack(self.archive, self.output)
+                self.assertFalse(self.output.exists())
+
+    def test_file_hashes_verified_independently_of_archive_pin(self):
+        self.prepare()
+        with ZipFile(self.archive) as archive:
+            payloads = {info.filename: archive.read(info) for info in archive.infolist()}
+        payloads["data/FTA2.EXE"] = b"X" * len(payloads["data/FTA2.EXE"])
+        with ZipFile(self.archive, "w") as archive:
+            for name, payload in payloads.items():
+                archive.writestr(name, payload)
+        self.repin()
+        with self.assertRaisesRegex(ValueError, "damaged release data: data/FTA2.EXE"):
+            release_data.unpack(self.archive, self.output)
+        self.assertFalse(self.output.exists())
+
+    def test_existing_outputs_and_original_inputs_are_protected(self):
+        self.prepare()
+        before = self.archive.read_bytes()
+        with self.assertRaisesRegex(ValueError, "already exists"):
+            release_data.create(self.game, self.voice, self.archive)
+        self.assertEqual(self.archive.read_bytes(), before)
+        with self.assertRaisesRegex(ValueError, "outside"):
+            release_data.create(self.game, self.voice, self.game / "archive.zip")
+        self.output.mkdir()
+        with self.assertRaisesRegex(ValueError, "already exists"):
+            release_data.unpack(self.archive, self.output)
+
+    def test_unverified_voice_rejected_before_output(self):
+        self.voice.write_bytes(b"unverified")
+        with self.assertRaisesRegex(ValueError, "damaged release data: media/FTAVOICE.HRS"):
+            release_data.create(self.game, self.voice, self.archive)
+        self.assertFalse(self.archive.exists())
+
+    def test_download_uses_repository_input_and_verifies_it_before_returning(self):
+        metadata = self.prepare()
+        metadata["release_tag"] = "release-inputs-v1"
+        self.config.write_text(json.dumps(metadata))
+        downloaded = self.root / "downloaded"
+        def fetch(command, check):
+            self.assertEqual(command, ["gh", "release", "download", "release-inputs-v1", "--repo",
+                                       "owner/repository", "--pattern", self.archive.name,
+                                       "--dir", str(downloaded)])
+            self.assertTrue(check)
+            (downloaded / self.archive.name).write_bytes(self.archive.read_bytes())
+        with patch.dict(release_data.os.environ, {"GITHUB_REPOSITORY": "owner/repository"}), \
+                patch.object(release_data.subprocess, "run", side_effect=fetch):
+            self.assertEqual(release_data.download(downloaded), downloaded / "verified")
+        self.assertEqual((downloaded / "verified/media/FTAVOICE.HRS").read_bytes(), self.voice.read_bytes())
+
+    def test_failed_download_does_not_fall_back_to_unverified_data(self):
+        metadata = self.prepare()
+        metadata["release_tag"] = "release-inputs-v1"
+        self.config.write_text(json.dumps(metadata))
+        downloaded = self.root / "downloaded"
+        with patch.dict(release_data.os.environ, {"GITHUB_REPOSITORY": "owner/repository"}), \
+                patch.object(release_data.subprocess, "run", side_effect=subprocess.CalledProcessError(1, "gh")):
+            with self.assertRaises(subprocess.CalledProcessError):
+                release_data.download(downloaded)
+        self.assertFalse((downloaded / "verified").exists())
 
 
 class ReleaseTests(unittest.TestCase):

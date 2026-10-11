@@ -8,10 +8,12 @@ import sys
 import tempfile
 import unittest
 from unittest.mock import patch
-from zipfile import ZipFile
+from zipfile import BadZipFile, ZipFile, ZipInfo
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
 import package_release
+import package_complete
+import release_data
 import release
 from package_test import runtime_zip
 
@@ -258,6 +260,83 @@ class ReleaseTests(unittest.TestCase):
         with ZipFile(path, 'w') as archive:
             for name, content in contents.items():
                 archive.writestr(name, content)
+
+    def complete_fixture(self):
+        data = self.root / 'data'
+        files = {}
+        for name in package_complete.GAME_FILES:
+            path = data / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            payload = name.encode()
+            path.write_bytes(payload)
+            files[name] = {'size': len(payload), 'sha256': hashlib.sha256(payload).hexdigest()}
+        profile = self.root / 'profile.json'
+        profile.write_text(json.dumps({'files': files}))
+        voice = self.root / 'voice.hrs'
+        voice.write_bytes(b'verified synthetic voice')
+        for module in (package_complete, release_data):
+            for field, value in (('PROFILE_PATH', profile), ('VOICE_SIZE', voice.stat().st_size),
+                                 ('VOICE_SHA256', hashlib.sha256(voice.read_bytes()).hexdigest())):
+                patcher = patch.object(module, field, value)
+                patcher.start()
+                self.addCleanup(patcher.stop)
+        for platform in release.PLATFORMS:
+            self.player(platform)
+        return data, voice, self.root / 'complete'
+
+    def test_complete_releases_on_every_platform_include_verified_data_voices_and_sources(self):
+        data, voice, output = self.complete_fixture()
+        linux = self.assets / f'fta2-ce-{self.version}-Linux-x86_64.zip'
+        link = ZipInfo(f'{linux.stem}/lib/libSDL3.so.0')
+        link.create_system = 3
+        link.external_attr = 0o120777 << 16
+        with ZipFile(linux, 'a') as archive:
+            archive.writestr(link, b'libSDL3.so.0.4.18')
+        release.complete_packages(self.assets, data, voice, output, self.version)
+        for path in output.glob('*.zip'):
+            release.audit_bundle(path, self.version, complete=True)
+            with ZipFile(path) as archive:
+                for name in package_complete.GAME_FILES:
+                    self.assertEqual(archive.read(f'{path.stem}/data/{name}'), (data / name).read_bytes())
+                self.assertEqual(archive.read(f'{path.stem}/media/FTAVOICE.HRS'), voice.read_bytes())
+                self.assertEqual(archive.read(f'{path.stem}/source/{self.source.name}'), self.source.read_bytes())
+                self.assertIn(b'no folder selection', archive.read(f'{path.stem}/START-HERE.txt'))
+                if path.name == linux.name:
+                    self.assertEqual(archive.getinfo(link.filename).external_attr, link.external_attr)
+                    self.assertEqual(archive.read(link.filename), b'libSDL3.so.0.4.18')
+        checksum = release.checksums(output, self.version, all_platforms=True, complete=True)
+        self.assertEqual(len(checksum.read_text().splitlines()), 3)
+
+    def test_complete_mode_rejects_engine_only_downloads(self):
+        path = self.player()
+        with self.assertRaisesRegex(ValueError, 'exactly eight game files'):
+            release.audit_bundle(path, self.version, complete=True)
+
+    def test_complete_audit_rejects_corruption_extra_game_files_and_source_tampering(self):
+        data, voice, output = self.complete_fixture()
+        release.complete_packages(self.assets, data, voice, output, self.version)
+        path = next(output.glob('*.zip'))
+        original = path.read_bytes()
+        for name, payload in (('data/FTA2.EXE', b'damaged'), ('data/999.SAV', b'private save'),
+                              ('media/unverified.hrs', b'unverified'),
+                              ('bin/package.json', json.dumps({'schema_version': 1}).encode()),
+                              (f'source/{self.source.name}', b'damaged source')):
+            with self.subTest(name=name):
+                self.rewrite(path, {f'{path.stem}/{name}': payload})
+                with self.assertRaises((ValueError, BadZipFile)):
+                    release.audit_bundle(path, self.version, complete=True)
+                path.write_bytes(original)
+
+    def test_complete_assembly_requires_all_platforms_and_preserves_existing_output(self):
+        data, voice, output = self.complete_fixture()
+        release.complete_packages(self.assets, data, voice, output, self.version)
+        before = {path: path.read_bytes() for path in output.iterdir()}
+        with self.assertRaisesRegex(ValueError, 'already exists'):
+            release.complete_packages(self.assets, data, voice, output, self.version)
+        self.assertTrue(all(path.read_bytes() == payload for path, payload in before.items()))
+        next(self.assets.iterdir()).unlink()
+        with self.assertRaisesRegex(ValueError, 'three engine player ZIPs'):
+            release.complete_packages(self.assets, data, voice, self.root / 'missing', self.version)
 
     def test_exact_version_tags(self):
         release.verify_tag(self.version, 'v0.0.1')
