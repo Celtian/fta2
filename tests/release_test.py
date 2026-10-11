@@ -29,6 +29,7 @@ class VersionTests(unittest.TestCase):
         release.git(self.root, 'init')
         for key, value in (('user.name', 'Release Test'), ('user.email', 'test@example.invalid'),
                            ('commit.gpgsign', 'false'), ('tag.gpgsign', 'false'),
+                           ('push.followTags', 'false'),
                            ('core.autocrlf', 'false'), ('core.hooksPath', str(self.root / 'hooks'))):
             release.git(self.root, 'config', key, value)
         release.git(self.root, 'add', '.')
@@ -59,7 +60,8 @@ class VersionTests(unittest.TestCase):
                 release.git(self.root, 'reset', '--hard', self.head)
                 result = release.prepare_version(self.root, part)
                 tag = 'v' + expected
-                self.assertIn(f'git push origin HEAD {tag}', result)
+                self.assertIn('Publish with: git push', result)
+                self.assertEqual(release.git(self.root, 'config', '--local', '--get', 'push.followTags'), 'true')
                 self.assertEqual(release.cmake_version(self.cmake.read_text()), expected)
                 release.verify_tag(expected, tag)
                 self.assertEqual(release.git(self.root, 'cat-file', '-t', tag), 'tag')
@@ -87,6 +89,35 @@ class VersionTests(unittest.TestCase):
                 release.git(self.root, 'reset', '--', path.name)
                 self.assert_unchanged()
 
+    def test_ordinary_push_sends_release_commit_and_annotated_tag(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            remote = Path(temporary)
+            release.git(remote, 'init', '--bare')
+            release.git(self.root, 'remote', 'add', 'origin', str(remote))
+            branch = release.git(self.root, 'symbolic-ref', '--short', 'HEAD')
+            release.git(self.root, 'push', '--set-upstream', 'origin', branch)
+            release.prepare_version(self.root, 'patch')
+            self.assertEqual(release.git(remote, 'tag', '--list'), '')
+            self.assertEqual(release.git(remote, 'rev-parse', f'refs/heads/{branch}'), self.head)
+            release.git(self.root, 'push')
+            head = release.git(self.root, 'rev-parse', 'HEAD')
+            self.assertEqual(release.git(remote, 'rev-parse', f'refs/heads/{branch}'), head)
+            self.assertEqual(release.git(remote, 'rev-parse', 'refs/tags/v1.2.4^{commit}'), head)
+            self.assertEqual(release.git(remote, 'cat-file', '-t', 'refs/tags/v1.2.4'), 'tag')
+
+    def test_failed_push_configuration_reports_existing_commit_and_tag(self):
+        run_git = release.git
+        def fail_configuration(root, *args):
+            if args == ('config', '--local', 'push.followTags', 'true'):
+                raise ValueError('Synthetic configuration failure')
+            return run_git(root, *args)
+        with patch.object(release, 'git', side_effect=fail_configuration):
+            with self.assertRaisesRegex(ValueError, 'Created commit and tag v1.2.4.*git push origin HEAD v1.2.4'):
+                release.prepare_version(self.root, 'patch')
+        self.assertEqual(release.cmake_version(self.cmake.read_text()), '1.2.4')
+        self.assertEqual(release.git(self.root, 'cat-file', '-t', 'v1.2.4'), 'tag')
+        self.assertEqual(release.git(self.root, 'config', '--local', '--get', 'push.followTags'), 'false')
+
     def test_existing_tag_rejected_before_editing(self):
         release.git(self.root, 'tag', 'v1.2.4')
         with self.assertRaisesRegex(ValueError, 'Tag already exists'):
@@ -104,6 +135,7 @@ class VersionTests(unittest.TestCase):
         self.assertIn('v1.3.0', release.prepare_version(self.root, 'minor', dry_run=True))
         self.assert_unchanged()
         self.assertEqual(release.git(self.root, 'tag', '--list'), '')
+        self.assertEqual(release.git(self.root, 'config', '--local', '--get', 'push.followTags'), 'false')
 
     def test_failed_tag_keeps_created_commit_and_reports_it(self):
         run_git = release.git

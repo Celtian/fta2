@@ -4,6 +4,21 @@ The result is a standalone C++20 engine using SDL 3.4.18. It was built and run o
 
 The reference is a separate SAGA2 build at revision `1a3e816afd5ddc41cc2a5c51a5da292e6d61758c`, modified only by the supplied reference patches. Successful startup with DOS resources was verified before separating the engine. The missing `FTA2WIN.EXE` dependency was resolved by extracting the actual DOS resources.
 
+## Ordinary pushes after version preparation (2026-10-11)
+
+Version preparation now enables repository-local `push.followTags=true` after
+creating the annotated release tag. The user can run `patch|minor|major` followed
+by ordinary `git push`; preparation itself makes no network writes. Global Git
+configuration is unchanged, and dry runs leave local configuration unchanged.
+
+Linux CTest passes 12/12 with 28 release-tool cases. A new real-Git regression
+uses a temporary bare remote with a configured upstream: preparation leaves the
+remote branch and tags unchanged, then plain `git push` transfers both the new
+commit and its annotated tag. A configuration-failure regression preserves the
+created commit/tag and reports the explicit push command for recovery. These
+checks use local temporary repositories, not GitHub publication. The project
+version and actual repository configuration were not changed during validation.
+
 ## Manual branch releases (2026-10-11)
 
 The supplied 17:44 UTC workflow log selected `master` and stopped before building
@@ -606,3 +621,11 @@ Two synthetic Windows cases cover a previous filter that returns `EXCEPTION_CONT
 Linux and Zig Windows Release builds pass. Both public CTest suites pass 7/7, and Linux ASan/LSan passes 7/7. Windows C++ processes run on the native Windows host; Python orchestration runs on Linux. Native AppleClang/macOS, native MSVC and remote CI have not been rerun here and still require confirmation in the next CI run. Original-data gameplay integration and distribution packaging were not rerun for this compiler/test-fixture and Windows diagnostics correction. Development-alpha status is retained.
 
 The subsequent supplied macOS build log (2026-10-10 22:06 UTC) reached another parenthesized aggregate initialization, `StaticPoint32(px, py)`, in the carried-storage probe. It now uses `StaticPoint32{px, py}`. A local Clang 21 syntax/AST check of the complete probe's `Native` declarations finds one `CXXParenListInitExpr` with the old expression and none after correction; this checks other aggregate types as well as `Point`. Linux and Zig Windows Release builds and both CTest suites (7/7 each) were rerun successfully. This follow-up does not change gameplay or data access; original-data integration, sanitizer runs and packaging were not repeated. Native macOS confirmation remains pending.
+
+## Windows crash dump worker exclusion (2026-10-11)
+
+The supplied Windows [release run](https://github.com/Celtian/fta2/actions/runs/38162860463) built successfully but passed only 11/12 tests: the first synthetic fault could not write a minidump (`0x800706F8`, `ERROR_INVALID_USER_BUFFER`). The [desktop run of the same commit](https://github.com/Celtian/fta2/actions/runs/38162826961) passed on all three platforms, including Windows diagnostics. The existing diagnostic suite also passed locally on native Windows before modification, so the specific cause of the hosted failure remains unconfirmed.
+
+The dedicated dump writer now excludes its own thread with `IncludeThreadCallback`, following [Microsoft's guidance for in-process dump workers](https://learn.microsoft.com/en-us/windows/win32/api/minidumpapiset/nf-minidumpapiset-minidumpwritedump). The faulting thread and captured exception context remain included. The synthetic tests retain all five fatal cases and now parse the dump's thread and exception streams to require the faulting thread, a nonempty saved register context, and exclusion of the writer thread. The writer's ID is recorded in the crash log for that check. Tests are not skipped or retried to hide dump failures.
+
+Linux and Zig Windows Release builds and both public CTest suites pass 12/12. Windows processes execute on the native Windows host, with Python orchestration on Linux. The five Windows fatal cases pass the thread and register-context checks. Local build/test logs are retained in `.cache/release-dump-{linux,windows}-{build,ctest}.log`. Hosted MSVC validation of the changed writer is still pending; this mitigation is not yet evidence that the intermittent CI failure is resolved. No gameplay or original-data access changed, and original-data integration and sanitizer checks were not repeated.

@@ -137,6 +137,24 @@ void fatalRecord(const char* reason, uintptr_t code, uintptr_t address) {
 }
 
 #ifdef _WIN32
+BOOL CALLBACK dumpCallback(void* parameter, MINIDUMP_CALLBACK_INPUT* input,
+                           MINIDUMP_CALLBACK_OUTPUT*) {
+    // DbgHelp cannot reliably capture the thread executing MiniDumpWriteDump.
+    // Exclude only that worker; retain the faulting thread and its saved context.
+    switch (input->CallbackType) {
+    case IncludeThreadCallback:
+        return input->IncludeThread.ThreadId != *static_cast<const DWORD*>(parameter);
+    case IncludeModuleCallback:
+    case ModuleCallback:
+    case ThreadCallback:
+    case ThreadExCallback:
+        return TRUE;
+    default:
+        // No extra memory, custom I/O or ignored read failures.
+        return FALSE;
+    }
+}
+
 DWORD WINAPI dumpWorker(void*) {
     WaitForSingleObject(dumpEvent, INFINITE);
     if (!dumpException)
@@ -145,16 +163,21 @@ DWORD WINAPI dumpWorker(void*) {
                               FILE_ATTRIBUTE_NORMAL, nullptr);
     BOOL success = FALSE;
     DWORD failure = GetLastError();
+    DWORD writerThreadID = GetCurrentThreadId();
     if (file != INVALID_HANDLE_VALUE) {
         MINIDUMP_EXCEPTION_INFORMATION info{dumpThreadID, dumpException, FALSE};
+        MINIDUMP_CALLBACK_INFORMATION callback{dumpCallback, &writerThreadID};
         success = writeDump(GetCurrentProcess(), GetCurrentProcessId(), file, MiniDumpNormal, &info,
-                            nullptr, nullptr);
+                            nullptr, &callback);
         failure = success ? 0 : GetLastError();
         CloseHandle(file);
         if (!success)
             DeleteFileW(dumpPath.data());
     }
     CrashLine line;
+    line.text("Crash dump writer thread=");
+    line.number(writerThreadID);
+    line.text("\n");
     line.text(success ? "Crash dump written beside the session log.\n" : "Crash dump failed: ");
     if (!success) {
         line.number(failure);

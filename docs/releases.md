@@ -35,7 +35,10 @@ review `packaging/RELEASE-NOTES.md`. Then run **one** command from the project r
 | `python3 tools/release.py major` | 2.0.0 |
 
 Each command updates the CMake version and current README version, creates a
-`chore(release): vVERSION` commit and an annotated `vVERSION` tag. The application
+`chore(release): vVERSION` commit and an annotated `vVERSION` tag. It also sets
+`push.followTags=true` in this repository's local Git configuration, so an ordinary
+`git push` sends the release tag with the branch. Global Git settings are unchanged.
+The application
 and package versions already derive from CMake. Historical validation records
 and earlier packages keep their recorded versions. Development-alpha status is
 retained even for a major bump.
@@ -47,17 +50,19 @@ bump rejects modified, staged or untracked files and existing target tags. If th
 commit fails, the version files and their staging are restored. If tag creation
 fails after a successful commit, the error reports that the commit already exists.
 
-The commands do not push. To publish, run the exact command printed by the script,
-for example after a patch bump from 0.0.1:
+The commands do not push. The complete sequence for a patch release is:
 
 ```sh
-git push origin HEAD v0.0.2
+python3 tools/release.py patch
+git push
 ```
 
-This pushes the branch commit and that release tag, starting the release workflow.
-An ordinary branch push, including a GUI's default Push action, starts only
-Desktop builds; it does not send the local version tag. Use the exact command
-above for an automatic release, or use the manual path below after a branch push.
+The push sends the branch commit and missing reachable annotated tags, starting
+Desktop builds for the branch and GitHub release for each version tag. This Git
+setting also includes older reachable annotated tags that have not yet been
+pushed; existing remote tags are not replaced. A configured upstream is required
+for ordinary `git push`, as with any branch push. Use `git push --no-follow-tags`
+when you deliberately want branch CI followed by a manual release instead.
 To release the current version without increasing it, create its annotated tag
 manually, for example `git tag -a v0.0.1 -m 'Community Edition 0.0.1 development alpha'`,
 then push the branch and that tag with `git push origin HEAD v0.0.1`.

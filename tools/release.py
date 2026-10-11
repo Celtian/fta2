@@ -64,7 +64,8 @@ def prepare_version(root, part, dry_run=False):
     version, originals, changes = version_changes(root, part)
     tag = "v" + version
     if dry_run:
-        return f"Would update CMakeLists.txt and README.md, commit and tag {tag}; no push"
+        return (f"Would update CMakeLists.txt and README.md, commit and tag {tag}, "
+                "and enable repository-local push.followTags; no push")
     if Path(git(root, "rev-parse", "--show-toplevel")).resolve() != root.resolve():
         raise ValueError("Run version preparation from the project Git repository")
     if git(root, "status", "--porcelain", "--untracked-files=normal"):
@@ -86,9 +87,13 @@ def prepare_version(root, part, dry_run=False):
         git(root, "tag", "-a", tag, "-m", f"Community Edition {version} development alpha")
     except ValueError as error:
         raise ValueError(f"Version commit created, but {tag} was not tagged: {error}") from error
-    return (f"Created commit and tag {tag}. Publish with: git push origin HEAD {tag}\n"
-            "A branch-only push runs Desktop builds. For a manual release, push the branch "
-            "and run GitHub release from Actions.")
+    try:
+        git(root, "config", "--local", "push.followTags", "true")
+    except ValueError as error:
+        raise ValueError(f"Created commit and tag {tag}, but could not configure tag pushes: "
+                         f"{error}. Publish with: git push origin HEAD {tag}") from error
+    return (f"Created commit and tag {tag}. Enabled repository-local push.followTags.\n"
+            "Publish with: git push")
 
 
 def resolve_target(root, tag="", ref=""):

@@ -2,8 +2,33 @@
 import argparse
 from pathlib import Path
 import os
+import re
+import struct
 import subprocess
 import tempfile
+
+
+def check_windows_dump(path, text):
+    data = path.read_bytes()
+    assert data[:4] == b"MDMP", text
+    count, directory = struct.unpack_from("<II", data, 8)
+    streams = {}
+    for index in range(count):
+        kind, size, offset = struct.unpack_from("<III", data, directory + 12 * index)
+        assert offset + size <= len(data), (kind, size, offset, len(data))
+        streams[kind] = data[offset:offset + size]
+    # ThreadListStream and ExceptionStream must retain the actual crash context.
+    threads = streams[3]
+    count, = struct.unpack_from("<I", threads)
+    thread_ids = {struct.unpack_from("<I", threads, 4 + 48 * index)[0]
+                  for index in range(count)}
+    exception_thread, = struct.unpack_from("<I", streams[6])
+    assert exception_thread in thread_ids, (exception_thread, thread_ids)
+    context_size, context_offset = struct.unpack_from("<II", streams[6], 160)
+    assert context_size > 0 and context_offset + context_size <= len(data)
+    writer = re.search(r"Crash dump writer thread=(\d+)", text)
+    assert writer, text
+    assert int(writer[1]) not in thread_ids, (writer[1], thread_ids)
 
 
 def main():
@@ -81,7 +106,8 @@ def main():
                 assert "synthetic previous filter exception" in text, text
             if args.binary.suffix == ".exe":
                 dumps = list(directory.glob("*.dmp"))
-                assert len(dumps) == 1 and dumps[0].read_bytes()[:4] == b"MDMP", text
+                assert len(dumps) == 1, text
+                check_windows_dump(dumps[0], text)
         if args.application_binary:
             # An empty synthetic installation reaches startup logging, then fails resource validation.
             data = work / "empty data"
