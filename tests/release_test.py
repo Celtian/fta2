@@ -5,12 +5,130 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 from zipfile import ZipFile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
 import package_release
 import release
 from package_test import runtime_zip
+
+
+class VersionTests(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        self.cmake = self.root / 'CMakeLists.txt'
+        self.readme = self.root / 'README.md'
+        self.cmake.write_bytes(b'project(fta2-ce VERSION 1.2.3 LANGUAGES CXX)\r\n')
+        self.readme.write_bytes(('**🚧 Development alpha · version 1.2.3.**\r\n'
+                                 'Historical version 1.2.3 remains recorded.\r\n').encode('utf-8'))
+        release.git(self.root, 'init')
+        for key, value in (('user.name', 'Release Test'), ('user.email', 'test@example.invalid'),
+                           ('commit.gpgsign', 'false'), ('tag.gpgsign', 'false'),
+                           ('core.autocrlf', 'false'), ('core.hooksPath', str(self.root / 'hooks'))):
+            release.git(self.root, 'config', key, value)
+        release.git(self.root, 'add', '.')
+        release.git(self.root, 'commit', '-m', 'Initial fixture')
+        self.head = release.git(self.root, 'rev-parse', 'HEAD')
+        self.originals = {path: path.read_bytes() for path in (self.cmake, self.readme)}
+
+    def assert_unchanged(self):
+        for path, content in self.originals.items():
+            self.assertEqual(path.read_bytes(), content)
+        self.assertEqual(release.git(self.root, 'rev-parse', 'HEAD'), self.head)
+
+    def test_patch_minor_major_reset_lower_components(self):
+        for part, expected in (('patch', '1.2.4'), ('minor', '1.3.0'), ('major', '2.0.0')):
+            with self.subTest(part=part):
+                version, originals, changes = release.version_changes(self.root, part)
+                self.assertEqual(version, expected)
+                self.assertEqual(originals, self.originals)
+                self.assertIn(f'VERSION {expected} '.encode(), changes[self.cmake])
+                self.assertIn(f'version {expected}.**'.encode(), changes[self.readme])
+                self.assertIn(b'Historical version 1.2.3 remains recorded.', changes[self.readme])
+                self.assertTrue(all(content.endswith(b'\r\n') for content in changes.values()))
+        self.assert_unchanged()
+
+    def test_commit_and_annotated_tag_without_remote(self):
+        for part, expected in (('patch', '1.2.4'), ('minor', '1.3.0'), ('major', '2.0.0')):
+            with self.subTest(part=part):
+                release.git(self.root, 'reset', '--hard', self.head)
+                result = release.prepare_version(self.root, part)
+                tag = 'v' + expected
+                self.assertIn(f'git push origin HEAD {tag}', result)
+                self.assertEqual(release.cmake_version(self.cmake.read_text()), expected)
+                release.verify_tag(expected, tag)
+                self.assertEqual(release.git(self.root, 'cat-file', '-t', tag), 'tag')
+                self.assertEqual(release.git(self.root, 'rev-parse', tag + '^{commit}'),
+                                 release.git(self.root, 'rev-parse', 'HEAD'))
+                self.assertEqual(release.git(self.root, 'show', '--format=', '--name-only', 'HEAD').splitlines(),
+                                 ['CMakeLists.txt', 'README.md'])
+                self.assertEqual(release.git(self.root, 'status', '--porcelain'), '')
+
+    def test_dirty_staged_and_untracked_files_rejected(self):
+        for state in ('modified', 'staged', 'untracked'):
+            with self.subTest(state=state):
+                path = self.cmake if state != 'untracked' else self.root / 'notes.txt'
+                before = path.read_bytes() if path.exists() else None
+                path.write_bytes((before or b'') + b'work in progress\n')
+                if state == 'staged':
+                    release.git(self.root, 'add', '--', path.name)
+                with self.assertRaisesRegex(ValueError, 'Commit or stash'):
+                    release.prepare_version(self.root, 'patch')
+                self.assertTrue(path.read_bytes().endswith(b'work in progress\n'))
+                if before is None:
+                    path.unlink()
+                else:
+                    path.write_bytes(before)
+                release.git(self.root, 'reset', '--', path.name)
+                self.assert_unchanged()
+
+    def test_existing_tag_rejected_before_editing(self):
+        release.git(self.root, 'tag', 'v1.2.4')
+        with self.assertRaisesRegex(ValueError, 'Tag already exists'):
+            release.prepare_version(self.root, 'patch')
+        self.assert_unchanged()
+
+    def test_mismatched_readme_rejected_before_editing(self):
+        self.readme.write_text('Version missing', encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'README'):
+            release.prepare_version(self.root, 'patch')
+        self.assertEqual(self.cmake.read_bytes(), self.originals[self.cmake])
+        self.assertEqual(self.readme.read_text(), 'Version missing')
+
+    def test_dry_run_does_not_change_files_or_git(self):
+        self.assertIn('v1.3.0', release.prepare_version(self.root, 'minor', dry_run=True))
+        self.assert_unchanged()
+        self.assertEqual(release.git(self.root, 'tag', '--list'), '')
+
+    def test_failed_tag_keeps_created_commit_and_reports_it(self):
+        run_git = release.git
+        def fail_tag(root, *args):
+            if args[:2] == ('tag', '-a'):
+                raise ValueError('Synthetic tag failure')
+            return run_git(root, *args)
+        with patch.object(release, 'git', side_effect=fail_tag):
+            with self.assertRaisesRegex(ValueError, 'Version commit created, but v1.2.4 was not tagged'):
+                release.prepare_version(self.root, 'patch')
+        self.assertEqual(release.cmake_version(self.cmake.read_text()), '1.2.4')
+        self.assertNotEqual(release.git(self.root, 'rev-parse', 'HEAD'), self.head)
+        self.assertEqual(release.git(self.root, 'status', '--porcelain'), '')
+        self.assertEqual(release.git(self.root, 'tag', '--list'), '')
+
+    def test_failed_commit_restores_files_and_index(self):
+        run_git = release.git
+        def fail_commit(root, *args):
+            if args[0] == 'commit':
+                raise ValueError('Synthetic commit failure')
+            return run_git(root, *args)
+        with patch.object(release, 'git', side_effect=fail_commit):
+            with self.assertRaisesRegex(ValueError, 'Synthetic commit failure'):
+                release.prepare_version(self.root, 'patch')
+        self.assert_unchanged()
+        self.assertEqual(release.git(self.root, 'status', '--porcelain'), '')
+        self.assertEqual(release.git(self.root, 'tag', '--list'), '')
 
 
 class ReleaseTests(unittest.TestCase):

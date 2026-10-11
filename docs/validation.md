@@ -4,6 +4,23 @@ The result is a standalone C++20 engine using SDL 3.4.18. It was built and run o
 
 The reference is a separate SAGA2 build at revision `1a3e816afd5ddc41cc2a5c51a5da292e6d61758c`, modified only by the supplied reference patches. Successful startup with DOS resources was verified before separating the engine. The missing `FTA2WIN.EXE` dependency was resolved by extracting the actual DOS resources.
 
+## Release version commands (2026-10-11)
+
+`tools/release.py patch|minor|major` updates the CMake and current README version,
+creates a release commit and an annotated tag, and prints an explicit push
+command. `--dry-run` changes neither files nor Git. Historical evidence and
+development-alpha status are retained.
+
+Linux CTest passes 12/12. The expanded release suite separately passes 19 cases,
+including version resets, byte-preserved line endings, real commits/annotated
+tags in temporary Git repositories, dirty/staged/untracked rejection, existing
+tags, README mismatch, dry runs and commit/tag failure handling. All three CLI
+dry runs and local README/release-document links pass. The project version remains
+0.0.1; no release commit, tag or push was made in this repository. Native
+Windows/macOS execution and GitHub publication were not rerun for this tooling
+change. Gameplay, original-data integration and distribution packaging were not
+rerun. Development-alpha status is retained.
+
 ## Windows C1128 and map arrow controls in 0.0.1
 
 The supplied GitHub Windows log fails during MSVC Release compilation of

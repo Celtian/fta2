@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Build and audit public release assets without proprietary game data."""
+"""Prepare versions, build and audit public releases without proprietary data."""
 import argparse
 import hashlib
 import json
 from pathlib import Path
 import re
+import subprocess
 import tempfile
 from zipfile import BadZipFile, ZipFile
 
@@ -25,6 +26,67 @@ def cmake_version(content):
 def verify_tag(version, tag):
     if tag != "v" + version:
         raise ValueError(f"Release tag must equal v{version}, got {tag!r}")
+
+
+def version_changes(root, part):
+    """Plan a version bump without rewriting historical validation records."""
+    cmake = root / "CMakeLists.txt"
+    readme = root / "README.md"
+    originals = {path: path.read_bytes() for path in (cmake, readme)}
+    version = cmake_version(originals[cmake].decode("utf-8"))
+    numbers = [int(number) for number in version.split(".")]
+    index = ("major", "minor", "patch").index(part)
+    numbers[index] += 1
+    numbers[index + 1:] = [0] * (2 - index)
+    updated = ".".join(str(number) for number in numbers)
+    marker = f"**🚧 Development alpha · version {version}.**".encode("utf-8")
+    if originals[readme].count(marker) != 1:
+        raise ValueError("README development-alpha version must match CMake exactly once")
+    changes = {
+        cmake: originals[cmake].replace(
+            f"project(fta2-ce VERSION {version} LANGUAGES CXX)".encode(),
+            f"project(fta2-ce VERSION {updated} LANGUAGES CXX)".encode(), 1),
+        readme: originals[readme].replace(
+            marker, f"**🚧 Development alpha · version {updated}.**".encode("utf-8"), 1),
+    }
+    return updated, originals, changes
+
+
+def git(root, *args):
+    result = subprocess.run(["git", *args], cwd=root, capture_output=True,
+                            encoding="utf-8", errors="replace")
+    if result.returncode:
+        raise ValueError(f"git {args[0]} failed: {result.stderr.strip() or result.stdout.strip()}")
+    return result.stdout.strip()
+
+
+def prepare_version(root, part, dry_run=False):
+    version, originals, changes = version_changes(root, part)
+    tag = "v" + version
+    if dry_run:
+        return f"Would update CMakeLists.txt and README.md, commit and tag {tag}; no push"
+    if Path(git(root, "rev-parse", "--show-toplevel")).resolve() != root.resolve():
+        raise ValueError("Run version preparation from the project Git repository")
+    if git(root, "status", "--porcelain", "--untracked-files=normal"):
+        raise ValueError("Commit or stash working-tree changes before preparing a version")
+    if git(root, "tag", "--list", tag):
+        raise ValueError(f"Tag already exists: {tag}")
+    paths = [str(path.relative_to(root)) for path in changes]
+    try:
+        for path, content in changes.items():
+            path.write_bytes(content)
+        git(root, "add", "--", *paths)
+        git(root, "commit", "-m", f"chore(release): {tag}")
+    except (OSError, ValueError):
+        for path, content in originals.items():
+            path.write_bytes(content)
+        git(root, "reset", "--", *paths)
+        raise
+    try:
+        git(root, "tag", "-a", tag, "-m", f"Community Edition {version} development alpha")
+    except ValueError as error:
+        raise ValueError(f"Version commit created, but {tag} was not tagged: {error}") from error
+    return f"Created commit and tag {tag}. Publish with: git push origin HEAD {tag}"
 
 
 def runtime_names(version):
@@ -105,6 +167,9 @@ def main():
     commands = parser.add_subparsers(dest="command", required=True)
     version_parser = commands.add_parser("version", help="Read CMake version and optionally verify its tag")
     version_parser.add_argument("--tag", default="")
+    for part in ("patch", "minor", "major"):
+        bump_parser = commands.add_parser(part, help=f"Bump {part}, commit and create an annotated tag")
+        bump_parser.add_argument("--dry-run", action="store_true", help="Preview without changing files or Git")
     bundle_parser = commands.add_parser("bundle", help="Embed sources and audit the public player ZIP")
     bundle_parser.add_argument("--packages", type=Path, required=True)
     bundle_parser.add_argument("--output", type=Path, required=True)
@@ -115,7 +180,9 @@ def main():
     args = parser.parse_args()
     try:
         version = cmake_version((ROOT / "CMakeLists.txt").read_text(encoding="utf-8"))
-        if args.command == "version":
+        if args.command in ("patch", "minor", "major"):
+            result = prepare_version(ROOT, args.command, args.dry_run)
+        elif args.command == "version":
             if args.tag:
                 verify_tag(version, args.tag)
             result = version

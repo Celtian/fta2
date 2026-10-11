@@ -100,8 +100,18 @@ Public tests use synthetic inputs and need no original game data.
 CI and tagged releases share the same [desktop build workflow](.github/workflows/desktop.yml).
 The [release pipeline](.github/workflows/release.yml) verifies the version, tests
 and audits all three platform ZIPs, then publishes a GitHub prerelease with
-SHA-256 checksums. Push a tag matching CMake, starting with `v0.0.1`; manual runs
-must select an existing version tag. See [release instructions](docs/releases.md).
+SHA-256 checksums. Prepare the next version with one of these commands:
+
+```sh
+python3 tools/release.py patch
+python3 tools/release.py minor
+python3 tools/release.py major
+```
+
+Choose one command with a clean working tree. It updates the version, commits and
+creates an annotated tag; then run the printed Git push command to start the
+release pipeline. Add `--dry-run` to preview. See [release instructions](docs/releases.md)
+for examples and manual workflow runs.
 
 - 🧩 [Architecture](docs/architecture.md) and [original resources](docs/dos-resources.md)
 - 🧪 [Validation and outstanding acceptance checks](docs/validation.md)

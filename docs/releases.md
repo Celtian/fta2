@@ -25,20 +25,45 @@ Only the final player ZIP is uploaded as a CI artifact, retained for 14 days.
 
 ## 🏷️ Create a release
 
-1. Update `project(fta2-ce VERSION …)` in `CMakeLists.txt`, the README version and
-   relevant validation notes. Review `packaging/RELEASE-NOTES.md`.
-2. Commit the release changes and push them to the repository. Wait for CI.
-3. Create and push the matching version tag, starting with:
+Start with a clean working tree: commit the changes you want to release and
+review `packaging/RELEASE-NOTES.md`. Then run **one** command from the project root:
 
-   ```sh
-   git tag -a v0.0.1 -m 'Community Edition 0.0.1 development alpha'
-   git push origin v0.0.1
-   ```
+| Command | Example from 1.2.3 |
+| --- | --- |
+| `python3 tools/release.py patch` | 1.2.4 |
+| `python3 tools/release.py minor` | 1.3.0 |
+| `python3 tools/release.py major` | 2.0.0 |
+
+Each command updates the CMake version and current README version, creates a
+`chore(release): vVERSION` commit and an annotated `vVERSION` tag. The application
+and package versions already derive from CMake. Historical validation records
+and earlier packages keep their recorded versions. Development-alpha status is
+retained even for a major bump.
+
+The commands require Python 3.10+ and Git; no configured C++ build or Node.js is
+needed. Use `python` instead of `python3` if that is your Windows interpreter name.
+Add `--dry-run` to preview the next version without changing files or Git. A real
+bump rejects modified, staged or untracked files and existing target tags. If the
+commit fails, the version files and their staging are restored. If tag creation
+fails after a successful commit, the error reports that the commit already exists.
+
+The commands do not push. To publish, run the exact command printed by the script,
+for example after a patch bump from 0.0.1:
+
+```sh
+git push origin HEAD v0.0.2
+```
+
+This pushes the branch commit and that release tag, starting the release workflow.
+To release the current version without increasing it, create its annotated tag
+manually, for example `git tag -a v0.0.1 -m 'Community Edition 0.0.1 development alpha'`,
+then push the branch and that tag with `git push origin HEAD v0.0.1`.
 
 A pushed `v*` tag starts the release workflow. Its tag must equal `v` plus the
-CMake version; mismatches stop before the platform builds. A manual run must
-select an existing version tag from the GitHub Actions ref selector. Selecting a
-branch fails with an explanatory message. No personal access token is needed:
+CMake version; mismatches stop before the platform builds. To start a manual run
+for an existing tag, use `gh workflow run release.yml --ref v0.0.2`, replacing the
+tag with your version. Selecting a branch fails with an explanatory message.
+No personal access token is needed:
 only the final publication job has `contents: write`, using `GITHUB_TOKEN`.
 
 After all three builds pass, the publication job audits every ZIP again, verifies
