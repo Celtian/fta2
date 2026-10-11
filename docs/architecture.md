@@ -26,6 +26,8 @@ New `MotionTask` instances are value-initialized to make saves reproducible. Can
 
 The gameplay G shortcut searches only the selected actor's inventory through the original recursive container iterator. For the supported DOS profile, map prototype 320 uses ordinary Inventory class 13 and on-use script 1149; the shortcut schedules `MotionTask::useObject` just like inventory double-click. Original scripts continue to decide whether and where to show the map. Modal input, UI locks and held/dragged objects prevent shortcut activation.
 
+The map modal alone handles arrow-key panning. Screen-horizontal movement changes its two isometric base coordinates in opposite directions; screen-vertical movement changes both together. Each key advances two metatiles per axis, using the existing draw-time world bounds. SDL key repeats continue the movement. Legacy Home/End/Page Up/Page Down, map scripts, party position and shared exploration remain unchanged. Special key codes bypass character case conversion in the UI dispatcher.
+
 ## Localization and captured speech
 
 The language modal offers four mutually exclusive radio choices in two rows, with E/C/S/F shortcuts and unchanged confirmation bounds. Per-language font copies preserve explicitly bound endonyms and captured speech; original fonts remain available. NLOC version 1 retains its layout and uses the existing language byte: 1 Czech, 2 Spanish, 3 French. Loading a save never changes the user preference.

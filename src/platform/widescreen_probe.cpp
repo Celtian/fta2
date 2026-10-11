@@ -143,6 +143,8 @@ struct WidescreenProbe {
     Saga2::gWindow* options = nullptr;
     Saga2::TilePoint walkingStart;
     bool inspectingExploration = false;
+    bool inspectingMapPanning = false;
+    int mapPanLayouts = 0, mapPanKeys = 0, mapPanBounds = 0, mapPanRepeats = 0;
     int explorationMap = -1, explorationBrother = -1, explorationStep = -1;
 
     std::vector<byte> explored() const {
@@ -153,6 +155,133 @@ struct WidescreenProbe {
                 result.push_back(bool(map.map->mapData[i] & Saga2::kMetaTileVisited));
         }
         return result;
+    }
+
+    void checkMapPanning(Saga2::AutoMap* map) {
+        using namespace Saga2;
+        requireWide(map && ModalWindow::_current == map, "map panning needs the active map");
+        const auto actor = getCenterActorID();
+        const auto position = centerActorCoords();
+        const auto seed = g_vm->_rnd->getSeed();
+        const auto visited = explored();
+        const auto original = map->_baseCoords;
+        const auto box = map->getExtent();
+        auto pixels = [&] { return region(box.x, box.y, box.width, 275); };
+        const auto originalPixels = pixels();
+        // The original summary viewport spans 62 metatiles along each map axis.
+        const int limit = mapList[currentWorld->_mapNum].mapSize - 62;
+        requireWide(limit >= 8, "map panning needs an interior and map edges");
+        TilePoint origin = original;
+        origin.u = clamp(4, int(origin.u), limit - 4);
+        origin.v = clamp(4, int(origin.v), limit - 4);
+        map->_baseCoords = origin;
+        map->draw();
+        const auto baseline = pixels();
+        const auto modifiers = SDL_GetModState();
+        SDL_SetModState(SDL_KMOD_NONE);
+        auto press = [&](SDL_Keycode code, bool repeat = false) {
+            SDL_Event input{};
+            input.type = SDL_EVENT_KEY_DOWN;
+            input.key.key = code;
+            input.key.down = true;
+            input.key.repeat = repeat;
+            requireWide(SDL_PushEvent(&input), "cannot inject map key");
+            Event event;
+            int keys = 0;
+            while (g_platform->pollEvent(event)) {
+                if (event.type == EVENT_KEYDOWN) {
+                    ++keys;
+                    g_vm->_toolBase->handleKeyStroke(event);
+                }
+            }
+            requireWide(keys == 1 && ModalWindow::_current == map,
+                        "map key was lost or closed the dialog");
+            ++mapPanKeys;
+            mapPanRepeats += repeat;
+        };
+        struct Direction {
+            SDL_Keycode key, opposite;
+            int du, dv;
+        };
+        const Direction directions[] = {{SDLK_UP, SDLK_DOWN, 2, 2},
+                                        {SDLK_DOWN, SDLK_UP, -2, -2},
+                                        {SDLK_LEFT, SDLK_RIGHT, -2, 2},
+                                        {SDLK_RIGHT, SDLK_LEFT, 2, -2}};
+        for (const auto& direction : directions) {
+            press(direction.key);
+            requireWide(map->_baseCoords.u == origin.u + direction.du &&
+                            map->_baseCoords.v == origin.v + direction.dv && pixels() != baseline,
+                        "arrow did not pan the rendered map in its screen direction");
+            if (direction.key == SDLK_UP)
+                g_platform->capture(output /
+                                    String::format("map-pan-%d-up.ppm", mapPanLayouts).c_str());
+            press(direction.key, true);
+            requireWide(map->_baseCoords.u == origin.u + 2 * direction.du &&
+                            map->_baseCoords.v == origin.v + 2 * direction.dv,
+                        "held arrow did not repeat map panning");
+            press(direction.opposite);
+            press(direction.opposite);
+            requireWide(map->_baseCoords == origin && pixels() == baseline,
+                        "opposite arrows did not restore the map pixels");
+        }
+        const Direction legacy[] = {{SDLK_HOME, SDLK_PAGEDOWN, 0, 2},
+                                    {SDLK_END, SDLK_PAGEUP, -2, 0},
+                                    {SDLK_PAGEUP, SDLK_END, 2, 0},
+                                    {SDLK_PAGEDOWN, SDLK_HOME, 0, -2}};
+        for (const auto& direction : legacy) {
+            press(direction.key);
+            requireWide(map->_baseCoords.u == origin.u + direction.du &&
+                            map->_baseCoords.v == origin.v + direction.dv,
+                        "legacy diagonal map key changed");
+            press(direction.opposite);
+            requireWide(map->_baseCoords == origin && pixels() == baseline,
+                        "legacy map key did not restore its view");
+        }
+        for (int u : {0, limit})
+            for (int v : {0, limit})
+                for (const auto& direction : directions) {
+                    map->_baseCoords.u = u;
+                    map->_baseCoords.v = v;
+                    map->draw();
+                    press(direction.key);
+                    requireWide(map->_baseCoords.u == clamp(0, u + direction.du, limit) &&
+                                    map->_baseCoords.v == clamp(0, v + direction.dv, limit),
+                                "arrow crossed a map boundary");
+                    ++mapPanBounds;
+                }
+        map->_baseCoords = original;
+        map->draw();
+        SDL_SetModState(modifiers);
+        requireWide(pixels() == originalPixels && getCenterActorID() == actor &&
+                        centerActorCoords() == position && g_vm->_rnd->getSeed() == seed &&
+                        explored() == visited && !map->getCheatFlag(),
+                    "map panning changed the party, exploration or original view");
+        g_platform->capture(output /
+                            String::format("map-pan-%d-restored.ppm", mapPanLayouts).c_str());
+        ++mapPanLayouts;
+    }
+
+    void mapPanning() {
+        const bool wide = ConfMan.getBool("widescreen");
+        const bool sidebar = ConfMan.getBool("alternate_sidebar");
+        inspectingMapPanning = true;
+        for (bool aspect : {false, true})
+            for (bool layout : {false, true}) {
+                ConfMan.setBool("widescreen", aspect);
+                ConfMan.setBool("alternate_sidebar", layout);
+                Saga2::requestDisplayModeChange();
+                Saga2::applyPendingDisplayMode();
+                inspect([] { Saga2::openAutoMap(); });
+            }
+        inspectingMapPanning = false;
+        ConfMan.setBool("widescreen", wide);
+        ConfMan.setBool("alternate_sidebar", sidebar);
+        Saga2::requestDisplayModeChange();
+        Saga2::applyPendingDisplayMode();
+        std::ofstream(output / "map-pan.json")
+            << "{\"status\":\"passed\",\"layouts\":" << mapPanLayouts << ",\"keys\":" << mapPanKeys
+            << ",\"boundary_checks\":" << mapPanBounds << ",\"repeat_checks\":" << mapPanRepeats
+            << ",\"captures\":8,\"fixture_restored\":true}\n";
     }
 
     void exploration() {
@@ -1101,7 +1230,9 @@ struct WidescreenProbe {
             requireWide(r.x == (854 - r.width) / 2, "dialog is not centered");
         if (action == Inspect) {
             if (modalPhase++ == 0) {
-                if (inspectingExploration) {
+                if (inspectingMapPanning) {
+                    checkMapPanning(dynamic_cast<Saga2::AutoMap*>(dialog));
+                } else if (inspectingExploration) {
                     auto map = Saga2::pAutoMap;
                     requireWide(map && map == dialog && !map->getCheatFlag() &&
                                     map->_trackPos == Saga2::centerActorCoords() &&
@@ -1327,6 +1458,7 @@ struct WidescreenProbe {
         requireWide(vm->loadGameState(2) == kNoError && g_platform->getWidth() == 854,
                     "original-save import changed display mode or failed");
         exploration();
+        mapPanning();
         buttonStates();
         inspect([] { Saga2::openAutoMap(); });
         inspect([] { Saga2::openBook(Saga2::resImports->reserved[0]); });

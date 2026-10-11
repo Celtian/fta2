@@ -4,6 +4,50 @@ The result is a standalone C++20 engine using SDL 3.4.18. It was built and run o
 
 The reference is a separate SAGA2 build at revision `1a3e816afd5ddc41cc2a5c51a5da292e6d61758c`, modified only by the supplied reference patches. Successful startup with DOS resources was verified before separating the engine. The missing `FTA2WIN.EXE` dependency was resolved by extracting the actual DOS resources.
 
+## Windows C1128 and map arrow controls in 0.0.1
+
+The supplied GitHub Windows log fails during MSVC Release compilation of
+`src/platform/localization.cpp` with C1128, because the generated four-language
+catalog exceeds the ordinary COFF section count. The engine now enables
+`/bigobj` under MSVC, following [Microsoft guidance](https://learn.microsoft.com/en-us/cpp/error-messages/compiler-errors-1/fatal-error-c1128).
+Compiler optimization and pinned dependencies remain unchanged. A local Zig
+Windows build is not evidence that the hosted MSVC job passed; the corrected
+MSVC configuration still requires the next GitHub CI run.
+
+Arrow keys now pan the open map viewport in screen directions, including SDL
+key repeat. Existing Home/End/Page Up/Page Down movements, Escape, the close and
+scroll buttons remain available. The original draw path clamps both isometric
+coordinates to the world bounds. The UI dispatcher bypasses character case
+conversion for special key codes, avoiding out-of-range toupper input. Game
+movement outside the modal and exploration/save formats are unchanged.
+
+Linux Release, Zig Windows x64 and Linux ASan/LSan builds succeed, and each public
+CTest suite passes **12/12**. Two widescreen startup processes pass on each
+platform. Each process exercises four aspect/sidebar combinations, 160 keys,
+64 corner-boundary cases, sixteen key repeats, legacy diagonal keys, inverse
+pixel restoration and unchanged party/RNG/exploration. Selected widescreen
+before/after map captures were visually inspected for
+expected vertical panning; the full sets of 417 PPM captures per startup match
+between Linux and Windows, including all eight new map captures per process. Both
+sanitizer processes use leak detection, with host execution for thread inspection.
+
+The initial combined Windows run passed its first process; its second returned
+1 without usable stdout because the private copy helper overwrote the log.
+The helper now preserves stdout. An independent restart with the same current
+engine and configuration passes, exits normally and passes all post-run
+widescreen/exploration/sidebar/inventory validators, without an engine change.
+The original failed attempt remains recorded in the local validation output.
+
+Both classic Linux processes pass original-save import, save/load and controls.
+The separate pinned reference is incrementally rebuilt and run in a fresh output
+directory. Images match except the established 113-pixel information icon;
+all four checkpoints and all thirty original chunks in each compared save match.
+All 54 original installation files and the five existing dist files remain
+byte-identical. Evidence is in [map control validation](../research/map-arrow-validation.json);
+private captures, logs, extracted resources and copied saves remain under .cache/.
+No hosted MSVC/macOS run, physical-keyboard check or full playthrough is claimed.
+Development-alpha status remains.
+
 ## README, version reset and GitHub Releases in 0.0.1
 
 Community Edition numbering restarts at 0.0.1 through the shared CMake version,

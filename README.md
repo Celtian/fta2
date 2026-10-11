@@ -68,6 +68,7 @@ text. [Translation workflow and remaining review](localization/README.md).
 | `O` | Open Options, including save/load and language |
 | `Escape` | Close the frontmost window or open Options |
 | `G` | Use the selected brother's carried map |
+| Arrow keys | Pan the open map |
 | `M` | Toggle music |
 | `Alt+Enter` | Toggle fullscreen / windowed mode |
 | `Print Screen` | Save a PNG in `screenshots/` beside the game, with a user-profile fallback |

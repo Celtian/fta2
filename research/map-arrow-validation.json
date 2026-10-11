@@ -1,0 +1,163 @@
+{
+  "version": "0.0.1",
+  "status": "development alpha",
+  "changes": [
+    "Enable /bigobj for MSVC engine compilation to address C1128 in the four-language catalog",
+    "Pan only the active map viewport with arrow keys; retain original diagonal keys, clamping and repeat input",
+    "Exclude special key codes from character case conversion"
+  ],
+  "builds_passed": [
+    "Linux Release",
+    "Windows x64 Zig Release",
+    "Linux Debug ASan/LSan"
+  ],
+  "ctest": {
+    "linux": {
+      "passed": 12,
+      "failed": 0
+    },
+    "windows_zig": {
+      "passed": 12,
+      "failed": 0
+    },
+    "linux_asan_lsan": {
+      "passed": 12,
+      "failed": 0
+    }
+  },
+  "widescreen_processes_per_platform": 2,
+  "map_panning_per_process": {
+    "status": "passed",
+    "layouts": 4,
+    "keys": 160,
+    "boundary_checks": 64,
+    "repeat_checks": 16,
+    "captures": 8,
+    "fixture_restored": true
+  },
+  "windows_restart": "First process passed; second returned 1 with overwritten stdout. The private wrapper now preserves stdout; the independent second process and full post-run validation pass without engine changes.",
+  "linux_windows_pixel_parity": [
+    {
+      "startup_widescreen": false,
+      "matching_ppm_captures": 417,
+      "map_panning_captures": 8
+    },
+    {
+      "startup_widescreen": true,
+      "matching_ppm_captures": 417,
+      "map_panning_captures": 8
+    }
+  ],
+  "reference": {
+    "revision": "1a3e816afd5ddc41cc2a5c51a5da292e6d61758c",
+    "incremental_build_and_fresh_run": true,
+    "classic_and_restart_comparisons": [
+      {
+        "screenshots": {
+          "initial.ppm": "821968ab5384f1f1189f2c083419242392f923f3315a4becbe1b774e943725bd",
+          "controlled.ppm": "49d7cdc419622a7ba43478ce89da3d881d8ff56ee30b5271e49f17a1420c4970"
+        },
+        "simulation": {
+          "initial": {
+            "frame": 1,
+            "actor": 32768,
+            "u": 13258,
+            "v": 12521,
+            "z": 8,
+            "rng": 888809617
+          },
+          "moved": {
+            "frame": 180,
+            "actor": 32768,
+            "u": 13258,
+            "v": 12513,
+            "z": 8,
+            "rng": 1260233905
+          },
+          "switched": {
+            "frame": 190,
+            "actor": 32769,
+            "u": 13249,
+            "v": 12497,
+            "z": 8,
+            "rng": 3004664737
+          },
+          "saved": {
+            "frame": 220,
+            "actor": 32769,
+            "u": 13249,
+            "v": 12497,
+            "z": 8,
+            "rng": 81644917
+          }
+        },
+        "save_chunks": {
+          "fta2.999": 30,
+          "fta2.001": 30
+        },
+        "intentional_about_icon_pixels": {
+          "initial.ppm": 113,
+          "controlled.ppm": 113
+        }
+      },
+      {
+        "screenshots": {
+          "initial.ppm": "821968ab5384f1f1189f2c083419242392f923f3315a4becbe1b774e943725bd",
+          "controlled.ppm": "49d7cdc419622a7ba43478ce89da3d881d8ff56ee30b5271e49f17a1420c4970"
+        },
+        "simulation": {
+          "initial": {
+            "frame": 1,
+            "actor": 32768,
+            "u": 13258,
+            "v": 12521,
+            "z": 8,
+            "rng": 888809617
+          },
+          "moved": {
+            "frame": 180,
+            "actor": 32768,
+            "u": 13258,
+            "v": 12513,
+            "z": 8,
+            "rng": 1260233905
+          },
+          "switched": {
+            "frame": 190,
+            "actor": 32769,
+            "u": 13249,
+            "v": 12497,
+            "z": 8,
+            "rng": 3004664737
+          },
+          "saved": {
+            "frame": 220,
+            "actor": 32769,
+            "u": 13249,
+            "v": 12497,
+            "z": 8,
+            "rng": 81644917
+          }
+        },
+        "save_chunks": {
+          "fta2.999": 30,
+          "fta2.001": 30
+        },
+        "intentional_about_icon_pixels": {
+          "initial.ppm": 113,
+          "controlled.ppm": 113
+        }
+      }
+    ],
+    "allowed_image_difference": "Existing complete 113-pixel About icon only"
+  },
+  "original_files_unchanged": 54,
+  "existing_dist_files_unchanged": 5,
+  "visual_review": "Selected English widescreen up/restored map captures inspected; original captures remain private",
+  "not_run": [
+    "Hosted MSVC build after /bigobj fix",
+    "macOS build/runtime",
+    "Physical keyboard acceptance",
+    "Complete playthrough"
+  ]
+}

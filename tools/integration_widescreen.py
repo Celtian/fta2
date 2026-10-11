@@ -394,6 +394,16 @@ def main():
         assert result["status"] == "passed"
         assert result["checkbox_redraw_parity"] and result["checkbox_edge_clicks"]
         assert result["options_layouts_checked"] == 4
+        panning = json.loads((output / "map-pan.json").read_text())
+        assert panning == {"status": "passed", "layouts": 4, "keys": 160,
+                           "boundary_checks": 64, "repeat_checks": 16,
+                           "captures": 8, "fixture_restored": True}
+        for layout in range(4):
+            width = 640 if layout < 2 else 854
+            for phase in ("up", "restored"):
+                image = (output / f"map-pan-{layout}-{phase}.ppm").read_bytes()
+                header = f"P6\n{width} 480\n255\n".encode()
+                assert image.startswith(header) and len(image) == len(header) + width * 480 * 3
         exploration = validate_exploration(output, saves)
         buttons = validate_buttons(output)
         sidebar = validate_sidebar(output, saves, bool(index))
@@ -410,7 +420,7 @@ def main():
                 image = (output / f"options-{mode}-{menu}-{state}.ppm").read_bytes()
                 header = f"P6\n{width} 480\n255\n".encode()
                 assert image.startswith(header) and len(image) == len(header) + width * 480 * 3
-        results.append({"startup": startup, "checks": result, "exploration": exploration, "buttons": buttons, "sidebar": sidebar, "container_owners": owners})
+        results.append({"startup": startup, "checks": result, "map_panning": panning, "exploration": exploration, "buttons": buttons, "sidebar": sidebar, "container_owners": owners})
     after = {str(p.relative_to(game)): sha256(p.read_bytes())
              for p in game.rglob("*") if p.is_file()}
     assert before == after

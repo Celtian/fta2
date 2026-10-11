@@ -269,9 +269,27 @@ bool AutoMap::keyStroke(gPanelMessage &msg) {
 	case Native::KEYCODE_PAGEDOWN:
 		cmdAutoMapPgDn(ev);
 		return true;
+	case Native::KEYCODE_UP:
+		_baseCoords.u += 2;
+		_baseCoords.v += 2;
+		break;
+	case Native::KEYCODE_DOWN:
+		_baseCoords.u -= 2;
+		_baseCoords.v -= 2;
+		break;
+	case Native::KEYCODE_LEFT:
+		_baseCoords.u -= 2;
+		_baseCoords.v += 2;
+		break;
+	case Native::KEYCODE_RIGHT:
+		_baseCoords.u += 2;
+		_baseCoords.v -= 2;
+		break;
 	default:
 		return false;
 	}
+	draw();
+	return true;
 }
 
 
@@ -283,6 +301,10 @@ gPanel *AutoMap::keyTest(int16 key) {
 	case Native::KEYCODE_END:
 	case Native::KEYCODE_PAGEUP:
 	case Native::KEYCODE_PAGEDOWN:
+	case Native::KEYCODE_UP:
+	case Native::KEYCODE_DOWN:
+	case Native::KEYCODE_LEFT:
+	case Native::KEYCODE_RIGHT:
 		return this;
 	default:
 		return nullptr;

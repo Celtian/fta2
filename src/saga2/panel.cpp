@@ -1103,7 +1103,9 @@ void gToolBase::handleKeyStroke(Native::Event &event) {
 		//uint8 k = key & 0xff;
 
 		if (k != 0) {
-			k = toupper(k);
+			// Special key codes are outside the unsigned-char range accepted by toupper.
+			if (k <= 255)
+				k = toupper(k);
 
 			if ((ctl = w->keyTest(k)) != nullptr) {
 				if (_activePanel == ctl) return;
