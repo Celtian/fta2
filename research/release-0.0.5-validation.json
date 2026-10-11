@@ -1,0 +1,85 @@
+{
+  "date": "2026-10-11",
+  "release": "v0.0.5",
+  "release_url": "https://github.com/Celtian/fta2/releases/tag/v0.0.5",
+  "engine_commit": "07cf724c89530bf001e3b9443e4b2a5f9cd8e189",
+  "hosted_run": "https://github.com/Celtian/fta2/actions/runs/38166873442",
+  "hosted_run_conclusion": "success after rerunning the failed publication job",
+  "original_failure": "Missing release-inputs-v1 maintainer draft; all three desktop build/test/package jobs had passed",
+  "repair": "User explicitly approved uploading the prepared input to the unpublished draft in the public repository and rerunning v0.0.5",
+  "release_input": {
+    "release_tag": "release-inputs-v1",
+    "asset": "fta2-verified-data-v1.zip",
+    "size": 283170312,
+    "sha256": "338104ba1001a57a80eeb58e9ec69f941aa2c8c91ef5dfa545bc03c19be6d4ab",
+    "draft": true,
+    "github_size_and_sha256_match": true
+  },
+  "assets_downloaded_and_audited": {
+    "fta2-ce-0.0.5-Darwin-universal.zip": {
+      "size": 296368879,
+      "sha256": "920597c93fb8bf385bc9474ed2b0548670ecaa1127c7c0f6a557d0d0727a80d7"
+    },
+    "fta2-ce-0.0.5-Linux-x86_64.zip": {
+      "size": 293425914,
+      "sha256": "4e8ed20226973b7565ab202587e2ac3b72422c0d6635224cdcb28bef9101630e"
+    },
+    "fta2-ce-0.0.5-Windows-x86_64.zip": {
+      "size": 293358052,
+      "sha256": "964b667b9f99150537d772865f2df0954acb4ed7648c042368b3e0d04cec46a2"
+    }
+  },
+  "published_checksums_match_downloaded_assets": true,
+  "complete_audit": {
+    "platforms": 3,
+    "verified_game_files_per_platform": 8,
+    "verified_voice_archive_per_platform": "media/FTAVOICE.HRS",
+    "matching_data_free_sources": true,
+    "original_saves_included": false
+  },
+  "native_startup": {
+    "Windows-x86_64": {
+      "status": "passed",
+      "root_launcher": true,
+      "no_data_or_voice_arguments": true,
+      "fresh_profile": true,
+      "unrelated_working_directory": true,
+      "video_audio_drivers": "SDL dummy",
+      "voice_probe": {
+        "status": "passed",
+        "recordings": 3,
+        "dialogue_variants": 3,
+        "large_archive_offset": true,
+        "pause": true,
+        "abort_queue": true,
+        "missing_fallback": true,
+        "muted_fallback": true,
+        "simulation_unchanged": true
+      }
+    },
+    "Linux-x86_64": {
+      "status": "passed",
+      "root_launcher": true,
+      "no_data_or_voice_arguments": true,
+      "fresh_profile": true,
+      "unrelated_working_directory": true,
+      "video_audio_drivers": "SDL dummy",
+      "voice_probe": {
+        "status": "passed",
+        "recordings": 3,
+        "dialogue_variants": 3,
+        "large_archive_offset": true,
+        "pause": true,
+        "abort_queue": true,
+        "missing_fallback": true,
+        "muted_fallback": true,
+        "simulation_unchanged": true
+      }
+    }
+  },
+  "original_files_verified_unchanged": 54,
+  "older_releases_modified": false,
+  "macos_native_startup": "not run; downloaded archive audit only",
+  "full_playthrough": false,
+  "evidence_directory": ".cache/release-0.0.5"
+}

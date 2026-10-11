@@ -288,8 +288,15 @@ class ReleaseDataTests(unittest.TestCase):
         downloaded = self.root / "downloaded"
         with patch.dict(release_data.os.environ, {"GITHUB_REPOSITORY": "owner/repository"}), \
                 patch.object(release_data.subprocess, "run", side_effect=subprocess.CalledProcessError(1, "gh")):
-            with self.assertRaises(subprocess.CalledProcessError):
+            with self.assertRaises(ValueError) as failure:
                 release_data.download(downloaded)
+        message = str(failure.exception)
+        self.assertIn(self.archive.name, message)
+        self.assertIn("owner/repository release release-inputs-v1", message)
+        self.assertIn("docs/releases.md", message)
+        self.assertIn("contents: write", message)
+        self.assertIn("rerun the failed release job", message)
+        self.assertIsInstance(failure.exception.__cause__, subprocess.CalledProcessError)
         self.assertFalse((downloaded / "verified").exists())
 
 

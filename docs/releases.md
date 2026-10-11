@@ -126,13 +126,35 @@ The one explicitly requested README preview, `assets/gameplay.png`, is included
 in sources with an original-artwork copyright notice; it is not installed as a
 loose runtime asset. Other private captures stay under `.cache/`.
 
-The repository's release input is prepared once from the existing local files:
+Before the first complete release, prepare the repository's release input once
+from the existing local files:
 
 ```sh
 python3 tools/release_data.py create --data-dir original-game --voice-file .cache/fta2-cd-voices/FTAVOICE.HRS --output .cache/release-inputs/fta2-verified-data-v1.zip
 ```
 
-Its exact size and SHA-256 are pinned in `packaging/release-data.json`. The
+Check the reported size and SHA-256 against `packaging/release-data.json`, then
+upload that archive to the maintainer draft in the release repository:
+
+```sh
+gh release create release-inputs-v1 .cache/release-inputs/fta2-verified-data-v1.zip \
+  --repo Celtian/fta2 --draft --target master \
+  --title 'Release assembly inputs (maintainer data)' \
+  --notes 'Verified DOS game data and English CD voices for complete release assembly. Original copyright is retained.'
+```
+
+Keep this release as a draft; publishing it is unnecessary. Creating a ZIP locally
+does not upload it, and pushing a version tag does not create this input draft.
+If the draft already exists but lacks the asset, upload the verified ZIP with
+`gh release upload release-inputs-v1 PATH_TO_ZIP --repo Celtian/fta2`; do not replace
+an existing pinned asset.
+
+If publication failed with `release not found`, complete this setup and open the
+failed Actions run, then choose **Re-run jobs → Re-run failed jobs**. The existing
+platform artifacts can be reused; no version bump or new push is required. The CLI
+equivalent is `gh run rerun RUN_ID --failed --repo Celtian/fta2`.
+
+The input's exact size and SHA-256 are pinned in `packaging/release-data.json`. The
 maintainer draft stores only release inputs and any preserved engine assets;
 it is not a player download. The publication job uses its existing repository
 `GITHUB_TOKEN` with `contents: write` to read that draft. No personal access token,

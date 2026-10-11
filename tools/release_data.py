@@ -86,10 +86,19 @@ def unpack(archive_path, output):
 
 def download(output):
     config = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+    repository = os.environ["GITHUB_REPOSITORY"]
     output.mkdir(parents=True, exist_ok=True)
-    subprocess.run(["gh", "release", "download", config["release_tag"], "--repo",
-                    os.environ["GITHUB_REPOSITORY"], "--pattern", config["asset"],
-                    "--dir", str(output)], check=True)
+    try:
+        subprocess.run(["gh", "release", "download", config["release_tag"], "--repo",
+                        repository, "--pattern", config["asset"],
+                        "--dir", str(output)], check=True)
+    except subprocess.CalledProcessError as error:
+        raise ValueError(
+            f"Cannot download {config['asset']} from {repository} release {config['release_tag']}. "
+            "Complete the one-time maintainer draft setup in docs/releases.md and ensure "
+            "GH_TOKEN has repository contents: write access to read drafts. "
+            "Then rerun the failed release job; a new version is not required."
+        ) from error
     return unpack(output / config["asset"], output / "verified")
 
 

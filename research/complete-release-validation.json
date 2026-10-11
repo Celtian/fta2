@@ -75,9 +75,12 @@
     }
   },
   "macos_native_startup": "not run; archive audit only",
-  "hosted_release_workflow": "not run with the new assembly steps",
-  "remote_publication": "pending explicit approval after automatic review rejected the maintainer-draft upload; no data uploaded",
+  "hosted_release_workflow": "v0.0.5 run 38166873442 passed after uploading the approved pinned input and rerunning only failed publication; all three complete downloads audited",
+  "hosted_release_run": "https://github.com/Celtian/fta2/actions/runs/38166873442",
+  "release_input_repair": "Download failures now identify the required repository, draft and asset, link the one-time setup instructions and explain that failed jobs can be rerun without a version bump; 28 package and 32 release tests passed",
+  "remote_publication": "v0.0.5 published with three complete player ZIPs and SHA256SUMS; release-inputs-v1 remains an unpublished draft with the exact pinned asset",
   "older_release_assets": "original engine ZIPs, checksums and release notes preserved locally; remote backup required before replacing assets",
   "full_playthrough": false,
-  "evidence_directory": ".cache/release-0.0.4"
+  "evidence_directory": ".cache/release-0.0.4",
+  "hosted_release_validation": "research/release-0.0.5-validation.json"
 }
