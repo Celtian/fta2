@@ -2,7 +2,7 @@
 import hashlib
 import importlib.util
 import json
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import sys
 import tempfile
 import unittest
@@ -238,7 +238,8 @@ class ReleaseTests(unittest.TestCase):
                 output = self.root / (platform + ".zip")
                 package_release.package_release(self.engine, self.source, output)
                 with ZipFile(output) as z:
-                    files = {str(Path(n).relative_to(root)) for n in z.namelist()}
+                    # ZIP member names use POSIX separators on every host.
+                    files = {str(PurePosixPath(n).relative_to(root)) for n in z.namelist()}
                     self.assertIn("START-HERE.txt", files)
                     self.assertIn("licenses/LICENSE", files)
                     self.assertIn("source/game-1-source.zip", files)
