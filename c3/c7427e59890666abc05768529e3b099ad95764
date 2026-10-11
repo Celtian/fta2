@@ -1,0 +1,16 @@
+CMakeLists.txt
+  h_aa1f579535d063 2
+README.md
+  h_aa1f579535d063 15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c3c7427e59890666abc05768529e3b099ad95764",
+  "prompts": {},
+  "humans": {
+    "h_aa1f579535d063": {
+      "author": "Celtian <dominik.hladik@seznam.cz>"
+    }
+  }
+}
