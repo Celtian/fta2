@@ -1,0 +1,31 @@
+tools/release_data.py
+  s_7b28c1cd1fed4a::t_5dccffd00ccfea 89,91-101
+research/complete-release-validation.json
+  s_7b28c1cd1fed4a::t_66b0fe0e80183d 78,81,84-85
+  s_7b28c1cd1fed4a::t_d6a42071c4909e 79-80
+research/release-0.0.5-validation.json
+  s_7b28c1cd1fed4a::t_66b0fe0e80183d 1-85
+docs/releases.md
+  s_7b28c1cd1fed4a::t_5dccffd00ccfea 129-130,136-157
+docs/validation.md
+  s_7b28c1cd1fed4a::t_d6a42071c4909e 638-639
+  s_7b28c1cd1fed4a::t_8164af3d9bf183 640-641
+tests/package_test.py
+  s_7b28c1cd1fed4a::t_5dccffd00ccfea 291,293-299
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "db3ada9b267194c2092d7090cd180f4cfe04824c",
+  "prompts": {},
+  "sessions": {
+    "s_7b28c1cd1fed4a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12bfa-aa04-7b50-a63f-c2f415c319a9",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Celtian <dominik.hladik@seznam.cz>"
+    }
+  }
+}
