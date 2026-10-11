@@ -1,0 +1,21 @@
+Faery Tale Adventure II: Community Edition
+
+Extract the entire ZIP and keep its directory together when moving the game.
+Windows: open Faery Tale Adventure II.exe.
+Linux: run ./Faery\ Tale\ Adventure\ II (or double-click it in your file manager).
+macOS: open Faery Tale Adventure II.command.
+The launcher forwards command-line arguments to bin/fta2-ce (.exe on Windows).
+
+Select your original game-data directory with --data-dir PATH if data/ is absent.
+The original game data is required and retains its original copyright.
+Optional verified English voices belong in media/FTAVOICE.HRS.
+Saves, settings and logs are stored in your user profile, outside the game data.
+Print Screen saves a PNG under screenshots/ here, with a user-profile fallback.
+
+bin/: game executable and Windows runtime libraries.
+lib/: shared runtime libraries on Linux and macOS.
+licenses/: required engine and third-party notices.
+source/: corresponding engine sources, build instructions and developer records.
+No separate SDL installation is required. Standard operating-system services are required.
+
+This is a development alpha; a complete playthrough remains pending.

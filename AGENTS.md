@@ -50,7 +50,7 @@ For changes affecting gameplay, resources, saves, rendering or audio, run the re
 
 ```sh
 python3 tools/fta2_data.py verify
-python3 tools/integration_test.py --binary build/fta2-native --output .cache/integration
+python3 tools/integration_test.py --binary build/fta2-ce --output .cache/integration
 ```
 
 For changes that can affect parity, build/run the separate reference and compare images, simulation checkpoints and all original save chunks:
@@ -58,7 +58,7 @@ For changes that can affect parity, build/run the separate reference and compare
 ```sh
 python3 tools/reference.py build
 python3 tools/reference.py run
-python3 tools/compare_reference.py --reference-output .cache/reference/output --reference-saves .cache/reference/saves --native-output .cache/integration/output --native-saves .cache/integration/saves
+python3 tools/compare_reference.py --reference-output .cache/reference/output --reference-saves .cache/reference/saves --engine-output .cache/integration/output --engine-saves .cache/integration/saves --allow-about-icon
 ```
 
 See `docs/validation.md` for stability and sanitizer commands. Use AddressSanitizer/LeakSanitizer for changes to task lifetimes, pathfinding, save restoration or resource ownership. Public CI must not require proprietary game data. Documentation-only changes need link/content checks rather than a new gameplay test run.

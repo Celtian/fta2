@@ -39,8 +39,8 @@ Common object, creature, ability and role labels start with a lowercase letter, 
 Keep original font sizes, artwork dimensions and interaction regions. The runtime builds owned copies of the user's bitmap fonts and adds Czech and Western Latin accent glyphs, inverted Spanish punctuation and French ligatures without editing the original resource pack. Measure actual glyph widths and outlined ink bounds; shorten fixed-field wording instead of shrinking it. Documents retain their original page breaks, images, pagination and buffer/page limits. Speech captures the selected font and display text when assembled. Fixed-field, dialogue, placard and document checks record overflow and make the localization integration fail. Runtime measurement does not establish that every story branch has been exercised.
 
 ```sh
-python3 tools/integration_localization.py --binary build/fta2-native --output .cache/localization-check
-python3 tools/integration_localization.py --binary build/fta2-native --voice-file /path/to/FTAVOICE.HRS --output .cache/localization-check-voices
+python3 tools/integration_localization.py --binary build/fta2-ce --output .cache/localization-check
+python3 tools/integration_localization.py --binary build/fta2-ce --voice-file /path/to/FTAVOICE.HRS --output .cache/localization-check-voices
 ```
 
 Use a fresh output directory for each run. The scenario covers both aspect ratios, both sidebars, both Options variants, Apply/Cancel, restart, captured speech saves, missing voices and real document scripts. Each process also verifies 192 radio clicks across circles and labels, repeated selection, E/C/S/F shortcuts, and active/queued status refresh with owned arguments. Exports, screenshots, saves and font-derived output stay in `.cache/`. A full linguistic review, all reachable story dialogue layouts, manual hardware checks, macOS and a complete playthrough remain outstanding.

@@ -13,7 +13,7 @@ Expand-Archive -LiteralPath $Package -DestinationPath $work.FullName
 $directories = @(Get-ChildItem -LiteralPath $work.FullName -Directory)
 if ($directories.Count -ne 1) { throw 'Expected a single package directory.' }
 $game = $directories[0].FullName
-$exe = Join-Path $game 'bin\fta2-native.exe'
+$exe = Join-Path $game 'bin\fta2-ce.exe'
 $active = $null
 $results = @()
 
@@ -49,7 +49,7 @@ function Start-Game([string]$Arguments, [bool]$Automated=$false, [bool]$Launcher
         $parent = $p
         for ($i=0; $i -lt 100 -and -not $parent.HasExited; $i++) {
             $child = Get-CimInstance Win32_Process -Filter ('ParentProcessId='+$parent.Id) |
-                Where-Object { $_.Name -eq 'fta2-native.exe' } | Select-Object -First 1
+                Where-Object { $_.Name -eq 'fta2-ce.exe' } | Select-Object -First 1
             if ($child) { $p = Get-Process -Id $child.ProcessId; $null = $p.Handle; break }
             Start-Sleep -Milliseconds 100
         }
@@ -81,7 +81,7 @@ function Wait-GameWindow($App) {
     for ($i=0; $i -lt 100 -and -not $App.process.HasExited; $i++) {
         $App.process.Refresh()
         Assert-True (-not $App.process.MainWindowTitle.StartsWith('Select the Faery')) 'Unexpected folder picker.'
-        if ($App.process.MainWindowTitle -eq 'Faery Tale Adventure II') { return }
+        if ($App.process.MainWindowTitle -eq 'Faery Tale Adventure II: Community Edition') { return }
         Start-Sleep -Milliseconds 100
     }
     throw 'Expected game/error window was not shown.'
@@ -182,7 +182,7 @@ try {
     $moved = Join-Path $work.FullName ('Moved game - '+[char]0x017e+' '+[char]0x010d)
     Move-Item -LiteralPath $game -Destination $moved
     $game = $moved
-    $script:exe = Join-Path $game 'bin\fta2-native.exe'
+    $script:exe = Join-Path $game 'bin\fta2-ce.exe'
     $results += Test-Launcher 'moved-root-launcher'
     if ($OriginalSave) {
         Copy-Item -LiteralPath $OriginalSave -Destination (Join-Path $saves 'fta2.002')
@@ -249,7 +249,7 @@ try {
         relocated_unicode_path=$true; unrelated_working_directory=$true; data_override_used_for_startup=$false
         original_save_import=[bool]$OriginalSave
         root_launcher_before_after_move=$true; launcher_icon_matches=$true; unicode_arguments_forwarded=$true
-        native_printscreen_package_root_before_after_move=$true; screenshot_repeat_ignored=$true
+        printscreen_package_root_before_after_move=$true; screenshot_repeat_ignored=$true
     }
     $json = $report | ConvertTo-Json -Depth 5
     [IO.File]::WriteAllText((Join-Path $work.FullName 'validation.json'), $json, $utf8)

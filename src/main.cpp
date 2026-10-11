@@ -20,15 +20,16 @@ static int runGame(int argc, char** argv) {
         for (int i = 1; i < argc; ++i) {
             std::string arg = argv[i];
             if (arg == "--help") {
-                puts("fta2-native [--data-dir PATH] [--save-dir PATH] [--voice-file PATH]\nNative "
-                     "Faery Tale Adventure "
-                     "II; bundled game data is loaded automatically.\n--help       Show "
+                puts("fta2-ce [--data-dir PATH] [--save-dir PATH] [--voice-file PATH]\n"
+                     "Faery Tale Adventure II: Community Edition; bundled game data is loaded "
+                     "automatically.\n--help       Show "
                      "help\n--version    "
                      "Show version");
                 return 0;
             }
             if (arg == "--version") {
-                puts("fta2-native " FTA2_VERSION " (SAGA2 1a3e816a; GPL-3.0-or-later)");
+                puts("Faery Tale Adventure II: Community Edition " FTA2_VERSION
+                     " (SAGA2 1a3e816a; GPL-3.0-or-later)");
                 return 0;
             }
             if (arg == "--smoke-test" && i + 1 < argc) {
@@ -83,11 +84,7 @@ static int runGame(int argc, char** argv) {
         if (localizationProbe && !probe)
             throw std::runtime_error("--smoke-localization requires --smoke-test PATH");
         if (saves.empty()) {
-            char* p = SDL_GetPrefPath("fta2-native", "fta2-native");
-            if (!p)
-                throw std::runtime_error(SDL_GetError());
-            saves = p;
-            SDL_free(p);
+            saves = Native::defaultUserDirectory();
         }
         saves = std::filesystem::absolute(saves).lexically_normal();
         ConfMan.file = saves / "config.ini";
@@ -180,19 +177,20 @@ static int runGame(int argc, char** argv) {
         return 0;
     } catch (const std::exception& e) {
         if (diagnostics.path().empty()) {
-            if (char* user = SDL_GetPrefPath("fta2-native", "fta2-native")) {
-                diagnostics.start(Native::Path(user) / "logs", FTA2_VERSION);
-                SDL_free(user);
+            try {
+                diagnostics.start(Native::defaultUserDirectory() / "logs", FTA2_VERSION);
+            } catch (...) { /* Preserve the original startup failure. */
             }
         }
         Native::diagnosticFatal(e.what());
         std::string message = e.what();
         if (!diagnostics.path().empty())
             message += "\n\nDiagnostic log: " + Native::Path(diagnostics.path()).toString();
-        fprintf(stderr, "fta2-native: %s\n", message.c_str());
+        fprintf(stderr, "fta2-ce: %s\n", message.c_str());
 #ifdef _WIN32
         if (interactive)
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Faery Tale Adventure II", message.c_str(),
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+                                     "Faery Tale Adventure II: Community Edition", message.c_str(),
                                      nullptr);
 #endif
         return 1;

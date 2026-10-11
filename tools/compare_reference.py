@@ -26,14 +26,36 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--reference-output", type=Path, required=True)
     parser.add_argument("--reference-saves", type=Path, required=True)
-    parser.add_argument("--native-output", type=Path, required=True)
-    parser.add_argument("--native-saves", type=Path, required=True)
+    parser.add_argument("--engine-output", "--native-output", dest="native_output", type=Path, required=True)
+    parser.add_argument("--engine-saves", "--native-saves", dest="native_saves", type=Path, required=True)
+    parser.add_argument("--allow-about-icon", action="store_true",
+                        help="Allow only the intentional 13-pixel Community Edition info circle")
     args = parser.parse_args()
     report = {"screenshots": {}, "simulation": {}, "save_chunks": {}}
     for name in ["initial.ppm", "controlled.ppm"]:
         reference = (args.reference_output / name).read_bytes()
         native = (args.native_output / name).read_bytes()
-        assert reference == native, f"Screenshot differs: {name}"
+        if args.allow_about_icon:
+            reference_header = reference.split(b"\n", 3)
+            native_header = native.split(b"\n", 3)
+            assert reference_header[:3] == native_header[:3], f"Image geometry differs: {name}"
+            magic, dimensions, maximum, expected = reference_header
+            width, height = map(int, dimensions.split())
+            assert magic == b"P6" and maximum == b"255" and height == 480 and width in (640, 854)
+            actual = native_header[3]
+            assert len(expected) == len(actual) == width * height * 3
+            changed = 0
+            for pixel in range(width * height):
+                if expected[pixel * 3:pixel * 3 + 3] == actual[pixel * 3:pixel * 3 + 3]:
+                    continue
+                x, y = pixel % width, pixel // width
+                assert (x - (449 + width - 640)) ** 2 + (y - 452) ** 2 <= 36, \
+                    f"Screenshot differs outside the About icon: {name} at {x},{y}"
+                changed += 1
+            assert changed == 113, f"Expected complete About icon is missing: {name} ({changed}/113 pixels)"
+            report.setdefault("intentional_about_icon_pixels", {})[name] = changed
+        else:
+            assert reference == native, f"Screenshot differs: {name}"
         report["screenshots"][name] = hashlib.sha256(native).hexdigest()
     log = (args.reference_output / "reference.log").read_text()
     states = {s["phase"]: s for s in (json.loads(line) for line in (args.native_output / "state.jsonl").read_text().splitlines())}

@@ -4,9 +4,53 @@ import argparse
 import hashlib
 import json
 import posixpath
+import re
 from pathlib import Path, PurePosixPath
 import tempfile
 from zipfile import BadZipFile, ZipFile, ZipInfo, ZIP_DEFLATED
+
+LICENSE_FILES = {"LICENSE", "SCUMMVM-COPYRIGHT", "NUKED-LGPL-2.1", "SDL-LICENSE.txt",
+                 "SCUMMVM-ICONS-GPL-2.0.txt", "THIRD-PARTY.txt"}
+WINDOWS_LICENSE_FILES = {"LIBCXXABI-LICENSE.txt", "LIBUNWIND-LICENSE.txt", "ZIG-LICENSE.txt",
+                         "MINGW-COPYING.txt", "LIBCXX-LICENSE.txt"}
+
+
+def validate_runtime_layout(root, members):
+    """Keep the same small player layout across the three desktop platforms."""
+    paths = {str(path.relative_to(root)) for info, path in members if not info.is_dir()}
+    windows = "bin/fta2-ce.exe" in paths
+    mac = root.endswith("Darwin-arm64") or "-Darwin-" in root
+    launcher = ("Faery Tale Adventure II.exe" if windows else
+                "Faery Tale Adventure II.command" if mac else "Faery Tale Adventure II")
+    required = {launcher, "START-HERE.txt", "bin/fta2-ce.exe" if windows else "bin/fta2-ce"}
+    required.update("licenses/" + name for name in LICENSE_FILES)
+    if windows:
+        required.add("bin/SDL3.dll")
+    elif not any(path.startswith("lib/") and "SDL3" in path for path in paths):
+        raise ValueError("Runtime ZIP is missing the SDL shared library")
+    if required - paths:
+        raise ValueError("Runtime ZIP is missing player files: " + ", ".join(sorted(required - paths)))
+    for info, path in members:
+        relative = path.relative_to(root)
+        if not relative.parts:
+            continue
+        folder = relative.parts[0]
+        if info.is_dir():
+            if (folder not in ("bin", "lib", "licenses") or
+                    any(part in ("Headers", "Modules") for part in relative.parts)):
+                raise ValueError(f"Unnecessary runtime directory: {relative}")
+            continue
+        name = str(relative)
+        allowed = (name in required or
+                   (windows and name in {"licenses/windows-runtime/" + item
+                                         for item in WINDOWS_LICENSE_FILES}) or
+                   (windows and folder == "bin" and re.fullmatch(
+                       r"(?:vcruntime|msvcp|concrt|vcomp)140[\w.]*\.dll", relative.name, re.I)) or
+                   (folder == "lib" and (re.fullmatch(r"libSDL3(?:\.so(?:\.[0-9]+)*|(?:\.[0-9]+)*\.dylib)", relative.name) or
+                    ("SDL3.framework" in relative.parts and
+                     not any(part in ("Headers", "Modules") for part in relative.parts)))))
+        if not allowed:
+            raise ValueError(f"Unnecessary runtime file: {relative}")
 
 
 def safe_members(archive, allow_symlinks=False):
@@ -89,6 +133,7 @@ def write_bundle(engine, members, additions, output):
 def package_release(engine_package, source_package, output):
     with ZipFile(engine_package) as engine:
         root, members = safe_members(engine, allow_symlinks=True)
+        validate_runtime_layout(root, members)
         additions, manifest = source_additions(source_package, root)
         additions[f"{root}/source/manifest.json"] = (json.dumps(manifest, indent=2) + "\n").encode()
         write_bundle(engine, members, additions, output.resolve())

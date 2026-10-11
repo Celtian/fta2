@@ -60,7 +60,7 @@ if (Test-Path -LiteralPath $OutputDirectory) { throw 'Use a fresh output directo
 Expand-Archive -LiteralPath $Package -DestinationPath $OutputDirectory
 $root=@(Get-ChildItem -LiteralPath $OutputDirectory -Directory)[0].FullName
 $p=New-Object System.Diagnostics.Process
-$p.StartInfo.FileName=Join-Path $root 'bin\fta2-native.exe'
+$p.StartInfo.FileName=Join-Path $root 'bin\fta2-ce.exe'
 $p.StartInfo.Arguments='--save-dir "'+(Join-Path $OutputDirectory 'saves')+'"'
 $p.StartInfo.WorkingDirectory=$OutputDirectory
 $p.StartInfo.UseShellExecute=$false;$p.StartInfo.CreateNoWindow=$true
@@ -97,7 +97,7 @@ try {
     [void]$p.Start();$stdout=$p.StandardOutput.ReadToEndAsync();$stderr=$p.StandardError.ReadToEndAsync()
     for ($i=0;$i -lt 100 -and -not $p.HasExited;$i++) {
         $p.Refresh()
-        if ($p.MainWindowTitle -eq 'Faery Tale Adventure II') { $h=$p.MainWindowHandle;break }
+        if ($p.MainWindowTitle -eq 'Faery Tale Adventure II: Community Edition') { $h=$p.MainWindowHandle;break }
         Start-Sleep -Milliseconds 100
     }
     if ($h -eq [IntPtr]::Zero) { throw 'Game window did not appear.' }

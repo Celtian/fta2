@@ -1,4 +1,4 @@
-# Faery Tale Adventure II — native
+# Faery Tale Adventure II: Community Edition
 
 A standalone C++20 engine based on SAGA2, serving as the foundation for a future Definitive Edition. It runs the original DOS game data directly, without DOSBox or a ScummVM installation. The code is licensed under GPL-3.0-or-later.
 
@@ -11,26 +11,30 @@ You need CMake 3.24+, Python 3.10+, a C++20 compiler and your platform's graphic
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release --parallel 4
-./build/fta2-native --data-dir ./original-game
+./build/fta2-ce --data-dir ./original-game
 ```
 
-On Windows, the default generator places the executable at `build/Release/fta2-native.exe`. On macOS, pass `-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"` to build a universal binary. [CI](.github/workflows/build.yml) is configured for Linux x64, Windows x64 and both macOS architectures.
+On Windows, the default generator places the executable at `build/Release/fta2-ce.exe`. On macOS, pass `-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"` to build a universal binary. [CI](.github/workflows/build.yml) is configured for Linux x64, Windows x64 and both macOS architectures.
 
-The single **complete Windows x64 ZIP** includes `bin/fta2-native.exe`, `bin/SDL3.dll`, the required files under `data/`, original English voices under `media/`, and corresponding engine sources under `source/`. Extract the entire ZIP and double-click `Faery Tale Adventure II.exe` in its root (or run `bin/fta2-native.exe` directly). No folder selection or separate original installation is needed. Keep the extracted directory together when moving the game. Startup errors appear in a visible dialog. Licence notices are under `licenses/`; developer documentation, research records and build instructions live inside the matching `source/` ZIP rather than the player folders.
+Player ZIPs share root launchers and `bin/`, `licenses/` and `source/`; Linux/macOS also use `lib/` for SDL. Linux starts with `Faery Tale Adventure II`, macOS with `Faery Tale Adventure II.command`, and Windows with `Faery Tale Adventure II.exe`. Developer files stay in the embedded source ZIP.
+
+The single **complete Windows x64 ZIP** includes `bin/fta2-ce.exe`, `bin/SDL3.dll`, the required files under `data/`, original English voices under `media/`, and corresponding engine sources under `source/`. Extract the entire ZIP and double-click `Faery Tale Adventure II.exe` in its root (or run `bin/fta2-ce.exe` directly). No folder selection or separate original installation is needed. Keep the extracted directory together when moving the game. Startup errors appear in a visible dialog. Licence notices are under `licenses/`; developer documentation, research records and build instructions live inside the matching `source/` ZIP rather than the player folders.
 
 Public CI produces one engine ZIP per platform with the corresponding source ZIP inside; those packages require separately supplied game data. They retain the Windows folder picker. The optional `--data-dir` argument selects an explicit installation for either package. See [Windows build and validation](docs/windows-build.md).
 
 The application uses the [ScummVM community game icon](third_party/APP-ICON.md), with its logo and cover illustration. It is embedded in the Windows executable and used for the SDL window; loose icon files are retained in the corresponding sources, and Linux packages install the desktop icon.
 
 ```sh
-fta2-native --data-dir /path/to/game --save-dir /path/to/new/saves
-fta2-native --help
-fta2-native --version
+fta2-ce --data-dir /path/to/game --save-dir /path/to/new/saves
+fta2-ce --help
+fta2-ce --version
 ```
 
 Without `--save-dir`, the application uses the user directory returned by SDL. It contains `config.ini`, saves named `fta2.000`–`fta2.999`, and `resources/` with automatically extracted resources and their manifest. Output directories must be outside the game data directory. Slot 999 holds the restart state created by the engine.
 
-Each run writes a timestamped, flushed diagnostic log under `logs/` in that same user/save directory. On Windows the default is `%APPDATA%\fta2-native\fta2-native\logs`; `--save-dir` moves logs along with the saves. Logs include startup paths, warnings, input actions, save/load operations, voice requests and periodic world position. A fatal record includes the last engine phase and location. Windows also attempts to write a same-name `.dmp` beside the log for an unhandled crash. To report a crash, provide the latest `.log` and its `.dmp`, if present; nothing is uploaded automatically. Startup errors display the actual log path. Routine logging stops at 8 MiB per session, while fatal records remain enabled. Startup retains the latest ten session logs and three older dumps. Crash capture is best effort; see [diagnostics validation](docs/validation.md#persistent-diagnostics-and-villager-death-0134).
+The current profile uses the `fta2-ce` identifier. On first launch, existing settings and numbered saves are copied from the previous profile without replacing newer files or removing the old profile. Explicit `--save-dir` paths keep their existing behavior.
+
+Each run writes a timestamped, flushed diagnostic log under `logs/` in that same user/save directory. On Windows the default is `%APPDATA%\fta2-ce\fta2-ce\logs`; `--save-dir` moves logs along with the saves. Logs include startup paths, warnings, input actions, save/load operations, voice requests and periodic world position. A fatal record includes the last engine phase and location. Windows also attempts to write a same-name `.dmp` beside the log for an unhandled crash. To report a crash, provide the latest `.log` and its `.dmp`, if present; nothing is uploaded automatically. Startup errors display the actual log path. Routine logging stops at 8 MiB per session, while fatal records remain enabled. Startup retains the latest ten session logs and three older dumps. Crash capture is best effort; see [diagnostics validation](docs/validation.md#persistent-diagnostics-and-villager-death-0134).
 
 The game starts in borderless fullscreen, covering the entire monitor without a title bar or the Windows taskbar. **Alt+Enter** toggles between fullscreen and a resizable window, using a default client size of 640 × 480 or 854 × 480 for the active display mode. Until you resize or maximize the window, changing the mode updates this default immediately in windowed mode or at the next Alt+Enter from fullscreen. A manually resized or maximized window keeps its size and position during subsequent mode changes and fullscreen transitions for the rest of that session; either Enter key and either Alt key work. The shortcut is handled by the platform and does not activate game dialogs. The default 640 × 480 image uses nearest-neighbour scaling and retains its 4:3 aspect ratio. In Options, enable **Widescreen (16:9)** to widen the game view without stretching the graphics. The change takes effect immediately while Options stays open and is remembered across restarts. The wide framebuffer is 854 × 480 (16:9 rounded to whole pixels): the map grows from 440 × 420 to 654 × 420, while the 180-pixel sidebar moves right at its original size. Dialogs and documents keep their size and center horizontally on the wider screen. Open inventory windows remain open; returning to 4:3 moves any window that would otherwise fall outside the screen back inside.
 
@@ -46,7 +50,9 @@ Physical inventory windows identify their current carrier with a large gold-rimm
 
 The original controls are preserved: use the mouse, `1`/`2`/`3` (top row or numeric keypad) to switch brothers, `O` to open options including save/load, Escape to close the frontmost container and clear its hover text (or open Options when none is open), and Tab to switch between group and individual control.
 
-Choose **Hot Keys** in Options (or press **H** while Options is open) for the main keyboard shortcuts. **Print Screen** saves the last presented game image as a lossless PNG, including the cursor and tooltip, under `screenshots/` in the package root (beside the executable for development builds). If that location is not writable, it uses `screenshots/` in the user/save directory and reports the fallback. Screenshot names include local date/time and a collision suffix; existing files are never overwritten. Screenshots retain the native 640 × 480 or 854 × 480 pixels without window borders or letterboxing, and work in menus and documents too. Holding the key does not save repeated images.
+Click the small **i** at the right end of the status bar for the Community Edition name, Dominik Hladík (2026), the build version and development-alpha status. Enter, Escape and Close dismiss it.
+
+Choose **Hot Keys** in Options (or press **H** while Options is open) for the main keyboard shortcuts. **Print Screen** saves the last presented game image as a lossless PNG, including the cursor and tooltip, under `screenshots/` in the package root (beside the executable for development builds). If that location is not writable, it uses `screenshots/` in the user/save directory and reports the fallback. Screenshot names include local date/time and a collision suffix; existing files are never overwritten. Screenshots retain the original 640 × 480 or 854 × 480 pixels without window borders or letterboxing, and work in menus and documents too. Holding the key does not save repeated images.
 
 The overview uses evenly spaced rows and a centered **Close** button inside its frame. Close it with **Close** or Escape to return to Options. **G** uses the selected brother's carried map, including maps in closed or nested bags; Shift+G also works. Escape or the original map button closes it. If that brother has no map, the status line says "No map carried by the selected brother." Gameplay shortcuts are ignored in modal dialogs, and G is ignored while holding or dragging an item. **M** toggles music during gameplay, preserving its configured volume; the mute setting is remembered.
 
@@ -94,17 +100,17 @@ ctest --test-dir build -C Release --output-on-failure
 python3 tools/fta2_data.py verify
 python3 tools/fta2_data.py inventory
 python3 tools/fta2_data.py extract --output .cache/extracted
-python3 tools/integration_test.py --binary build/fta2-native --output .cache/integration
-python3 tools/integration_widescreen.py --binary build/fta2-native --output .cache/integration-widescreen
+python3 tools/integration_test.py --binary build/fta2-ce --output .cache/integration
+python3 tools/integration_widescreen.py --binary build/fta2-ce --output .cache/integration-widescreen
 cpack --config build/CPackConfig.cmake -C Release
 ```
 
 For a local complete Windows release, create the internal engine and source archives under `.cache/`, then publish just one ZIP in `dist/`:
 
 ```sh
-cpack --config build-windows-x64/CPackConfig.cmake -C Release -B .cache/release-0.1.35
-cpack --config build-windows-x64/CPackSourceConfig.cmake -B .cache/release-0.1.35
-python3 tools/package_complete.py --engine-package .cache/release-0.1.35/fta2-native-0.1.35-Windows-x86_64.zip --source-package .cache/release-0.1.35/fta2-native-0.1.35-source.zip --data-dir original-game --voice-file .cache/fta2-cd-voices/FTAVOICE.HRS --output dist/fta2-native-0.1.35-Windows-x86_64.zip
+cpack --config build-windows-x64/CPackConfig.cmake -C Release -B .cache/release-0.1.48
+cpack --config build-windows-x64/CPackSourceConfig.cmake -B .cache/release-0.1.48
+python3 tools/package_complete.py --engine-package .cache/release-0.1.48/fta2-ce-0.1.48-Windows-x86_64.zip --source-package .cache/release-0.1.48/fta2-ce-0.1.48-source.zip --data-dir original-game --voice-file .cache/fta2-cd-voices/FTAVOICE.HRS --output dist/fta2-ce-0.1.48-Windows-x86_64.zip
 ```
 
 The tool verifies all eight data files and the optional voice archive against known size and SHA-256 values, embeds the matching data-free source ZIP, and records their hashes in the package manifest. Original saves and unnecessary DOS files are excluded. It refuses unknown data, output inside the original installation and overwriting an existing ZIP. Earlier releases remain available. Original game data and voices retain their copyright; the engine's GPL does not relicense them.

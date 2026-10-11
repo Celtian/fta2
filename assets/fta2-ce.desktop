@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Faery Tale Adventure II: Community Edition
+Comment=Community Edition engine for the original Faery Tale Adventure II game data
+Exec=fta2-ce
+Icon=fta2-ce
+Terminal=false
+Categories=Game;RolePlaying;

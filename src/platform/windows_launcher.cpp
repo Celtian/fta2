@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
-#include <windows.h>
 #include <string>
 #include <vector>
+#include <windows.h>
 
 static int launchError(DWORD code) {
     const std::wstring message =
-        L"Cannot start bin\\fta2-native.exe. Keep the extracted package together.\n\nWindows error: " +
+        L"Cannot start bin\\fta2-ce.exe. Keep the extracted package together.\n\nWindows error: " +
         std::to_wstring(code);
-    MessageBoxW(nullptr, message.c_str(), L"Faery Tale Adventure II", MB_OK | MB_ICONERROR);
+    MessageBoxW(nullptr, message.c_str(), L"Faery Tale Adventure II: Community Edition",
+                MB_OK | MB_ICONERROR);
     return 1;
 }
 
@@ -30,7 +31,7 @@ static int launchGame() {
     if (separator == std::wstring::npos)
         return launchError(ERROR_BAD_PATHNAME);
     directory.resize(separator);
-    const std::wstring executable = directory + L"\\bin\\fta2-native.exe";
+    const std::wstring executable = directory + L"\\bin\\fta2-ce.exe";
 
     // Preserve the child's argument quoting exactly. A Windows executable path
     // cannot contain a literal quote, so only its enclosing quotes need skipping.
@@ -67,7 +68,7 @@ int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int) {
         return launchGame();
     } catch (...) {
         MessageBoxW(nullptr, L"Cannot start the game. Keep the extracted package together.",
-                    L"Faery Tale Adventure II", MB_OK | MB_ICONERROR);
+                    L"Faery Tale Adventure II: Community Edition", MB_OK | MB_ICONERROR);
         return 1;
     }
 }

@@ -1,4 +1,4 @@
-Faery Tale Adventure II native engine - third-party notices
+Faery Tale Adventure II: Community Edition - third-party notices
 
 Engine: GPL-3.0-or-later. See LICENSE and SCUMMVM-COPYRIGHT.
 SAGA2 gameplay and selected portable MIDI code originate from ScummVM revision

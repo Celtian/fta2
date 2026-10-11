@@ -46,7 +46,7 @@ def main():
             (saves / "config.ini").write_text(
                 f"widescreen={str(wide).lower()}\nalternate_sidebar={str(alternate).lower()}\n"
                 "speech_mute=true\nspeech_volume=192\nsubtitles=true\n")
-            with (run / "native.log").open("w") as log:
+            with (run / "engine.log").open("w") as log:
                 subprocess.run([str(binary), "--data-dir", str(data), "--voice-file", str(voice),
                                 "--save-dir", str(saves), "--smoke-test", str(captures),
                                 "--smoke-voices"], env=env, check=True, timeout=90,

@@ -27,6 +27,7 @@
 #define SAGA2_UIDIALOG_H
 
 namespace Saga2 {
+void AboutDialog();
 
 struct SaveFileHeader;
 

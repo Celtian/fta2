@@ -34,12 +34,45 @@
 #include "saga2/grabinfo.h"
 #include "saga2/intrface.h"
 #include "saga2/fontlib.h"
+#include "saga2/uidialog.h"
 
 namespace Saga2 {
 
 const uint32            imageGroupID = MKTAG('I', 'M', 'A', 'G');
 
 const int defaultStatusWait = 15;
+gControl *AboutButton = nullptr;
+
+class AboutControl : public gControl {
+public:
+	AboutControl(gPanelList &list) : gControl(list, Rect16(443, 445, 14, 15), nullptr, 0, nullptr) {}
+	void pointerMove(gPanelMessage &message) override {
+		g_vm->_mouseInfo->setText(message._pointerLeave ? nullptr : Native::ui("About"));
+	}
+	bool pointerHit(gPanelMessage &) override {
+		gPanel::deactivate();
+		AboutDialog();
+		return false;
+	}
+	void drawClipped(gPort &port, const Point16 &offset, const Rect16 &clip) override {
+		if (!_extent.overlap(clip)) return;
+		SAVE_GPORT_STATE(port);
+		port.setMode(kDrawModeMatte);
+		const int x = _extent.x - offset.x + 6, y = _extent.y - offset.y + 7;
+		for (int dy = -6; dy <= 6; ++dy) {
+			for (int dx = -6; dx <= 6; ++dx) {
+				const int radius = dx * dx + dy * dy;
+				if (radius > 36) continue;
+				port.setColor(radius >= 25 ? (dx + dy < 0 ? 89 : 67) : 48);
+				port.fillRect(Rect16(x + dx, y + dy, 1, 1));
+			}
+		}
+		port.setColor(89);
+		port.fillRect(Rect16(x, y - 3, 1, 1));
+		port.fillRect(Rect16(x, y - 1, 1, 4));
+		port.fillRect(Rect16(x - 1, y + 3, 3, 1));
+	}
+};
 
 /* ===================================================================== *
    Imports
@@ -202,7 +235,7 @@ void PlayModeSetup() {
 	// activate the status line
 	// this will get deleted by parent panel
 	StatusLine = new CStatusLine(*playControls,
-	                        Rect16(49, 445, 407, 15),
+	                        Rect16(49, 445, 391, 15),
 	                        "",
 	                        &Script10Font,
 	                        0,
@@ -210,6 +243,7 @@ void PlayModeSetup() {
 	                        defaultStatusWait,    // in frames
 	                        0,
 	                        (void (*)(gEvent&))nullptr);
+	AboutButton = new AboutControl(*playControls);
 
 	// placement configurations
 	Point16 massWeightIndicator = Point16(531, 265);
@@ -251,6 +285,7 @@ void PlayModeCleanup() {
 		StatusLine = nullptr;
 		delete playControls;
 		playControls = nullptr;
+		AboutButton = nullptr;
 	}
 	if (speakButtonControls) {
 		delete speakButtonControls;

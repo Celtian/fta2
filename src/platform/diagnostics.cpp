@@ -389,10 +389,10 @@ bool Diagnostics::start(const std::filesystem::path& directory, const char* vers
         oldTerminate = std::set_terminate(terminateHandler);
         SDL_GetLogOutputFunction(&oldOutput, &oldUserdata);
         SDL_SetLogOutputFunction(sdlOutput, oldUserdata);
-        diagnosticMessage("SESSION", "fta2-native %s; SDL %d; platform=%s; log=%s", version,
+        diagnosticMessage("SESSION", "fta2-ce %s; SDL %d; platform=%s; log=%s", version,
                           SDL_GetVersion(), SDL_GetPlatform(),
                           reinterpret_cast<const char*>(utf8.c_str()));
-        diagnosticMessage("SESSION", "Native crash handlers=%d", int(installed));
+        diagnosticMessage("SESSION", "Platform crash handlers=%d", int(installed));
         return true;
     } catch (...) {
         return false;

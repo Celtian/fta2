@@ -7,7 +7,7 @@ import json
 from pathlib import Path, PurePosixPath
 from zipfile import BadZipFile, ZipFile
 
-from package_release import source_additions, write_bundle
+from package_release import source_additions, write_bundle, validate_runtime_layout
 from package_voices import VOICE_SHA256, VOICE_SIZE
 
 PROFILE_PATH = Path(__file__).resolve().parents[1] / "research/original-files.json"
@@ -64,7 +64,7 @@ def package_complete(engine_package: Path, data_dir: Path, output: Path,
         if len(roots) != 1:
             raise ValueError("Engine ZIP must contain a single package directory")
         root = next(iter(roots))
-        for required in ("bin/fta2-native.exe", "bin/SDL3.dll"):
+        for required in ("bin/fta2-ce.exe", "bin/SDL3.dll"):
             if f"{root}/{required}".casefold() not in seen:
                 raise ValueError(f"Windows engine ZIP is missing {required}")
         for info, path in members:
@@ -73,6 +73,7 @@ def package_complete(engine_package: Path, data_dir: Path, output: Path,
                     or path.name.casefold() == "fta2.exe"):
                 raise ValueError(f"Engine ZIP already contains game/development data: {info.filename}")
 
+        validate_runtime_layout(root, members)
         manifest = {
             "schema_version": 1,
             "profile": "english-dos-a7413ddf",
@@ -99,9 +100,9 @@ def package_complete(engine_package: Path, data_dir: Path, output: Path,
             json.dumps(manifest, indent=2) + "\n"
         ).encode()
         additions[f"{root}/START-HERE.txt"] = (
-            "Faery Tale Adventure II - complete Windows package\n\n"
+            "Faery Tale Adventure II: Community Edition - complete Windows package\n\n"
             "Extract the entire ZIP and double-click Faery Tale Adventure II.exe.\n"
-            "You can also start bin/fta2-native.exe directly.\n"
+            "You can also start bin/fta2-ce.exe directly.\n"
             "Keep the extracted directory together when moving the game.\n"
             "Game data is included; no folder selection or separate installation is needed.\n"
             + ("Original English voices are included and detected automatically.\n"
@@ -114,11 +115,14 @@ def package_complete(engine_package: Path, data_dir: Path, output: Path,
             "Saves and settings are stored in your Windows user profile.\n"
             "Print Screen saves a PNG, including the cursor, under screenshots/ beside this file.\n"
             "If this directory is not writable, screenshots use the Windows user profile.\n"
-            "Diagnostic logs: %APPDATA%\\fta2-native\\fta2-native\\logs\n"
+            "Diagnostic logs: %APPDATA%\\fta2-ce\\fta2-ce\\logs\n"
             "When reporting a crash, include the latest .log and matching .dmp, if present.\n\n"
             "Original game data and audio retain their original copyright.\n"
             "This is a development alpha. A full playthrough remains pending.\n"
         ).encode()
+        # The complete edition replaces the common engine-only startup note.
+        members = [(info, path) for info, path in members
+                   if str(path) != f"{root}/START-HERE.txt"]
         write_bundle(engine, members, additions, output)
     return manifest
 

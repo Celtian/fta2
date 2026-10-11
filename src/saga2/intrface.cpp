@@ -2087,7 +2087,9 @@ void layoutUserControls(int16 sidebarDelta) {
 	}
 	sidebarLayoutApplied = alternate;
 	if (StatusLine)
-		StatusLine->setControlExtent(Rect16(49, 445, 407 + Native::displayLayout().sidebarOffset, 15));
+		StatusLine->setControlExtent(Rect16(49, 445, 391 + Native::displayLayout().sidebarOffset, 15));
+	if (AboutButton)
+		AboutButton->setControlExtent(Rect16(443 + x, 445, 14, 15));
 	if (enchDisp)
 		enchDisp->setControlExtent(Rect16(0, 0, Native::displayLayout().screenWidth - 10, 18));
 }

@@ -34,7 +34,7 @@ def main():
         assert not (output / "state.jsonl").exists(), "Use a fresh integration output directory"
         shutil.copyfile(game / "999.SAV", saves / "fta2.002")
         env = dict(os.environ, SDL_VIDEODRIVER="dummy", SDL_AUDIODRIVER="dummy")
-        with (output / "native.log").open("w") as log:
+        with (output / "engine.log").open("w") as log:
             subprocess.run([str(binary), "--data-dir", str(game), "--save-dir", str(saves),
                             "--smoke-test", str(output)], env=env, check=True, timeout=300,
                            stdout=log, stderr=subprocess.STDOUT)
@@ -57,7 +57,7 @@ def main():
         restart_output.mkdir()
         shutil.copyfile(saves / "config.ini", restart_saves / "config.ini")
         shutil.copyfile(game / "999.SAV", restart_saves / "fta2.002")
-        with (restart_output / "native.log").open("w") as log:
+        with (restart_output / "engine.log").open("w") as log:
             subprocess.run([str(binary), "--data-dir", str(game), "--save-dir", str(restart_saves),
                             "--smoke-test", str(restart_output)], env=env, check=True, timeout=300,
                            stdout=log, stderr=subprocess.STDOUT)

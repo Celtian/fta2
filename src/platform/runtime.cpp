@@ -250,7 +250,7 @@ void TimerManager::checkTimers() {
 Platform::Platform() {
     if (const char* base = SDL_GetBasePath())
         screenshotBaseDirectory = screenshotRoot(Path(base));
-    SDL_SetHint(SDL_HINT_APP_ID, "fta2-native");
+    SDL_SetHint(SDL_HINT_APP_ID, "fta2-ce");
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS))
         throw std::runtime_error(SDL_GetError());
     g_platform = this;
@@ -267,7 +267,7 @@ Platform::~Platform() {
 void Platform::initGraphics(int width, int height) {
     _automaticWidth = width;
     _automaticHeight = height;
-    _window = SDL_CreateWindow("Faery Tale Adventure II", width, height,
+    _window = SDL_CreateWindow("Faery Tale Adventure II: Community Edition", width, height,
                                SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY |
                                    SDL_WINDOW_FULLSCREEN);
     if (!_window)

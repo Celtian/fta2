@@ -26,7 +26,7 @@ def package_voices(engine, voice, output):
         if len(roots) != 1 or any(n.is_absolute() or ".." in n.parts for n in names):
             raise ValueError("Engine ZIP must have one safe root directory")
         root = roots.pop()
-        if f"{root}/bin/fta2-native.exe" not in archive.namelist():
+        if f"{root}/bin/fta2-ce.exe" not in archive.namelist():
             raise ValueError("Expected a Windows engine ZIP")
     manifest = {"schema_version": 1, "file": "media/FTAVOICE.HRS", "size": VOICE_SIZE,
                 "sha256": VOICE_SHA256, "recordings": 4320,
@@ -38,7 +38,7 @@ def package_voices(engine, voice, output):
         f"{root}/VOICE-ADDON.txt": (
             "Extract this ZIP beside the matching complete Windows package.\n"
             "The same game directory will contain bin/, data/ and media/.\n"
-            "Start bin/fta2-native.exe normally; voices are detected automatically.\n"
+            "Start bin/fta2-ce.exe normally; voices are detected automatically.\n"
             "Speech Volume controls the original voices. Speech Text controls subtitles.\n"
             "Missing or silent voices keep dialogue text readable.\n\n"
             "Original game audio retains its copyright and is not GPL-licensed.\n"

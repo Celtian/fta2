@@ -626,6 +626,7 @@ public:
  * ===================================================================== */
 
 extern CStatusLine              *StatusLine;
+extern gControl                 *AboutButton;
 extern CMassWeightIndicator     *MassWeightIndicator;
 extern CHealthIndicator         *HealthIndicator;
 extern CManaIndicator           *ManaIndicator;

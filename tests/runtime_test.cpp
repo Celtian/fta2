@@ -5,14 +5,14 @@
 
 #include "saga2/audio.h"
 #include "saga2/button.h"
+#include "saga2/calendar.h"
 #include "saga2/gfx.h"
 #include "saga2/gpointer.h"
 #include "saga2/idtypes.h"
-#include "saga2/saveload.h"
-#include "saga2/tcoords.h"
-#include "saga2/calendar.h"
 #include "saga2/inventory_ui.h"
 #include "saga2/motion.h"
+#include "saga2/saveload.h"
+#include "saga2/tcoords.h"
 namespace Saga2 {
 extern gDisplayPort* globalPort;
 }
@@ -159,6 +159,43 @@ int main() {
             String::format("fta2-test-%llu", static_cast<unsigned long long>(SDL_GetTicksNS()))
                 .c_str();
         std::filesystem::create_directories(root / "data");
+        {
+            const Path legacy(root / "previous-profile"), current(root / "community-profile");
+            std::filesystem::create_directories(legacy / "resources");
+            std::filesystem::create_directories(current);
+            std::ofstream(legacy / "config.ini") << "language=cs\n";
+            std::ofstream(legacy / "fta2.001") << "previous save";
+            std::ofstream(legacy / "fta2.002") << "old slot";
+            std::ofstream(legacy / "999.SAV") << "excluded";
+            std::ofstream(legacy / "resources/extracted.bin") << "excluded";
+            std::ofstream(current / "fta2.002") << "new slot";
+            std::ofstream(legacy / "fta2.006") << "skip destination link";
+            std::error_code linkError;
+            std::filesystem::create_symlink(root / "must-not-create", current / "fta2.006",
+                                            linkError);
+            importLegacyProfile(legacy, current);
+            check(std::filesystem::exists(current / "fta2.001") &&
+                      std::filesystem::exists(current / "config.ini") &&
+                      !std::filesystem::exists(current / "999.SAV") &&
+                      !std::filesystem::exists(current / "resources"),
+                  "Profile migration copied the wrong files");
+            std::ifstream slot(current / "fta2.002");
+            std::string content;
+            std::getline(slot, content);
+            check(content == "new slot", "Profile migration overwrote an existing save");
+            std::ofstream(legacy / "fta2.003") << "later legacy save";
+            importLegacyProfile(legacy, current);
+            check(!std::filesystem::exists(current / "fta2.003") &&
+                      std::filesystem::exists(legacy / "fta2.001"),
+                  "Profile migration repeated or removed the previous profile");
+            check(!std::filesystem::exists(root / "must-not-create"),
+                  "Profile migration followed a destination link");
+            std::filesystem::create_directories(root / "protected-data");
+            std::ofstream(root / "protected-data/FTA2.EXE") << "immutable input";
+            mustFail([&] { importLegacyProfile(legacy, root / "protected-data/profile"); });
+            check(!std::filesystem::exists(root / "protected-data/profile"),
+                  "Profile migration wrote inside game data");
+        }
         std::filesystem::create_directories(root / "package/bin");
         std::filesystem::create_directories(root / "package/original-game");
         check(discoverGameDirectory({}, root / "data", root / "package/bin").empty(),
@@ -635,7 +672,7 @@ int main() {
             mixer.setMusic(nullptr);
         }
         std::filesystem::remove_all(root);
-        puts("Native runtime checks passed");
+        puts("Runtime checks passed");
         return 0;
     } catch (const std::exception& e) {
         fprintf(stderr, "runtime-test: %s\n", e.what());

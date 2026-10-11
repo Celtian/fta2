@@ -19,6 +19,21 @@ packager = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(packager)
 
 
+def runtime_zip(archive, root, platform="Windows", engine=b"engine"):
+    windows = platform == "Windows"
+    archive.writestr(root + ("/bin/fta2-ce.exe" if windows else "/bin/fta2-ce"), engine)
+    archive.writestr(root + ("/bin/SDL3.dll" if windows else
+                             "/lib/libSDL3.0.dylib" if platform == "Darwin" else
+                             "/lib/libSDL3.so.0.4.18"), b"SDL")
+    launcher = ("Faery Tale Adventure II.exe" if windows else
+                "Faery Tale Adventure II.command" if platform == "Darwin" else
+                "Faery Tale Adventure II")
+    archive.writestr(root + "/" + launcher, b"launcher")
+    archive.writestr(root + "/START-HERE.txt", b"startup notes")
+    for name in package_release.LICENSE_FILES:
+        archive.writestr(root + "/licenses/" + name, b"licence")
+
+
 class PackageTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -42,8 +57,7 @@ class PackageTests(unittest.TestCase):
         self.patch.start()
         self.addCleanup(self.patch.stop)
         with ZipFile(self.engine, "w") as z:
-            z.writestr("engine/bin/fta2-native.exe", b"synthetic native engine")
-            z.writestr("engine/bin/SDL3.dll", b"synthetic SDL")
+            runtime_zip(z, "engine", engine=b"synthetic engine")
 
     def build(self, output=None):
         return packager.package_complete(self.engine, self.game, output or self.output)
@@ -72,8 +86,7 @@ class PackageTests(unittest.TestCase):
             z.writestr("engine-source/LICENSE", b"licence")
         # Use a versioned runtime root as CPack does.
         with ZipFile(self.engine, "w") as z:
-            z.writestr("engine-Windows/bin/fta2-native.exe", b"engine")
-            z.writestr("engine-Windows/bin/SDL3.dll", b"SDL")
+            runtime_zip(z, "engine-Windows")
         voice = self.root / "voice.hrs"
         voice.write_bytes(b"synthetic verified voice")
         with patch.object(packager, "VOICE_SIZE", voice.stat().st_size), \
@@ -156,7 +169,7 @@ class ReleaseTests(unittest.TestCase):
         self.source = self.root / "game-1-source.zip"
         self.output = self.root / "release.zip"
         with ZipFile(self.engine, "w") as z:
-            z.writestr("game-1-Windows/bin/fta2-native.exe", b"engine")
+            runtime_zip(z, "game-1-Windows")
         with ZipFile(self.source, "w") as z:
             z.writestr("game-1-source/CMakeLists.txt", b"build instructions")
             z.writestr("game-1-source/LICENSE", b"licence")
@@ -168,7 +181,7 @@ class ReleaseTests(unittest.TestCase):
         manifest = self.build()
         with ZipFile(self.output) as z:
             self.assertEqual(z.read("game-1-Windows/" + manifest["file"]), self.source.read_bytes())
-            self.assertEqual(z.read("game-1-Windows/bin/fta2-native.exe"), b"engine")
+            self.assertEqual(z.read("game-1-Windows/bin/fta2-ce.exe"), b"engine")
         second = self.root / "second.zip"
         package_release.package_release(self.engine, self.source, second)
         self.assertEqual(self.output.read_bytes(), second.read_bytes())
@@ -213,8 +226,34 @@ class ReleaseTests(unittest.TestCase):
     def test_conflicting_entries_rejected(self):
         with ZipFile(self.engine, "a") as z:
             z.writestr("game-1-Windows/source/manifest.json", b"conflict")
-        with self.assertRaisesRegex(ValueError, "conflicts"):
+        with self.assertRaisesRegex(ValueError, "Unnecessary runtime file"):
             self.build()
+
+    def test_common_layout_on_all_platforms(self):
+        for platform in ("Windows", "Linux", "Darwin"):
+            with self.subTest(platform=platform):
+                root = f"game-1-{platform}-x86_64"
+                with ZipFile(self.engine, "w") as z:
+                    runtime_zip(z, root, platform)
+                output = self.root / (platform + ".zip")
+                package_release.package_release(self.engine, self.source, output)
+                with ZipFile(output) as z:
+                    files = {str(Path(n).relative_to(root)) for n in z.namelist()}
+                    self.assertIn("START-HERE.txt", files)
+                    self.assertIn("licenses/LICENSE", files)
+                    self.assertIn("source/game-1-source.zip", files)
+                    self.assertFalse(any("native" in n for n in files))
+
+    def test_unneeded_player_files_rejected(self):
+        for extra in ("docs/architecture.md", "share/icons/icon.png", "bin/developer-test.exe",
+                      "lib/libSDL3-debug.a", "screenshots/capture.png", "assets/fta2.ico"):
+            with self.subTest(extra=extra):
+                with ZipFile(self.engine, "w") as z:
+                    runtime_zip(z, "game-1-Windows")
+                    z.writestr("game-1-Windows/" + extra, b"not needed by players")
+                with self.assertRaisesRegex(ValueError, "Unnecessary runtime file"):
+                    self.build()
+                self.assertFalse(self.output.exists())
 
     def test_existing_output_preserved(self):
         self.output.write_bytes(b"existing")

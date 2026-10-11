@@ -83,7 +83,7 @@ def main() -> None:
                    "--smoke-test", str(output), "--smoke-localization"]
         if args.voice_file:
             command += ["--voice-file", str(args.voice_file.resolve())]
-        with (output / "native.log").open("w") as log:
+        with (output / "engine.log").open("w") as log:
             subprocess.run(command, env=env, stdout=log, stderr=subprocess.STDOUT,
                            check=True, timeout=300)
         result = json.loads((output / "localization.json").read_text())
@@ -93,6 +93,7 @@ def main() -> None:
         assert result["radio_clicks"] == 192 and result["status_queue_refresh"]
         assert result["immediate_language_apply"] and result["same_language_preserves_subtitles"]
         assert result["live_options_cases"] == 64
+        assert result["about_cases"] == 32 and result["about_close_methods"] == 3
         screenshots = list((output / "application/screenshots").glob("*.png"))
         assert result["modal_screenshots"] == 192 and result["document_screenshots"] == 24
         assert result["gameplay_screenshots"] == 1 and len(screenshots) == 217

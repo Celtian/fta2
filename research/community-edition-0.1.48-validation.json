@@ -1,0 +1,459 @@
+{
+  "schema_version": 1,
+  "version": "0.1.48",
+  "product": "Faery Tale Adventure II: Community Edition",
+  "release_status": "development alpha",
+  "builds": {
+    "linux": "GCC Release",
+    "windows": "Zig x64 Release, executed on the Windows host",
+    "sanitizers": "Linux Debug with AddressSanitizer and LeakSanitizer"
+  },
+  "public_checks": {
+    "linux": 11,
+    "windows": 11,
+    "asan_lsan": 11,
+    "package_python_tests": 20,
+    "reference_comparison_python_tests": 3
+  },
+  "localization_and_about": {
+    "linux-release": {
+      "status": "passed",
+      "menu_cases": 64,
+      "mana_tooltip_cases": 288,
+      "name_tooltip_cases": 3453,
+      "live_options_cases": 64,
+      "about_cases": 32,
+      "about_close_methods": 3,
+      "text_overflows": 0,
+      "speech_save_roundtrip": true,
+      "mixed_speech_save_roundtrip": true,
+      "voice_variants": 9,
+      "radio_clicks": 192,
+      "status_queue_refresh": true,
+      "immediate_language_apply": true,
+      "same_language_preserves_subtitles": true,
+      "modal_screenshots": 192,
+      "gameplay_screenshots": 1,
+      "document_screenshots": 24,
+      "document_spreads": 7828,
+      "placard_cases": 1328,
+      "file_dialog_cases": 32,
+      "startup_language": "en",
+      "startup_subtitles": false,
+      "document_rendering": {
+        "scripts": 185,
+        "page_spreads": 7828,
+        "redraw_comparisons": 23948,
+        "wheel_checks": 14200,
+        "multipage_documents": 1456
+      }
+    },
+    "windows-release": {
+      "status": "passed",
+      "menu_cases": 64,
+      "mana_tooltip_cases": 288,
+      "name_tooltip_cases": 3453,
+      "live_options_cases": 64,
+      "about_cases": 32,
+      "about_close_methods": 3,
+      "text_overflows": 0,
+      "speech_save_roundtrip": true,
+      "mixed_speech_save_roundtrip": true,
+      "voice_variants": 9,
+      "radio_clicks": 192,
+      "status_queue_refresh": true,
+      "immediate_language_apply": true,
+      "same_language_preserves_subtitles": true,
+      "modal_screenshots": 192,
+      "gameplay_screenshots": 1,
+      "document_screenshots": 24,
+      "document_spreads": 7828,
+      "placard_cases": 1328,
+      "file_dialog_cases": 32,
+      "startup_language": "fr",
+      "startup_subtitles": false,
+      "document_rendering": {
+        "scripts": 185,
+        "page_spreads": 7828,
+        "redraw_comparisons": 23948,
+        "wheel_checks": 14200,
+        "multipage_documents": 1456
+      }
+    },
+    "linux-asan-lsan": {
+      "status": "passed",
+      "menu_cases": 64,
+      "mana_tooltip_cases": 288,
+      "name_tooltip_cases": 3453,
+      "live_options_cases": 64,
+      "about_cases": 32,
+      "about_close_methods": 3,
+      "text_overflows": 0,
+      "speech_save_roundtrip": true,
+      "mixed_speech_save_roundtrip": true,
+      "voice_variants": 9,
+      "radio_clicks": 192,
+      "status_queue_refresh": true,
+      "immediate_language_apply": true,
+      "same_language_preserves_subtitles": true,
+      "modal_screenshots": 192,
+      "gameplay_screenshots": 1,
+      "document_screenshots": 24,
+      "document_spreads": 7828,
+      "placard_cases": 1328,
+      "file_dialog_cases": 32,
+      "startup_language": "cs",
+      "startup_subtitles": false,
+      "document_rendering": {
+        "scripts": 185,
+        "page_spreads": 7828,
+        "redraw_comparisons": 23948,
+        "wheel_checks": 14200,
+        "multipage_documents": 1456
+      }
+    }
+  },
+  "render_parity": {
+    "ppm": {
+      "count": 719,
+      "differences": []
+    },
+    "raw": {
+      "count": 12,
+      "differences": []
+    },
+    "png": {
+      "linux": 217,
+      "windows": 217,
+      "identical_payloads": 217
+    }
+  },
+  "reference": {
+    "linux": {
+      "screenshots": {
+        "initial.ppm": "821968ab5384f1f1189f2c083419242392f923f3315a4becbe1b774e943725bd",
+        "controlled.ppm": "49d7cdc419622a7ba43478ce89da3d881d8ff56ee30b5271e49f17a1420c4970"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      },
+      "intentional_about_icon_pixels": {
+        "initial.ppm": 113,
+        "controlled.ppm": 113
+      }
+    },
+    "linux_restart": {
+      "screenshots": {
+        "initial.ppm": "821968ab5384f1f1189f2c083419242392f923f3315a4becbe1b774e943725bd",
+        "controlled.ppm": "49d7cdc419622a7ba43478ce89da3d881d8ff56ee30b5271e49f17a1420c4970"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      },
+      "intentional_about_icon_pixels": {
+        "initial.ppm": 113,
+        "controlled.ppm": 113
+      }
+    },
+    "linux_package": {
+      "screenshots": {
+        "initial.ppm": "821968ab5384f1f1189f2c083419242392f923f3315a4becbe1b774e943725bd",
+        "controlled.ppm": "49d7cdc419622a7ba43478ce89da3d881d8ff56ee30b5271e49f17a1420c4970"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      },
+      "intentional_about_icon_pixels": {
+        "initial.ppm": 113,
+        "controlled.ppm": 113
+      }
+    },
+    "windows_package": {
+      "screenshots": {
+        "initial.ppm": "821968ab5384f1f1189f2c083419242392f923f3315a4becbe1b774e943725bd",
+        "controlled.ppm": "49d7cdc419622a7ba43478ce89da3d881d8ff56ee30b5271e49f17a1420c4970"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      },
+      "intentional_about_icon_pixels": {
+        "initial.ppm": 113,
+        "controlled.ppm": 113
+      }
+    }
+  },
+  "reference_provenance": {
+    "revision": "1a3e816afd5ddc41cc2a5c51a5da292e6d61758c",
+    "incremental_build": true,
+    "fresh_run": true,
+    "only_intentional_image_difference": "113 pixels inside the 13-pixel status-bar information circle; all other pixels remain strict"
+  },
+  "windows_complete_package": {
+    "checks": [
+      {
+        "name": "version",
+        "exit_code": 0
+      },
+      {
+        "name": "launcher-version",
+        "exit_code": 0
+      },
+      {
+        "name": "launcher-invalid-argument",
+        "exit_code": 1
+      },
+      {
+        "name": "root-launcher",
+        "exit_code": 0
+      },
+      {
+        "name": "clean-startup",
+        "exit_code": 0
+      },
+      {
+        "name": "moved-root-launcher",
+        "exit_code": 0
+      },
+      {
+        "name": "moved-unicode",
+        "exit_code": 0
+      },
+      {
+        "name": "bundled-over-remembered",
+        "exit_code": 0
+      },
+      {
+        "name": "damaged-archive",
+        "exit_code": 1
+      },
+      {
+        "name": "visible-damaged-error",
+        "exit_code": 1
+      },
+      {
+        "name": "explicit-override",
+        "exit_code": 0
+      },
+      {
+        "name": "missing-resource-source",
+        "exit_code": 1
+      }
+    ],
+    "bundled_files_unchanged": 8,
+    "root_launcher_before_after_move": true,
+    "launcher_icon_matches": true,
+    "unicode_arguments_forwarded": true,
+    "printscreen_package_root_before_after_move": true,
+    "screenshot_repeat_ignored": true,
+    "original_save_import": true
+  },
+  "linux_player_package": {
+    "status": "passed",
+    "unrelated_cwd": true,
+    "relocated_unicode_path": true,
+    "launcher_executable": true,
+    "shared_sdl_discovery": true,
+    "version": "Faery Tale Adventure II: Community Edition 0.1.48 (SAGA2 1a3e816a; GPL-3.0-or-later)",
+    "original_data_excluded": true
+  },
+  "profile_migration": {
+    "default_profile_cli": {
+      "status": "passed",
+      "checks": [
+        {
+          "existing_profile": false,
+          "status": "passed",
+          "unicode_path": true
+        },
+        {
+          "existing_profile": true,
+          "status": "passed",
+          "unicode_path": true
+        }
+      ]
+    },
+    "synthetic_checks_passed": true,
+    "copies_only_config_and_numbered_saves": true,
+    "existing_saves_and_links_skipped": true,
+    "game_data_destinations_rejected": true,
+    "previous_profile_retained": true,
+    "windows_unc_ancestor_regression_corrected": true
+  },
+  "packaging": {
+    "identifier": "fta2-ce",
+    "common_folders": [
+      "bin",
+      "licenses",
+      "source"
+    ],
+    "shared_libraries": "lib on Linux/macOS; bin on Windows",
+    "root_launchers": {
+      "Windows": "Faery Tale Adventure II.exe",
+      "Linux": "Faery Tale Adventure II",
+      "macOS": "Faery Tale Adventure II.command"
+    },
+    "public_runtime_proprietary_data_excluded": true,
+    "complete_windows_data_files": 8,
+    "complete_windows_voice_archives": 1,
+    "matching_sources_embedded": true,
+    "macos_common_layout_synthetic_test_passed": true,
+    "mingw_notices_not_installed_in_msvc_packages": true
+  },
+  "visual_review": {
+    "about_english_czech_spanish_french": true,
+    "includes_widescreen_and_individual_sidebar": true,
+    "capture_location": ".cache/community-edition/about-*.png"
+  },
+  "immutability": {
+    "original_files_checked": 54,
+    "original_files_unchanged": true,
+    "previous_release_zips_checked": 8,
+    "previous_release_files_unchanged_before_new_publication": true
+  },
+  "limitations": [
+    "No macOS build or execution in this environment; only shared-layout synthetic tests and updated CI configuration.",
+    "No new MSVC build, manual physical-input/audio acceptance or full playthrough.",
+    "Existing story translation review status is unchanged; automatic checks do not constitute a narrative review."
+  ],
+  "evidence_directory": ".cache/community-edition"
+}

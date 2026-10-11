@@ -382,7 +382,7 @@ def main():
         shutil.copyfile(game / "999.SAV", saves / "fta2.002")
         if index:
             shutil.copyfile(work / "saves-0/config.ini", saves / "config.ini")
-        with (output / "native.log").open("w") as log:
+        with (output / "engine.log").open("w") as log:
             subprocess.run([str(binary), "--data-dir", str(game), "--save-dir", str(saves),
                             "--smoke-test", str(output), "--smoke-widescreen"],
                            env=env, check=True, timeout=300, stdout=log, stderr=subprocess.STDOUT)

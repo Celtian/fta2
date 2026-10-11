@@ -1,8 +1,20 @@
-# Native alpha 0.1.48 validation status
+# Community Edition alpha 0.1.48 validation status
 
 The result is a standalone C++20 engine using SDL 3.4.18. It was built and run on Linux and the actual Windows host with the original DOS data, without DOSBox or the ScummVM framework. **This is a development alpha; a complete playthrough of the port has not yet been demonstrated.** Version 0.1.33 aligns the Options right column, removes the obsolete fallback notice and consolidates each release into one ZIP with embedded corresponding sources; local Windows releases also include verified English voices. Version 0.1.32 enables separately verified original English CD voices while retaining the supported DOS profile and unvoiced fallback. Version 0.1.31 moves Night below Speech Text in Options and fixes live speech-channel volume synchronization. Version 0.1.30 tones down empty-slot numbers to muted warm gray while retaining the thin dark outline for readability. Version 0.1.29 improves empty-slot number contrast with pale digits and a thin dark outline. Version 0.1.28 adds physical-container wheel scrolling, subtle empty-slot numbers and an optional saved game-time HUD. Version 0.1.27 adds the same J/P/K diamond to mental inventories, identifying the window's actor independently of selection. Version 0.1.26 restores the diamond carrier marker in a larger size with J/P/K initials. Version 0.1.25 makes the container-carrier marker more visible with a broad colored J/P/K plaque and original-font initials. Version 0.1.24 identifies the actual carrier of open physical containers with an original-palette gemstone and English hover tooltip, independently of sidebar layout. Version 0.1.23 clears visible and delayed inventory hover text when closing windows with Escape. Version 0.1.22 joins the optional gold, weight and volume medallions into one continuous decorative strip. Version 0.1.21 anchors default Ideas/Spells/Skills windows to the active sidebar while preserving remembered custom positions. Version 0.1.20 gives the coin counter the complete original circular gold bezel, a bronze interior, light gold digits and an exact live hover tooltip. Version 0.1.19 aligns the optional sidebar controls to a uniform grid, scales the composite HP artwork and gives the coin counter original gold decoration. Version 0.1.18 adds coin artwork and per-brother mental controls in group view under New layout. Version 0.1.17 adds an optional individual sidebar layout with mental controls beside HP and a carried-gold counter. It also fixes ready-inventory positioning after loading in widescreen. Version 0.1.16 fixes immediate selected-state redraws of compressed sidebar buttons in widescreen. Version 0.1.15 makes automatic window sizes follow the active display mode and adds isolated per-brother exploration verification without changing the original reveal rules. Version 0.1.14 aligns Widescreen below Night and restores the original checkbox dimensions and compact Options height. Version 0.1.13 adds optional widescreen rendering with a wider map and the original sidebar size. Version 0.1.12 adds G/Shift+G to use the selected brother's carried map through its original script, including maps in closed or nested bags. Version 0.1.11 makes Escape close the frontmost container before opening Options. Version 0.1.10 adds mouse-wheel page navigation to vertical scrolls and parchment. Version 0.1.9 fixes Credits page-arrow updates and cursor restoration on close. Version 0.1.8 restores the Speech Text toggle and remembered preference while retaining readable unvoiced dialogue. Version 0.1.7 fixes the Options load empty state, restores the visible mandatory Speech Text checkbox and recovers the original Credits script. Version 0.1.6 adds a Hot Keys overview to Options and implements the M music toggle. It retains the numeric keypad support introduced in 0.1.5. It retains the borderless fullscreen and Alt+Enter window switching introduced in 0.1.4; the extended stability and sanitizer results below were recorded on 0.1.0.
 
 The reference is a separate SAGA2 build at revision `1a3e816afd5ddc41cc2a5c51a5da292e6d61758c`, modified only by the supplied reference patches. Successful startup with DOS resources was verified before separating the engine. The missing `FTA2WIN.EXE` dependency was resolved by extracting the actual DOS resources.
+
+## Community Edition identity and player packages in 0.1.48
+
+The executable and new archives use `fta2-ce`; window titles, CLI output and player notices identify **Faery Tale Adventure II: Community Edition**. Existing profile settings and numbered saves are imported without overwriting newer files, copying extracted resources, following destination links or removing the previous profile. The Windows public suite exposed an inaccessible UNC-server ancestor during the migration guard; the guard now uses non-throwing ancestor inspection, and the corrected suite passes. Older release archives keep their original names and bytes. Separate Linux CLI checks cover fresh and existing profiles in Unicode paths, verifying that a fresh installation does not create an obsolete profile directory.
+
+The localized status-bar information circle opens About with the product name, Dominik Hladík (2026), shared CMake version 0.1.48 and development-alpha status. Release Linux, Windows and ASan/LSan integrations each pass 32 combinations of language/aspect/sidebar/panel, all three close methods, centered geometry, tooltip rendering, reserved status-text space and zero text overflows. Each also retains the four-language Options/document/save matrix: 64 menu and live-options cases, 7,828 document spreads and 217 PNG screenshots. The About screens were visually inspected in English, Czech, Spanish and French. All 719 PPMs, twelve portrait buffers and 217 PNG payloads match Linux and Windows.
+
+Linux Release, Windows x64 and final Linux ASan/LSan public suites pass **11/11**. Packaging has 20 synthetic tests, including common Windows/Linux/macOS layouts and rejection of unnecessary runtime files. Three new reference tests ensure the default remains strict, a partial icon or changes outside its circular boundary fail, and original save chunks remain strict. The pinned reference was incrementally rebuilt and freshly run. Linux's two classic processes, the relocated Linux player package and the complete Windows package match all four checkpoints and all 30 original chunks in each compared save. Their two reference images differ only in the explicitly allowed 113 information-icon pixels.
+
+Both actual runtime packages use root launchers, `START-HERE.txt`, `bin/`, `licenses/` and embedded corresponding `source/`; Linux/macOS SDL libraries live under `lib/`. Developer material stays inside the source ZIP. Zig runtime notices are installed only for MinGW-family builds. The relocated Linux launcher passes unrelated-working-directory and Unicode-path startup, shared-SDL discovery and the classic data integration. The complete Windows preflight passes twelve startup, root-launcher/icon, relocation, Unicode-argument, Print Screen, data-precedence/error and original-save checks, retaining exactly eight verified game inputs and one verified English voice archive. Final archives are audited separately against workspace source/binary bytes and SHA-256 sidecars.
+
+All 54 original files and eight previous ZIPs remain unchanged. Evidence is in [Community Edition validation](../research/community-edition-0.1.48-validation.json). macOS packaging structure is covered synthetically and by the updated CI configuration; no macOS build/execution, new MSVC build, manual physical-input/audio acceptance, complete translation review or full playthrough is claimed. These checks retain development-alpha status.
 
 ## Spanish and French 0.1.48
 
@@ -149,7 +161,7 @@ A first Windows run with save output on the WSL UNC filesystem encountered an ac
 
 Machine-readable results are in [`research/validation.json`](../research/validation.json). Baseline installation checksums are in [`research/original-files.json`](../research/original-files.json). Game images, saves and extracted graphics remain in development output directories and are excluded from the source package.
 
-Windows cross-build details and the distinction between Wine checks and native Windows testing are documented in [Windows build and validation](windows-build.md). Earlier Wine results are in [`research/windows-build.json`](../research/windows-build.json); actual Windows results for 0.1.1 are in [`research/windows-native-validation.json`](../research/windows-native-validation.json).
+Windows cross-build details and the distinction between Wine checks and native Windows testing are documented in [Windows build and validation](windows-build.md). Earlier Wine results are in [`research/windows-build.json`](../research/windows-build.json); actual Windows results for 0.1.1 are in [`research/windows-host-validation.json`](../research/windows-host-validation.json).
 
 Complete-package results for 0.1.2 are in [`research/windows-complete-validation.json`](../research/windows-complete-validation.json). The reproducible Windows test script uses isolated save directories, without `--data-dir` for automatic-startup scenarios. It intentionally damages and restores only a temporary extracted copy when exercising error handling.
 
@@ -271,17 +283,17 @@ Release build, all five public tests, both integrations and their ASan/LSan runs
 ```sh
 ctest --test-dir build -C Release --output-on-failure
 python3 tools/fta2_data.py verify
-python3 tools/integration_test.py --binary build/fta2-native --output .cache/integration
-python3 tools/integration_widescreen.py --binary build/fta2-native --output .cache/integration-widescreen
+python3 tools/integration_test.py --binary build/fta2-ce --output .cache/integration
+python3 tools/integration_widescreen.py --binary build/fta2-ce --output .cache/integration-widescreen
 python3 tools/reference.py build
 python3 tools/reference.py run
-python3 tools/compare_reference.py --reference-output .cache/reference/output --reference-saves .cache/reference/saves --native-output .cache/integration/output --native-saves .cache/integration/saves
+python3 tools/compare_reference.py --reference-output .cache/reference/output --reference-saves .cache/reference/saves --engine-output .cache/integration/output --engine-saves .cache/integration/saves --allow-about-icon
 ```
 
 The integration output directory must be fresh. To run another limited stability scenario:
 
 ```sh
-SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy ./build/fta2-native --data-dir original-game --save-dir .cache/soak-saves --smoke-test .cache/soak-output --smoke-frames 10000
+SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy ./build/fta2-ce --data-dir original-game --save-dir .cache/soak-saves --smoke-test .cache/soak-output --smoke-frames 10000
 ```
 
 For memory checks with GCC/Clang, build Debug with `-DCMAKE_CXX_FLAGS="-fsanitize=address -fno-omit-frame-pointer"` and run the scenario with `ASAN_OPTIONS=detect_leaks=1:halt_on_error=1`. LeakSanitizer requires an environment that permits inspection of process threads.
@@ -346,7 +358,7 @@ Reproduce the original-media tests with a verified local CD archive and fresh ou
 
 ```sh
 ./build/fta2-voice-test /path/to/FTAVOICE.HRS .cache/voice-decoded.tsv
-python3 tools/integration_voices.py --binary build/fta2-native --voice-file /path/to/FTAVOICE.HRS --output .cache/integration-voices
+python3 tools/integration_voices.py --binary build/fta2-ce --voice-file /path/to/FTAVOICE.HRS --output .cache/integration-voices
 ```
 
 A full voiced playthrough, subjective listening comparison, exhaustive script recording coverage and macOS validation remain pending. The product retains development-alpha status.
@@ -378,7 +390,7 @@ The delivery remains a single complete Windows ZIP with the engine, SDL, licence
 Reproduce the isolated death regression with a fresh output directory:
 
 ```sh
-python3 tools/integration_diagnostics.py --binary build/fta2-native --voice-file /path/to/verified/FTAVOICE.HRS --output .cache/diagnostics-new
+python3 tools/integration_diagnostics.py --binary build/fta2-ce --voice-file /path/to/verified/FTAVOICE.HRS --output .cache/diagnostics-new
 ```
 
 Omit `--voice-file` for the supported DOS-only profile. Neither the fixture nor logging writes into the original installation.

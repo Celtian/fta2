@@ -967,6 +967,106 @@ unsigned liveOptions(const Path& output) {
     return cases;
 }
 
+unsigned aboutDialogCases(const Path& output) {
+    using namespace Saga2;
+    const bool originalPanel = g_vm->_indivControlsFlag;
+    const int brother = indivBrother;
+    const auto calendar = *g_vm->_calendar;
+    const auto theme = g_vm->_grandMasterFTA->_currentTheme;
+    g_vm->_calendar->_hour = g_vm->_calendar->_frameInHour = 0;
+    g_vm->_grandMasterFTA->_currentTheme = 0;
+    unsigned cases = 0;
+    for (bool wide : {false, true})
+        for (bool sidebar : {false, true})
+            for (bool individual : {false, true})
+                for (auto value :
+                     {Language::English, Language::Czech, Language::Spanish, Language::French}) {
+                    ConfMan.setBool("widescreen", wide);
+                    ConfMan.setBool("alternate_sidebar", sidebar);
+                    requestDisplayModeChange();
+                    applyPendingDisplayMode();
+                    setLanguage(value);
+                    if (individual)
+                        setControlPanelsToIndividualMode(0);
+                    else
+                        setControlPanelsToTrioMode();
+                    reDrawScreen();
+                    require(AboutButton && AboutButton->getEnabled(), "About icon missing");
+                    const auto box = AboutButton->getExtent();
+                    require(box.x == 443 + displayLayout().sidebarOffset && box.y == 445 &&
+                                box.width == 14 && box.height == 15,
+                            "About icon is outside the status bar");
+                    require(StatusLine->getExtent().x + StatusLine->getExtent().width < box.x,
+                            "Status text overlaps the About icon");
+                    const auto actor = getCenterActorID();
+                    const auto position = centerActorCoords();
+                    Event hover{};
+                    hover.type = EVENT_MOUSEMOVE;
+                    hover.mouse.x = box.x + 6;
+                    hover.mouse.y = box.y + 7;
+                    g_vm->_pointer->move(Point16(hover.mouse.x, hover.mouse.y));
+                    g_vm->_toolBase->handleMouse(hover, 0);
+                    const auto tooltip = CursorMan.pixels;
+                    g_vm->_mouseInfo->setText(ui("About"));
+                    require(CursorMan.pixels == tooltip, "About tooltip uses the wrong language");
+                    for (unsigned closeMode = 0; closeMode < 3; ++closeMode) {
+                        bool opened = false;
+                        uint32 modalSeed = 0;
+                        int ticks = 0;
+                        gameFrameHook = [&] {
+                            require(++ticks < 90, "About modal timed out");
+                            g_vm->_grandMasterFTA->_currentTheme = 0;
+                            auto* modal = ModalWindow::_current;
+                            if (!modal)
+                                return;
+                            if (opened) {
+                                require(modalSeed == g_vm->_rnd->getSeed(),
+                                        "About modal advanced simulation RNG");
+                                return;
+                            }
+                            opened = true;
+                            modalSeed = g_vm->_rnd->getSeed();
+                            require(modal->getExtent().width == 487 &&
+                                        modal->getExtent().height == 260 &&
+                                        modal->getExtent().x ==
+                                            (displayLayout().screenWidth - 487) / 2,
+                                    "About modal is not centered");
+                            require(modal->keyTest('\r') && modal->keyTest(ASCII_ESCAPE),
+                                    "About close shortcuts missing");
+                            if (!closeMode)
+                                g_platform->capture(
+                                    output / String::format("about-%02u.ppm", cases).c_str());
+                            if (closeMode == 2)
+                                clickChoice(modal->keyTest(ASCII_ESCAPE), true);
+                            else
+                                key(closeMode ? SDLK_RETURN : SDLK_ESCAPE);
+                        };
+                        // Dispatch a real mouse click through the panel system.
+                        clickChoice(AboutButton, false);
+                        bool waiting = true;
+                        auto modalHook = gameFrameHook;
+                        gameFrameHook = [&] {
+                            modalHook();
+                            if (opened && !ModalWindow::_current)
+                                waiting = false;
+                        };
+                        EventLoop(waiting, true);
+                        gameFrameHook = nullptr;
+                        require(opened && !ModalWindow::_current, "About modal did not close");
+                        require(actor == getCenterActorID() && position == centerActorCoords(),
+                                "About modal changed simulation state");
+                    }
+                    ++cases;
+                }
+    if (originalPanel)
+        setControlPanelsToIndividualMode(brother);
+    else
+        setControlPanelsToTrioMode();
+    *g_vm->_calendar = calendar;
+    g_vm->_grandMasterFTA->_currentTheme = theme;
+    return cases;
+}
+
 unsigned fileDialogs(const Path& output) {
     using namespace Saga2;
     unsigned cases = 0;
@@ -1030,6 +1130,7 @@ void configureLocalizationProbe(const Path& output) {
             }
         }
         const auto liveCases = liveOptions(output);
+        const auto aboutCases = aboutDialogCases(output);
         portraitPlates(output);
         const auto manaCases = manaTooltips(output);
         const auto nameCases = nameBounds();
@@ -1046,7 +1147,8 @@ void configureLocalizationProbe(const Path& output) {
         std::ofstream(output / "localization.json")
             << "{\"status\":\"passed\",\"menu_cases\":" << number
             << ",\"mana_tooltip_cases\":" << manaCases << ",\"name_tooltip_cases\":" << nameCases
-            << ",\"live_options_cases\":" << liveCases
+            << ",\"live_options_cases\":" << liveCases << ",\"about_cases\":" << aboutCases
+            << ",\"about_close_methods\":3"
             << ",\"text_overflows\":0,\"speech_save_roundtrip\":true,\"mixed_speech_save_"
                "roundtrip\":true,\"voice_variants\":9,"
                "\"radio_clicks\":192,\"status_queue_refresh\":true,\"immediate_language_apply\":"

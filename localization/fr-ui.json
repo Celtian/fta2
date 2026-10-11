@@ -1234,6 +1234,38 @@
       "source_sha256": "bd8dcb94543a04e8529edc3055d610831859d7ff4a9fd1e9483a4f25864f391e",
       "text": "Échec de la capture.",
       "status": "reviewed"
+    },
+    "ui:4efca0d10c5feb8e9b35eb1d994f2905bb71714e6a271f511d713b539ea5faa1": {
+      "source": "About",
+      "source_sha256": "4efca0d10c5feb8e9b35eb1d994f2905bb71714e6a271f511d713b539ea5faa1",
+      "text": "À propos",
+      "status": "reviewed"
+    },
+    "ui:e2350a80c35bac594ae86c5002e318fb963e8515e7c2b2e87ed635e1bb6ad9ab": {
+      "source": "Version %s",
+      "source_sha256": "e2350a80c35bac594ae86c5002e318fb963e8515e7c2b2e87ed635e1bb6ad9ab",
+      "text": "Version %s",
+      "status": "reviewed"
+    },
+    "ui:a8e36791c02dc27e9c9989c0030df819398e6a210de79ec058a37a726f19da05": {
+      "source": "Development alpha",
+      "source_sha256": "a8e36791c02dc27e9c9989c0030df819398e6a210de79ec058a37a726f19da05",
+      "text": "Version alpha",
+      "status": "reviewed"
+    },
+    "ui:98e5c7bb423ed8bf91e8f5e8ff83c46f3e69f6f16db9370a7c2eaf11667a9b41": {
+      "source": "Faery Tale Adventure II",
+      "source_sha256": "98e5c7bb423ed8bf91e8f5e8ff83c46f3e69f6f16db9370a7c2eaf11667a9b41",
+      "text": "Faery Tale Adventure II",
+      "status": "reviewed",
+      "preserve_reason": "Official product name."
+    },
+    "ui:1e8d08333269d64c920605e1bf3df7b0f0ea92e1008fc2066505e7bf2c34b05e": {
+      "source": "Community Edition",
+      "source_sha256": "1e8d08333269d64c920605e1bf3df7b0f0ea92e1008fc2066505e7bf2c34b05e",
+      "text": "Community Edition",
+      "status": "reviewed",
+      "preserve_reason": "Official product name."
     }
   }
 }

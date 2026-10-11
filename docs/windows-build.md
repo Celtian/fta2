@@ -1,6 +1,8 @@
 # Windows x64 build and package
 
-The complete Windows x64 alpha ZIP contains `bin/fta2-native.exe`, `bin/SDL3.dll`, licence notices and the eight required game files under `data/`. Extract the entire ZIP and double-click the root `Faery Tale Adventure II.exe` launcher, or run `bin/fta2-native.exe` directly. The game starts directly, with no folder selection or separate original installation. Keep the launcher and `bin/`, `data/`, `media/`, `source/` and `licenses/` together when moving the game. Developer documentation and validation records are included only inside the matching source ZIP. `bin/package.json` records the bundled data, voices and source hashes. The data remains in its original format; `FTA2.EXE` is read for resources and never executed.
+Current Community Edition packages use `fta2-ce` for the game executable and archive names. Linux/macOS use the same `bin/`, `licenses/`, embedded `source/` and root startup-note layout, with SDL under `lib/` and an executable shell launcher. Windows keeps its icon-bearing root EXE. The first default-profile launch imports settings and numbered saves from the previous profile without replacing newer saves or removing the old profile. Click the status-bar information circle for the product identity, author, build version and development-alpha status. See [Community Edition validation](validation.md#community-edition-identity-and-player-packages-in-0148) for actual platform coverage.
+
+The complete Windows x64 alpha ZIP contains `bin/fta2-ce.exe`, `bin/SDL3.dll`, licence notices and the eight required game files under `data/`. Extract the entire ZIP and double-click the root `Faery Tale Adventure II.exe` launcher, or run `bin/fta2-ce.exe` directly. The game starts directly, with no folder selection or separate original installation. Keep the launcher and `bin/`, `data/`, `media/`, `source/` and `licenses/` together when moving the game. Developer documentation and validation records are included only inside the matching source ZIP. `bin/package.json` records the bundled data, voices and source hashes. The data remains in its original format; `FTA2.EXE` is read for resources and never executed.
 
 Version 0.1.32 supports the original English CD voices through a separate local add-on ZIP. Extract it into the same parent directory as the matching complete ZIP so `media/FTAVOICE.HRS` sits beside `bin/` and `data/`. Normal startup detects and verifies it automatically. Speech Volume adjusts active and new dialogue; Speech Text controls subtitles, with readable fallback for missing or silent voices. The eight-file complete package itself remains unchanged in scope. Original voices are excluded from public engine and corresponding source packages. Alternatively, use `--voice-file "C:\Games\FTA2-Voices\FTAVOICE.HRS"` with supported DOS data.
 
@@ -9,7 +11,7 @@ Public CI produces engine-only packages without game data. Their Windows folder 
 Alternatively, run from PowerShell with an explicit path:
 
 ```powershell
-.\bin\fta2-native.exe --data-dir "C:\Games\FTA2"
+.\bin\fta2-ce.exe --data-dir "C:\Games\FTA2"
 ```
 
 Use `--save-dir "C:\path\to\saves"` to override the default SDL user directory. Keep saves outside the original installation. Windows command-line paths and SDL filesystem calls use UTF-8, with native wide paths for C++ file streams.
@@ -49,7 +51,7 @@ export ZIG_GLOBAL_CACHE_DIR="$PWD/.cache/zig-global"
 export ZIG_LOCAL_CACHE_DIR="$PWD/.cache/zig-local"
 cmake -S . -B build-windows-x64 -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/windows-zig.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$PWD/.cache/windows-sdl/SDL3-3.4.18/x86_64-w64-mingw32" -DFTA2_FETCH_SDL=OFF
 cmake --build build-windows-x64 --parallel 4
-cpack --config build-windows-x64/CPackConfig.cmake -C Release -B .cache/release-0.1.36
+cpack --config build-windows-x64/CPackConfig.cmake -C Release -B .cache/release-0.1.48
 ```
 
 The native Windows CI build uses MSVC and the regular instructions in the main README; it does not require Zig. Runtime licence notices for the cross-build are in `third_party/windows-runtime/` and are included in packages.
@@ -59,17 +61,17 @@ The native Windows CI build uses MSVC and the regular instructions in the main R
 Publish one complete ZIP containing engine, original English voices, eight verified DOS inputs and corresponding engine sources. CPack engine and source archives are internal intermediates:
 
 ```sh
-cpack --config build-windows-x64/CPackConfig.cmake -C Release -B .cache/release-0.1.36
-cpack --config build-windows-x64/CPackSourceConfig.cmake -B .cache/release-0.1.36
-python3 tools/package_complete.py --engine-package .cache/release-0.1.36/fta2-native-0.1.36-Windows-x86_64.zip --source-package .cache/release-0.1.36/fta2-native-0.1.36-source.zip --data-dir original-game --voice-file .cache/fta2-cd-voices/FTAVOICE.HRS --output dist/fta2-native-0.1.36-Windows-x86_64.zip
+cpack --config build-windows-x64/CPackConfig.cmake -C Release -B .cache/release-0.1.48
+cpack --config build-windows-x64/CPackSourceConfig.cmake -B .cache/release-0.1.48
+python3 tools/package_complete.py --engine-package .cache/release-0.1.48/fta2-ce-0.1.48-Windows-x86_64.zip --source-package .cache/release-0.1.48/fta2-ce-0.1.48-source.zip --data-dir original-game --voice-file .cache/fta2-cd-voices/FTAVOICE.HRS --output dist/fta2-ce-0.1.48-Windows-x86_64.zip
 ```
 
-The tool verifies all eight data files and optional CD voice archive against baseline SHA-256 hashes, excludes original saves and unnecessary DOS components, and records provenance in `share/fta2-native/complete-package.json`. The matching source ZIP is embedded under `source/` and contains no original game data. It refuses to modify the original installation or overwrite an existing ZIP. Retain previous releases. Public CI similarly embeds sources into one engine ZIP per platform, with proprietary data excluded. The engine's GPL does not relicense original game data or audio.
+The tool verifies all eight data files and optional CD voice archive against baseline SHA-256 hashes, excludes original saves and unnecessary DOS components, and records provenance in `bin/package.json`. The matching source ZIP is embedded under `source/` and contains no original game data. It refuses to modify the original installation or overwrite an existing ZIP. Retain previous releases. Public CI similarly embeds sources into one engine ZIP per platform, with proprietary data excluded. The engine's GPL does not relicense original game data or audio.
 
 On an actual Windows desktop, validate a complete ZIP with isolated saves and a fresh temporary output directory:
 
 ```powershell
-.\tools\test_complete_windows.ps1 -Package .\dist\fta2-native-0.1.36-Windows-x86_64.zip -OutputDirectory "$env:TEMP\fta2-complete-check" -OriginalSave .\original-game\999.SAV
+.\tools\test_complete_windows.ps1 -Package .\dist\fta2-ce-0.1.48-Windows-x86_64.zip -OutputDirectory "$env:TEMP\fta2-complete-check" -OriginalSave .\original-game\999.SAV
 ```
 
 The optional `-OriginalSave` is copied before loading. The script opens and closes only its own test windows, moves the extracted game into a path containing spaces and non-ASCII characters, and verifies startup, data precedence, visible errors and gameplay/save restoration. It writes `validation.json`, screenshots, saves and logs under the test output directory.
@@ -77,7 +79,7 @@ The optional `-OriginalSave` is copied before loading. The script opens and clos
 To validate fullscreen and Alt+Enter against a complete ZIP on the actual Windows desktop:
 
 ```powershell
-.\tools\test_window_windows.ps1 -Package .\dist\fta2-native-0.1.36-Windows-x86_64.zip -OutputDirectory "$env:TEMP\fta2-window-check"
+.\tools\test_window_windows.ps1 -Package .\dist\fta2-ce-0.1.48-Windows-x86_64.zip -OutputDirectory "$env:TEMP\fta2-window-check"
 ```
 
 This test sends native keyboard messages only to its own game window, with SDL raw keyboard input disabled for that test process. It checks fullscreen startup by comparing physical window and monitor bounds and checking that the title bar is absent, including coverage beyond the desktop work area occupied by the taskbar. It activates only its own game window using a verified click, restores normal stacking and the cursor position before assertions, and checks both toggle directions, repeat suppression, right Alt with keypad Enter and preservation of a resized window.
@@ -88,7 +90,7 @@ The Windows executable passed all four public CTest checks under Wine 10, includ
 
 Both screen captures, four simulation checkpoints and all 30 original world chunks in each compared save match the separate ScummVM reference exactly. The original cross-build/Wine evidence remains in `research/windows-build.json`.
 
-The executable was also launched on the actual Windows host through Windows PowerShell, using a test copy in Windows TEMP. These tests run as Windows processes with native graphics/audio backends, outside WSL and Wine. They cover the new folder-selection flow, cancellation, visible errors, remembered paths and the original-data movement/save/load scenario. See `research/windows-native-validation.json` for the recorded scope. MSVC CI, subjective audio comparison and a full playthrough remain pending.
+The executable was also launched on the actual Windows host through Windows PowerShell, using a test copy in Windows TEMP. These tests run as Windows processes with native graphics/audio backends, outside WSL and Wine. They cover the new folder-selection flow, cancellation, visible errors, remembered paths and the original-data movement/save/load scenario. See `research/windows-host-validation.json` for the recorded scope. MSVC CI, subjective audio comparison and a full playthrough remain pending.
 
 For 0.1.2, the complete ZIP passed native Windows startup without a data path, relocation into a Unicode path, precedence over remembered installations, explicit overrides, visible archive-error handling and refusal to fall back from an incomplete bundle. Movement, brother selection, save restoration, original-save import, both reference images and all 30 original chunks in each compared save also passed. The eight bundled data files and all 54 original input files remain unchanged. Results are recorded in `research/windows-complete-validation.json`.
 
@@ -162,7 +164,7 @@ Version 0.1.31 moves Night below Speech Text and fixes live speech-channel gain 
 The native Windows preflight passes all six public tests, native video runtime checks, two default widescreen processes, a classic process and four original-voice display/layout scenarios. The voice add-on is found automatically in `media/`; all 4,320 recordings decode to the same PCM hashes, sizes, flags and rate as Linux. All 285 default widescreen captures per process match Linux. Classic images, checkpoints and all 30 original chunks in each compared save match the existing pinned reference. Gameplay/audio integrations use dummy SDL backends; subjective listening and a complete voiced playthrough remain pending. See [voice validation evidence](../research/voice-validation.json).
 
 
-Version 0.1.34 removes the redundant numeric-keypad note from Hot Keys and adds persistent diagnostics under the user/save directory's `logs/` folder. The default Windows path is `%APPDATA%\fta2-native\fta2-native\logs`; startup error dialogs also show the actual log path. Unhandled Windows crashes attempt a matching `.dmp` through the system DbgHelp library. Include the latest log and dump when reporting a crash. The single complete ZIP retains embedded matching sources, the eight verified DOS files and the verified English voices. See [diagnostics validation](validation.md#persistent-diagnostics-and-villager-death-0134) for the tested scope and the villager-death fix.
+Version 0.1.34 removes the redundant numeric-keypad note from Hot Keys and adds persistent diagnostics under the user/save directory's `logs/` folder. The default Windows path is `%APPDATA%\fta2-ce\fta2-ce\logs`; startup error dialogs also show the actual log path. Unhandled Windows crashes attempt a matching `.dmp` through the system DbgHelp library. Include the latest log and dump when reporting a crash. The single complete ZIP retains embedded matching sources, the eight verified DOS files and the verified English voices. See [diagnostics validation](validation.md#persistent-diagnostics-and-villager-death-0134) for the tested scope and the villager-death fix.
 
 
 Version 0.1.35 extends mouse-wheel scrolling and muted empty-slot numbers to Ideas/Spells/Skills. Category changes reset to the first row; selecting the same category preserves the offset. The original 80 slots, owner diamond, save format and both layouts are retained. The single complete ZIP passes native Windows integration and runtime checks; see [mental inventory validation](validation.md#mental-inventory-scrolling-0135). Development-alpha status is retained.

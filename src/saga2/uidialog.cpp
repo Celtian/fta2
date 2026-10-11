@@ -929,6 +929,60 @@ static APPFUNC(cmdLanguageFinish) {
 	state->result.running = false;
 }
 
+static APPFUNC(cmdAboutClose) {
+	if (!ev.panel || !isUserAction(ev) || !ev.value) return;
+	static_cast<requestInfo *>(ev.panel->getWindow()->_userData)->running = false;
+}
+
+class AboutCloseButton : public GfxCompButton {
+public:
+	using GfxCompButton::GfxCompButton;
+	gPanel *keyTest(int16 key) override {
+		return key == '\r' ? this : GfxCompButton::keyTest(key);
+	}
+};
+
+void AboutDialog() {
+	const Rect16 bounds((640 - 487) / 2, (480 - 260) / 2, 487, 260);
+	const StaticWindow decorations[] = {
+		{{bounds.x, bounds.y, 487, 39}, nullptr, optTopPanelResID},
+		{{bounds.x, (int16)(bounds.y + 39), 487, 101}, nullptr, optBotPanelResID},
+		{{bounds.x, (int16)(bounds.y + 99), 487, 101}, nullptr, optBotPanelResID},
+		{{bounds.x, (int16)(bounds.y + 159), 487, 101}, nullptr, optBotPanelResID}
+	};
+	requestInfo state;
+	state.running = true;
+	state.result = 0;
+	auto *resources = resFile->newContext(kDialogGroupID, "about dialog resources");
+	void **buttons = loadButtonRes(resources, 4, kNumBtnImages);
+	textPallete pal(42, 45, 50, 43, 49, 52);
+	g_vm->_toolBase->leavePanel();
+	auto *win = new ModalWindow(bounds, 0, nullptr);
+	win->_userData = &state;
+	new CPlaqText(*win, Rect16(0, 0, 487, 47), "About", &Plate18Font, 0, pal, 0, nullptr);
+	new CPlaqText(*win, Rect16(20, 57, 447, 30), "Faery Tale Adventure II",
+	              &Plate18Font, 0, pal, 0, nullptr);
+	new CPlaqText(*win, Rect16(20, 91, 447, 20), "Community Edition",
+	              &SmallFont, 0, pal, 0, nullptr);
+	// The author's name retains its accent in every language, including English.
+	new CPlaqText(*win, Rect16(20, 122, 447, 20), "Dominik Hlad\355k, 2026",
+	              Native::localizedFont(&SmallFont, Native::Language::Czech), 0, pal, 0, nullptr);
+	const auto version = Native::String::format(Native::ui("Version %s"), FTA2_VERSION);
+	new CPlaqText(*win, Rect16(20, 148, 447, 20), version.c_str(),
+	              &SmallFont, 0, pal, 0, nullptr);
+	new CPlaqText(*win, Rect16(20, 174, 447, 20), "Development alpha",
+	              &SmallFont, 0, pal, 0, nullptr);
+	auto *close = new AboutCloseButton(*win, Rect16(183, 207, 121, 30), buttons,
+	                               kNumBtnImages, Native::ui("Close"), pal, 1, cmdAboutClose);
+	close->_accelKey = Native::ASCII_ESCAPE;
+	win->setDecorations(decorations, ARRAYSIZE(decorations), resources, 'O', 'P', 'T');
+	win->open();
+	EventLoop(state.running, true);
+	delete win;
+	unloadImageRes(buttons, kNumBtnImages);
+	resFile->disposeContext(resources);
+}
+
 static bool showLanguageDialog() {
 	Rect16 bounds((640 - 487) / 2, (480 - 200) / 2, 487, 200);
 	const StaticWindow decorations[] = {

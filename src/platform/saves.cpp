@@ -24,19 +24,19 @@ uint32 validateSave(SeekableReadStream& in) {
             in.read(speechData.data(), n);
         } else if (tag == MKTAG('N', 'R', 'N', 'G')) {
             if (n != 4)
-                throw std::runtime_error("Invalid native RNG save chunk");
+                throw std::runtime_error("Invalid extended RNG save chunk");
             seed = in.readUint32LE();
         } else if (tag == MKTAG('N', 'L', 'O', 'C')) {
             const auto end = in.pos() + n;
             if (!found.contains(MKTAG('S', 'P', 'C', 'H')) || n < 4 || in.readUint16LE() != 1)
-                throw std::runtime_error("Invalid native localization save header");
+                throw std::runtime_error("Invalid extended localization save header");
             const auto count = in.readUint16LE();
             if (count > 20)
                 throw std::runtime_error("Too many localized saved speeches");
             std::set<uint16> indices;
             std::vector<String> originalSpeech;
             if (speechData.size() < 2)
-                throw std::runtime_error("Native localization requires saved speech records");
+                throw std::runtime_error("Localization requires saved speech records");
             const int originalCount = READ_LE_UINT16(speechData.data());
             if (originalCount > 20)
                 throw std::runtime_error("Invalid original speech count");
@@ -58,40 +58,40 @@ uint32 validateSave(SeekableReadStream& in) {
                 throw std::runtime_error("Original speech chunk has trailing bytes");
             for (int i = 0; i < count; ++i) {
                 if (end - in.pos() < 70)
-                    throw std::runtime_error("Truncated native localization record");
+                    throw std::runtime_error("Truncated localization record");
                 const auto index = in.readUint16LE();
                 const auto language = in.readByte();
                 if (index >= 20 || !indices.insert(index).second || !language || !validLanguage(language) ||
                     in.readByte() != 0)
-                    throw std::runtime_error("Invalid native localization record");
+                    throw std::runtime_error("Invalid extended localization record");
                 char hash[65] = {};
                 in.read(hash, 64);
                 for (int j = 0; j < 64; ++j) {
                     const char c = hash[j];
                     if (!(c >= '0' && c <= '9') && !(c >= 'a' && c <= 'f'))
-                        throw std::runtime_error("Invalid native localization fingerprint");
+                        throw std::runtime_error("Invalid extended localization fingerprint");
                 }
                 if (index >= originalSpeech.size() ||
                     sha256(reinterpret_cast<const byte*>(originalSpeech[index].data()),
                            originalSpeech[index].size()) != hash)
-                    throw std::runtime_error("Native localization does not match original speech");
+                    throw std::runtime_error("Localization does not match original speech");
                 const auto length = in.readUint16LE();
                 if (length > 8192 || length > end - in.pos())
-                    throw std::runtime_error("Invalid native localization text size");
+                    throw std::runtime_error("Invalid extended localization text size");
                 int choices = 0;
                 for (int j = 0; j < length; ++j) {
                     const auto c = in.readByte();
                     if (!c)
-                        throw std::runtime_error("NUL in native localization text");
+                        throw std::runtime_error("NUL in localization text");
                     if (c == '@')
                         ++choices;
                 }
                 if (choices !=
                     std::count(originalSpeech[index].begin(), originalSpeech[index].end(), '@'))
-                    throw std::runtime_error("Native localization changed dialogue choices");
+                    throw std::runtime_error("Localization changed dialogue choices");
             }
             if (in.pos() != end)
-                throw std::runtime_error("Native localization chunk has trailing bytes");
+                throw std::runtime_error("Localization chunk has trailing bytes");
         } else
             in.skip(n);
     }

@@ -1,4 +1,4 @@
-name: Native builds
+name: Desktop builds
 on:
   push:
   pull_request:
@@ -47,12 +47,12 @@ jobs:
           python3 - <<'PYTHON'
           from pathlib import Path
           from tools.package_release import package_release
-          source = next(Path("build").glob("fta2-native-*-source.zip"))
-          for engine in Path("build").glob("fta2-native-*.zip"):
+          source = next(Path("build").glob("fta2-ce-*-source.zip"))
+          for engine in Path("build").glob("fta2-ce-*.zip"):
               if engine != source:
                   package_release(engine, source, Path("build/release") / engine.name)
           PYTHON
       - uses: actions/upload-artifact@v4
         with:
-          name: fta2-native-${{ matrix.name }}
-          path: build/release/fta2-native-*.zip
+          name: fta2-ce-${{ matrix.name }}
+          path: build/release/fta2-ce-*.zip
