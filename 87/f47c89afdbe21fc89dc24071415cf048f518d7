@@ -1,0 +1,159 @@
+packaging/Play.sh
+  s_763c5106900d9d::t_5d8f207dbe95f5 1-2,4
+  s_763c5106900d9d::t_5e1be484733b45 3
+src/platform/diagnostics.cpp
+  s_763c5106900d9d::t_e9263fafd1afd2 392
+  s_763c5106900d9d::t_c196a40b395c31 395
+localization/es-ui.json
+  s_763c5106900d9d::t_e9263fafd1afd2 1237-1268
+src/platform/saves.cpp
+  s_763c5106900d9d::t_c196a40b395c31 27,32,39,61,66,72,77,80,85,91,94
+tools/package_voices.py
+  s_763c5106900d9d::t_e9263fafd1afd2 29,41
+tests/reference_compare_test.py
+  s_763c5106900d9d::t_d57a17e73127d9 1-83
+src/platform/windows_launcher.cpp
+  s_763c5106900d9d::t_875ff5c34da9b6 71
+  s_763c5106900d9d::t_5002165f67b9dc 6,12-13
+  s_763c5106900d9d::t_e9263fafd1afd2 10,34
+src/platform/runtime.cpp
+  s_763c5106900d9d::t_5d8f207dbe95f5 253,270
+src/saga2/uidialog.cpp
+  s_763c5106900d9d::t_600425a72ddaa7 937-944,967-969,975
+  s_763c5106900d9d::t_8f31c2a42a9a11 932-936,945-966,970-974,976-985
+AGENTS.md
+  s_763c5106900d9d::t_4a7c0257080b42 61
+  s_763c5106900d9d::t_07390577501979 53
+src/saga2/intrface.cpp
+  s_763c5106900d9d::t_8f31c2a42a9a11 2090-2092
+assets/fta2-ce.desktop
+  s_763c5106900d9d::t_e9263fafd1afd2 1-8
+third_party/README.md
+  s_763c5106900d9d::t_5002165f67b9dc 14-15
+packaging/START-HERE.txt
+  s_763c5106900d9d::t_5d8f207dbe95f5 1-21
+src/saga2/uidialog.h
+  s_763c5106900d9d::t_8f31c2a42a9a11 30
+docs/validation.md
+  s_763c5106900d9d::t_5740dc114ceade 7-8,10-18
+  s_763c5106900d9d::t_5002165f67b9dc 1
+  s_763c5106900d9d::t_c260af6b1fab0c 9,286-287,296,361,393
+  s_763c5106900d9d::t_2058ac2f22fbd6 164
+  s_763c5106900d9d::t_2e2999fc1b7848 290
+tools/integration_localization.py
+  s_763c5106900d9d::t_89b97c830e24ab 96
+  s_763c5106900d9d::t_b8d2aaebdf7103 86
+tools/integration_test.py
+  s_763c5106900d9d::t_b8d2aaebdf7103 37,60
+tools/compare_reference.py
+  s_763c5106900d9d::t_f7bc6443aac639 31-32,38-54,56-58
+  s_763c5106900d9d::t_82e134a4c802f2 29-30,55
+tools/integration_widescreen.py
+  s_763c5106900d9d::t_b8d2aaebdf7103 385
+localization/README.md
+  s_763c5106900d9d::t_c196a40b395c31 42-43
+tests/package_test.py
+  s_763c5106900d9d::t_553737ea1d5055 22-36,60,89,172,229,232-256
+  s_763c5106900d9d::t_e9263fafd1afd2 184
+  s_763c5106900d9d::t_7ede50708bfea8 257
+tests/runtime_test.cpp
+  s_763c5106900d9d::t_600425a72ddaa7 675
+  s_763c5106900d9d::t_1465ee7bcffef0 172-173,191-197
+  s_763c5106900d9d::t_5002165f67b9dc 8,14-15,174-175
+  s_763c5106900d9d::t_dc705311ea740c 162-171,176-190,198
+localization/cs-ui.json
+  s_763c5106900d9d::t_e9263fafd1afd2 1237-1268
+tools/package_complete.py
+  s_763c5106900d9d::t_2b1b2a299d2e8e 10
+  s_763c5106900d9d::t_2bee18cc6b878f 123-125
+  s_763c5106900d9d::t_4a7c0257080b42 103
+  s_763c5106900d9d::t_e9263fafd1afd2 67,105,118
+  s_763c5106900d9d::t_a19e55bc8bc6ae 76
+docs/architecture.md
+  s_763c5106900d9d::t_5002165f67b9dc 142-146,148-149
+  s_763c5106900d9d::t_c196a40b395c31 3,138
+  s_763c5106900d9d::t_2058ac2f22fbd6 147
+src/saga2/playmode.cpp
+  s_763c5106900d9d::t_8f31c2a42a9a11 37,44-75,238,246,288
+.github/workflows/build.yml
+  s_763c5106900d9d::t_e9263fafd1afd2 1,50-51,57-58
+src/platform/startup.h
+  s_763c5106900d9d::t_2bee18cc6b878f 5-6
+tools/test_window_windows.ps1
+  s_763c5106900d9d::t_e9263fafd1afd2 63
+  s_763c5106900d9d::t_875ff5c34da9b6 100
+localization/fr-ui.json
+  s_763c5106900d9d::t_e9263fafd1afd2 1237-1268
+src/saga2/intrface.h
+  s_763c5106900d9d::t_8f31c2a42a9a11 629
+tools/package_release.py
+  s_763c5106900d9d::t_43a3a581f3d74d 14-15,39-40,44-46
+  s_763c5106900d9d::t_2b1b2a299d2e8e 7,12-13,16-38,41-43,47-54,136
+packaging/THIRD-PARTY.txt
+  s_763c5106900d9d::t_c196a40b395c31 1
+docs/windows-build.md
+  s_763c5106900d9d::t_5740dc114ceade 3-4
+  s_763c5106900d9d::t_c196a40b395c31 5,14,167
+  s_763c5106900d9d::t_2058ac2f22fbd6 93
+  s_763c5106900d9d::t_b8d2aaebdf7103 54,64-66,69,74,82
+research/community-edition-0.1.48-validation.json
+  s_763c5106900d9d::t_13d71c58fb9d9a 1-399,415-459
+  s_763c5106900d9d::t_c260af6b1fab0c 400-414
+src/main.cpp
+  s_763c5106900d9d::t_875ff5c34da9b6 24-25,31-32,180-182
+  s_763c5106900d9d::t_5d8f207dbe95f5 23,87,189
+  s_763c5106900d9d::t_5002165f67b9dc 192-193
+tools/test_complete_windows.ps1
+  s_763c5106900d9d::t_875ff5c34da9b6 84
+  s_763c5106900d9d::t_e9263fafd1afd2 16,52,185
+  s_d1ee5e46f23b9a::t_1487ed26f601bb 252
+src/platform/localization_probe.cpp
+  s_763c5106900d9d::t_7d34e91c14d7c1 970-973,978-988,993-1002,1012-1013,1015-1017,1019,1027,1029-1030,1033-1036,1043-1049,1052-1055,1057-1061,1068-1069
+  s_763c5106900d9d::t_4fcd4e1858c02e 989-992,1011,1014,1020-1026,1028,1031-1032,1037-1042,1050-1051,1056,1062-1065,1151
+  s_763c5106900d9d::t_a19e55bc8bc6ae 1003-1008
+  s_763c5106900d9d::t_91fe09962f2199 974-977,1018,1066-1067
+  s_763c5106900d9d::t_2144fda38e0b16 1009-1010
+  s_763c5106900d9d::t_3feb02efeeb5eb 1133,1150
+tools/integration_voices.py
+  s_763c5106900d9d::t_b8d2aaebdf7103 49
+README.md
+  s_763c5106900d9d::t_c196a40b395c31 111-113
+  s_763c5106900d9d::t_e9263fafd1afd2 1,14,17,21,28-30,37,55,103-104
+  s_763c5106900d9d::t_5002165f67b9dc 19-20,35-36,53
+  s_763c5106900d9d::t_6067931705f2ed 54
+CMakeLists.txt
+  s_763c5106900d9d::t_d57a17e73127d9 105
+  s_763c5106900d9d::t_5d8f207dbe95f5 65,69-71,73
+  s_763c5106900d9d::t_89b97c830e24ab 128-135
+  s_763c5106900d9d::t_e9263fafd1afd2 2,50,55,64,66-67,102,107-108,121,126
+  s_763c5106900d9d::t_43a3a581f3d74d 77
+src/platform/startup.cpp
+  s_763c5106900d9d::t_89b97c830e24ab 13-14,16-17,20-21,28-29,69-70,75-78,87-88
+  s_763c5106900d9d::t_a89390cd419049 46-51
+  s_763c5106900d9d::t_2bee18cc6b878f 4-7,11-12,22-27,30-45,52-54
+  s_763c5106900d9d::t_1465ee7bcffef0 8-10,15,18-19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "87f47c89afdbe21fc89dc24071415cf048f518d7",
+  "prompts": {},
+  "sessions": {
+    "s_763c5106900d9d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a129c5-c6f5-7441-9620-636f1239c421",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Celtian <dominik.hladik@seznam.cz>"
+    },
+    "s_d1ee5e46f23b9a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12b2c-8903-73b3-a5cf-5b873f7c026c",
+        "model": "unknown"
+      },
+      "human_author": "Celtian <dominik.hladik@seznam.cz>"
+    }
+  }
+}
