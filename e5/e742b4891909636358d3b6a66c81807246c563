@@ -1,0 +1,36 @@
+.github/workflows/release.yml
+  s_7b28c1cd1fed4a::t_9c2c556fbe5613 7-12,18,23,25-27,31-34,36,38,45-46,50,57-59,68,73-74,76-82,84
+docs/validation.md
+  s_7b28c1cd1fed4a::t_7a3168eaf23a21 7-27
+docs/architecture.md
+  s_7b28c1cd1fed4a::t_01aa0a2f609b11 144-151
+.github/workflows/desktop.yml
+  s_7b28c1cd1fed4a::t_9c2c556fbe5613 11-15,37-38
+tests/release_test.py
+  s_7b28c1cd1fed4a::t_c0e441614411fa 3-4,135-189
+  s_7b28c1cd1fed4a::t_a54e20176adae0 190
+docs/releases.md
+  s_7b28c1cd1fed4a::t_01aa0a2f609b11 58-60,65-87
+tools/release.py
+  s_7b28c1cd1fed4a::t_7a3168eaf23a21 89-91
+  s_7b28c1cd1fed4a::t_9c2c556fbe5613 94-111,192-195,211-216
+  s_7b28c1cd1fed4a::t_732bebeff9c5cd 92-93
+README.md
+  s_7b28c1cd1fed4a::t_01aa0a2f609b11 113-115
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e5e742b4891909636358d3b6a66c81807246c563",
+  "prompts": {},
+  "sessions": {
+    "s_7b28c1cd1fed4a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12bfa-aa04-7b50-a63f-c2f415c319a9",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Celtian <dominik.hladik@seznam.cz>"
+    }
+  }
+}
