@@ -44,7 +44,7 @@ ActorAssignment::ActorAssignment(Actor *a, uint16 until) :
 	_endFrame(until) {
 	_actor = a;
 	debugC(2, kDebugActors, "New assignment for %p (%s) from %d until %d: %p",
-	      (void *)a, a->objName(), _startFrame, _endFrame, (void *)this);
+	      (void *)a, a->originalName(), _startFrame, _endFrame, (void *)this);
 	a->_assignment = this;
 	a->_flags |= kAFHasAssignment;
 }
@@ -64,7 +64,7 @@ ActorAssignment::ActorAssignment(Actor *ac, Native::SeekableReadStream *stream) 
 ActorAssignment::~ActorAssignment() {
 	Actor *a = getActor();
 	debugC(2, kDebugActors, "Ending assignment for %p (%s): %p",
-	      (void *)a, a->objName(), (void *)this);
+	      (void *)a, a->originalName(), (void *)this);
 
 	//  Determine if the actor has a task initiated by this assignment
 	if (a->_currentGoal == kActorGoalFollowAssignment

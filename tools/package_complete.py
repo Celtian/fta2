@@ -95,23 +95,25 @@ def package_complete(engine_package: Path, data_dir: Path, output: Path,
                                  "sha256": VOICE_SHA256, "recordings": 4320,
                                  "license": "Original game audio; not relicensed under the engine GPL"}
             additions[f"{root}/media/FTAVOICE.HRS"] = voice
-            additions[f"{root}/media/voice-manifest.json"] = (
-                json.dumps(manifest["voice"], indent=2) + "\n"
-            ).encode()
-        additions[f"{root}/share/fta2-native/complete-package.json"] = (
+        additions[f"{root}/bin/package.json"] = (
             json.dumps(manifest, indent=2) + "\n"
         ).encode()
         additions[f"{root}/START-HERE.txt"] = (
             "Faery Tale Adventure II - complete Windows package\n\n"
-            "Extract the entire ZIP and double-click bin/fta2-native.exe.\n"
+            "Extract the entire ZIP and double-click Faery Tale Adventure II.exe.\n"
+            "You can also start bin/fta2-native.exe directly.\n"
             "Keep the extracted directory together when moving the game.\n"
             "Game data is included; no folder selection or separate installation is needed.\n"
             + ("Original English voices are included and detected automatically.\n"
                "Use Speech Volume and Speech Text in Options to adjust voices and subtitles.\n"
                if voice_file is not None else "")
             + ("Corresponding engine sources are included under source/.\n"
+               "Build instructions, developer documentation and validation records are inside that ZIP.\n"
                if source_package is not None else "")
-            + "Saves and settings are stored in your Windows user profile.\n"
+            + "Engine and third-party licence notices are under licenses/.\n"
+            "Saves and settings are stored in your Windows user profile.\n"
+            "Print Screen saves a PNG, including the cursor, under screenshots/ beside this file.\n"
+            "If this directory is not writable, screenshots use the Windows user profile.\n"
             "Diagnostic logs: %APPDATA%\\fta2-native\\fta2-native\\logs\n"
             "When reporting a crash, include the latest .log and matching .dmp, if present.\n\n"
             "Original game data and audio retain their original copyright.\n"

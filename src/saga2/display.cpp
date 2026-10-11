@@ -37,6 +37,7 @@
 #include "saga2/calendar.h"
 #include "saga2/fontlib.h"
 #include "saga2/inventory_ui.h"
+#include "saga2/uidialog.h"
 
 namespace Saga2 {
 
@@ -63,7 +64,7 @@ void requestDisplayModeChange() {
 }
 
 bool applyPendingDisplayMode() {
-	if (!displayModePending || ModalWindow::_current || !mainWindow ||
+	if (!displayModePending || (ModalWindow::_current && !isOptionsWindow(ModalWindow::_current)) || !mainWindow ||
 	    !g_vm->_tileDrawMap._data || !g_vm->_gameRunning)
 		return false;
 	displayModePending = false;
@@ -72,6 +73,7 @@ bool applyPendingDisplayMode() {
 	const auto mode = ConfMan.getBool("widescreen") ? Native::DisplayMode::Widescreen
 	                                               : Native::DisplayMode::Classic;
 	if (mode == Native::activeDisplayMode) {
+		refreshOptionsDisplay();
 		const bool sidebarChanged = applySidebarLayout();
 		if (clockChanged && !sidebarChanged) {
 			reDrawScreen();
@@ -90,6 +92,7 @@ bool applyPendingDisplayMode() {
 	} catch (const std::bad_alloc &) {
 		ConfMan.setBool("widescreen", Native::activeDisplayMode == Native::DisplayMode::Widescreen);
 		ConfMan.flushToDisk();
+		refreshOptionsDisplay();
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Display mode",
 		                        "Cannot allocate the new display buffers.", nullptr);
 		return false;
@@ -97,6 +100,7 @@ bool applyPendingDisplayMode() {
 	if (!g_platform->resizeGraphics(layout.screenWidth, layout.screenHeight)) {
 		ConfMan.setBool("widescreen", Native::activeDisplayMode == Native::DisplayMode::Widescreen);
 		ConfMan.flushToDisk();
+		refreshOptionsDisplay();
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Display mode", SDL_GetError(), nullptr);
 		return false;
 	}
@@ -123,7 +127,9 @@ bool applyPendingDisplayMode() {
 		if (window == mainWindow) continue;
 		Rect16 r = window->getExtent();
 		const int oldX = r.x, oldY = r.y;
-		if (mode == Native::DisplayMode::Classic) {
+		if (isOptionsWindow(dynamic_cast<ModalWindow *>(window))) {
+			r.x = (layout.screenWidth - r.width) / 2;
+		} else if (mode == Native::DisplayMode::Classic) {
 			r.x = CLIP<int>(r.x, 0, MAX(0, layout.screenWidth - r.width));
 			r.y = CLIP<int>(r.y, 0, MAX(0, layout.screenHeight - r.height));
 		}
@@ -143,6 +149,7 @@ bool applyPendingDisplayMode() {
 	mouse.type = Native::EVENT_MOUSEMOVE;
 	mouse.mouse = g_platform->mousePosition();
 	g_vm->_toolBase->handleMouse(mouse, g_platform->getMillis());
+	refreshOptionsDisplay();
 	reDrawScreen();
 	g_platform->updateScreen();
 	return true;

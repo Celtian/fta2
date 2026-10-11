@@ -116,13 +116,13 @@ public:
 	SensorList(GameObject *o) : _obj(o) {
 		newSensorList(this);
 		debugC(1, kDebugSensors, "Adding SensorList %p to %d (%s) (total %d)",
-		       (void *)this, o->thisID(), o->objName(), _list.size());
+		       (void *)this, o->thisID(), o->originalName(), _list.size());
 	}
 
 	~SensorList() {
 		deleteSensorList(this);
 		debugC(1, kDebugSensors, "Deleting SensorList %p of %d (%s) (total %d)",
-		       (void *)this, _obj->thisID(), _obj->objName(), _list.size());
+		       (void *)this, _obj->thisID(), _obj->originalName(), _list.size());
 	}
 
 	SensorList(Native::InSaveFile *in);
@@ -159,7 +159,7 @@ public:
 		newSensor(this);
 		SensorList *sl = fetchSensorList(o);
 		debugC(1, kDebugSensors, "Adding Sensor %p to %d (%s) (list = %p, total = %d)",
-		       (void *)this, o->thisID(), o->objName(), (void *)sl, (sl != nullptr) ? sl->_list.size() : -1);
+		       (void *)this, o->thisID(), o->originalName(), (void *)sl, (sl != nullptr) ? sl->_list.size() : -1);
 	}
 
 	Sensor(Native::InSaveFile *in, int16 ctr);
@@ -169,7 +169,7 @@ public:
 		deleteSensor(this);
 		SensorList *sl = fetchSensorList(_obj);
 		debugC(1, kDebugSensors, "Deleting Sensor %p of %d (%s) (list = %p, total = %d)",
-		       (void *)this, _obj->thisID(), _obj->objName(), (void *)sl, (sl != nullptr) ? sl->_list.size() : -1);
+		       (void *)this, _obj->thisID(), _obj->originalName(), (void *)sl, (sl != nullptr) ? sl->_list.size() : -1);
 	}
 
 	virtual void write(Native::MemoryWriteStreamDynamic *out);

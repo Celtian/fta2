@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "platform/runtime.h"
 #include "platform/diagnostics.h"
+#include "platform/screenshots.h"
 #include "app-icon.h"
 #include <chrono>
 Native::Config ConfMan;
@@ -247,6 +248,8 @@ void TimerManager::checkTimers() {
     }
 }
 Platform::Platform() {
+    if (const char* base = SDL_GetBasePath())
+        screenshotBaseDirectory = screenshotRoot(Path(base));
     SDL_SetHint(SDL_HINT_APP_ID, "fta2-native");
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS))
         throw std::runtime_error(SDL_GetError());
@@ -311,6 +314,7 @@ bool Platform::resizeGraphics(int width, int height) {
     _texture = texture;
     _screen = std::move(screen);
     _rgba = std::move(rgba);
+    _presented = false;
     applyAutomaticWindowSize();
     refreshMousePosition();
     return true;
@@ -401,6 +405,7 @@ void Platform::updateScreen() {
     SDL_RenderClear(_renderer);
     SDL_RenderTexture(_renderer, _texture, nullptr, nullptr);
     SDL_RenderPresent(_renderer);
+    _presented = true;
 }
 Point Platform::windowToGame(float x, float y) const {
     float gx = 0, gy = 0;
@@ -461,6 +466,20 @@ bool Platform::pollEvent(Event& out) {
             return true;
         }
         if (ev.type == SDL_EVENT_KEY_DOWN) {
+            if (ev.key.key == SDLK_PRINTSCREEN) {
+                if (ev.key.repeat)
+                    continue;
+                const auto result = saveScreenshot(_presented ? _rgba.data() : nullptr,
+                                                   _screen.w, _screen.h, screenshotBaseDirectory,
+                                                   saves.directory, dataDirectory);
+                diagnosticMessage("SCREENSHOT", "path=%s fallback=%d error=%s",
+                                  result.path.toString().c_str(), result.usedUserDirectory,
+                                  result.error.c_str());
+                out.type = EVENT_SCREENSHOT;
+                out.screenshotSaved = !result.path.empty();
+                out.screenshotInUserDirectory = result.usedUserDirectory;
+                return true;
+            }
             if ((ev.key.key == SDLK_RETURN || ev.key.key == SDLK_KP_ENTER) &&
                 (ev.key.mod & SDL_KMOD_ALT)) {
                 // Consume the shortcut, including repeats, before the game UI.

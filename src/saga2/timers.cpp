@@ -135,7 +135,7 @@ void checkTimers() {
 			continue;
 
 		if ((*it)->check()) {
-			debugC(2, kDebugTimers, "Timer tick for %p (%s): %p (_duration %d)", (void *)(*it)->getObject(), (*it)->getObject()->objName(), (void *)(*it), (*it)->getInterval());
+			debugC(2, kDebugTimers, "Timer tick for %p (%s): %p (_duration %d)", (void *)(*it)->getObject(), (*it)->getObject()->originalName(), (void *)(*it), (*it)->getInterval());
 			(*it)->reset();
 			(*it)->getObject()->timerTick((*it)->thisID());
 		}
@@ -271,7 +271,7 @@ void cleanupTimers() {
 
 TimerList::TimerList(GameObject *o) : _obj(o) {
 	debugC(1, kDebugTimers, "Creating timer list %p for %p (%s)",
-		   (void *)this, (void *)o, o->objName());
+		   (void *)this, (void *)o, o->originalName());
 	g_vm->_timerLists.push_back(this);
 }
 
@@ -288,7 +288,7 @@ TimerList::TimerList(Native::InSaveFile *in) {
 
 TimerList::~TimerList() {
 	debugC(1, kDebugTimers, "Deleting timer list %p for %p (%s))",
-		   (void *)this, (void *)_obj, _obj->objName());
+		   (void *)this, (void *)_obj, _obj->originalName());
 	g_vm->_timerLists.remove(this);
 }
 

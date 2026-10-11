@@ -33,7 +33,8 @@ cmp assets/fta2.ico .cache/app-icon/generated/fta2.ico
 ```
 
 CMake embeds the PNG in the engine for the SDL window icon and the ICO in the
-Windows executable for Explorer and shortcuts. Both files and this notice are
-included in runtime and source packages. Linux installations also receive a
+Windows executable for Explorer and shortcuts. Both files and this detailed notice are included in corresponding source packages.
+Runtime packages retain the embedded icon, its upstream licence and a compact
+attribution in `licenses/THIRD-PARTY.txt`. Linux installations also receive a
 desktop entry and the PNG in the hicolor icon theme. Existing macOS packages
 remain command-line executables rather than Finder `.app` bundles.

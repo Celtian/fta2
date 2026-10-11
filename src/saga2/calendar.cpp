@@ -116,7 +116,9 @@ void CalendarTime::update() {
 		}
 
 		if (text)
-			StatusMsg(CALENDAR_STATUS, text, _dayInWeek + 1, _weeks + 1);
+			StatusMsg(CALENDAR_STATUS, {Native::LocalizedMessage::ui(text),
+			          Native::LocalizedMessage::number(_dayInWeek + 1),
+			          Native::LocalizedMessage::number(_weeks + 1)});
 	}
 }
 

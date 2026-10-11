@@ -25,6 +25,7 @@
 
 #ifndef SAGA2_SCRIPT_H
 #define SAGA2_SCRIPT_H
+#include "platform/localization.h"
 
 #include "saga2/objects.h"
 #include "saga2/calendar.h"
@@ -277,6 +278,9 @@ public:
 private:
 	uint8 *strAddress(int strNum);
 
+public:
+	const char *displayString(int strNum, Native::Language language);
+	Native::LocalizedMessage captureDisplayString(int strNum);
 };
 
 const int               maxTimeSlice = 16,  // max instructions per call

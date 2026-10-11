@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-11",
+  "version": "0.1.46",
+  "status": "development-alpha",
+  "implementation_validation": "research/screenshot-language-0.1.46-validation.json",
+  "complete_package": {
+    "windows": "Microsoft Windows NT 10.0.26200.0",
+    "tests": [
+      {
+        "name": "version",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "launcher-version",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "launcher-invalid-argument",
+        "finished": true,
+        "exit_code": 1
+      },
+      {
+        "name": "root-launcher",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "clean-startup",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "moved-root-launcher",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "moved-unicode",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "bundled-over-remembered",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "damaged-archive",
+        "finished": true,
+        "exit_code": 1
+      },
+      {
+        "name": "visible-damaged-error",
+        "finished": true,
+        "exit_code": 1
+      },
+      {
+        "name": "explicit-override",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "missing-resource-source",
+        "finished": true,
+        "exit_code": 1
+      }
+    ],
+    "bundled_files_unchanged": 8,
+    "relocated_unicode_path": true,
+    "unrelated_working_directory": true,
+    "data_override_used_for_startup": false,
+    "original_save_import": true,
+    "root_launcher_before_after_move": true,
+    "launcher_icon_matches": true,
+    "unicode_arguments_forwarded": true
+  },
+  "native_print_screen": {
+    "status": "passed",
+    "input": "Native window messages with extended Print Screen scan code; raw keyboard disabled for window-message injection only. No physical desktop keyboard state changed.",
+    "screenshots_before_move": 2,
+    "screenshots_after_move": 2,
+    "dimensions": [
+      640,
+      480
+    ],
+    "repeated_key_down_ignored": true,
+    "package_root_path": true,
+    "unrelated_working_directory": true
+  },
+  "launcher": {
+    "file": "Faery Tale Adventure II.exe",
+    "root_exe_user_approved": true,
+    "icon_matches_native_engine": true,
+    "before_after_unicode_relocation": true,
+    "unicode_quoted_save_argument_forwarded": true,
+    "child_exit_codes_0_and_1_forwarded": true
+  },
+  "packaged_content": {
+    "data_files": 8,
+    "english_voice_archive_sha256": "34bd5c7e3b5982df3f84b274c05a0f056a2932dfd03f02d880be44e5a81353c3",
+    "matching_data_free_source_zip_embedded": true
+  },
+  "older_packages_preserved": true,
+  "original_files_unchanged": 54,
+  "native_video": [
+    "root-launcher",
+    "moved-root-launcher",
+    "clean-startup",
+    "visible-damaged-error"
+  ],
+  "gameplay_backends": "dummy SDL video/audio with injected input",
+  "notes": [
+    "The preflight and final release use identical engine/SDL/launcher/catalog/data/voice bytes; final documentation and corresponding sources are assembled afterward.",
+    "Final ZIP CRC, allowlists, binaries and matching embedded sources are checked separately in .cache/windows-0146-final-audit.json. SHA-256 sidecars avoid a self-referential source hash."
+  ],
+  "remaining": [
+    "Physical Print Screen hardware/desktop shortcut interception, manual audio testing, native MSVC/macOS confirmation and full playthrough.",
+    "Full Czech linguistic/story-branch review remains incomplete."
+  ],
+  "delivery": "dist/fta2-native-0.1.46-Windows-x86_64.zip",
+  "private_evidence_directory": ".cache/windows-0146-*"
+}

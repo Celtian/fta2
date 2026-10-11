@@ -461,6 +461,10 @@ public:
 	Location notGetWorldLocation();
 
 	//  Return the name of this object (proper noun if it has one)
+	uint16 objectNameIndex() const {
+		return _data.nameIndex > 0 ? _data.nameIndex : _prototype ? _prototype->nameIndex : 0;
+	}
+	const char *originalName();
 	const char *objName() {
 		if (_data.nameIndex > 0)
 			return nameText((int16)_data.nameIndex);

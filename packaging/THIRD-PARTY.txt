@@ -1,0 +1,32 @@
+Faery Tale Adventure II native engine - third-party notices
+
+Engine: GPL-3.0-or-later. See LICENSE and SCUMMVM-COPYRIGHT.
+SAGA2 gameplay and selected portable MIDI code originate from ScummVM revision
+1a3e816afd5ddc41cc2a5c51a5da292e6d61758c. Imported copyright notices are retained
+in the corresponding sources supplied under source/.
+
+Nuked-OPL3-fast 1.8-fast.2: Nuke.YKT and Tony Gies, LGPL-2.1-or-later.
+See NUKED-LGPL-2.1; the corresponding source includes the original notices.
+
+SDL 3.4.18 is bundled as a shared library under the zlib licence.
+See SDL-LICENSE.txt.
+
+The embedded application icon is the ScummVM community game icon contributed
+by GandalfTheWhite80, renamed by Walter Agazzi. Its upstream repository supplies
+GPL version 2; see SCUMMVM-ICONS-GPL-2.0.txt. The icon uses the original game's
+logo and cover illustration; it is not verified as the original Windows icon.
+Pinned provenance and conversion details are in third_party/APP-ICON.md inside
+the corresponding source ZIP. Original game artwork and trademarks are not
+relicensed under the engine GPL.
+
+Windows Zig cross-builds include statically linked compiler/C++ runtimes:
+libc++, libc++abi and libunwind (Apache-2.0 with LLVM exceptions), MinGW-w64
+(its supplied COPYING notice), and Zig compiler runtime code (MIT).
+The applicable notices accompany Windows packages under windows-runtime/.
+
+Original game data and English voice recordings retain their original
+copyright. Their inclusion in a local complete package does not relicense
+them under the engine GPL. No original game save is supplied.
+
+The matching source ZIP includes build instructions, dependency versions,
+complete notices, upstream provenance and validation documentation.

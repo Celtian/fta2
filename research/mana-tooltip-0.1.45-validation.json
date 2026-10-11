@@ -1,0 +1,312 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-11",
+  "version": "0.1.45",
+  "status": "development-alpha",
+  "problem": "Mana hover labels remained English in Czech, e.g. Blue Mana: 29/28.",
+  "cause": "Reviewed Czech prefix translations already existed, but cmdManaInd formatted hardcoded English strings. The resulting numeric tooltip did not match a whole-string UI key.",
+  "change": "Use the existing localized RED/ORANGE/YELLOW/GREEN/BLUE/VIOLET_MANA definitions in the six formatting branches. Current/base mana values and English wording retain their original formatting.",
+  "catalog_content_changed": false,
+  "regression_before_fix": {
+    "status": "failed_as_expected",
+    "private_log": ".cache/mana-tooltip-regression-2/en/output/native.log",
+    "failure": "mana tooltip mismatch: brother=0 color=0 language=1 actual=81x31 expected=101x31"
+  },
+  "checks": {
+    "linux_release_ctest": {
+      "passed": 9,
+      "total": 9
+    },
+    "zig_windows_release_ctest": {
+      "passed": 9,
+      "total": 9,
+      "cpp_execution": "native Windows host",
+      "python_execution": "Linux host"
+    },
+    "linux_release_with_voices": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "mana_tooltip_cases": 144,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "en",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 3824,
+            "redraw_comparisons": 11724,
+            "wheel_checks": 6960,
+            "multipage_documents": 708
+          }
+        },
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "mana_tooltip_cases": 144,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "cs",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 3824,
+            "redraw_comparisons": 11724,
+            "wheel_checks": 6960,
+            "multipage_documents": 708
+          }
+        }
+      ],
+      "verified_original_files": 54
+    },
+    "native_windows_with_voices": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "mana_tooltip_cases": 144,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "en",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 3824,
+            "redraw_comparisons": 11724,
+            "wheel_checks": 6960,
+            "multipage_documents": 708
+          }
+        },
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "mana_tooltip_cases": 144,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "cs",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 3824,
+            "redraw_comparisons": 11724,
+            "wheel_checks": 6960,
+            "multipage_documents": 708
+          }
+        }
+      ],
+      "verified_original_files": 54
+    },
+    "mana_matrix": [
+      "six mana colors",
+      "three brothers",
+      "English/Czech",
+      "640x480/854x480",
+      "original/alternate sidebar"
+    ],
+    "mana_oracle": "144 hover cases per process. Independently specified English/Czech labels and live original current/base stats are rendered through the cursor text path and compared with the actual UI-dispatched tooltip pixels and dimensions. Language switches reuse hover coordinates.",
+    "capture_parity": {
+      "status": "passed",
+      "processes": [
+        {
+          "startup_language": "en",
+          "matching_ppm_captures": 244,
+          "mana_cursor_captures": 8,
+          "matching_portrait_buffers": 6
+        },
+        {
+          "startup_language": "cs",
+          "matching_ppm_captures": 244,
+          "mana_cursor_captures": 8,
+          "matching_portrait_buffers": 6
+        }
+      ]
+    },
+    "linux_classic_integration": {
+      "status": "passed",
+      "processes": [
+        {
+          "output": ".cache/mana-tooltip-classic/output",
+          "startup_subtitles": true,
+          "status": "passed",
+          "completed_phases": [
+            "original-save-loaded",
+            "hotkeys-checked",
+            "music-toggle-checked",
+            "options-regressions-checked",
+            "speech-text-checked",
+            "document-cursors-checked",
+            "document-wheel-checked",
+            "container-escape-checked",
+            "map-shortcut-checked"
+          ]
+        },
+        {
+          "output": ".cache/mana-tooltip-restart/output",
+          "startup_subtitles": false,
+          "status": "passed",
+          "completed_phases": [
+            "original-save-loaded",
+            "hotkeys-checked",
+            "music-toggle-checked",
+            "options-regressions-checked",
+            "speech-text-checked",
+            "document-cursors-checked",
+            "document-wheel-checked",
+            "container-escape-checked",
+            "map-shortcut-checked"
+          ]
+        }
+      ],
+      "original_files_unchanged": 54,
+      "native_extraction_matches_python": true,
+      "unknown_profile_rejected": true,
+      "output_inside_original_rejected": true,
+      "note": "The initial combined integration runner exited 143 during its second process without reporting an engine failure; its complete first process was retained, and the restart scenario was rerun in a fresh directory and validated separately."
+    },
+    "english_reference": {
+      "first_process": {
+        "screenshots": {
+          "initial.ppm": "fb2459ffbf3b855cf31d768224bf4ad9854be8e02d3357bb0af8cdbcee99e7b5",
+          "controlled.ppm": "612b368c9e7460b94aa4c7ec7d6bd84751754f1f05b718ec735d09dae8cdbe28"
+        },
+        "simulation": {
+          "initial": {
+            "frame": 1,
+            "actor": 32768,
+            "u": 13258,
+            "v": 12521,
+            "z": 8,
+            "rng": 888809617
+          },
+          "moved": {
+            "frame": 180,
+            "actor": 32768,
+            "u": 13258,
+            "v": 12513,
+            "z": 8,
+            "rng": 1260233905
+          },
+          "switched": {
+            "frame": 190,
+            "actor": 32769,
+            "u": 13249,
+            "v": 12497,
+            "z": 8,
+            "rng": 3004664737
+          },
+          "saved": {
+            "frame": 220,
+            "actor": 32769,
+            "u": 13249,
+            "v": 12497,
+            "z": 8,
+            "rng": 81644917
+          }
+        },
+        "save_chunks": {
+          "fta2.999": 30,
+          "fta2.001": 30
+        }
+      },
+      "restart_process": {
+        "screenshots": {
+          "initial.ppm": "fb2459ffbf3b855cf31d768224bf4ad9854be8e02d3357bb0af8cdbcee99e7b5",
+          "controlled.ppm": "612b368c9e7460b94aa4c7ec7d6bd84751754f1f05b718ec735d09dae8cdbe28"
+        },
+        "simulation": {
+          "initial": {
+            "frame": 1,
+            "actor": 32768,
+            "u": 13258,
+            "v": 12521,
+            "z": 8,
+            "rng": 888809617
+          },
+          "moved": {
+            "frame": 180,
+            "actor": 32768,
+            "u": 13258,
+            "v": 12513,
+            "z": 8,
+            "rng": 1260233905
+          },
+          "switched": {
+            "frame": 190,
+            "actor": 32769,
+            "u": 13249,
+            "v": 12497,
+            "z": 8,
+            "rng": 3004664737
+          },
+          "saved": {
+            "frame": 220,
+            "actor": 32769,
+            "u": 13249,
+            "v": 12497,
+            "z": 8,
+            "rng": 81644917
+          }
+        },
+        "save_chunks": {
+          "fta2.999": 30,
+          "fta2.001": 30
+        }
+      },
+      "revision": "1a3e816afd5ddc41cc2a5c51a5da292e6d61758c",
+      "artifacts": "Existing .cache/czech-radio-reference output/saves reused; reference not rebuilt or rerun."
+    },
+    "visual_review": {
+      "status": "selected Czech blue tooltip cursor bitmap inspected",
+      "private_capture": ".cache/mana-tooltip-czech.png"
+    },
+    "asan_lsan": "Not rerun for six localized prefix substitutions; production ownership, lifetimes, resource loading and saves are unchanged. Latest sanitizer execution is documented for 0.1.44."
+  },
+  "original_data": {
+    "files_unchanged": 54,
+    "verification": "tools/fta2_data.py verify before and after integrations; private SHA-256 snapshots under .cache/mana-tooltip-original-*.json"
+  },
+  "windows_delivery": {
+    "path": "dist/fta2-native-0.1.45-Windows-x86_64.zip",
+    "binary_sha256": "869af8e307fa6d434aafb200546fa91372d8385b25688dea8c4b771704bd5fdc",
+    "data_files": 8,
+    "voice_sha256": "34bd5c7e3b5982df3f84b274c05a0f056a2932dfd03f02d880be44e5a81353c3",
+    "matching_data_free_source_zip_embedded": true,
+    "final_archive_audit": ".cache/windows-0145-final-audit.json",
+    "checksum_sidecar": "dist/fta2-native-0.1.45-SHA256SUMS.txt",
+    "older_packages_preserved": true,
+    "runtime_test_scope": "New binary executed directly on the Windows host with explicit verified data/voice inputs and temporary Windows-local saves. Final ZIP bytes, allowlists, CRCs and corresponding sources audited separately.",
+    "startup_relocation_error_suite": "Not rerun; packaging/discovery are unchanged. Most recent eight-case package preflight is recorded in research/windows-0.1.44-validation.json."
+  },
+  "remaining": [
+    "Full Czech linguistic/story-branch review, including 4,227 existing draft entries.",
+    "Manual hardware/audio testing, native MSVC/macOS confirmation and a full playthrough."
+  ],
+  "private_evidence_directory": ".cache/mana-tooltip-* and .cache/windows-0145-*"
+}

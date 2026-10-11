@@ -148,6 +148,8 @@ CDocument::CDocument(CDocumentAppearance &dApp,
 
 	// get the org text size
 	_textSize = clamp(0, strlen(buffer), _maxSize);
+	if (Native::language() == Native::Language::Czech && strlen(buffer) > _maxSize)
+		Native::reportTextOverflow("document buffer", strlen(buffer), 1, _maxSize, 1);
 
 	// set the original text pointer
 	origText = new char[_textSize + 1];
@@ -161,7 +163,7 @@ CDocument::CDocument(CDocumentAppearance &dApp,
 	// and fill it
 	Native::strlcpy(text, origText, _textSize + 1);
 
-	_textFont        = font;
+	_textFont        = Native::localizedFont(font, Native::language());
 	_textHeight      = (_textFont ? _textFont->height : 0);
 	_lineWidth       = dApp.pageRect[0].width;
 	_pageHeight      = dApp.pageRect[0].height;
@@ -553,12 +555,19 @@ void CDocument::makePages() {
 			}
 
 			// set the length of this line
+			if (lineIndex >= kMaxLines) error("Document exceeds its per-page line capacity");
 			if (offset >= 0) {
 				// number of characters on this line
 				_lineLen[pageIndex][lineIndex] = offset;
 			} else {
 				// remaining number of characters in string
 				_lineLen[pageIndex][lineIndex] = strlen(str);
+			}
+			if (Native::language() == Native::Language::Czech) {
+				const uint16 length = _lineLen[pageIndex][lineIndex];
+				Native::String line(str, length);
+				while (!line.empty() && (line.back() == ' ' || line.back() == '\n' || line.back() == '\r')) line.pop_back();
+				Native::checkTextFit(line.c_str(), _textFont, _lineWidth, _textHeight, 0, "document line");
 			}
 
 
@@ -575,6 +584,8 @@ void CDocument::makePages() {
 	}
 
 	_pages = pageIndex;
+	if (Native::language() == Native::Language::Czech && offset >= 0)
+		Native::reportTextOverflow("document pages", pageIndex + 1, 1, kMaxPages, 1);
 }
 
 // This function will draw the text onto the book.
@@ -602,9 +613,10 @@ void CDocument::renderText() {
 		}
 
 		// draw a new copy of the background to the temp port
+		// Decoration clipping uses screen coordinates, even for an off-screen port.
 		drawClipped(tPort,
 		            Point16(_extent.x, _extent.y),
-		            Rect16(0, 0, _extent.width, _extent.height));
+		            _extent);
 
 		tPort.setFont(_textFont);         // setup the string pointer
 		for (pageIndex = 0; pageIndex < _currentPage; pageIndex++) {
@@ -715,6 +727,8 @@ char            bookText[_textSize] = { "" };
 
 void appendBookText(char *string) {
 	if (string) {
+		if (Native::language() == Native::Language::Czech && strlen(bookText) + strlen(string) >= _textSize - 1)
+			Native::reportTextOverflow("book assembly buffer", strlen(bookText) + strlen(string), 1, _textSize - 2, 1);
 		Native::strlcat(bookText, string, _textSize - 1);
 		bookText[_textSize - 1] = 0;
 	}

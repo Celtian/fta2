@@ -98,7 +98,7 @@ public:
 	Timer(GameObject *o, TimerID timerID, int16 frameInterval) : _obj(o), _id(timerID), _interval(frameInterval), _active(true) {
 		_alarm.set(_interval);
 		debugC(1, kDebugTimers, "Creating timer %p for %p (%s)",
-		       (void *)this, (void *)o, o->objName());
+		       (void *)this, (void *)o, o->originalName());
 
 		g_vm->_timers.push_back(this);
 	}

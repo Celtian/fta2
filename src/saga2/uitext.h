@@ -26,39 +26,41 @@
 #ifndef SAGA2_UITEXT_H
 #define SAGA2_UITEXT_H
 
+#include "platform/localization.h"
+
 namespace Saga2 {
 
-#define FILE_DIALOG_NONAME  "Empty Slot"
+#define FILE_DIALOG_NONAME  Native::ui("Empty Slot", true)
 
-#define SAVE_DIALOG_NAME    "Save Game"
-#define SAVE_DIALOG_BUTTON1 "Cancel"
-#define SAVE_DIALOG_BUTTON2 "Save"
+#define SAVE_DIALOG_NAME    Native::ui("Save Game", true)
+#define SAVE_DIALOG_BUTTON1 Native::ui("Cancel", true)
+#define SAVE_DIALOG_BUTTON2 Native::ui("Save", true)
 
-#define LOAD_DIALOG_NAME    "Load Game"
-#define LOAD_DIALOG_BUTTON1 "Cancel"
-#define LOAD_DIALOG_BUTTON2 "Load"
+#define LOAD_DIALOG_NAME    Native::ui("Load Game", true)
+#define LOAD_DIALOG_BUTTON1 Native::ui("Cancel", true)
+#define LOAD_DIALOG_BUTTON2 Native::ui("Load", true)
 
-#define OPTN_DIALOG_NAME    "Options"
-#define OPTN_DIALOG_SLIDE1  "Sound Effects Volume"
-#define OPTN_DIALOG_SLIDE2  "Speech Volume"
-#define OPTN_DIALOG_SLIDE3  "Music Volume"
-#define OPTN_DIALOG_CHECK1  "Auto-Aggression"
-#define OPTN_DIALOG_CHECK2  "Auto-Wield Weapon"
-#define OPTN_DIALOG_CHECK3  "Speech Text"
-#define OPTN_DIALOG_CHECK4  "Night"
-#define OPTN_DIALOG_BUTTON1 "Resume Play"
-#define OPTN_DIALOG_BUTTON2 "Save"
-#define OPTN_DIALOG_BUTTON3 "Load"
-#define OPTN_DIALOG_BUTTON4 "Quit"
-#define OPTN_DIALOG_BUTTON5 "Credits"
-#define OPTN_DIALOG_BUTTON6 "New Game"
-#define OPTN_DIALOG_HOT_KEYS "Hot Keys"
-#define HOT_KEYS_CLOSE      "Close"
+#define OPTN_DIALOG_NAME    Native::ui("Options", true)
+#define OPTN_DIALOG_SLIDE1  Native::ui("Sound Effects Volume", true)
+#define OPTN_DIALOG_SLIDE2  Native::ui("Speech Volume", true)
+#define OPTN_DIALOG_SLIDE3  Native::ui("Music Volume", true)
+#define OPTN_DIALOG_CHECK1  Native::ui("Auto-Aggression", true)
+#define OPTN_DIALOG_CHECK2  Native::ui("Auto-Wield Weapon", true)
+#define OPTN_DIALOG_CHECK3  Native::ui("Speech Text", true)
+#define OPTN_DIALOG_CHECK4  Native::ui("Night", true)
+#define OPTN_DIALOG_BUTTON1 Native::ui("Resume Play", true)
+#define OPTN_DIALOG_BUTTON2 Native::ui("Save", true)
+#define OPTN_DIALOG_BUTTON3 Native::ui("Load", true)
+#define OPTN_DIALOG_BUTTON4 Native::ui("Quit", true)
+#define OPTN_DIALOG_BUTTON5 Native::ui("Credits", true)
+#define OPTN_DIALOG_BUTTON6 Native::ui("New Game", true)
+#define OPTN_DIALOG_HOT_KEYS Native::ui("Hot Keys", true)
+#define HOT_KEYS_CLOSE      Native::ui("Close", true)
 
-#define VFYX_DIALOG_NAME    "Faery Tale Adventure"
-#define VFYX_DIALOG_CAPTION "Do you really want to quit?"
-#define VFYX_DIALOG_BUTTON1 "_Quit"
-#define VFYX_DIALOG_BUTTON2 "_Continue"
+#define VFYX_DIALOG_NAME    Native::ui("Faery Tale Adventure", true)
+#define VFYX_DIALOG_CAPTION Native::ui("Do you really want to quit?", true)
+#define VFYX_DIALOG_BUTTON1 Native::ui("_Quit", true)
+#define VFYX_DIALOG_BUTTON2 Native::ui("_Continue", true)
 
 } // end of namespace Saga2
 

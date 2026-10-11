@@ -1343,7 +1343,7 @@ class ContainerOwnerDisplay : public gControl {
 		const char *text = _carrier < kNumViews
 			? (_node.getType() == ContainerNode::kMentalType ? mentalNames[_carrier] : names[_carrier])
 			: nullptr;
-		g_vm->_mouseInfo->setText(text);
+		g_vm->_mouseInfo->setText(Native::ui(text));
 	}
 
 public:
@@ -1394,7 +1394,7 @@ public:
 				stampPort.setPixel(x, y, color);
 			}
 		}
-		static const char *initials[] = {"J", "P", "K"};
+		const char *initials[] = {"J", Native::language() == Native::Language::Czech ? "F" : "P", "K"};
 		textPallete pal(67, 48, 34, 67, 48, 34);
 		// A fresh port also isolates text from inventory-quantity outline styles.
 		writePlaqText(stampPort, Rect16(5, 8, 15, 9), &ThinFix8Font, 0, pal, false,

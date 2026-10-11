@@ -55,8 +55,9 @@ class PackageTests(unittest.TestCase):
             data = {n.removeprefix("engine/data/") for n in z.namelist()
                     if n.startswith("engine/data/")}
             self.assertEqual(data, set(packager.GAME_FILES))
-            self.assertEqual(json.loads(z.read("engine/share/fta2-native/complete-package.json")),
+            self.assertEqual(json.loads(z.read("engine/bin/package.json")),
                              manifest)
+            self.assertFalse(any(n.startswith("engine/share/") for n in z.namelist()))
             for name in data:
                 self.assertEqual(z.read("engine/data/" + name), (self.game / name).read_bytes())
         second = self.root / "second.zip"
@@ -82,6 +83,11 @@ class PackageTests(unittest.TestCase):
             self.assertEqual(z.read("engine-Windows/media/FTAVOICE.HRS"), voice.read_bytes())
             self.assertEqual(z.read("engine-Windows/" + manifest["source"]["file"]), source.read_bytes())
             self.assertIn(b"voices are included", z.read("engine-Windows/START-HERE.txt"))
+            self.assertIn(b"licenses/", z.read("engine-Windows/START-HERE.txt"))
+            self.assertNotIn("engine-Windows/source/README.txt", z.namelist())
+            self.assertNotIn("engine-Windows/media/voice-manifest.json", z.namelist())
+            self.assertEqual(json.loads(z.read("engine-Windows/bin/package.json"))["voice"],
+                             manifest["voice"])
         self.assertEqual(len(manifest["files"]), 8)
 
     def test_invalid_voice_rejected_without_output(self):
@@ -206,7 +212,7 @@ class ReleaseTests(unittest.TestCase):
 
     def test_conflicting_entries_rejected(self):
         with ZipFile(self.engine, "a") as z:
-            z.writestr("game-1-Windows/source/README.txt", b"conflict")
+            z.writestr("game-1-Windows/source/manifest.json", b"conflict")
         with self.assertRaisesRegex(ValueError, "conflicts"):
             self.build()
 

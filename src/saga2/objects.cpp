@@ -421,21 +421,21 @@ Native::Array<ObjectID> GameObject::nameToID(Native::String name) {
 	name.toLowercase();
 
 	for (int i = 0; i < objectCount; ++i) {
-		Native::String objName = objectList[i].objName();
+		Native::String objName = objectList[i].originalName();
 		objName.toLowercase();
 		if (objName.contains(name))
 			array.push_back(objectList[i].thisID());
 	}
 
 	for (int i = 0; i < kActorCount; ++i) {
-		Native::String objName = g_vm->_act->_actorList[i]->objName();
+		Native::String objName = g_vm->_act->_actorList[i]->originalName();
 		objName.toLowercase();
 		if (objName.contains(name))
 			array.push_back(g_vm->_act->_actorList[i]->thisID());
 	}
 
 	for (int i = 0; i < worldCount; ++i) {
-		Native::String objName = worldList[i].objName();
+		Native::String objName = worldList[i].originalName();
 		objName.toLowercase();
 		if (objName.contains(name))
 			array.push_back(worldList[i].thisID());
@@ -496,7 +496,7 @@ void GameObject::remove() {             // removes from old list
 
 		if (*headPtr == Nothing)
 			error("Inconsistent Object Chain! ('%s#%d' not on parent %s#%d chain)",
-			             objName(), id, objectAddress(_data.parentID)->objName(), _data.parentID);
+			             originalName(), id, objectAddress(_data.parentID)->originalName(), _data.parentID);
 
 		obj = objectAddress(*headPtr);
 		headPtr = &obj->_data.siblingID;
@@ -608,9 +608,20 @@ Location GameObject::notGetWorldLocation() {
 
 void GameObject::objCursorText(char nameBuf[], const int8 size, int16 count) {
 	const int addTextSize   = 10;
+	auto checkSize = [&](size_t length) {
+		if (Native::language() == Native::Language::Czech && length >= (size_t)size)
+			Native::reportTextOverflow("object tooltip buffer", length, 1, size - 1, 1);
+	};
+	auto copyName = [&](const char *text) {
+		checkSize(Native::strlcpy(nameBuf, text, size));
+	};
+	auto formatName = [&](const char *format, auto... arguments) {
+		const int length = Native::sprintf_s(nameBuf, size, format, arguments...);
+		if (length >= 0) checkSize(length);
+	};
 
 	// put the object name into the buffer as a default value
-	Native::strlcpy(nameBuf, objName(), size);
+	copyName(objName());
 
 	assert(strlen(objName()) < (uint)(size - addTextSize));
 
@@ -624,9 +635,11 @@ void GameObject::objCursorText(char nameBuf[], const int8 size, int16 count) {
 			uint16 charges = _data.bParam;
 
 			if (charges == 1) {
-				Native::sprintf_s(nameBuf, size, SINGLE_CHARGE, objName(), charges);
+				formatName(SINGLE_CHARGE, objName(), charges);
 			} else {
-				Native::sprintf_s(nameBuf, size, MULTI_CHARGE, objName(), charges);      // get the count
+				formatName(
+				    Native::language() == Native::Language::Czech && Native::czechPlural(charges) == 1
+				        ? Native::ui("%s, %d charges") : MULTI_CHARGE, objName(), charges);
 			}
 		}
 
@@ -637,10 +650,12 @@ void GameObject::objCursorText(char nameBuf[], const int8 size, int16 count) {
 			if (_data.massCount != 1) {
 				if (count != -1) {
 					if (count != 1) {
-						Native::sprintf_s(nameBuf, size, PLURAL_DESC, count, objName());     // get the count
+						const auto text = Native::countedName(objectNameIndex(), originalName(), count);
+						copyName(text.c_str());
 					}
 				} else {
-					Native::sprintf_s(nameBuf, size, PLURAL_DESC, _data.massCount, objName());     // get the count
+					const auto text = Native::countedName(objectNameIndex(), originalName(), _data.massCount);
+					copyName(text.c_str());
 				}
 			}
 		}
@@ -674,7 +689,7 @@ void GameObject::objCursorText(char nameBuf[], const int8 size, int16 count) {
 				level = g_vm->_playerList[brotherID - ActorBaseID]->getSkillLevel(sProto);
 
 				// normalize and output
-				Native::sprintf_s(nameBuf, size, "%s-%d", objName(), ++level);
+				formatName("%s-%d", objName(), ++level);
 			}
 		} else if (manaColor >= ksManaIDRed
 		           &&  manaColor <= ksManaIDViolet  //  A spell
@@ -690,7 +705,7 @@ void GameObject::objCursorText(char nameBuf[], const int8 size, int16 count) {
 
 				manaAmount      = player->getEffStats()->mana(manaColor);
 
-				Native::sprintf_s(nameBuf, size, "%s [x%d]", objName(), manaAmount / manaCost);
+				formatName("%s [x%d]", objName(), manaAmount / manaCost);
 			}
 		}
 	}
@@ -1410,7 +1425,7 @@ void GameObject::activate() {
 	if (_data.objectFlags & kObjectActivated)
 		return;
 
-	debugC(1, kDebugActors, "GameObject::activate %d (%s)", thisID(), objName());
+	debugC(1, kDebugActors, "GameObject::activate %d (%s)", thisID(), originalName());
 
 	ObjectID        dObj = thisID();
 	scriptCallFrame scf;
@@ -1439,7 +1454,7 @@ void GameObject::deactivate() {
 	if (!(_data.objectFlags & kObjectActivated))
 		return;
 
-	debugC(1, kDebugActors, "GameObject::deactivate %d (%s)", thisID(), objName());
+	debugC(1, kDebugActors, "GameObject::deactivate %d (%s)", thisID(), originalName());
 
 	ObjectID        dObj = thisID();
 	scriptCallFrame scf;
@@ -1555,7 +1570,12 @@ const char *GameObject::nameText(uint16 index) {
 	if (index >= nameListCount)
 		return "Bad Name Index";
 
-	return g_vm->_nameList[index];
+	return Native::localizedName(index, g_vm->_nameList[index]);
+}
+
+const char *GameObject::originalName() {
+	const uint16 index = objectNameIndex();
+	return index < nameListCount ? g_vm->_nameList[index] : "Bad Name Index";
 }
 
 #define INTANGIBLE_MASK (ProtoObj::kIsEnchantment|ProtoObj::kIsSpell|ProtoObj::kIsSkill)

@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-11",
+  "version": "0.1.42",
+  "status": "development-alpha",
+  "purpose": "Windows test build explicitly requested for user verification of the current Czech revision checkpoint.",
+  "full_czech_completion_accepted": false,
+  "build": {
+    "zig_windows_x64_release": "passed",
+    "binary_sha256": "5d7a6a17de36bd36836cfcb9da2f8b61dc8c46d0407f547227b6ccd9b671c905"
+  },
+  "ctest": {
+    "passed": 9,
+    "total": 9,
+    "cpp_execution": "native Windows host",
+    "python_execution": "Linux host"
+  },
+  "catalog": {
+    "entries": 19023,
+    "missing": 0,
+    "invalid": 0,
+    "drafts": 4227,
+    "complete": false,
+    "review_missing": 16455,
+    "review_invalid": 0,
+    "statuses": {
+      "preserve": 10396,
+      "reviewed": 4400,
+      "draft": 4227
+    }
+  },
+  "review_decisions": 2568,
+  "language_dialog": {
+    "circular_radio_choices": true,
+    "clickable_labels": true,
+    "exclusive_repeated_selection": true,
+    "draft_notice_retained": true,
+    "height_pixels": 230
+  },
+  "localization_integration": {
+    "status": "passed",
+    "processes": [
+      {
+        "status": "passed",
+        "menu_cases": 32,
+        "text_overflows": 0,
+        "speech_save_roundtrip": true,
+        "voice_variants": 3,
+        "radio_clicks": 96,
+        "status_queue_refresh": true,
+        "document_spreads": 3752,
+        "placard_cases": 664,
+        "file_dialog_cases": 16,
+        "startup_language": "en",
+        "startup_subtitles": false
+      },
+      {
+        "status": "passed",
+        "menu_cases": 32,
+        "text_overflows": 0,
+        "speech_save_roundtrip": true,
+        "voice_variants": 3,
+        "radio_clicks": 96,
+        "status_queue_refresh": true,
+        "document_spreads": 3752,
+        "placard_cases": 664,
+        "file_dialog_cases": 16,
+        "startup_language": "cs",
+        "startup_subtitles": false
+      }
+    ],
+    "verified_original_files": 54
+  },
+  "localization_capture_parity": {
+    "en": 130,
+    "cs": 130
+  },
+  "complete_package": {
+    "windows": "Microsoft Windows NT 10.0.26200.0",
+    "tests": [
+      {
+        "name": "version",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "clean-startup",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "moved-unicode",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "bundled-over-remembered",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "damaged-archive",
+        "finished": true,
+        "exit_code": 1
+      },
+      {
+        "name": "visible-damaged-error",
+        "finished": true,
+        "exit_code": 1
+      },
+      {
+        "name": "explicit-override",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "missing-resource-source",
+        "finished": true,
+        "exit_code": 1
+      }
+    ],
+    "bundled_files_unchanged": 8,
+    "relocated_unicode_path": true,
+    "unrelated_working_directory": true,
+    "data_override_used_for_startup": false,
+    "original_save_import": true
+  },
+  "english_reference": {
+    "reference_rebuilt_this_packaging_turn": false,
+    "reference": "Fresh pinned reference from the preceding implementation checks in czech-completion-progress.json.",
+    "comparison": {
+      "screenshots": {
+        "initial.ppm": "fb2459ffbf3b855cf31d768224bf4ad9854be8e02d3357bb0af8cdbcee99e7b5",
+        "controlled.ppm": "612b368c9e7460b94aa4c7ec7d6bd84751754f1f05b718ec735d09dae8cdbe28"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "packaged_content": {
+    "data_files": 8,
+    "english_voice_archive_sha256": "34bd5c7e3b5982df3f84b274c05a0f056a2932dfd03f02d880be44e5a81353c3",
+    "matching_data_free_source_zip_embedded": true
+  },
+  "original_files_unchanged": 54,
+  "previous_dist_files_preserved": true,
+  "native_video": [
+    "clean-startup",
+    "visible-damaged-error"
+  ],
+  "gameplay_backends": "dummy SDL video/audio with injected input",
+  "preceding_implementation_validation": "research/czech-completion-progress.json",
+  "notes": [
+    "No new Linux or sanitizer runs were performed in this packaging turn; the preceding implementation checks passed Linux Release, ASan/LSan and native Windows suites.",
+    "Runtime, catalogs and voices tested in the preflight are unchanged in the final package; validation documentation and matching source packaging are finalized afterward.",
+    "Final ZIP CRC, exact allowlists, binary bytes and source/workspace checks are recorded separately in .cache/windows-0142-final-audit.json; checksums remain alongside the archive to avoid a self-referential source hash."
+  ],
+  "remaining": [
+    "4,227 draft story entries and remaining previously reviewed/preserved candidates require linguistic review.",
+    "Compact dialog, removal of draft notice and complete story substitution/layout coverage.",
+    "Native MSVC/macOS confirmation and manual hardware/audio checks.",
+    "Full Czech linguistic/visual review and a complete playthrough."
+  ],
+  "delivery": "dist/fta2-native-0.1.42-Windows-x86_64.zip",
+  "private_evidence_directory": ".cache/windows-0142-*"
+}

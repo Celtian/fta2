@@ -514,10 +514,10 @@ bool ActorProto::acceptDamageAction(
 
 				if (baseVitality >= vitality * 3
 				        &&  baseVitality < oldVitality * 3) {
-					StatusMsg(WOUNDED_STATUS, a->objName());
+					StatusMsg(WOUNDED_STATUS, {Native::LocalizedMessage::name(a->objectNameIndex(), a->originalName())});
 				} else if (baseVitality * 2 >= vitality * 3
 				           &&  baseVitality * 2 < oldVitality * 3) {
-					StatusMsg(HURT_STATUS, a->objName());
+					StatusMsg(HURT_STATUS, {Native::LocalizedMessage::name(a->objectNameIndex(), a->originalName())});
 				}
 			}
 		}
@@ -1536,7 +1536,7 @@ Actor *Actor::newActor(
 
 	if (a->_flags & kAFTemporary) {
 		incTempActorCount(protoNum);
-		debugC(1, kDebugActors, "Actors: Created temp actor %d (%s) new count:%d", a->thisID() - 32768, a->objName(), getTempActorCount(protoNum));
+		debugC(1, kDebugActors, "Actors: Created temp actor %d (%s) new count:%d", a->thisID() - 32768, a->originalName(), getTempActorCount(protoNum));
 	}
 
 	return a;
@@ -1550,7 +1550,7 @@ void Actor::deleteActor() {
 		uint16      protoNum = getProtoNum();
 
 		decTempActorCount(protoNum);
-		debugC(1, kDebugActors, "Actors: Deleting temp actor %d (%s) new count:%d", thisID() - 32768, objName(), getTempActorCount(protoNum));
+		debugC(1, kDebugActors, "Actors: Deleting temp actor %d (%s) new count:%d", thisID() - 32768, originalName(), getTempActorCount(protoNum));
 	}
 
 	//  Kill task
@@ -1706,7 +1706,7 @@ void Actor::vitalityUpdate() {
 //	Perform actor specific activation tasks
 
 void Actor::activateActor() {
-	debugC(1, kDebugActors, "Actors: Activated %d (%s)", thisID() - 32768, objName());
+	debugC(1, kDebugActors, "Actors: Activated %d (%s)", thisID() - 32768, originalName());
 
 	evaluateNeeds();
 }
@@ -1715,7 +1715,7 @@ void Actor::activateActor() {
 //	Perfrom actor specific deactivation tasks
 
 void Actor::deactivateActor() {
-	debugC(1, kDebugActors, "Actors: De-activated %d  (%s)", thisID() - 32768, objName());
+	debugC(1, kDebugActors, "Actors: De-activated %d  (%s)", thisID() - 32768, originalName());
 
 	//  Kill task
 	if (_curTask != nullptr) {
@@ -2909,7 +2909,7 @@ void Actor::handleSuccessfulKill(Actor *target) {
 		PlayerActor     *player = getPlayerActorAddress(playerID);
 		int16           ratio;
 		int16           points = target->getBaseStats()->vitality;
-		const char      *monsterName = target->objName();
+		const char      *monsterName = target->originalName();
 		const char      *aStr;
 
 		//  If it's a weak monster, then reduce amount of vitality advanced.
@@ -2924,7 +2924,11 @@ void Actor::handleSuccessfulKill(Actor *target) {
 		        ?   "a "
 		        :   "an "
 		        :   "";
-		StatusMsg("%s has killed %s%s.", objName(), aStr, monsterName);
+		auto article = Native::LocalizedMessage::text({}, aStr);
+		article.englishOnly = true;
+		StatusMsg("%s has killed %s%s.", {
+		          Native::LocalizedMessage::name(objectNameIndex(), originalName()), article,
+		          Native::LocalizedMessage::name(target->objectNameIndex(), monsterName)});
 	}
 }
 

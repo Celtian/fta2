@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-11",
+  "status": "development-alpha",
+  "full_czech_localization_plan_complete": false,
+  "catalog": {
+    "ui_entries": 208,
+    "ui_status": {
+      "reviewed": 208
+    },
+    "game_candidates": 19023,
+    "game_status": {
+      "preserve": 9835,
+      "reviewed": 2393,
+      "draft": 6795
+    },
+    "missing": 0,
+    "invalid": 0,
+    "drafts": 6795,
+    "complete": false,
+    "audit_exit_status": 1
+  },
+  "builds": {
+    "linux_release": "passed",
+    "linux_asan": "passed",
+    "zig_windows_x64": "passed"
+  },
+  "ctest": {
+    "linux_release": "9/9",
+    "linux_asan_lsan": "9/9",
+    "native_windows": "9/9",
+    "windows_python_orchestration": "Linux host",
+    "sanitizer_thread_inspection": "outside sandbox"
+  },
+  "localization_integration": {
+    "linux_with_voices": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "document_spreads": 3756,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "en",
+          "startup_subtitles": false
+        },
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "document_spreads": 3756,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "cs",
+          "startup_subtitles": false
+        }
+      ],
+      "verified_original_files": 54
+    },
+    "linux_without_voices": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "document_spreads": 3756,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "en",
+          "startup_subtitles": false
+        },
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "document_spreads": 3756,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "cs",
+          "startup_subtitles": false
+        }
+      ],
+      "verified_original_files": 54
+    },
+    "linux_asan_lsan": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "document_spreads": 3756,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "en",
+          "startup_subtitles": false
+        },
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "document_spreads": 3756,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "cs",
+          "startup_subtitles": false
+        }
+      ],
+      "verified_original_files": 54
+    },
+    "native_windows_with_voices": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "document_spreads": 3756,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "en",
+          "startup_subtitles": false
+        },
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "document_spreads": 3756,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "cs",
+          "startup_subtitles": false
+        }
+      ],
+      "verified_original_files": 54
+    }
+  },
+  "document_script_appearance_pairs": 184,
+  "linux_windows_identical_ppm_captures": {
+    "en": 130,
+    "cs": 130
+  },
+  "linux_classic_integration": {
+    "status": "passed",
+    "processes": 2,
+    "original_save_import": true
+  },
+  "linux_widescreen_integration": {
+    "status": "passed",
+    "processes": 2
+  },
+  "english_reference": {
+    "revision": "1a3e816afd5ddc41cc2a5c51a5da292e6d61758c",
+    "rebuilt_and_rerun": true,
+    "first_process": {
+      "screenshots": {
+        "initial.ppm": "fb2459ffbf3b855cf31d768224bf4ad9854be8e02d3357bb0af8cdbcee99e7b5",
+        "controlled.ppm": "612b368c9e7460b94aa4c7ec7d6bd84751754f1f05b718ec735d09dae8cdbe28"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    },
+    "restart_process": {
+      "screenshots": {
+        "initial.ppm": "fb2459ffbf3b855cf31d768224bf4ad9854be8e02d3357bb0af8cdbcee99e7b5",
+        "controlled.ppm": "612b368c9e7460b94aa4c7ec7d6bd84751754f1f05b718ec735d09dae8cdbe28"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    },
+    "scope": "Normal English path; subsequent changes only expand the localization probe"
+  },
+  "original_files_unchanged": 54,
+  "source_package_exclusions": "passed; original data, saves, screenshots, model and development output excluded",
+  "release_published": false,
+  "visual_review": {
+    "scope": [
+      "selected Czech Options",
+      "Language",
+      "Hot Keys",
+      "Save/Load",
+      "captured speech",
+      "one book"
+    ],
+    "full_linguistic_review": false
+  },
+  "environment_notes": [
+    "Windows UNC save rename failed in an intermediate run; final fixture uses local Windows TEMP and copies outputs back.",
+    "Sandboxed LeakSanitizer thread inspection and WSL interoperability required running the checks outside the sandbox."
+  ],
+  "remaining": [
+    "Review all 6795 draft catalog entries for meaning, proper names, grammar and terminology.",
+    "Exercise every reachable assembled story dialogue and quest-dependent document branch.",
+    "Refresh already queued status notifications after language changes; they currently finish their captured text.",
+    "Complete visual and linguistic review of all Czech screens.",
+    "Native MSVC/macOS and remote CI confirmation, manual hardware input/audio and full playthrough."
+  ],
+  "private_evidence_directory": ".cache/localization",
+  "reproduction": [
+    "cmake --build build --config Release --parallel 4",
+    "ctest --test-dir build -C Release --output-on-failure",
+    "python3 tools/localization.py export --output .cache/localization/source.json",
+    "python3 tools/localization.py audit --catalog localization/cs-ui.json --catalog localization/cs-game.json --evidence .cache/localization/source.json",
+    "python3 tools/integration_localization.py --binary build/fta2-native --output .cache/localization-check",
+    "python3 tools/integration_localization.py --binary build/fta2-native --voice-file /path/to/FTAVOICE.HRS --output .cache/localization-check-voices",
+    "python3 tools/integration_test.py --binary build/fta2-native --output .cache/integration-check",
+    "python3 tools/integration_widescreen.py --binary build/fta2-native --output .cache/widescreen-check",
+    "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 python3 tools/integration_localization.py --binary build-asan/fta2-native --voice-file /path/to/FTAVOICE.HRS --output .cache/localization-asan-check"
+  ]
+}

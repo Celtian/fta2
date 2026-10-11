@@ -26,6 +26,7 @@
 #include "saga2/saga2.h"
 #include "saga2/fta.h"
 #include "saga2/fontlib.h"
+#include "platform/resources.h"
 #include "saga2/speech.h"
 #include "saga2/motion.h"
 #include "saga2/panel.h"
@@ -166,6 +167,9 @@ void Speech::read(Native::InSaveFile *in) {
 	//  Restore the text
 	in->read(_speechBuffer, _charCount);
 	_speechBuffer[_charCount] = '\0';
+	_textLanguage = Native::Language::English;
+	_displayBuffer.clear();
+	_selectedButton = 0;
 	debugC(4, kDebugSaveload, "...... _speechBuffer = %s", _speechBuffer);
 
 	//  Requeue the speech if needed
@@ -237,16 +241,31 @@ void Speech::write(Native::MemoryWriteStreamDynamic *out) {
 //-----------------------------------------------------------------------
 //	Append text and sample to existing speech record
 
-bool Speech::append(char *text, int32 sampID) {
-	int16           len = strlen(text);
+bool Speech::append(char *text, int32 sampID, const char *translated) {
+	const size_t len = strlen(text);
 
 	//  Check to see if there's enough room in the character buffer
-	if (_charCount + len >= (long)sizeof(_speechBuffer)
-	        ||  _sampleCount >= MAX_SAMPLES - 1) return false;
+	if (_charCount + len >= sizeof(_speechBuffer)
+	        || _sampleCount >= MAX_SAMPLES - 1) {
+		if (_textLanguage == Native::Language::Czech)
+			Native::reportTextOverflow("speech assembly buffer", _charCount + len, _sampleCount + 1,
+			                          sizeof(_speechBuffer) - 1, MAX_SAMPLES - 1);
+		return false;
+	}
+	if (_textLanguage == Native::Language::Czech &&
+	    _displayBuffer.size() + strlen(translated ? translated : text) > 8192) {
+		Native::reportTextOverflow("localized speech buffer",
+		                          _displayBuffer.size() + strlen(translated ? translated : text), 1, 8192, 1);
+		warning("Localized speech exceeds its native save limit; retaining original text");
+		_textLanguage = Native::Language::English;
+		_displayBuffer.clear();
+	}
 
 	//  Copy text to end of text in buffer, including '\0'
 	memcpy(&_speechBuffer[_charCount], text, len + 1);
 	_charCount += len;
+	if (_textLanguage == Native::Language::Czech)
+		_displayBuffer += translated ? translated : text;
 
 	//  Append sample ID to list of samples.
 	//  REM: We should translate sample ID's from index to resource
@@ -295,7 +314,7 @@ bool Speech::setupActive() {
 	// Set up temp gport for blitting to bitmap
 	_textPort.setStyle(kTextStyleThickOutline);    // extra Thick Outline
 	_textPort.setOutlineColor(_outlineColor);      // outline black
-	_textPort.setFont(&Amber13Font);              // speech font
+	_textPort.setFont(Native::localizedFont(&Amber13Font, _textLanguage), false);
 	_textPort.setColor(_penColor);                 // color of letters
 	_textPort.setMode(kDrawModeMatte);             // insure transparency
 
@@ -325,7 +344,7 @@ bool Speech::setupActive() {
 	speechLineCount = buttonWrap(speechLineList,
 	                             speechButtonList,
 	                             speechButtonCount,
-	                             _speechBuffer,
+	                             displayBuffer(),
 	                             _bounds.width,
 	                             !g_vm->_speechText && (_speechFlags & kSpHasVoice),
 	                             _textPort);
@@ -335,6 +354,15 @@ bool Speech::setupActive() {
 	_bounds.height =
 	    (speechLineCount * (_textPort._font->height + lineLeading))
 	    + outlineWidth * 2;
+	if (_textLanguage == Native::Language::Czech) {
+		const int availableWidth = maxWidth + Native::displayLayout().sidebarOffset;
+		const int availableHeight = Native::displayLayout().mapHeight - 50 - kTileRectY - 8;
+		if (_bounds.width > availableWidth || _bounds.height > availableHeight)
+			Native::reportTextOverflow("dialogue block", _bounds.width, _bounds.height,
+			                          availableWidth, availableHeight);
+		// Choice blocks keep this position; calculate it using the final localized height.
+		calcPosition(initialSpeechPosition);
+	}
 
 	//  Blit to temp bitmap
 	_speechImage._size.x = _bounds.width;
@@ -422,8 +450,8 @@ bool Speech::setupActive() {
 //This Function Sets Up Width And Height For A Speech
 
 void Speech::setWidth() {
-	TextSpan        speechLineList_[32],   // list of speech lines
-	                speechButtonList_[32]; // list of speech buttons
+	TextSpan        speechLineList_[64],   // list of speech lines
+	                speechButtonList_[64]; // list of speech buttons
 	int16           speechLineCount_,        // count of speech lines
 	                speechButtonCount_;      // count of speech buttons
 
@@ -433,7 +461,7 @@ void Speech::setWidth() {
 	speechLineCount_ = buttonWrap(speechLineList_,
 	                             speechButtonList_,
 	                             speechButtonCount_,
-	                             _speechBuffer,
+	                             displayBuffer(),
 	                             defaultWidth,
 	                             !g_vm->_speechText && (_speechFlags & kSpHasVoice),
 	                             _textPort);
@@ -444,7 +472,7 @@ void Speech::setWidth() {
 		speechLineCount_ = buttonWrap(speechLineList_,
 		                             speechButtonList_,
 		                             speechButtonCount_,
-		                             _speechBuffer,
+		                             displayBuffer(),
 		                             maxWidth,
 		                             !g_vm->_speechText && (_speechFlags & kSpHasVoice),
 		                             _textPort);
@@ -541,7 +569,7 @@ void Speech::dispose() {
 
 	GameObject *obj = GameObject::objectAddress(_objID);
 
-	debugC(1, kDebugTasks, "Speech: Disposing %p for %p (%s) (total = %d)'", (void *)this, (void *)obj, obj->objName(), speechList.speechCount());
+	debugC(1, kDebugTasks, "Speech: Disposing %p for %p (%s) (total = %d)'", (void *)this, (void *)obj, obj->originalName(), speechList.speechCount());
 
 	remove();
 	delete this;
@@ -654,6 +682,8 @@ int16 buttonWrap(
 
 		// If deliberate end of line
 		if (c == '\n' || c == '\r' || c == '\0') {
+			if (lineCount >= 64 || (lineCount == 63 && c != '\0'))
+				error("Dialogue exceeds the 64-line layout capacity");
 			lineList->charWidth = i - line_start;
 			lineList->pixelWidth = linePixels;
 			lineList++;
@@ -689,6 +719,7 @@ int16 buttonWrap(
 
 		//  If pixel runs off end of line
 		if (linePixels > width && last_space > 0) {
+			if (lineCount >= 63) error("Dialogue exceeds the 64-line layout capacity");
 			lineList->charWidth = last_space - line_start;
 			lineList->pixelWidth = last_space_pixels;
 			lineList++;
@@ -721,6 +752,7 @@ int16 buttonWrap(
 			// c = TranslationTable[c];
 
 			if (c == '@') {             // button indicator...
+				if (buttonCount >= 63) error("Dialogue exceeds the 63-choice layout capacity");
 				//  A new button
 				buttonList->charWidth = buttonChars;
 				buttonList->pixelWidth = buttonPixels;
@@ -887,7 +919,7 @@ SpeechTaskList::SpeechTaskList(Native::InSaveFile *in) {
 	for (int i = 0; i < count; i++) {
 		Speech *sp = new Speech;
 		assert(sp != nullptr);
-		debugC(3, kDebugSaveload, "Loading Speech %d", i++);
+		debugC(3, kDebugSaveload, "Loading Speech %d", i);
 
 		_inactiveList.push_back(sp);
 		sp->read(in);
@@ -943,6 +975,59 @@ void SpeechTaskList::write(Native::MemoryWriteStreamDynamic *out) {
 //-----------------------------------------------------------------------
 //	Cleanup the speech tasks
 
+void SpeechTaskList::saveLocalization(Native::OutSaveFile *outS) {
+	std::vector<Speech *> speeches(_list.begin(), _list.end());
+	speeches.insert(speeches.end(), _inactiveList.begin(), _inactiveList.end());
+	uint16 count = 0;
+	for (auto *sp : speeches)
+		if (sp->_textLanguage == Native::Language::Czech) ++count;
+	if (!count) return;
+	Native::MemoryWriteStreamDynamic out(DisposeAfterUse::YES);
+	out.writeUint16LE(1);
+	out.writeUint16LE(count);
+	for (uint16 i = 0; i < speeches.size(); ++i) {
+		auto *sp = speeches[i];
+		if (sp->_textLanguage != Native::Language::Czech) continue;
+		out.writeUint16LE(i);
+		out.writeByte(1);
+		out.writeByte(0);
+		const auto hash = Native::sha256(reinterpret_cast<const byte *>(sp->_speechBuffer), sp->_charCount);
+		out.write(hash.data(), hash.size());
+		out.writeUint16LE(sp->_displayBuffer.size());
+		out.write(sp->_displayBuffer.data(), sp->_displayBuffer.size());
+	}
+	outS->write("NLOC", 4);
+	outS->writeUint32LE(out.pos());
+	outS->write(out.getData(), out.pos());
+}
+
+void SpeechTaskList::loadLocalization(Native::InSaveFile *in, uint32 size) {
+	const auto end = in->pos() + size;
+	std::vector<Speech *> speeches(_list.begin(), _list.end());
+	speeches.insert(speeches.end(), _inactiveList.begin(), _inactiveList.end());
+	const auto version = in->readUint16LE();
+	const auto count = in->readUint16LE();
+	if (version != 1) error("Unsupported native localization save version");
+	for (int i = 0; i < count; ++i) {
+		const auto index = in->readUint16LE();
+		in->skip(2);
+		char hash[65] = {};
+		in->read(hash, 64);
+		const auto length = in->readUint16LE();
+		Native::String text(length, '\0');
+		in->read(text.data(), length);
+		if (index >= speeches.size()) error("Native localization speech index is invalid");
+		auto *sp = speeches[index];
+		if (Native::sha256(reinterpret_cast<const byte *>(sp->_speechBuffer), sp->_charCount) != hash)
+			error("Native localization speech fingerprint does not match");
+		if (std::count(text.begin(), text.end(), '@') != std::count(sp->_speechBuffer, sp->_speechBuffer + sp->_charCount, '@'))
+			error("Native localization changed dialogue choices");
+		sp->_displayBuffer = std::move(text);
+		sp->_textLanguage = Native::Language::Czech;
+	}
+	if (in->pos() != end) error("Native localization chunk size mismatch");
+}
+
 void SpeechTaskList::cleanup() {
 	for (Native::List<Speech *>::iterator it = speechList._list.begin();
 	     it != speechList._list.end(); ++it) {
@@ -992,9 +1077,11 @@ Speech *SpeechTaskList::newTask(ObjectID id, uint16 flags) {
 #endif
 	if (sp == nullptr) return nullptr;
 
-	debugC(1, kDebugTasks, "Speech: New Task: %p for %p (%s) (flags = %d) (total = %d)", (void *)sp, (void *)obj, obj->objName(), flags, speechCount());
+	debugC(1, kDebugTasks, "Speech: New Task: %p for %p (%s) (flags = %d) (total = %d)", (void *)sp, (void *)obj, obj->originalName(), flags, speechCount());
 
 	sp->_sampleCount = sp->_charCount = 0;
+	sp->_speechBuffer[0] = '\0';
+	sp->_textLanguage = Native::language();
 	sp->_objID       = id;
 	sp->_speechFlags = flags & (Speech::kSpNoAnimate | Speech::kSpLock);
 	sp->_outlineColor = 15 + 9;

@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-11",
+  "version": "0.1.41",
+  "status": "development-alpha",
+  "build": {
+    "zig_windows_x64_release": "passed",
+    "binary_sha256": "b24c5b255f7d9d2787f039f16415ade353d465718a4b1b4c047f250d23d8cada"
+  },
+  "ctest": {
+    "passed": 9,
+    "total": 9,
+    "cpp_execution": "native Windows host",
+    "python_execution": "Linux host"
+  },
+  "localization_integration": {
+    "status": "passed",
+    "processes": [
+      {
+        "status": "passed",
+        "menu_cases": 32,
+        "text_overflows": 0,
+        "speech_save_roundtrip": true,
+        "voice_variants": 3,
+        "document_spreads": 3756,
+        "placard_cases": 664,
+        "file_dialog_cases": 16,
+        "startup_language": "en",
+        "startup_subtitles": false
+      },
+      {
+        "status": "passed",
+        "menu_cases": 32,
+        "text_overflows": 0,
+        "speech_save_roundtrip": true,
+        "voice_variants": 3,
+        "document_spreads": 3756,
+        "placard_cases": 664,
+        "file_dialog_cases": 16,
+        "startup_language": "cs",
+        "startup_subtitles": false
+      }
+    ],
+    "verified_original_files": 54
+  },
+  "english_reference": {
+    "reference_rebuilt_this_packaging_turn": false,
+    "comparison": {
+      "screenshots": {
+        "initial.ppm": "fb2459ffbf3b855cf31d768224bf4ad9854be8e02d3357bb0af8cdbcee99e7b5",
+        "controlled.ppm": "612b368c9e7460b94aa4c7ec7d6bd84751754f1f05b718ec735d09dae8cdbe28"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "catalog": {
+    "ui_reviewed": 208,
+    "game_drafts": 6795,
+    "full_czech_localization_complete": false
+  },
+  "original_files_unchanged": 54,
+  "remaining": [
+    "Czech story draft linguistic review and complete layout/branch coverage.",
+    "Native MSVC/macOS and remote CI confirmation.",
+    "Manual hardware/audio checks and full playthrough."
+  ],
+  "notes": [
+    "The package script initially stopped the expanded smoke test at its old 30-second timeout; the budget is now 300 seconds.",
+    "An injected-input document cursor assertion failed in a native-video run; gameplay probes now use dummy SDL backends, while startup and the damaged-data error window retain native video.",
+    "No new Linux or sanitizer runs were performed in this packaging turn; prior implementation checks are in research/localization-validation.json."
+  ],
+  "complete_package": {
+    "status": "passed",
+    "windows": "Microsoft Windows NT 10.0.26200.0",
+    "tests": [
+      {
+        "name": "version",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "clean-startup",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "moved-unicode",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "bundled-over-remembered",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "damaged-archive",
+        "finished": true,
+        "exit_code": 1
+      },
+      {
+        "name": "visible-damaged-error",
+        "finished": true,
+        "exit_code": 1
+      },
+      {
+        "name": "explicit-override",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "missing-resource-source",
+        "finished": true,
+        "exit_code": 1
+      }
+    ],
+    "bundled_files_unchanged": 8,
+    "relocated_unicode_path": true,
+    "unrelated_working_directory": true,
+    "original_save_import": true,
+    "data_files": 8,
+    "verified_voice_archive_sha256": "34bd5c7e3b5982df3f84b274c05a0f056a2932dfd03f02d880be44e5a81353c3",
+    "matching_data_free_source_zip_embedded": true,
+    "native_video": [
+      "clean-startup",
+      "visible-damaged-error"
+    ],
+    "gameplay_backends": "dummy SDL video/audio"
+  },
+  "older_packages_preserved": [
+    "0.1.39",
+    "0.1.40"
+  ],
+  "private_evidence_directory": ".cache/windows-0141-*",
+  "delivery": "dist/fta2-native-0.1.41-Windows-x86_64.zip",
+  "final_archive_audit": "Recheck CRCs, allowlisted data and voice hashes, executable/SDL bytes, source exclusions and every embedded source file against the workspace; save the report in .cache/windows-0141-final-audit.json and the checksum alongside the archive."
+}

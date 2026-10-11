@@ -20,9 +20,10 @@ $results = @()
 function Assert-True([bool]$Condition, [string]$Message) {
     if (-not $Condition) { throw $Message }
 }
-function Start-Game([string]$Arguments) {
+function Start-Game([string]$Arguments, [bool]$Automated=$false, [bool]$Launcher=$false) {
     $p = New-Object System.Diagnostics.Process
     $p.StartInfo.FileName = $script:exe
+    if ($Launcher) { $p.StartInfo.FileName = Join-Path $script:game 'Faery Tale Adventure II.exe' }
     $p.StartInfo.Arguments = $Arguments
     # Deliberately unrelated to the executable and bundled data directories.
     $p.StartInfo.WorkingDirectory = $work.FullName
@@ -30,15 +31,43 @@ function Start-Game([string]$Arguments) {
     $p.StartInfo.CreateNoWindow = $true
     $p.StartInfo.RedirectStandardOutput = $true
     $p.StartInfo.RedirectStandardError = $true
+    if ($Launcher) {
+        # The launcher check injects window messages rather than physical raw input.
+        $p.StartInfo.EnvironmentVariables['SDL_WINDOWS_RAW_KEYBOARD'] = '0'
+    }
+    if ($Automated) {
+        # Keep desktop cursor/window events out of injected-input scenarios.
+        $p.StartInfo.EnvironmentVariables['SDL_VIDEODRIVER'] = 'dummy'
+        $p.StartInfo.EnvironmentVariables['SDL_AUDIODRIVER'] = 'dummy'
+    }
     [void]$p.Start()
     $script:active = $p
+    $stdout = $p.StandardOutput.ReadToEndAsync()
+    $stderr = $p.StandardError.ReadToEndAsync()
+    $parent = $null
+    if ($Launcher -and $Arguments.StartsWith('--save-dir')) {
+        $parent = $p
+        for ($i=0; $i -lt 100 -and -not $parent.HasExited; $i++) {
+            $child = Get-CimInstance Win32_Process -Filter ('ParentProcessId='+$parent.Id) |
+                Where-Object { $_.Name -eq 'fta2-native.exe' } | Select-Object -First 1
+            if ($child) { $p = Get-Process -Id $child.ProcessId; $null = $p.Handle; break }
+            Start-Sleep -Milliseconds 100
+        }
+        Assert-True ($p.Id -ne $parent.Id) 'Launcher did not create the game process.'
+        Assert-True ($p.Path -eq $script:exe) 'Launcher started a different installation.'
+        $script:active = $p
+    }
     return [pscustomobject]@{
-        process=$p; stdout=$p.StandardOutput.ReadToEndAsync(); stderr=$p.StandardError.ReadToEndAsync()
+        process=$p; stdout=$stdout; stderr=$stderr; launcher=$parent
     }
 }
 function Finish-Game($App, [string]$Name, [int]$ExpectedExit=0) {
-    $finished = $App.process.WaitForExit(30000)
+    $finished = $App.process.WaitForExit(300000)
     if (-not $finished) { $App.process.Kill(); $App.process.WaitForExit() }
+    if ($App.launcher) {
+        Assert-True ($App.launcher.WaitForExit(30000)) 'Launcher did not finish with its child.'
+        Assert-True ($App.launcher.ExitCode -eq $ExpectedExit) 'Launcher did not return the child exit code.'
+    }
     $result = [pscustomobject]@{
         name=$Name; finished=$finished; exit_code=$App.process.ExitCode
         stdout=$App.stdout.Result.ToString(); stderr=$App.stderr.Result.ToString()
@@ -63,7 +92,71 @@ function Read-DataPath([string]$Saves) {
 }
 function Run-Probe([string]$Name, [string]$Saves, [string]$Extra='') {
     $output = Join-Path $work.FullName ($Name+'-output')
-    $app = Start-Game ('--save-dir "'+$Saves+'" --smoke-test "'+$output+'" '+$Extra)
+    $app = Start-Game ('--save-dir "'+$Saves+'" --smoke-test "'+$output+'" '+$Extra) $true
+    return Finish-Game $app $Name
+}
+
+Add-Type -TypeDefinition @'
+using System;
+using System.Drawing;
+using System.Runtime.InteropServices;
+public class Fta2LauncherIcon {
+ [StructLayout(LayoutKind.Sequential, CharSet=CharSet.Unicode)] public struct Info {
+  public IntPtr icon; public int index; public uint attributes;
+  [MarshalAs(UnmanagedType.ByValTStr, SizeConst=260)] public string name;
+  [MarshalAs(UnmanagedType.ByValTStr, SizeConst=80)] public string type;
+ }
+ [DllImport("shell32.dll", CharSet=CharSet.Unicode)] public static extern IntPtr SHGetFileInfo(string path,uint attr,out Info info,uint size,uint flags);
+ [DllImport("user32.dll")] public static extern bool DestroyIcon(IntPtr icon);
+ [DllImport("user32.dll", SetLastError=true)] public static extern bool PostMessage(IntPtr window,uint message,IntPtr key,IntPtr flags);
+ public static string Pixels(string path) {
+  Info info; SHGetFileInfo(path,0,out info,(uint)Marshal.SizeOf(typeof(Info)),0x101);
+  if(info.icon==IntPtr.Zero) throw new Exception("Cannot extract shell icon");
+  try {
+   using(var icon=Icon.FromHandle(info.icon)) using(var bitmap=icon.ToBitmap()) {
+    var pixels=new byte[bitmap.Width*bitmap.Height*4]; int at=0;
+    for(int y=0;y<bitmap.Height;y++) for(int x=0;x<bitmap.Width;x++) {
+     var c=bitmap.GetPixel(x,y); pixels[at++]=c.R;pixels[at++]=c.G;pixels[at++]=c.B;pixels[at++]=c.A;
+    }
+    return Convert.ToBase64String(pixels);
+   }
+  } finally { DestroyIcon(info.icon); }
+ }
+}
+'@ -ReferencedAssemblies System.Drawing
+
+function Test-Launcher([string]$Name) {
+    $launcher = Join-Path $script:game 'Faery Tale Adventure II.exe'
+    Assert-True (Test-Path -LiteralPath $launcher) 'Root launcher is missing.'
+    Assert-True ([Fta2LauncherIcon]::Pixels($launcher) -eq [Fta2LauncherIcon]::Pixels($script:exe)) 'Launcher icon differs from the game.'
+    $saves = Join-Path $work.FullName ($Name+' saves '+[char]0x017e+' '+[char]0x010d)
+    $app = Start-Game ('--save-dir "'+$saves+'"') $false $true
+    Wait-GameWindow $app
+    Assert-True ((Read-DataPath $saves) -eq (Join-Path $script:game 'data')) 'Launcher argument forwarding or bundled discovery failed.'
+    Start-Sleep -Milliseconds 300
+    $screenshots = Join-Path $script:game 'screenshots'
+    $beforeCount = @(Get-ChildItem -LiteralPath $screenshots -Filter '*.png' -ErrorAction SilentlyContinue).Count
+    # Dispatch native window messages without changing the desktop keyboard state.
+    for ($press=1; $press -le 2; $press++) {
+        foreach ($message in @(0x100, 0x100, 0x101)) {
+            $flags = [IntPtr]0x01370001
+            if ($message -eq 0x101) { $flags = [IntPtr]([long]0xc1370001 -band 0xffffffffL) }
+            Assert-True ([Fta2LauncherIcon]::PostMessage($app.process.MainWindowHandle, $message,
+                [IntPtr]0x2c, $flags)) 'Cannot dispatch Print Screen.'
+        }
+        for ($i=0; $i -lt 100; $i++) {
+            $files = @(Get-ChildItem -LiteralPath $screenshots -Filter '*.png' -ErrorAction SilentlyContinue)
+            if ($files.Count -eq $beforeCount+$press -and $files[-1].Length -gt 33) { break }
+            Start-Sleep -Milliseconds 100
+        }
+        Assert-True ($files.Count -eq $beforeCount+$press) 'Print Screen count or package-root path is incorrect.'
+    }
+    foreach ($file in $files) {
+        $image = [Drawing.Image]::FromFile($file.FullName)
+        try { Assert-True ($image.Width -eq 640 -and $image.Height -eq 480) 'Screenshot includes window borders or has wrong dimensions.' }
+        finally { $image.Dispose() }
+    }
+    [void]$app.process.CloseMainWindow()
     return Finish-Game $app $Name
 }
 
@@ -74,6 +167,9 @@ try {
     }
     Assert-True ($before.Count -eq 8) 'Expected exactly eight bundled data files.'
     $results += Finish-Game (Start-Game '--version') 'version'
+    $results += Finish-Game (Start-Game '--version' $false $true) 'launcher-version'
+    $results += Finish-Game (Start-Game '--unknown-launcher-test' $false $true) 'launcher-invalid-argument' 1
+    $results += Test-Launcher 'root-launcher'
     $saves = Join-Path $work.FullName 'clean-saves'
     $app = Start-Game ('--save-dir "'+$saves+'"')
     Wait-GameWindow $app
@@ -87,6 +183,7 @@ try {
     Move-Item -LiteralPath $game -Destination $moved
     $game = $moved
     $script:exe = Join-Path $game 'bin\fta2-native.exe'
+    $results += Test-Launcher 'moved-root-launcher'
     if ($OriginalSave) {
         Copy-Item -LiteralPath $OriginalSave -Destination (Join-Path $saves 'fta2.002')
     }
@@ -151,6 +248,8 @@ try {
         windows=[Environment]::OSVersion.VersionString; tests=$results; bundled_files_unchanged=$before.Count
         relocated_unicode_path=$true; unrelated_working_directory=$true; data_override_used_for_startup=$false
         original_save_import=[bool]$OriginalSave
+        root_launcher_before_after_move=$true; launcher_icon_matches=$true; unicode_arguments_forwarded=$true
+        native_printscreen_package_root_before_after_move=$true; screenshot_repeat_ignored=$true
     }
     $json = $report | ConvertTo-Json -Depth 5
     [IO.File]::WriteAllText((Join-Path $work.FullName 'validation.json'), $json, $utf8)

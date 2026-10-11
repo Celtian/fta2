@@ -95,6 +95,7 @@ public:
 	// set the move count based on val and whether the object is
 	// mergeable or not.
 	void    setMoveCount(int16 val);
+	void refreshLocalizedText();
 	int16   getMoveCount() {
 		return _moveCount;
 	}

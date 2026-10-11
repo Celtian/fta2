@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-11",
+  "version": "0.1.43",
+  "status": "development-alpha",
+  "purpose": "Windows verification build with corrected Czech portrait lettering, credits, capitalization and compact language dialog.",
+  "full_czech_completion_accepted": false,
+  "build": {
+    "zig_windows_x64_release": "passed",
+    "binary_sha256": "3639f4a96b271005f00fa613bb2a203025ed316e5238fbb17c148e988c1de84b"
+  },
+  "ctest": {
+    "passed": 9,
+    "total": 9,
+    "cpp_execution": "native Windows host",
+    "python_execution": "Linux host"
+  },
+  "implementation_validation": "research/czech-display-0.1.43-validation.json",
+  "complete_package": {
+    "windows": "Microsoft Windows NT 10.0.26200.0",
+    "tests": [
+      {
+        "name": "version",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "clean-startup",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "moved-unicode",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "bundled-over-remembered",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "damaged-archive",
+        "finished": true,
+        "exit_code": 1
+      },
+      {
+        "name": "visible-damaged-error",
+        "finished": true,
+        "exit_code": 1
+      },
+      {
+        "name": "explicit-override",
+        "finished": true,
+        "exit_code": 0
+      },
+      {
+        "name": "missing-resource-source",
+        "finished": true,
+        "exit_code": 1
+      }
+    ],
+    "bundled_files_unchanged": 8,
+    "relocated_unicode_path": true,
+    "unrelated_working_directory": true,
+    "data_override_used_for_startup": false,
+    "original_save_import": true
+  },
+  "packaged_localization": {
+    "status": "passed",
+    "processes": [
+      {
+        "status": "passed",
+        "menu_cases": 32,
+        "text_overflows": 0,
+        "speech_save_roundtrip": true,
+        "voice_variants": 3,
+        "radio_clicks": 96,
+        "status_queue_refresh": true,
+        "document_spreads": 3824,
+        "placard_cases": 664,
+        "file_dialog_cases": 16,
+        "startup_language": "en",
+        "startup_subtitles": false
+      },
+      {
+        "status": "passed",
+        "menu_cases": 32,
+        "text_overflows": 0,
+        "speech_save_roundtrip": true,
+        "voice_variants": 3,
+        "radio_clicks": 96,
+        "status_queue_refresh": true,
+        "document_spreads": 3824,
+        "placard_cases": 664,
+        "file_dialog_cases": 16,
+        "startup_language": "cs",
+        "startup_subtitles": false
+      }
+    ],
+    "verified_original_files": 54
+  },
+  "capture_parity_with_linux": {
+    "en": 204,
+    "cs": 204
+  },
+  "english_reference": {
+    "screenshots": {
+      "initial.ppm": "fb2459ffbf3b855cf31d768224bf4ad9854be8e02d3357bb0af8cdbcee99e7b5",
+      "controlled.ppm": "612b368c9e7460b94aa4c7ec7d6bd84751754f1f05b718ec735d09dae8cdbe28"
+    },
+    "simulation": {
+      "initial": {
+        "frame": 1,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12521,
+        "z": 8,
+        "rng": 888809617
+      },
+      "moved": {
+        "frame": 180,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12513,
+        "z": 8,
+        "rng": 1260233905
+      },
+      "switched": {
+        "frame": 190,
+        "actor": 32769,
+        "u": 13249,
+        "v": 12497,
+        "z": 8,
+        "rng": 3004664737
+      },
+      "saved": {
+        "frame": 220,
+        "actor": 32769,
+        "u": 13249,
+        "v": 12497,
+        "z": 8,
+        "rng": 81644917
+      }
+    },
+    "save_chunks": {
+      "fta2.999": 30,
+      "fta2.001": 30
+    }
+  },
+  "packaged_content": {
+    "data_files": 8,
+    "english_voice_archive_sha256": "34bd5c7e3b5982df3f84b274c05a0f056a2932dfd03f02d880be44e5a81353c3",
+    "matching_data_free_source_zip_embedded": true
+  },
+  "original_files_unchanged": 54,
+  "older_packages_preserved": true,
+  "native_video": [
+    "clean-startup",
+    "visible-damaged-error"
+  ],
+  "gameplay_backends": "dummy SDL video/audio with injected input",
+  "remaining": [
+    "4,227 draft story entries and remaining full linguistic/visual and story layout/branch review.",
+    "Native MSVC/macOS confirmation, manual hardware/audio checks and full playthrough."
+  ],
+  "notes": [
+    "The tested preflight and final package use identical engine/SDL/catalog/data/voice bytes; final documentation and corresponding sources are assembled afterward.",
+    "Final ZIP CRC, allowlists, binary bytes and embedded sources are checked separately in .cache/windows-0143-final-audit.json; checksums remain alongside the archive to avoid a self-referential source hash."
+  ],
+  "delivery": "dist/fta2-native-0.1.43-Windows-x86_64.zip",
+  "private_evidence_directory": ".cache/windows-0143-*"
+}

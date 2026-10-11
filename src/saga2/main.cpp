@@ -49,6 +49,7 @@
 #include "saga2/msgbox.h"
 #include "saga2/grabinfo.h"
 #include "saga2/motion.h"
+#include "saga2/uidialog.h"
 
 namespace Saga2 {
 
@@ -142,7 +143,6 @@ const char *getExeFromCommandLine(int argc, char *argv[]);
 void WriteStatusF2(int16 line, const char *msg, ...);
 bool initUserDialog();
 void cleanupUserDialog();
-int16 OptionsDialog(bool disableSaveResume = false);
 
 static void mainLoop(bool &cleanExit, int argc, char *argv[]);
 void displayUpdate();
@@ -298,6 +298,14 @@ void processEventLoop(bool updateScreen) {
 		case Native::EVENT_KEYDOWN:
 			g_vm->_toolBase->handleKeyStroke(event);
 			break;
+		case Native::EVENT_SCREENSHOT:
+			if (StatusLine) {
+				const char *text = !event.screenshotSaved ? "Screenshot failed."
+				    : event.screenshotInUserDirectory ? "Screenshot saved in user folder."
+				    : "Screenshot saved.";
+				StatusLine->setLocalizedLine(Native::LocalizedMessage::ui(text), 100);
+			}
+			break;
 		case Native::EVENT_QUIT:
 			if (verifyUserExit())
 				endGame();
@@ -307,8 +315,11 @@ void processEventLoop(bool updateScreen) {
 		}
 	}
 	//if(!running) return; // This Is No Tasks Are Done After Saving Game
-	// Options and any nested modal loops have returned; old backgrounds are gone.
+	// Commit presentation changes after input dispatch, including inside Options.
 	applyPendingDisplayMode();
+	if (!ModalWindow::_current && Native::applyPendingLanguage()) {
+		refreshLocalizedInterface();
+	}
 
 	debugC(1, kDebugEventLoop, "EventLoop: timer update");
 	//  Handle the timer events
@@ -329,6 +340,15 @@ void processEventLoop(bool updateScreen) {
 	}
 	Native::diagnosticPhase("retired motion cleanup");
  g_vm->_mTaskList->collectRetired();
+}
+
+void refreshLocalizedInterface() {
+	g_vm->syncSoundSettings();
+	g_vm->_toolBase->leavePanel();
+	g_vm->_mouseInfo->refreshLocalizedText();
+	updateAllUserControls();
+	if (StatusLine) StatusLine->refreshLanguage();
+	reDrawScreen();
 }
 
 void displayUpdate() {

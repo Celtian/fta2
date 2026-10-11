@@ -5,6 +5,7 @@
 #include <array>
 #include <cmath>
 #include <cstdio>
+#include "platform/localization.h"
 
 namespace Saga2::InventoryUI {
 // Presentation helpers: these never advance the calendar or modify inventory objects.
@@ -23,7 +24,7 @@ constexpr int slotNumber(int row, int column, int columns) { return row * column
 inline std::array<char, 32> clockText(unsigned days, unsigned hour, unsigned frame,
                                       unsigned framesPerHour) {
     std::array<char, 32> text{};
-    std::snprintf(text.data(), text.size(), "Day %u %02u:%02u", days + 1, hour,
+    std::snprintf(text.data(), text.size(), Native::ui("Day %u %02u:%02u"), days + 1, hour,
                   frame * 60 / framesPerHour);
     return text;
 }

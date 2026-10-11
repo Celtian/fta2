@@ -53,6 +53,10 @@ enum placardTypes {
 
 // dialog funcs
 int16 OptionsDialog(bool disableSaveResume = false);
+void refreshLocalizedInterface();
+class ModalWindow;
+bool isOptionsWindow(const ModalWindow *window);
+void refreshOptionsDisplay();
 
 // helper funcs
 void initFileFields(char **fieldStrings);

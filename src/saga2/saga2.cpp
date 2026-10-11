@@ -23,6 +23,7 @@
 #include "platform/resources.h"
 #include "platform/runtime.h"
 #include "platform/saves.h"
+#include "platform/localization.h"
 
 #include "saga2/fta.h"
 #include "saga2/saga2.h"
@@ -118,6 +119,7 @@ Saga2Engine::Saga2Engine() {
 Saga2Engine::~Saga2Engine() {
     debug("Saga2Engine::~Saga2Engine");
 
+    Native::releaseLocalizedFonts();
     freeExeResources();
 
     // Dispose your resources here
@@ -152,6 +154,7 @@ Saga2Engine::~Saga2Engine() {
 }
 
 Native::Error Saga2Engine::run() {
+    Native::initializeLanguage();
     _showGameTime = ConfMan.getBool("show_game_time");
     // Initialize graphics using following:
     Native::activeDisplayMode = ConfMan.getBool("widescreen")

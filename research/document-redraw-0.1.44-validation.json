@@ -1,0 +1,514 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-11",
+  "version": "0.1.44",
+  "status": "development-alpha",
+  "problem": "Changing pages in a centered widescreen scroll or parchment could draw new text over previous pages, making it unreadable in either language.",
+  "cause": "CDocument::renderText supplied a local clip rectangle to DecoratedWindow::drawClipped, which tests screen-coordinate decoration extents. Centered vertical documents can lie wholly outside that rectangle. Their temporary background then remains transparent and matte composition retains the previous text.",
+  "fix": "Pass the document screen extent as the background clip, retaining the existing screen-to-local offset and original artwork, typography, page layout and resource data.",
+  "regression_before_fix": {
+    "status": "failed_as_expected",
+    "private_log": ".cache/scroll-redraw-regression/en/output/native.log",
+    "failure": "Document redraw differs: script=131 appearance=2 wide=1 sidebar=0 language=0 page=1"
+  },
+  "regression_after_fix": {
+    "linux_release_with_voices": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "en",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 3824,
+            "redraw_comparisons": 11724,
+            "wheel_checks": 6960,
+            "multipage_documents": 708
+          }
+        },
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "cs",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 3824,
+            "redraw_comparisons": 11724,
+            "wheel_checks": 6960,
+            "multipage_documents": 708
+          }
+        }
+      ],
+      "verified_original_files": 54
+    },
+    "linux_asan_lsan_without_voices": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "en",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 3824,
+            "redraw_comparisons": 11724,
+            "wheel_checks": 6960,
+            "multipage_documents": 708
+          }
+        },
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "cs",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 3824,
+            "redraw_comparisons": 11724,
+            "wheel_checks": 6960,
+            "multipage_documents": 708
+          }
+        }
+      ],
+      "verified_original_files": 54
+    },
+    "packaged_windows_with_voices": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "en",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 3824,
+            "redraw_comparisons": 11724,
+            "wheel_checks": 6960,
+            "multipage_documents": 708
+          }
+        },
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "cs",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 3824,
+            "redraw_comparisons": 11724,
+            "wheel_checks": 6960,
+            "multipage_documents": 708
+          }
+        }
+      ],
+      "verified_original_files": 54
+    },
+    "matrix": [
+      "English/Czech",
+      "640x480/854x480",
+      "original/alternate sidebar",
+      "book/scroll/parchment"
+    ],
+    "pixel_oracle": "Each visited spread is compared with a full window repaint. Stored clean pixel buffers then validate reverse navigation, forward vertical-document wheel routing and first/last-page no-ops.",
+    "input_boundary": "New exhaustive wheel checks enter the UI dispatcher with native events; the existing classic integration separately exercises SDL wheel translation and fractional/blocked input.",
+    "per_process": {
+      "scripts": 185,
+      "page_spreads": 3824,
+      "redraw_comparisons": 11724,
+      "wheel_checks": 6960,
+      "multipage_documents": 708
+    },
+    "capture_parity": {
+      "status": "passed",
+      "processes": [
+        {
+          "startup_language": "en",
+          "matching_ppm_captures": 236,
+          "paging_captures": 32,
+          "matching_portrait_buffers": 6
+        },
+        {
+          "startup_language": "cs",
+          "matching_ppm_captures": 236,
+          "paging_captures": 32,
+          "matching_portrait_buffers": 6
+        }
+      ]
+    }
+  },
+  "builds_and_ctest": {
+    "linux_release": "passed 9/9",
+    "zig_windows_x64_release": "passed 9/9; C++ tests execute on the Windows host, Python tests on Linux",
+    "linux_asan_lsan": "passed 9/9; leak detection executed outside sandbox"
+  },
+  "english_reference": {
+    "linux_first_process": {
+      "screenshots": {
+        "initial.ppm": "fb2459ffbf3b855cf31d768224bf4ad9854be8e02d3357bb0af8cdbcee99e7b5",
+        "controlled.ppm": "612b368c9e7460b94aa4c7ec7d6bd84751754f1f05b718ec735d09dae8cdbe28"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    },
+    "linux_restart_process": {
+      "screenshots": {
+        "initial.ppm": "fb2459ffbf3b855cf31d768224bf4ad9854be8e02d3357bb0af8cdbcee99e7b5",
+        "controlled.ppm": "612b368c9e7460b94aa4c7ec7d6bd84751754f1f05b718ec735d09dae8cdbe28"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    },
+    "packaged_windows": {
+      "screenshots": {
+        "initial.ppm": "fb2459ffbf3b855cf31d768224bf4ad9854be8e02d3357bb0af8cdbcee99e7b5",
+        "controlled.ppm": "612b368c9e7460b94aa4c7ec7d6bd84751754f1f05b718ec735d09dae8cdbe28"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    },
+    "reference_revision": "1a3e816afd5ddc41cc2a5c51a5da292e6d61758c",
+    "reference_artifacts": "Existing pinned .cache/czech-radio-reference/output and saves reused; reference not rebuilt or rerun for this renderer fix."
+  },
+  "classic_integration": {
+    "status": "passed",
+    "original_files_unchanged": 54,
+    "unknown_exe_rejected": true,
+    "output_inside_originals_rejected": true,
+    "pack_sha256": "c54493e0188039e696570b0b2b4f5b2f4f9c586c7710938a3b1271ea6c315c1e",
+    "states": [
+      {
+        "phase": "initial",
+        "frame": 1,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12521,
+        "z": 8,
+        "rng": 888809617
+      },
+      {
+        "phase": "moved",
+        "frame": 180,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12513,
+        "z": 8,
+        "rng": 1260233905
+      },
+      {
+        "phase": "switched",
+        "frame": 190,
+        "actor": 32769,
+        "u": 13249,
+        "v": 12497,
+        "z": 8,
+        "rng": 3004664737
+      },
+      {
+        "phase": "saved",
+        "frame": 220,
+        "actor": 32769,
+        "u": 13249,
+        "v": 12497,
+        "z": 8,
+        "rng": 81644917
+      },
+      {
+        "phase": "restored",
+        "frame": 230,
+        "actor": 32769,
+        "u": 13249,
+        "v": 12497,
+        "z": 8,
+        "rng": 81644917
+      },
+      {
+        "phase": "original-save-loaded",
+        "frame": 240,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12521,
+        "z": 8,
+        "rng": 2424061451
+      },
+      {
+        "phase": "hotkeys-checked",
+        "frame": 241,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12521,
+        "z": 8,
+        "rng": 4151524579
+      },
+      {
+        "phase": "music-toggle-checked",
+        "frame": 244,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12521,
+        "z": 8,
+        "rng": 4149011578
+      },
+      {
+        "phase": "options-regressions-checked",
+        "frame": 245,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12521,
+        "z": 8,
+        "rng": 887997302
+      },
+      {
+        "phase": "document-cursors-checked",
+        "frame": 246,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12521,
+        "z": 8,
+        "rng": 3148107846
+      },
+      {
+        "phase": "document-wheel-checked",
+        "frame": 246,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12521,
+        "z": 8,
+        "rng": 3148107846
+      },
+      {
+        "phase": "speech-text-checked",
+        "frame": 339,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12521,
+        "z": 8,
+        "rng": 1647111321
+      },
+      {
+        "phase": "container-escape-checked",
+        "frame": 401,
+        "actor": 32768,
+        "u": 13258,
+        "v": 12521,
+        "z": 8,
+        "rng": 62047798
+      },
+      {
+        "phase": "map-shortcut-checked",
+        "frame": 592,
+        "actor": 32770,
+        "u": 13237,
+        "v": 12502,
+        "z": 8,
+        "rng": 2194042540
+      },
+      {
+        "phase": "finished",
+        "frame": 592,
+        "actor": 32770,
+        "u": 13237,
+        "v": 12502,
+        "z": 8,
+        "rng": 2194042540
+      }
+    ],
+    "speech_preference_restart": {
+      "first_start": true,
+      "second_start": false
+    },
+    "audio": {
+      "music_nonzero_samples": 15599811,
+      "effects_nonzero_samples": 2185148
+    }
+  },
+  "visual_review": {
+    "status": "selected captures inspected",
+    "captures": [
+      ".cache/paging-1-1-0-1-0.png",
+      ".cache/paging-1-1-0-1-1.png",
+      ".cache/paging-2-1-0-1-1.png"
+    ],
+    "scope": "Readability and absence of overprinted text in Czech widescreen scroll pages and parchment; not a complete linguistic review."
+  },
+  "original_data": {
+    "before_and_after_verification": "tools/fta2_data.py verify",
+    "files_unchanged": 54,
+    "private_hash_records": [
+      ".cache/scroll-redraw-original-before.json",
+      ".cache/scroll-redraw-original-after.json"
+    ]
+  },
+  "windows_package_evidence": "research/windows-0.1.44-validation.json",
+  "unchanged": [
+    "Translation catalog and review states",
+    "language preference and voice/subtitle behavior",
+    "NLOC and original save chunk formats",
+    "Original data and historical release ZIPs"
+  ],
+  "remaining": [
+    "Full Czech linguistic/story-branch review, including 4,227 existing draft entries.",
+    "Manual hardware/audio testing, native MSVC/macOS confirmation and a full playthrough."
+  ],
+  "private_evidence_directory": ".cache/scroll-redraw-* and .cache/windows-0144-*"
+}

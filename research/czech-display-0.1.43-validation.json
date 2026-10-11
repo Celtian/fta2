@@ -1,0 +1,334 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-11",
+  "version": "0.1.43",
+  "status": "development-alpha",
+  "full_czech_completion_accepted": false,
+  "changes": {
+    "portrait_labels": {
+      "source": "Supported original image resources BTN 8 (Julian), BTN 9 (Phillip), BTN 10 (Kevin).",
+      "dimensions": [
+        65,
+        15
+      ],
+      "foreground_palette_index": 10,
+      "shadow_palette_indices": [
+        24,
+        19,
+        17
+      ],
+      "implementation": "Compose original bold glyph pixels in memory; derive F from P strokes and add acute accent. Tile clear texture over the entire previous text/shadow region. English and Kevin retain original images.",
+      "recovered_assets_distributed": false,
+      "original_archive_sha256": "e8f0cf92507a11c1c6ec0bf790fa054a883d421689f5f3abd9b4e2c8f9172bec",
+      "coordinate_provenance": "Read-only native palette captures of the supported BTN 8/9/10 images in .cache/czech-feedback-first-probe; glyph columns and composition rules are recorded in src/saga2/intrface.cpp."
+    },
+    "language_dialog": {
+      "width": 487,
+      "height": 200,
+      "confirmation_y": 140,
+      "draft_notice_removed_by_user_request": true,
+      "unused_catalog_entry_removed": true,
+      "radio_behavior_retained": true
+    },
+    "capitalization": {
+      "changed_name_entries": 694,
+      "policy": "Common object, creature, ability and role labels start lowercase, including spells after svitek:. Proper names, epithets and possessive adjectives retain capitals.",
+      "scope": "Capitalization review; not a new full semantic review of every name."
+    },
+    "credits": {
+      "script": 110,
+      "table": "script:86:2:*",
+      "reviewed_fragments": 163,
+      "translated_role_heading_fragments": 64,
+      "preserved_fragments": 99,
+      "authors_and_licensing_retained": true,
+      "explicit_integration_coverage_added": true,
+      "captured_spreads_per_process": 72,
+      "language_aspect_sidebar_combinations": 8
+    }
+  },
+  "catalog": {
+    "entries": 19023,
+    "missing": 0,
+    "invalid": 0,
+    "drafts": 4227,
+    "complete": false,
+    "review_missing": 15598,
+    "review_invalid": 0
+  },
+  "review_decisions": 3425,
+  "source_artifact_sha256": {
+    "localization/cs-game.json": "21e1eeb316f0105e0e0ddf24b627159a54edd437206a409e5706e8a88e35841c",
+    "localization/cs-ui.json": "534054e29e8bccf4537e3f4f2f01af48f6a4483066ac3558469772bd06618980",
+    "localization/review.json": "62b800a58e778a573bf90722e7f5dac25afbeeecadce37406b54bf6f68621bd2"
+  },
+  "builds": {
+    "linux_release": "passed",
+    "zig_windows_x64": "passed",
+    "linux_asan": "passed"
+  },
+  "ctest": {
+    "linux_release": "9/9",
+    "native_windows": "9/9; C++ on Windows, Python on Linux",
+    "linux_asan_lsan": "9/9 outside sandbox"
+  },
+  "integrations": {
+    "linux_with_voices": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "en",
+          "startup_subtitles": false
+        },
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "cs",
+          "startup_subtitles": false
+        }
+      ],
+      "verified_original_files": 54
+    },
+    "linux_asan_lsan_without_voices": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "en",
+          "startup_subtitles": false
+        },
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "cs",
+          "startup_subtitles": false
+        }
+      ],
+      "verified_original_files": 54
+    },
+    "native_windows_with_voices": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "en",
+          "startup_subtitles": false
+        },
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "cs",
+          "startup_subtitles": false
+        }
+      ],
+      "verified_original_files": 54
+    },
+    "packaged_native_windows_bundled_data_voices": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "en",
+          "startup_subtitles": false
+        },
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "cs",
+          "startup_subtitles": false
+        }
+      ],
+      "verified_original_files": 54
+    }
+  },
+  "pixel_parity": {
+    "bare_windows_vs_linux": {
+      "en": 204,
+      "cs": 204
+    },
+    "packaged_windows_vs_linux": {
+      "en": 204,
+      "cs": 204
+    },
+    "portrait_palette_bytes_match": true
+  },
+  "classic_original_data_integration": {
+    "processes_passed": 2,
+    "original_save_import": true,
+    "reference_rebuilt_this_turn": false,
+    "reference_revision": "1a3e816afd5ddc41cc2a5c51a5da292e6d61758c",
+    "reference_source": "Fresh reference from preceding implementation validation.",
+    "comparisons": [
+      {
+        "screenshots": {
+          "initial.ppm": "fb2459ffbf3b855cf31d768224bf4ad9854be8e02d3357bb0af8cdbcee99e7b5",
+          "controlled.ppm": "612b368c9e7460b94aa4c7ec7d6bd84751754f1f05b718ec735d09dae8cdbe28"
+        },
+        "simulation": {
+          "initial": {
+            "frame": 1,
+            "actor": 32768,
+            "u": 13258,
+            "v": 12521,
+            "z": 8,
+            "rng": 888809617
+          },
+          "moved": {
+            "frame": 180,
+            "actor": 32768,
+            "u": 13258,
+            "v": 12513,
+            "z": 8,
+            "rng": 1260233905
+          },
+          "switched": {
+            "frame": 190,
+            "actor": 32769,
+            "u": 13249,
+            "v": 12497,
+            "z": 8,
+            "rng": 3004664737
+          },
+          "saved": {
+            "frame": 220,
+            "actor": 32769,
+            "u": 13249,
+            "v": 12497,
+            "z": 8,
+            "rng": 81644917
+          }
+        },
+        "save_chunks": {
+          "fta2.999": 30,
+          "fta2.001": 30
+        }
+      },
+      {
+        "screenshots": {
+          "initial.ppm": "fb2459ffbf3b855cf31d768224bf4ad9854be8e02d3357bb0af8cdbcee99e7b5",
+          "controlled.ppm": "612b368c9e7460b94aa4c7ec7d6bd84751754f1f05b718ec735d09dae8cdbe28"
+        },
+        "simulation": {
+          "initial": {
+            "frame": 1,
+            "actor": 32768,
+            "u": 13258,
+            "v": 12521,
+            "z": 8,
+            "rng": 888809617
+          },
+          "moved": {
+            "frame": 180,
+            "actor": 32768,
+            "u": 13258,
+            "v": 12513,
+            "z": 8,
+            "rng": 1260233905
+          },
+          "switched": {
+            "frame": 190,
+            "actor": 32769,
+            "u": 13249,
+            "v": 12497,
+            "z": 8,
+            "rng": 3004664737
+          },
+          "saved": {
+            "frame": 220,
+            "actor": 32769,
+            "u": 13249,
+            "v": 12497,
+            "z": 8,
+            "rng": 81644917
+          }
+        },
+        "save_chunks": {
+          "fta2.999": 30,
+          "fta2.001": 30
+        }
+      }
+    ]
+  },
+  "original_files_unchanged": 54,
+  "visual_review": [
+    "Czech bold Juli\u00e1n/Filip plaques and unchanged Kevin.",
+    "Compact Czech radio dialog without draft notice.",
+    "Selected Czech Credits spread with author names and translated roles."
+  ],
+  "remaining": [
+    "4,227 draft story entries and 15,598 candidates without current full review evidence.",
+    "All reachable story substitutions/layouts and complete Czech visual/linguistic review.",
+    "Native MSVC/macOS confirmation, manual hardware/audio checks and full playthrough."
+  ],
+  "private_evidence": ".cache/czech-feedback-* and .cache/windows-0143-*",
+  "windows_package_validation": "research/windows-0.1.43-validation.json"
+}

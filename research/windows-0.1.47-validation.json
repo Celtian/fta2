@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-11",
+  "version": "0.1.47",
+  "status": "development-alpha",
+  "implementation_validation": "research/live-options-0.1.47-validation.json",
+  "complete_preflight": {
+    "windows": "Microsoft Windows NT 10.0.26200.0",
+    "tests": [
+      {
+        "name": "version",
+        "finished": true,
+        "exit_code": 0,
+        "stdout": "fta2-native 0.1.47 (SAGA2 1a3e816a; GPL-3.0-or-later)\r\n",
+        "stderr": ""
+      },
+      {
+        "name": "launcher-version",
+        "finished": true,
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "name": "launcher-invalid-argument",
+        "finished": true,
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "name": "root-launcher",
+        "finished": true,
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "name": "clean-startup",
+        "finished": true,
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": "Warning: STUB: initCleanup()\r\nWarning: MapID: MAP. 4d415000 res: MAP. 4d415000\r\nWarning: MapID: MAP. 4d415000 res: MAP. 4d415001\r\nWarning: MapID: MAP. 4d415000 res: MAP. 4d415002\r\nWarning: STUB: cleanupSystemTasks()\r\n"
+      },
+      {
+        "name": "moved-root-launcher",
+        "finished": true,
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "name": "moved-unicode",
+        "finished": true,
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": "Warning: STUB: initCleanup()\r\nWarning: MapID: MAP. 4d415000 res: MAP. 4d415000\r\nWarning: MapID: MAP. 4d415000 res: MAP. 4d415001\r\nWarning: MapID: MAP. 4d415000 res: MAP. 4d415002\r\nWarning: STUB: cleanupSystemTasks()\r\n"
+      },
+      {
+        "name": "bundled-over-remembered",
+        "finished": true,
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": "Warning: STUB: initCleanup()\r\nWarning: MapID: MAP. 4d415000 res: MAP. 4d415000\r\nWarning: MapID: MAP. 4d415000 res: MAP. 4d415001\r\nWarning: MapID: MAP. 4d415000 res: MAP. 4d415002\r\nWarning: Sector::getSector: Invalid sector: (8, 50) (sectorArraySize = 48)\r\nWarning: Sector::getSector: Invalid sector: (13, -7) (sectorArraySize = 48)\r\nWarning: STUB: cleanupSystemTasks()\r\n"
+      },
+      {
+        "name": "damaged-archive",
+        "finished": true,
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "fta2-native: Game data in C:/Users/domin/AppData/Local/Temp/fta2-release-0147-b479388bb9284859bb75a52e1c7204cc/Moved game - \u017e \u010d/data: Invalid game archive FTA.HRS: Missing HRES archive header\r\n\r\nDiagnostic log: C:/Users/domin/AppData/Local/Temp/fta2-release-0147-b479388bb9284859bb75a52e1c7204cc/remembered-saves/logs/fta2-20261011-113736-742-44472-1.log\r\n"
+      },
+      {
+        "name": "visible-damaged-error",
+        "finished": true,
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "fta2-native: Game data in C:/Users/domin/AppData/Local/Temp/fta2-release-0147-b479388bb9284859bb75a52e1c7204cc/Moved game - \u017e \u010d/data: Invalid game archive FTA.HRS: Missing HRES archive header\r\n\r\nDiagnostic log: C:/Users/domin/AppData/Local/Temp/fta2-release-0147-b479388bb9284859bb75a52e1c7204cc/remembered-saves/logs/fta2-20261011-113736-942-40456-1.log\r\n"
+      },
+      {
+        "name": "explicit-override",
+        "finished": true,
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": "Warning: STUB: initCleanup()\r\nWarning: MapID: MAP. 4d415000 res: MAP. 4d415000\r\nWarning: MapID: MAP. 4d415000 res: MAP. 4d415001\r\nWarning: MapID: MAP. 4d415000 res: MAP. 4d415002\r\nWarning: Sector::getSector: Invalid sector: (8, 50) (sectorArraySize = 48)\r\nWarning: Sector::getSector: Invalid sector: (13, -7) (sectorArraySize = 48)\r\nWarning: STUB: cleanupSystemTasks()\r\n"
+      },
+      {
+        "name": "missing-resource-source",
+        "finished": true,
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "fta2-native: Game data in C:/Users/domin/AppData/Local/Temp/fta2-release-0147-b479388bb9284859bb75a52e1c7204cc/Moved game - \u017e \u010d/data: Required resource source is missing: FTA2.EXE\r\n\r\nDiagnostic log: C:/Users/domin/AppData/Local/Temp/fta2-release-0147-b479388bb9284859bb75a52e1c7204cc/remembered-saves/logs/fta2-20261011-113807-961-42056-1.log\r\n"
+      }
+    ],
+    "bundled_files_unchanged": 8,
+    "relocated_unicode_path": true,
+    "unrelated_working_directory": true,
+    "data_override_used_for_startup": false,
+    "original_save_import": true,
+    "root_launcher_before_after_move": true,
+    "launcher_icon_matches": true,
+    "unicode_arguments_forwarded": true,
+    "native_printscreen_package_root_before_after_move": true,
+    "screenshot_repeat_ignored": true
+  },
+  "packaging": {
+    "files_before": 99,
+    "files_after": 26,
+    "runtime_folders": [
+      "bin",
+      "data",
+      "media",
+      "licenses",
+      "source"
+    ],
+    "root_files": [
+      "Faery Tale Adventure II.exe",
+      "START-HERE.txt"
+    ],
+    "licenses": 11,
+    "data_files": 8,
+    "voice_archives": 1,
+    "matching_source_archives": 1,
+    "removed_runtime_duplicates": [
+      "developer README/AGENTS, docs, localization workflow, research and full third-party history",
+      "loose icon copies",
+      "separate voice manifest and source README"
+    ],
+    "source_and_notices": "Full developer materials and corresponding source remain embedded; compact copyright and licence notices remain directly accessible.",
+    "package_manifest": "bin/package.json",
+    "size_note": "Most compressed bytes are the unchanged English voices; folder cleanup reduces file count much more than total download size.",
+    "dist_cleanup": "CPack staging and an unfinished temporary ZIP preserved under .cache; six older named Windows releases retained in dist."
+  },
+  "validation_scope": "Twelve native Windows startup/launcher/relocation/error/override/original-save checks; native window-message Print Screen before and after Unicode relocation; two packaged language integration processes. Gameplay uses dummy SDL video/audio; startup/error windows use native video.",
+  "final_archive_audit": "Recorded externally in .cache/windows-0147-final-audit.json and dist/fta2-native-0.1.47-SHA256SUMS.txt after generating matching sources."
+}

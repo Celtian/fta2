@@ -167,6 +167,8 @@ public:
 	void close() override;
 
 	void gotoPage(int8 page);
+	uint16 pageCount() const { return _pages; }
+	uint16 currentPage() const { return _currentPage; }
 
 	APPFUNCV(cmdDocumentEsc);
 	APPFUNCV(cmdDocumentLt);

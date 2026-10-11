@@ -49,7 +49,7 @@ def source_additions(source_package, root):
         if not source_root.endswith("-source") or not root.startswith(expected_root):
             raise ValueError("Source ZIP version does not match the runtime package")
         for _, path in members:
-            if (any(part.casefold() in ("original-game", "data", "media", ".cache", "dist")
+            if (any(part.casefold() in ("original-game", "data", "media", ".cache", "dist", "screenshots")
                     for part in path.parts[1:])
                     or path.suffix.casefold() in (".hrs", ".sav", ".ppm", ".exe", ".dll")):
                 raise ValueError(f"Source ZIP contains game/development data: {path}")
@@ -58,11 +58,6 @@ def source_additions(source_package, root):
                 "sha256": hashlib.sha256(payload).hexdigest()}
     return {
         f"{root}/{manifest['file']}": payload,
-        f"{root}/source/README.txt": (
-            "Corresponding GPL engine sources for this runtime are in the ZIP beside this file.\n"
-            "Extract that ZIP to build or modify the engine; see its README and third_party notices.\n"
-            "Original game data and audio are not part of the engine source or its GPL licence.\n"
-        ).encode(),
     }, manifest
 
 

@@ -42,8 +42,11 @@
 #include "saga2/palette.h"
 
 #include "saga2/fontlib.h"
+#include "platform/diagnostics.h"
 
 namespace Saga2 {
+
+extern void playMemSound(uint32 sound);
 
 // dialog functions
 APPFUNC(cmdDialogQuit);
@@ -403,28 +406,28 @@ static const StaticRect optBotSlideText = {
 static const StaticRect optTopCheckText = {
 	(int16)(optAggressRect.x + optAggressRect.width + 3),
 	optAggressRect.y,
-	kTextPixelLen - kSmallTextOffset,
+	kTextPixelLen,
 	17
 };
 
 static const StaticRect optMidCheckText = {
 	(int16)(optWeaponRect.x + optWeaponRect.width + 3),
 	optWeaponRect.y,
-	kTextPixelLen - kSmallTextOffset,
+	kTextPixelLen,
 	17
 };
 
 static const StaticRect optBotCheckText = {
 	(int16)(optSpeechRect.x  + optSpeechRect.width + 3),
 	optSpeechRect.y,
-	kTextPixelLen - kSmallTextOffset,
+	kTextPixelLen,
 	17
 };
 
 static const StaticRect optTop2CheckText = {
 	(int16)(optNightRect.x + optNightRect.width + 3),
 	optNightRect.y,
-	kTextPixelLen - kSmallTextOffset,
+	kTextPixelLen,
 	17
 };
 
@@ -815,7 +818,8 @@ static void showHotKeysDialog() {
 		{"M", "Toggle music"},
 		{"Space", "Dismiss speech and make selected brother wait"},
 		{"O / Esc", "Options / close container (Esc)"},
-		{"Alt+Enter", "Switch fullscreen / window"}
+		{"Alt+Enter", "Switch fullscreen / window"},
+		{"Print Screen", "Save screenshot"}
 	};
 	Rect16 windowRect((640 - 487) / 2, (480 - 336) / 2, 487, 336);
 	const StaticWindow decorations[] = {
@@ -838,7 +842,7 @@ static void showHotKeysDialog() {
 	new CPlaqText(*win, Rect16(18, 48, 108, 17), "Key", &SmallFont, kTextPosLeft, pal, 0, nullptr);
 	new CPlaqText(*win, Rect16(142, 48, 327, 17), "Action", &SmallFont, kTextPosLeft, pal, 0, nullptr);
 	for (uint i = 0; i < ARRAYSIZE(shortcuts); ++i) {
-		int16 y = 68 + i * 14;
+		int16 y = 65 + i * 13;
 		new CPlaqText(*win, Rect16(18, y, 108, 14), shortcuts[i].key,
 		              &SmallFont, kTextPosLeft, pal, 0, nullptr);
 		new CPlaqText(*win, Rect16(142, y, 327, 14), shortcuts[i].action,
@@ -860,36 +864,170 @@ static void showHotKeysDialog() {
 	mainWindow->invalidate(&windowRect);
 }
 
+// A language row owns its selection; clicking it never toggles the group off.
+class LanguageRadio : public gControl {
+	gFont *_font;
+	textPallete _pal;
+public:
+	LanguageRadio(gPanelList &list, const Rect16 &box, const char *label,
+	              gFont *font, textPallete pal, uint16 id, AppFunc *command)
+		: gControl(list, box, label, id, command), _font(font), _pal(pal) {}
+	bool activate(gEventType why) override {
+		if (why == kEventKeyDown || why == kEventMouseDown) {
+			gPanel::deactivate();
+			notify(kEventNewValue, 1);
+			playMemSound(2);
+		}
+		return false;
+	}
+	bool pointerHit(gPanelMessage &) override { return activate(kEventMouseDown); }
+	void select(uint16 value) override {
+		_selected = value;
+		_window.update(_extent);
+	}
+	void drawClipped(gPort &port, const Point16 &offset, const Rect16 &clip) override {
+		if (!_extent.overlap(clip)) return;
+		SAVE_GPORT_STATE(port);
+		const int x = _extent.x - offset.x, y = _extent.y - offset.y;
+		// Integer circles retain the original palette and nearest-neighbour appearance.
+		for (int dy = -8; dy <= 8; ++dy) {
+			for (int dx = -8; dx <= 8; ++dx) {
+				const int distance = dx * dx + dy * dy;
+				if (distance > 64) continue;
+				uint8 color = 48;
+				if (distance >= 49) color = 12;
+				else if (distance >= 25) color = dx + dy < 0 ? 34 : 67;
+				else if (_selected && distance <= 9) color = 89;
+				port.setColor(color);
+				port.fillRect(Rect16(x + 8 + dx, y + 8 + dy, 1, 1));
+			}
+		}
+		writePlaqText(port, Rect16(x + 25, y, _extent.width - 25, _extent.height),
+		              _font, kTextPosLeft, _pal, 0, "%s", _title);
+	}
+};
+
+struct LanguageRequest {
+	requestInfo result;
+	Native::Language selected;
+	LanguageRadio *english = nullptr, *czech = nullptr;
+};
+
+static APPFUNC(cmdChooseLanguage) {
+	if (!ev.panel || !isUserAction(ev)) return;
+	auto *state = static_cast<LanguageRequest *>(ev.panel->getWindow()->_userData);
+	state->selected = ev.panel->_id == 1 ? Native::Language::English : Native::Language::Czech;
+	state->english->select(state->selected == Native::Language::English);
+	state->czech->select(state->selected == Native::Language::Czech);
+}
+
+static APPFUNC(cmdLanguageFinish) {
+	if (!ev.panel || !isUserAction(ev) || !ev.value) return;
+	auto *state = static_cast<LanguageRequest *>(ev.panel->getWindow()->_userData);
+	state->result.result = ev.panel->_id;
+	state->result.running = false;
+}
+
+static bool showLanguageDialog() {
+	Rect16 bounds((640 - 487) / 2, (480 - 200) / 2, 487, 200);
+	const StaticWindow decorations[] = {
+		{{bounds.x, bounds.y, 487, 39}, nullptr, optTopPanelResID},
+		{{bounds.x, (int16)(bounds.y + 39), 487, 101}, nullptr, optBotPanelResID},
+		{{bounds.x, (int16)(bounds.y + 99), 487, 101}, nullptr, optBotPanelResID}
+	};
+	LanguageRequest state;
+	state.result.running = true;
+	state.result.result = 0;
+	state.selected = Native::requestedLanguage();
+	auto *resources = resFile->newContext(kDialogGroupID, "language dialog resources");
+	void **buttons = loadButtonRes(resources, 4, kNumBtnImages);
+	textPallete pal(42, 45, 50, 43, 49, 52);
+	auto *win = new ModalWindow(bounds, 0, nullptr);
+	win->_userData = &state;
+	new CPlaqText(*win, Rect16(0, 0, kOptBoxXSzNS, 47), Native::ui("Language"),
+	              &Plate18Font, 0, pal, 0, nullptr);
+	new CPlaqText(*win, Rect16(30, 55, 420, 20), Native::ui("Select language"),
+	              &SmallFont, kTextPosLeft, pal, 0, nullptr);
+	state.english = new LanguageRadio(*win, Rect16(55, 96, 160, 20), "English",
+	                                 &SmallFont, pal, 1, cmdChooseLanguage);
+	state.czech = new LanguageRadio(*win, Rect16(255, 96, 160, 20), "\310e\232tina",
+	                               Native::localizedFont(&SmallFont, Native::Language::Czech),
+	                               pal, 2, cmdChooseLanguage);
+	state.english->select(state.selected == Native::Language::English);
+	state.czech->select(state.selected == Native::Language::Czech);
+	state.english->_accelKey = 'E';
+	state.czech->_accelKey = 'C';
+	auto *apply = new GfxCompButton(*win, Rect16(100, 140, 121, 30), buttons,
+	                               kNumBtnImages, Native::ui("Apply"), pal, 1, cmdLanguageFinish);
+	apply->_accelKey = '\r';
+	auto *cancel = new GfxCompButton(*win, Rect16(258, 140, 121, 30), buttons,
+	                                kNumBtnImages, Native::ui("Cancel"), pal, 0, cmdLanguageFinish);
+	cancel->_accelKey = Native::ASCII_ESCAPE;
+	win->setDecorations(decorations, ARRAYSIZE(decorations), resources, 'O', 'P', 'T');
+	win->open();
+	EventLoop(state.result.running, true);
+	delete win;
+	unloadImageRes(buttons, kNumBtnImages);
+	resFile->disposeContext(resources);
+	Native::diagnosticMessage("LANGUAGE", "Dialog result=%d selected=%d", state.result.result, int(state.selected));
+	if (state.result.result != 1) return false;
+	Native::requestLanguage(state.selected);
+	return Native::applyPendingLanguage();
+}
+
+struct OptionsRequest : requestInfo {
+	std::vector<std::function<void()>> refreshCaptions;
+	bool presentationChanged = false;
+	GfxOwnerSelCompButton *widescreen = nullptr;
+};
+
+static ModalWindow *optionsWindow = nullptr;
+
+bool isOptionsWindow(const ModalWindow *window) {
+	return window && window == optionsWindow;
+}
+
+void refreshOptionsDisplay() {
+	if (!optionsWindow) return;
+	auto *state = static_cast<OptionsRequest *>(static_cast<requestInfo *>(optionsWindow->_userData));
+	state->presentationChanged = true;
+	state->widescreen->select(Native::activeDisplayMode == Native::DisplayMode::Widescreen);
+	g_vm->_renderer->removeSavedBackBuffer(kBeforeOpeningMenu);
+	optionsWindow->invalidate();
+}
+
+static APPFUNC(cmdLanguage) {
+	if (ev.panel && isUserAction(ev) && ev.value && showLanguageDialog()) {
+		auto *window = ev.panel->getWindow();
+		auto *state = static_cast<OptionsRequest *>(static_cast<requestInfo *>(window->_userData));
+		refreshOptionsDisplay();
+		for (const auto &refresh : state->refreshCaptions) refresh();
+		refreshLocalizedInterface();
+		speechTextBtn->select(g_vm->_speechText);
+		window->invalidate();
+	}
+}
+
 int16 OptionsDialog(bool disableSaveResume) {
 	// Save back buffer before opening the dialog
 	g_vm->_renderer->saveBackBuffer(kBeforeOpeningMenu);
 
 	// text for dialog
 	const char  *btnStrings[kNumOptionsBtns] = {
-		OPTN_DIALOG_BUTTON1,
-		OPTN_DIALOG_BUTTON2,
-		OPTN_DIALOG_BUTTON3,
-		OPTN_DIALOG_BUTTON4,
-		OPTN_DIALOG_BUTTON5
+		"Resume Play", "Save", "Load", "Quit", "Credits"
 	};
 
 
 	const char *textStrings[kNumOptionsTexts] = {
-		OPTN_DIALOG_NAME,
-		OPTN_DIALOG_SLIDE1,
-		OPTN_DIALOG_SLIDE2,
-		OPTN_DIALOG_SLIDE3,
-		OPTN_DIALOG_CHECK1,
-		OPTN_DIALOG_CHECK2,
-		OPTN_DIALOG_CHECK3,
-		OPTN_DIALOG_CHECK4
+		"Options", "Sound Effects Volume", "Speech Volume", "Music Volume",
+		"Auto-Aggression", "Auto-Wield Weapon", "Speech Text", "Night"
 	};
 
 	// make the text coloring object
 	textPallete pal(33 + 9, 36 + 9, 41 + 9, 34 + 9, 40 + 9, 43 + 9);
 
 	// requester info struct
-	requestInfo     rInfo;
+	OptionsRequest rInfo;
 
 	rInfo.result    = -1;
 	rInfo.running   = true;
@@ -928,36 +1066,45 @@ int16 OptionsDialog(bool disableSaveResume) {
 	// create the window
 	win = new ModalWindow(optionsWindowRect, 0, nullptr);
 	GfxCompButton *t;
+	auto button = [&](const Rect16 &rect, const char *source, AppFunc *command) {
+		auto *control = new GfxCompButton(*win, rect, dialogPushImag, kNumBtnImages,
+		                                  Native::ui(source, true), pal, 0, command);
+		rInfo.refreshCaptions.push_back([control, source = Native::String(source)] {
+			control->setLocalizedCaption(source.c_str());
+		});
+		control->setLocalizedCaption(source);
+		return control;
+	};
+	auto plaque = [&](const Rect16 &rect, const char *source, gFont *font, int position) {
+		auto *control = new CPlaqText(*win, rect, source, font, position, pal, 0, nullptr);
+		rInfo.refreshCaptions.push_back([control, source = Native::String(source), font] {
+			control->setLocalizedCaption(source.c_str(), font);
+		});
+		return control;
+	};
 
 	// buttons
 	if (!disableSaveResume) {
-		t = new GfxCompButton(*win, *optionsButtonRects[0],
-		                               dialogPushImag, kNumBtnImages, btnStrings[0], pal, 0, cmdDialogQuit);
+		t = button(*optionsButtonRects[0], btnStrings[0], cmdDialogQuit);
 		t->_accelKey = 0x1B;
 
-		t = new GfxCompButton(*win, *optionsButtonRects[1],
-		                               dialogPushImag, kNumBtnImages, btnStrings[1], pal, 0, cmdOptionsSaveGame);    // make the quit button
+		t = button(*optionsButtonRects[1], btnStrings[1], cmdOptionsSaveGame);    // make the quit button
 		t->_accelKey = 'S';
 	} else {
-		t = new GfxCompButton(*win, *optionsButtonRects[1],
-		                               dialogPushImag, kNumBtnImages, OPTN_DIALOG_BUTTON6, pal, 0, cmdOptionsNewGame);
+		t = button(*optionsButtonRects[1], "New Game", cmdOptionsNewGame);
 		t->_accelKey = 'N';
 	}
 
-	t = new GfxCompButton(*win, *optionsButtonRects[2],
-	                               dialogPushImag, kNumBtnImages, btnStrings[2], pal, 0, cmdOptionsLoadGame);    // make the quit button
+	t = button(*optionsButtonRects[2], btnStrings[2], cmdOptionsLoadGame);    // make the quit button
 	t->_accelKey = 'L';
 
-	t = new GfxCompButton(*win, *optionsButtonRects[3],
-	                               dialogPushImag, kNumBtnImages, btnStrings[3], pal, 0, cmdQuitGame);
+	t = button(*optionsButtonRects[3], btnStrings[3], cmdQuitGame);
 	t->_accelKey = 'Q';
 
-	t = new GfxCompButton(*win, *optionsButtonRects[4],
-	                               dialogPushImag, kNumBtnImages, btnStrings[4], pal, 0, cmdCredits);
+	t = button(*optionsButtonRects[4], btnStrings[4], cmdCredits);
 	t->_accelKey = 'C';
 
-	t = new GfxCompButton(*win, optHotKeysRect, dialogPushImag, kNumBtnImages,
-	                      OPTN_DIALOG_HOT_KEYS, pal, 0, cmdHotKeys);
+	t = button(optHotKeysRect, "Hot Keys", cmdHotKeys);
 	t->_accelKey = 'H';
 
 	autoAggressBtn = new GfxOwnerSelCompButton(*win, *optionsButtonRects[5],
@@ -977,21 +1124,24 @@ int16 OptionsDialog(bool disableSaveResume) {
 	nightBtn->select(g_vm->_showNight);
 	GfxOwnerSelCompButton *wide = new GfxOwnerSelCompButton(*win, optWidescreenRect,
 	        checkImag, kNumBtnImages, 0, cmdWidescreen);
+	rInfo.widescreen = wide;
 	wide->select(ConfMan.getBool("widescreen"));
-	new CPlaqText(*win, Rect16(optWidescreenRect.x + optWidescreenRect.width + 3,
-	              optWidescreenRect.y, kTextPixelLen - kSmallTextOffset, 17), "Widescreen (16:9)",
-	              &SmallFont, kTextPosLeft, pal, 0, nullptr);
+	plaque(Rect16(optWidescreenRect.x + optWidescreenRect.width + 3,
+	              optWidescreenRect.y, 110, 17), "Widescreen (16:9)",
+	              &SmallFont, kTextPosLeft);
 
 	auto layout = new GfxOwnerSelCompButton(*win, optSidebarLayoutRect,
 	        checkImag, kNumBtnImages, 0, cmdSidebarLayout);
 	layout->select(ConfMan.getBool("alternate_sidebar"));
-	new CPlaqText(*win, Rect16(235, optSidebarLayoutRect.y, 95, 17), "New layout",
-	              &SmallFont, kTextPosLeft, pal, 0, nullptr);
+	plaque(Rect16(235, optSidebarLayoutRect.y, 110, 17), "New layout",
+	              &SmallFont, kTextPosLeft);
 	auto clock = new GfxOwnerSelCompButton(*win, optGameTimeRect,
 	        checkImag, kNumBtnImages, 0, cmdGameTime);
 	clock->select(ConfMan.getBool("show_game_time"));
-	new CPlaqText(*win, Rect16(235, optGameTimeRect.y, 110, 17), "Show game time",
-	              &SmallFont, kTextPosLeft, pal, 0, nullptr);
+	plaque(Rect16(235, optGameTimeRect.y, 110, 17), "Show game time",
+	              &SmallFont, kTextPosLeft);
+	auto *language = button(Rect16(214, optNightRect.y, 121, 30), "Language...", cmdLanguage);
+	language->_accelKey = 'J';
 
 	new GfxSlider(*win, optTopSliderRect, optTopFaceRect, 0,
 	                       Audio::Mixer::kMaxMixerVolume, slideFaceImag, numSlideFace, ConfMan.getInt("sfx_volume"),
@@ -1005,11 +1155,11 @@ int16 OptionsDialog(bool disableSaveResume) {
 	                       Audio::Mixer::kMaxMixerVolume, slideFaceImag, numSlideFace, ConfMan.getInt("music_volume"),
 	                       0, cmdSetMIDIVolume);
 
-	new CPlaqText(*win, *optionsTextRects[0],
-	                         textStrings[0], &Plate18Font, 0, pal, 0, nullptr);
+	plaque(*optionsTextRects[0],
+	                         textStrings[0], &Plate18Font, 0);
 
 	for (int i = 1; i < kNumOptionsTexts; i++) {
-		new CPlaqText(*win, *optionsTextRects[i], textStrings[i], &SmallFont, kTextPosLeft, pal, 0, nullptr);
+		plaque(*optionsTextRects[i], textStrings[i], &SmallFont, kTextPosLeft);
 	}
 
 	win->setDecorations(optionsDecorations,
@@ -1017,10 +1167,12 @@ int16 OptionsDialog(bool disableSaveResume) {
 	                    decRes, 'O', 'P', 'T');
 
 
-	win->_userData = &rInfo;
+	win->_userData = static_cast<requestInfo *>(&rInfo);
+	optionsWindow = win;
 	win->open();
 
 	EventLoop(rInfo.running, true);
+	optionsWindow = nullptr;
 
 	g_vm->saveConfig();
 
@@ -1073,8 +1225,12 @@ int16 OptionsDialog(bool disableSaveResume) {
 	}
 
 	// Pop back buffer
-	g_vm->_renderer->popSavedBackBuffer(kBeforeOpeningMenu);
-	requestDisplayModeChange();
+	if (rInfo.presentationChanged) {
+		g_vm->_renderer->removeSavedBackBuffer(kBeforeOpeningMenu);
+		reDrawScreen();
+	} else {
+		g_vm->_renderer->popSavedBackBuffer(kBeforeOpeningMenu);
+	}
 
 	// return the result code
 	return rInfo.result;
@@ -1161,6 +1317,11 @@ void cleanupUserDialog() {
 int16 userDialog(const char *title, const char *msg, const char *bMsg1,
                  const char *bMsg2,
                  const char *bMsg3) {
+	title = Native::ui(title);
+	msg = Native::ui(msg);
+	bMsg1 = Native::ui(bMsg1);
+	bMsg2 = Native::ui(bMsg2);
+	bMsg3 = Native::ui(bMsg3);
 	const   maxBtns = 3;
 	uint8   numBtns = 0;
 
@@ -1250,6 +1411,11 @@ int16 userDialog(const char *title, const char *msg, const char *bMsg1,
                  const char *bMsg2,
                  const char *bMsg3) {
 	//const   int maxBtns = 3;
+	title = Native::ui(title);
+	msg = Native::ui(msg);
+	bMsg1 = Native::ui(bMsg1);
+	bMsg2 = Native::ui(bMsg2);
+	bMsg3 = Native::ui(bMsg3);
 	uint8   numBtns = 0;
 
 	char k1, k2, k3;
@@ -1393,10 +1559,20 @@ void CPlacardWindow::positionText(
 		int16   fontHeight = _textFont->height;
 
 		// make a copy of the window text string
+		if (Native::language() == Native::Language::Czech && strlen(windowText) >= sizeof(_titleBuf))
+			Native::reportTextOverflow("placard buffer", strlen(windowText), 1, sizeof(_titleBuf) - 1, 1);
 		Native::sprintf_s(_titleBuf, "%s", windowText);
 
 		//  break up the title text string
 		_titleCount = SplitString(_titleBuf, _titleStrings, kMaxLines, '\n');
+		if (Native::language() == Native::Language::Czech) {
+			int lines = 1;
+			for (const char *p = windowText; *p; ++p) if (*p == '\n') ++lines;
+			if (lines > kMaxLines || lines * fontHeight + 2 > textArea.height - 12)
+				Native::reportTextOverflow("placard block", textArea.width, lines * fontHeight + 2, textArea.width, textArea.height - 12);
+			for (i = 0; i < _titleCount; ++i)
+				Native::checkTextFit(_titleStrings[i], _textFont, textArea.width - 12, fontHeight + 2, kTextStyleOutline, "placard line");
+		}
 
 		yPos = textArea.y +
 		       ((textArea.height - _titleCount * fontHeight) >> 1);
@@ -1496,6 +1672,7 @@ CPlacardPanel::CPlacardPanel(gPanelList &gpl, const Rect16 &r, const char *t, gF
 
 
 void CPlacardPanel::positionText(const char *windowText, const Rect16 &textArea) {
+	windowText = Native::ui(windowText);
 	if (windowText) {
 		int16   i,
 		        yPos,
@@ -1504,10 +1681,20 @@ void CPlacardPanel::positionText(const char *windowText, const Rect16 &textArea)
 		int16   fontHeight = _buttonFont->height;
 
 		// make a copy of the window text string
+		if (Native::language() == Native::Language::Czech && strlen(windowText) >= sizeof(_titleBuf))
+			Native::reportTextOverflow("message buffer", strlen(windowText), 1, sizeof(_titleBuf) - 1, 1);
 		Native::sprintf_s(_titleBuf, "%s", windowText);
 
 		//  break up the title text string
 		_titleCount = SplitString(_titleBuf, _titleStrings, kMaxLines, '\n');
+		if (Native::language() == Native::Language::Czech) {
+			int lines = 1;
+			for (const char *p = windowText; *p; ++p) if (*p == '\n') ++lines;
+			if (lines > kMaxLines || lines * fontHeight + 2 > textArea.height)
+				Native::reportTextOverflow("message block", textArea.width, lines * fontHeight + 2, textArea.width, textArea.height);
+			for (i = 0; i < _titleCount; ++i)
+				Native::checkTextFit(_titleStrings[i], _buttonFont, textArea.width, fontHeight + 2, kTextStyleOutline, "message line");
+		}
 
 		yPos = textArea.y +
 		       ((textArea.height - _titleCount * fontHeight) >> 1);
@@ -1907,6 +2094,7 @@ APPFUNC(cmdNight) {
 	if (isUserAction(ev)) {
 		g_vm->_showNight = !g_vm->_showNight;
 		nightBtn->select(g_vm->_showNight);
+		refreshOptionsDisplay();
 	}
 }
 
@@ -1915,6 +2103,7 @@ APPFUNC(cmdWidescreen) {
 		const bool wide = !ConfMan.getBool("widescreen");
 		ConfMan.setBool("widescreen", wide);
 		ev.panel->select(wide);
+		requestDisplayModeChange();
 	}
 }
 
@@ -1923,6 +2112,7 @@ APPFUNC(cmdSidebarLayout) {
 		const bool enabled = !ConfMan.getBool("alternate_sidebar");
 		ConfMan.setBool("alternate_sidebar", enabled);
 		ev.panel->select(enabled);
+		requestDisplayModeChange();
 	}
 }
 
@@ -1931,6 +2121,7 @@ APPFUNC(cmdGameTime) {
 		const bool enabled = !ConfMan.getBool("show_game_time");
 		ConfMan.setBool("show_game_time", enabled);
 		ev.panel->select(enabled);
+		requestDisplayModeChange();
 	}
 }
 

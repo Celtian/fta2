@@ -323,19 +323,14 @@ void PlayerActor::skillAdvance(uint8 stat,
 		                            ActorAttributes::kSkillMaxLevel);
 
 		if (_baseStats.skill(stat) / ActorAttributes::kSkillFracPointsPerLevel != oldValue) {
-			static const char *skillNames[] = {
-				ARCHERY_SKILL,
-				SWORD_SKILL,
-				SHIELD_SKILL,
-				BLUDGEON_SKILL,
-				DEAD_SKILL,
-				SPELL_SKILL,
-				DEAD2_SKILL,
-				AGILITY_SKILL,
-				BRAWN_SKILL
+			const char *skillNames[] = {
+				"archery skill", "swordcraft skill", "shieldcraft skill", "bludgeon skill",
+				"", "spellcraft", "", "agility", "brawn"
 			};
 
-			StatusMsg(SKILL_STATUS, getActor()->objName(), skillNames[stat]);
+			StatusMsg(SKILL_STATUS, {
+			          Native::LocalizedMessage::name(getActor()->objectNameIndex(), getActor()->originalName()),
+			          Native::LocalizedMessage::ui(skillNames[stat])});
 		}
 		//WriteStatusF( 6, "frac: %d inc: %d, base: %d", _attribMemPools[stat], increase, _baseStats.allSkills[stat] );
 	}
@@ -347,7 +342,7 @@ void PlayerActor::vitalityAdvance(uint8 points) {
 			if (++_vitalityMemory >= kVitalityLevelBump) {
 				_vitalityMemory -= kVitalityLevelBump;
 				_baseStats.vitality++;
-				StatusMsg(VITALITY_STATUS, getActor()->objName());
+				StatusMsg(VITALITY_STATUS, {Native::LocalizedMessage::name(getActor()->objectNameIndex(), getActor()->originalName())});
 			}
 		}
 	}
@@ -486,7 +481,7 @@ ActorAttributes *PlayerActor::getEffStats() {
 
 void PlayerActor::handleAttacked() {
 	if (!_notifiedOfAttack) {
-		StatusMsg(ATTACK_STATUS, getActor()->objName());
+	StatusMsg(ATTACK_STATUS, {Native::LocalizedMessage::name(getActor()->objectNameIndex(), getActor()->originalName())});
 		_notifiedOfAttack = true;
 	}
 }
@@ -798,7 +793,7 @@ void handlePlayerActorDeath(PlayerActorID id) {
 	updateBrotherAggressionButton(id, false);
 	updateBrotherBandingButton(id, false);
 
-	StatusMsg(DEATH_STATUS, player->getActor()->objName());
+	StatusMsg(DEATH_STATUS, {Native::LocalizedMessage::name(player->getActor()->objectNameIndex(), player->getActor()->originalName())});
 }
 
 //-----------------------------------------------------------------------

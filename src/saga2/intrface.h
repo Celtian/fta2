@@ -29,6 +29,7 @@
 #include "saga2/button.h"
 #include "saga2/modal.h"
 #include "saga2/player.h"
+#include "platform/localization.h"
 
 namespace Saga2 {
 
@@ -95,8 +96,9 @@ void saveUIState(Native::OutSaveFile *outS);
 void loadUIState(Native::InSaveFile *in);
 void cleanupUIState();
 
-//  Varargs function to write to the status line.
-void StatusMsg(const char *msg, ...);      // frametime def
+// Owned localized inputs remain valid while the status line queues a message.
+void StatusMsg(const Native::LocalizedMessage &message);
+void StatusMsg(const char *format, std::initializer_list<Native::LocalizedMessage> arguments = {});
 
 
 const uint32    faceGroupID     = MKTAG('F', 'A', 'C', 'E');
@@ -201,6 +203,7 @@ public:
 
 	CPlaqText(gPanelList &, const Rect16 &, const char *, gFont *,
 	          int16, textPallete &, int16, AppFunc *cmd = NULL);
+	void setLocalizedCaption(const char *source, gFont *originalFont);
 
 	void enable(bool);
 	void invalidate(Rect16 *unused = nullptr);
@@ -227,9 +230,11 @@ private:
 	        _minWaitAlarm;
 
 	struct {
-		char    *text;
 		uint32  frameTime;
+		Native::LocalizedMessage message;
 	} _lineQueue[12];
+	Native::LocalizedMessage _displayedMessage;
+	gFont *_statusFont;
 
 	uint8       _queueHead,
 	            _queueTail;
@@ -245,6 +250,8 @@ public:
 	~CStatusLine();
 
 	void setLine(char *, uint32 frameTime);
+	void setLocalizedLine(const Native::LocalizedMessage &, uint32 frameTime);
+	void refreshLanguage();
 	void experationCheck();
 
 	void clear();

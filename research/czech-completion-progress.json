@@ -1,0 +1,655 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-11",
+  "status": "development-alpha",
+  "completion_plan_accepted": false,
+  "target_release": "0.1.42",
+  "package_produced": false,
+  "catalog": {
+    "entries": 19023,
+    "missing": 0,
+    "invalid": 0,
+    "drafts": 4227,
+    "complete": false,
+    "review_missing": 16455,
+    "review_invalid": 0,
+    "statuses": {
+      "preserve": 10396,
+      "reviewed": 4400,
+      "draft": 4227
+    }
+  },
+  "review_decisions": 2568,
+  "builds": {
+    "linux_release": "passed",
+    "linux_asan": "passed",
+    "zig_windows_x64": "passed"
+  },
+  "ctest": {
+    "linux_release": "9/9",
+    "linux_asan_lsan": "9/9 outside sandbox",
+    "native_windows": "9/9, Python orchestration on Linux"
+  },
+  "integrations": {
+    "linux_localization_with_voices": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "document_spreads": 3752,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "en",
+          "startup_subtitles": false
+        },
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "document_spreads": 3752,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "cs",
+          "startup_subtitles": false
+        }
+      ],
+      "verified_original_files": 54
+    },
+    "linux_asan_lsan_localization_without_voices": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "document_spreads": 3752,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "en",
+          "startup_subtitles": false
+        },
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "document_spreads": 3752,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "cs",
+          "startup_subtitles": false
+        }
+      ],
+      "verified_original_files": 54
+    },
+    "linux_classic": {
+      "status": "passed",
+      "original_files_unchanged": 54,
+      "unknown_exe_rejected": true,
+      "output_inside_originals_rejected": true,
+      "pack_sha256": "c54493e0188039e696570b0b2b4f5b2f4f9c586c7710938a3b1271ea6c315c1e",
+      "states": [
+        {
+          "phase": "initial",
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        {
+          "phase": "moved",
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        {
+          "phase": "switched",
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        {
+          "phase": "saved",
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        },
+        {
+          "phase": "restored",
+          "frame": 230,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        },
+        {
+          "phase": "original-save-loaded",
+          "frame": 240,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 2424061451
+        },
+        {
+          "phase": "hotkeys-checked",
+          "frame": 241,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 4151524579
+        },
+        {
+          "phase": "music-toggle-checked",
+          "frame": 244,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 4149011578
+        },
+        {
+          "phase": "options-regressions-checked",
+          "frame": 245,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 887997302
+        },
+        {
+          "phase": "document-cursors-checked",
+          "frame": 246,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 3148107846
+        },
+        {
+          "phase": "document-wheel-checked",
+          "frame": 246,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 3148107846
+        },
+        {
+          "phase": "speech-text-checked",
+          "frame": 339,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 1647111321
+        },
+        {
+          "phase": "container-escape-checked",
+          "frame": 401,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 62047798
+        },
+        {
+          "phase": "map-shortcut-checked",
+          "frame": 592,
+          "actor": 32770,
+          "u": 13237,
+          "v": 12502,
+          "z": 8,
+          "rng": 2194042540
+        },
+        {
+          "phase": "finished",
+          "frame": 592,
+          "actor": 32770,
+          "u": 13237,
+          "v": 12502,
+          "z": 8,
+          "rng": 2194042540
+        }
+      ],
+      "speech_preference_restart": {
+        "first_start": true,
+        "second_start": false
+      },
+      "audio": {
+        "music_nonzero_samples": 15599811,
+        "effects_nonzero_samples": 2185148
+      }
+    },
+    "native_windows_localization_with_voices": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "document_spreads": 3752,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "en",
+          "startup_subtitles": false
+        },
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "document_spreads": 3752,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "cs",
+          "startup_subtitles": false
+        }
+      ],
+      "verified_original_files": 54
+    },
+    "linux_windows_identical_ppm_captures": {
+      "en": 130,
+      "cs": 130
+    },
+    "linux_asan_lsan_classic": {
+      "status": "passed",
+      "original_files_unchanged": 54,
+      "unknown_exe_rejected": true,
+      "output_inside_originals_rejected": true,
+      "pack_sha256": "c54493e0188039e696570b0b2b4f5b2f4f9c586c7710938a3b1271ea6c315c1e",
+      "states": [
+        {
+          "phase": "initial",
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        {
+          "phase": "moved",
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        {
+          "phase": "switched",
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        {
+          "phase": "saved",
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        },
+        {
+          "phase": "restored",
+          "frame": 230,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        },
+        {
+          "phase": "original-save-loaded",
+          "frame": 240,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 2424061451
+        },
+        {
+          "phase": "hotkeys-checked",
+          "frame": 241,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 4151524579
+        },
+        {
+          "phase": "music-toggle-checked",
+          "frame": 244,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 4149011578
+        },
+        {
+          "phase": "options-regressions-checked",
+          "frame": 245,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 887997302
+        },
+        {
+          "phase": "document-cursors-checked",
+          "frame": 246,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 3148107846
+        },
+        {
+          "phase": "document-wheel-checked",
+          "frame": 246,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 3148107846
+        },
+        {
+          "phase": "speech-text-checked",
+          "frame": 339,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 1647111321
+        },
+        {
+          "phase": "container-escape-checked",
+          "frame": 401,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 62047798
+        },
+        {
+          "phase": "map-shortcut-checked",
+          "frame": 592,
+          "actor": 32770,
+          "u": 13237,
+          "v": 12502,
+          "z": 8,
+          "rng": 2194042540
+        },
+        {
+          "phase": "finished",
+          "frame": 592,
+          "actor": 32770,
+          "u": 13237,
+          "v": 12502,
+          "z": 8,
+          "rng": 2194042540
+        }
+      ],
+      "speech_preference_restart": {
+        "first_start": true,
+        "second_start": false
+      },
+      "audio": {
+        "music_nonzero_samples": 15599811,
+        "effects_nonzero_samples": 2185148
+      }
+    }
+  },
+  "reference": {
+    "revision": "1a3e816afd5ddc41cc2a5c51a5da292e6d61758c",
+    "rebuilt": true,
+    "fresh_run": true,
+    "linux_release": {
+      "screenshots": {
+        "initial.ppm": "fb2459ffbf3b855cf31d768224bf4ad9854be8e02d3357bb0af8cdbcee99e7b5",
+        "controlled.ppm": "612b368c9e7460b94aa4c7ec7d6bd84751754f1f05b718ec735d09dae8cdbe28"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    },
+    "linux_release_restart": {
+      "screenshots": {
+        "initial.ppm": "fb2459ffbf3b855cf31d768224bf4ad9854be8e02d3357bb0af8cdbcee99e7b5",
+        "controlled.ppm": "612b368c9e7460b94aa4c7ec7d6bd84751754f1f05b718ec735d09dae8cdbe28"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    },
+    "linux_asan_lsan": {
+      "screenshots": {
+        "initial.ppm": "fb2459ffbf3b855cf31d768224bf4ad9854be8e02d3357bb0af8cdbcee99e7b5",
+        "controlled.ppm": "612b368c9e7460b94aa4c7ec7d6bd84751754f1f05b718ec735d09dae8cdbe28"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    },
+    "linux_asan_lsan_restart": {
+      "screenshots": {
+        "initial.ppm": "fb2459ffbf3b855cf31d768224bf4ad9854be8e02d3357bb0af8cdbcee99e7b5",
+        "controlled.ppm": "612b368c9e7460b94aa4c7ec7d6bd84751754f1f05b718ec735d09dae8cdbe28"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    }
+  },
+  "original_installation": {
+    "before_verification": ".cache/czech-completion-original-before.json",
+    "after_verification": ".cache/czech-completion-original-final.json",
+    "unchanged": true,
+    "verified_files": 54
+  },
+  "visual_review": {
+    "scope": "Selected Czech language dialog capture only; circle/label readability and original bitmap style checked.",
+    "full_linguistic_and_visual_review": false
+  },
+  "pending": [
+    "Review 4227 remaining drafts and all previously reviewed/preserved candidates without current per-key evidence.",
+    "Finish terminology and full connected-dialogue linguistic review.",
+    "Complete all assembled story dialogue substitutions and pixel layout coverage.",
+    "Remove draft notice and unused catalog item, compact modal to 200 pixels after acceptance.",
+    "Full Windows 0.1.42 package, sources and checksums after all gates pass.",
+    "Native MSVC/macOS and manual hardware/audio checks.",
+    "Complete playthrough."
+  ],
+  "environment_notes": [
+    "Initial sandboxed LeakSanitizer tests could not inspect threads; rerun outside sandbox passed.",
+    "Early injected-event radio checks needed one SDL dispatch cycle before assertions; corrected integration passes."
+  ],
+  "source_artifact_sha256": {
+    "localization/cs-game.json": "ce5a1383698bc54c779d38c991a98dd40df3a0397e8d514fcf3061110d5c6a8c",
+    "localization/cs-ui.json": "c532fb24c0b8433581ea2ddc45265c90f646921a1a6bdc4992d55e3c7064e3e9",
+    "localization/review.json": "879625218dec1cf76575b700633ab8f399954c8c6737b2c9bf2d2dedbf5e1dc0"
+  },
+  "scope": "Pre-packaging implementation checkpoint; the subsequently requested Windows test build is recorded in windows-0.1.42-validation.json."
+}

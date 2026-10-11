@@ -148,7 +148,7 @@ uint16 *builtinVTableAddress(int16 btype, uint8 *addr, CallTable **callTab) {
 		*callTab = &actorCFuncs;
 
 		if (script <= 0)
-			error("SAGA failure: GameObject %d (%s) has no script.\n", obj->thisID(), obj->proto() ? obj->objName() : "Unknown");
+			error("SAGA failure: GameObject %d (%s) has no script.\n", obj->thisID(), obj->proto() ? obj->originalName() : "Unknown");
 
 		break;
 
@@ -466,6 +466,18 @@ uint8 *Thread::strAddress(int strNum) {
 	return strSeg + (uint16)READ_LE_INT16(strSeg + 2 * strNum);
 }
 
+const char *Thread::displayString(int strNum, Native::Language language) {
+	return Native::localizedScript(READ_LE_UINT16(_codeSeg + 2), READ_LE_UINT16(_codeSeg + 4),
+	                               strNum, reinterpret_cast<const char *>(strAddress(strNum)), language);
+}
+
+Native::LocalizedMessage Thread::captureDisplayString(int strNum) {
+	return Native::LocalizedMessage::text(
+		Native::String::format("script:%u:%u:%u", READ_LE_UINT16(_codeSeg + 2),
+		                      READ_LE_UINT16(_codeSeg + 4), strNum),
+		reinterpret_cast<const char *>(strAddress(strNum)));
+}
+
 //-----------------------------------------------------------------------
 //	RandomGenerator class - a random number generator class for function
 //	objects which each maintain a local seed.
@@ -528,7 +540,7 @@ const char *objectName(int16 segNum, uint16 segOff) {
 
 	switch (segNum) {
 	case kBuiltinTypeObject:
-		return GameObject::objectAddress(segOff)->objName();
+		return GameObject::objectAddress(segOff)->originalName();
 
 	case kBuiltinTypeTAG:
 		return "Tag";

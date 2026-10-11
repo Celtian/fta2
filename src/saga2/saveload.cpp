@@ -188,6 +188,7 @@ void saveGame(Native::OutSaveFile *out, Native::String saveName) {
 	saveUIState(out);
 	savePaletteState(out);
 	saveContainerNodes(out);
+	speechList.saveLocalization(out);
 }
 
 bool firstChunk(Native::InSaveFile *in, ChunkID &chunk, int32 &size) {
@@ -273,7 +274,12 @@ void loadSavedGameState(int16 saveNo) {
 
 	notEOF = firstChunk(in, id, chunkSize);
 	while (notEOF) {
+		const auto chunkEnd = in->pos() + chunkSize;
 		switch (id) {
+		case MKTAG('N', 'L', 'O', 'C'):
+			if (!(loadFlags & loadSpeechTasksFlag)) error("Native localization loaded before speech");
+			speechList.loadLocalization(in, chunkSize);
+			break;
 		case MKTAG('G', 'L', 'O', 'B'):
 			loadGlobals(in);
 			loadFlags |= loadGlobalsFlag;
@@ -464,8 +470,8 @@ void loadSavedGameState(int16 saveNo) {
 			break;
 		}
 
-		if (loadFlags & loadContainerNodesFlag)
-			break;
+		// Optional native chunks follow the original final CONT chunk.
+		if (!in->seek(chunkEnd)) error("Invalid save chunk boundary");
 		notEOF = nextChunk(in, id, chunkSize);
 	}
 

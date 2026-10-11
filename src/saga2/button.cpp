@@ -51,6 +51,11 @@ void GfxCompImage::init() {
 	_textFont        = &Onyx10Font;  // default
 }
 
+void GfxCompImage::setLocalizedCaption(const char *source) {
+	_title = Native::ui(source, true);
+	_textFont = Native::localizedFont(&Onyx10Font, Native::language());
+}
+
 GfxCompImage::GfxCompImage(gPanelList &list, const Rect16 &box, void *image, uint16 ident,
                        AppFunc *cmd) : gControl(list, box, nullptr, ident, cmd) {
 	// setup a single image configuration

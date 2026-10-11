@@ -405,10 +405,11 @@ def main():
             assert image.startswith(header) and len(image) == len(header) + 854 * 480 * 3
         for mode, width in (("classic", 640), ("wide", 854)):
             for menu in ("game", "pregame"):
-                for state in ("checked", "unchecked"):
-                    image = (output / f"options-{mode}-{menu}-{state}.ppm").read_bytes()
-                    header = f"P6\n{width} 480\n255\n".encode()
-                    assert image.startswith(header) and len(image) == len(header) + width * 480 * 3
+                # The selected checkbox now always agrees with the live framebuffer.
+                state = "checked" if mode == "wide" else "unchecked"
+                image = (output / f"options-{mode}-{menu}-{state}.ppm").read_bytes()
+                header = f"P6\n{width} 480\n255\n".encode()
+                assert image.startswith(header) and len(image) == len(header) + width * 480 * 3
         results.append({"startup": startup, "checks": result, "exploration": exploration, "buttons": buttons, "sidebar": sidebar, "container_owners": owners})
     after = {str(p.relative_to(game)): sha256(p.read_bytes())
              for p in game.rglob("*") if p.is_file()}

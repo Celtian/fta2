@@ -72,7 +72,7 @@ gPanel::gPanel(gWindow &win, const Rect16 &box, AppFunc *cmd)
 gPanel::gPanel(gPanelList &list, const Rect16 &box,
                const char *newTitle, uint16 ident, AppFunc *cmd)
 	: _window(list._window) {
-	_title = newTitle;
+	_title = Native::ui(newTitle);
 	_extent = box;
 	_enabled = 1;
 	_ghosted = 0;
@@ -102,7 +102,7 @@ gPanel::gPanel(gPanelList &list, const Rect16 &box,
 gPanel::gPanel(gPanelList &list, const StaticRect &box,
                const char *newTitle, uint16 ident, AppFunc *cmd)
 	: _window(list._window) {
-	_title = newTitle;
+	_title = Native::ui(newTitle);
 	_extent = Rect16(box);
 	_enabled = 1;
 	_ghosted = 0;

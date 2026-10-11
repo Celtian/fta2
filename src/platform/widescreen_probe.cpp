@@ -474,7 +474,10 @@ struct WidescreenProbe {
                     "sidebar checkbox did not toggle and close");
         if (Saga2::GameMode::_newmodeFlag)
             Saga2::GameMode::update();
-        requireWide(Saga2::applyPendingDisplayMode(), "sidebar layout was not applied");
+        Saga2::applyPendingDisplayMode();
+        requireWide(Saga2::menConBtn->getExtent().width ==
+                        (ConfMan.getBool("alternate_sidebar") ? 28 : 44),
+                    "sidebar layout was not applied immediately");
         ++sidebarMenus;
     }
 
@@ -1169,8 +1172,10 @@ struct WidescreenProbe {
             const bool selected = checkboxClicks % 2 ? requested : !requested;
             if (ConfMan.getBool("widescreen") != selected)
                 return;
-            requireWide((activeDisplayMode == DisplayMode::Widescreen) != requested,
-                        "mode changed before Options closed");
+            requireWide((activeDisplayMode == DisplayMode::Widescreen) == selected &&
+                            g_platform->getWidth() == (selected ? 854 : 640) &&
+                            r.x == (g_platform->getWidth() - r.width) / 2,
+                        "mode or centered Options did not update immediately");
             const auto pixels = region(r.x + 214, r.y + 137, 18, 17);
             if (checkboxPixels[selected].empty())
                 checkboxPixels[selected] = pixels;
@@ -1242,7 +1247,7 @@ struct WidescreenProbe {
         const auto actor = Saga2::getCenterActorID();
         const auto position = Saga2::centerActorCoords();
         const bool individual = Saga2::g_vm->_indivControlsFlag;
-        requireWide(Saga2::applyPendingDisplayMode(), "pending mode was not applied");
+        Saga2::applyPendingDisplayMode();
         requireWide((activeDisplayMode == DisplayMode::Widescreen) == requested &&
                         g_platform->getWidth() == (requested ? 854 : 640),
                     "wrong mode after closing Options");
@@ -1358,13 +1363,13 @@ struct WidescreenProbe {
                         window->getExtent().x + extent.width <= 640 &&
                         decorated->_decorations[0].extent.x == decorationX,
                     "shrinking closed or stranded the inventory window");
-        // Dragging can leave windows partly offscreen; expanding must not move them.
+        // Repeated live toggles include a classic pass, which clamps offscreen windows.
         auto classicPosition = window->getExtent();
         classicPosition.x = -5;
         window->setExtent(classicPosition);
         menu(Toggle);
-        requireWide(bag->isOpen() && window->getExtent().x == classicPosition.x,
-                    "expanding moved the existing inventory window");
+        requireWide(bag->isOpen() && window->getExtent().x == 0,
+                    "repeated live switching stranded the existing inventory window");
         requireWide(bag->close(Saga2::getCenterActorID()), "cannot close inventory fixture");
         node->markForDelete();
         Saga2::updateContainerWindows();
@@ -1390,7 +1395,7 @@ struct WidescreenProbe {
             mouse(60, 330, SDL_EVENT_MOUSE_BUTTON_UP);
         else if (frame == 80) {
             requireWide(optionsLayouts == 15, "not all Options layouts were checked");
-            requireWide(optionsCaptures == 255, "not all checkbox states were captured");
+            requireWide(optionsCaptures == 165, "not all live checkbox states were captured");
             requireWide(Saga2::centerActorCoords() != walkingStart,
                         "clicking the new map area did not move the actor");
             std::ofstream(output / "widescreen.json")
@@ -2582,8 +2587,8 @@ static void verifyInventoryUI(const Path& output) {
                         click(dialog, 231, 199);
                         ++phase;
                     } else if (phase == 1 && ConfMan.getBool("show_game_time") != before) {
-                        requireWide(vm->_showGameTime == before,
-                                    "clock applied before Options closed");
+                        requireWide(vm->_showGameTime != before,
+                                    "clock did not apply in open Options");
                         g_platform->capture(output / String::format("clock-options-%d-%d-%d.ppm",
                                                                     wide, sidebar, pregame)
                                                          .c_str());
@@ -2618,7 +2623,7 @@ static void verifyInventoryUI(const Path& output) {
                 gameFrameHook = hook;
                 if (GameMode::_newmodeFlag)
                     GameMode::update();
-                requireWide(phase == 7 && vm->_showGameTime == before,
+                requireWide(phase == 7 && vm->_showGameTime != before,
                             "clock checkbox timing failed");
                 Config saved;
                 saved.file = ConfMan.file;
@@ -3728,6 +3733,8 @@ void verifyContainerOwners(const Path& output) {
     verifyPhysicalOrdering(output);
     verifyCarriedStorage(output);
     requireWide(vm->loadGameState(9) == kNoError, "cannot restore container owner fixture");
+    // Loading reactivates regions, as in the other isolated inventory fixtures.
+    vm->_rnd->setSeed(seed);
     ConfMan.setBool("widescreen", originalWide);
     ConfMan.setBool("alternate_sidebar", originalSidebar);
     requestDisplayModeChange();

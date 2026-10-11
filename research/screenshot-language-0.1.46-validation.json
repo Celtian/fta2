@@ -1,0 +1,421 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-11",
+  "version": "0.1.46",
+  "status": "development-alpha",
+  "changes": [
+    "Print Screen saves the last presented native RGBA frame, including cursor/tooltip, through SDL PNG support; timestamped exclusive creation, executable-relative package root, protected original data and user/save fallback.",
+    "Language Apply commits after child-modal cleanup and refreshes open Options captions/fonts, shared UI/status/tooltips and subtitle state; unchanged-language Apply preserves a manually disabled subtitle preference.",
+    "A root Windows GUI EXE embeds the existing game icon, derives the child path from its Unicode module filename, forwards arguments and exit codes, and launches bin/fta2-native.exe without a console. The user selected this alternative after portable Shell Link icon limitations."
+  ],
+  "builds": {
+    "linux_release": "passed",
+    "zig_windows_x64_release": "passed",
+    "linux_asan_debug": "passed",
+    "sdl": "3.4.18"
+  },
+  "ctest": {
+    "linux_release": {
+      "passed": 10,
+      "total": 10
+    },
+    "native_windows": {
+      "passed": 10,
+      "total": 10
+    },
+    "linux_asan_lsan": {
+      "passed": 10,
+      "total": 10
+    }
+  },
+  "screenshot_synthetic_tests": [
+    "PNG dimensions and all decoded pixels; palette, opaque/transparent cursor pixels and last presented frame after unpresented framebuffer mutation.",
+    "640x480 and 854x480; repeat key-down suppression and later independent presses.",
+    "Unicode output directory, deterministic filename collision without overwrite, write failure fallback, both destinations failing safely and original-data output rejection."
+  ],
+  "integration": {
+    "linux_release_with_voices": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "mana_tooltip_cases": 144,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "immediate_language_apply": true,
+          "same_language_preserves_subtitles": true,
+          "modal_screenshots": 96,
+          "gameplay_screenshots": 1,
+          "document_screenshots": 12,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "en",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 3824,
+            "redraw_comparisons": 11724,
+            "wheel_checks": 6960,
+            "multipage_documents": 708
+          }
+        },
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "mana_tooltip_cases": 144,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "immediate_language_apply": true,
+          "same_language_preserves_subtitles": true,
+          "modal_screenshots": 96,
+          "gameplay_screenshots": 1,
+          "document_screenshots": 12,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "cs",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 3824,
+            "redraw_comparisons": 11724,
+            "wheel_checks": 6960,
+            "multipage_documents": 708
+          }
+        }
+      ],
+      "verified_original_files": 54
+    },
+    "linux_asan_lsan_without_voices": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "mana_tooltip_cases": 144,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "immediate_language_apply": true,
+          "same_language_preserves_subtitles": true,
+          "modal_screenshots": 96,
+          "gameplay_screenshots": 1,
+          "document_screenshots": 12,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "en",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 3824,
+            "redraw_comparisons": 11724,
+            "wheel_checks": 6960,
+            "multipage_documents": 708
+          }
+        },
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "mana_tooltip_cases": 144,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "immediate_language_apply": true,
+          "same_language_preserves_subtitles": true,
+          "modal_screenshots": 96,
+          "gameplay_screenshots": 1,
+          "document_screenshots": 12,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "cs",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 3824,
+            "redraw_comparisons": 11724,
+            "wheel_checks": 6960,
+            "multipage_documents": 708
+          }
+        }
+      ],
+      "verified_original_files": 54
+    },
+    "packaged_native_windows_with_bundled_voices": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "mana_tooltip_cases": 144,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "immediate_language_apply": true,
+          "same_language_preserves_subtitles": true,
+          "modal_screenshots": 96,
+          "gameplay_screenshots": 1,
+          "document_screenshots": 12,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "en",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 3824,
+            "redraw_comparisons": 11724,
+            "wheel_checks": 6960,
+            "multipage_documents": 708
+          }
+        },
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "mana_tooltip_cases": 144,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "immediate_language_apply": true,
+          "same_language_preserves_subtitles": true,
+          "modal_screenshots": 96,
+          "gameplay_screenshots": 1,
+          "document_screenshots": 12,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "cs",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 3824,
+            "redraw_comparisons": 11724,
+            "wheel_checks": 6960,
+            "multipage_documents": 708
+          }
+        }
+      ],
+      "verified_original_files": 54
+    },
+    "capture_parity": {
+      "status": "passed",
+      "processes": [
+        {
+          "startup_language": "en",
+          "matching_ppm_captures": 276,
+          "png_count_per_platform": 109,
+          "png_encoded_payloads_match": true,
+          "matching_portrait_buffers": 6
+        },
+        {
+          "startup_language": "cs",
+          "matching_ppm_captures": 276,
+          "png_count_per_platform": 109,
+          "png_encoded_payloads_match": true,
+          "matching_portrait_buffers": 6
+        }
+      ]
+    },
+    "matrix": [
+      "English/Czech startup and switching both ways",
+      "both aspect ratios",
+      "both sidebar layouts",
+      "in-game/pregame Options",
+      "Apply/Cancel, repeat Apply and restart",
+      "subtitle enable only on entering Czech",
+      "slider/check values and deferred display options",
+      "active/queued status text, tooltips and portrait/inventory markers",
+      "speech save/load, original SPCH bytes and optional unchanged NLOC format",
+      "available/missing/silent voices"
+    ],
+    "screenshots_per_process": {
+      "gameplay": 1,
+      "language_options_hotkeys": 96,
+      "books_scrolls_parchment": 12
+    },
+    "english_classic_linux_first": {
+      "screenshots": {
+        "initial.ppm": "fb2459ffbf3b855cf31d768224bf4ad9854be8e02d3357bb0af8cdbcee99e7b5",
+        "controlled.ppm": "612b368c9e7460b94aa4c7ec7d6bd84751754f1f05b718ec735d09dae8cdbe28"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    },
+    "english_classic_linux_restart": {
+      "screenshots": {
+        "initial.ppm": "fb2459ffbf3b855cf31d768224bf4ad9854be8e02d3357bb0af8cdbcee99e7b5",
+        "controlled.ppm": "612b368c9e7460b94aa4c7ec7d6bd84751754f1f05b718ec735d09dae8cdbe28"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    },
+    "english_classic_packaged_windows": {
+      "screenshots": {
+        "initial.ppm": "fb2459ffbf3b855cf31d768224bf4ad9854be8e02d3357bb0af8cdbcee99e7b5",
+        "controlled.ppm": "612b368c9e7460b94aa4c7ec7d6bd84751754f1f05b718ec735d09dae8cdbe28"
+      },
+      "simulation": {
+        "initial": {
+          "frame": 1,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12521,
+          "z": 8,
+          "rng": 888809617
+        },
+        "moved": {
+          "frame": 180,
+          "actor": 32768,
+          "u": 13258,
+          "v": 12513,
+          "z": 8,
+          "rng": 1260233905
+        },
+        "switched": {
+          "frame": 190,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 3004664737
+        },
+        "saved": {
+          "frame": 220,
+          "actor": 32769,
+          "u": 13249,
+          "v": 12497,
+          "z": 8,
+          "rng": 81644917
+        }
+      },
+      "save_chunks": {
+        "fta2.999": 30,
+        "fta2.001": 30
+      }
+    },
+    "reference": "Existing pinned 1a3e816afd5ddc41cc2a5c51a5da292e6d61758c reference artifacts reused; reference not rebuilt or rerun."
+  },
+  "visual_review": {
+    "status": "Selected Czech immediate Options and Hot Keys captures visually inspected; labels and new Print Screen row fit.",
+    "private_captures": [
+      ".cache/windows-0146-options-applied-01.png",
+      ".cache/windows-0146-hotkeys-01.png"
+    ]
+  },
+  "catalog": {
+    "new_reviewed_ui_entries": 4,
+    "new_entry_scope": [
+      "Save screenshot",
+      "Screenshot saved.",
+      "Screenshot saved in user folder.",
+      "Screenshot failed."
+    ],
+    "game_catalog_and_review_journal_unchanged_this_release": true,
+    "missing": 0,
+    "invalid": 0,
+    "invalid_review_evidence": 0,
+    "existing_drafts": 4227,
+    "missing_full_review_decisions": 15598,
+    "complete_czech_review": false
+  },
+  "sanitizer_note": "LeakSanitizer inspection is blocked by the restricted execution sandbox. Successful public tests and both original-data localization processes ran on the host with detect_leaks=1:halt_on_error=1; no sanitizer diagnostics were reported.",
+  "original_data": {
+    "files_unchanged": 54,
+    "verification": "tools/fta2_data.py verify and before/after SHA-256 snapshots; original 999.SAV included in immutable snapshot."
+  },
+  "remaining": [
+    "Full Czech linguistic/story-branch acceptance and all interactive story layout combinations.",
+    "Native MSVC/macOS builds, physical keyboard/audio hardware checks and full playthrough."
+  ],
+  "private_evidence_directory": ".cache/windows-0146-* and .cache/screenshot-language-0146-*",
+  "delivery": "dist/fta2-native-0.1.46-Windows-x86_64.zip"
+}

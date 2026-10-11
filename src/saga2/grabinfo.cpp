@@ -72,6 +72,15 @@ void GrabInfo::setMoveCount(int16 val) {
 	}
 }
 
+void GrabInfo::refreshLocalizedText() {
+	setText(nullptr);
+	if (_grabObj) {
+		char text[kBufSize];
+		_grabObj->objCursorText(text, kBufSize, _moveCount);
+		setMouseText(text);
+	}
+}
+
 //  Make the object ID given into the mouse pointer
 void GrabInfo::grabObject(ObjectID objid,  Intent in, int16 count) {
 	GameObject  *obj = GameObject::objectAddress(objid);
@@ -323,7 +332,10 @@ void GrabInfo::replaceObject() {
 //  is currently no grabbed object the text will be displayed, else the
 //  text pointer will simply be saved.
 void GrabInfo::setText(const char *txt) {
+	txt = Native::ui(txt);
 	if ((txt != nullptr) && strlen(txt)) {
+		if (Native::language() == Native::Language::Czech && strlen(txt) >= kBufSize)
+			Native::reportTextOverflow("hover text buffer", strlen(txt), 1, kBufSize - 1, 1);
 		Native::strlcpy(_textBuf, txt, kBufSize);
 		if (_grabObj == nullptr)
 			setMouseText(_textBuf);

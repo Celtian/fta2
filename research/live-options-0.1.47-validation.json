@@ -1,0 +1,297 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-11",
+  "version": "0.1.47",
+  "status": "development-alpha",
+  "changes": [
+    "All Options preferences take effect while the window remains open; display/layout/clock commit after input dispatch and Language still requires Apply.",
+    "Options recenters after framebuffer changes, preserves controls and floating inventories, clamps inventories on classic passes, and discards stale saved backgrounds.",
+    "Night previews the original palette immediately without ambient-music selection; text labels use available column space at the original font size.",
+    "Player packages retain binaries, compact licences, verified inputs/voices and matching embedded sources; developer documents, research, provenance and loose icons remain inside the source ZIP."
+  ],
+  "builds": {
+    "linux_release": "passed",
+    "zig_windows_x64_release": "passed",
+    "linux_asan_debug": "passed",
+    "sdl": "3.4.18"
+  },
+  "ctest": {
+    "linux_release": {
+      "passed": 10,
+      "total": 10
+    },
+    "native_windows_cpp_linux_python": {
+      "passed": 10,
+      "total": 10
+    },
+    "linux_asan_lsan_host": {
+      "passed": 10,
+      "total": 10
+    }
+  },
+  "integration": {
+    "linux_with_voices": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "mana_tooltip_cases": 144,
+          "live_options_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "immediate_language_apply": true,
+          "same_language_preserves_subtitles": true,
+          "modal_screenshots": 96,
+          "gameplay_screenshots": 1,
+          "document_screenshots": 12,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "en",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 3824,
+            "redraw_comparisons": 11724,
+            "wheel_checks": 6960,
+            "multipage_documents": 708
+          }
+        },
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "mana_tooltip_cases": 144,
+          "live_options_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "immediate_language_apply": true,
+          "same_language_preserves_subtitles": true,
+          "modal_screenshots": 96,
+          "gameplay_screenshots": 1,
+          "document_screenshots": 12,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "cs",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 3824,
+            "redraw_comparisons": 11724,
+            "wheel_checks": 6960,
+            "multipage_documents": 708
+          }
+        }
+      ],
+      "verified_original_files": 54
+    },
+    "linux_asan_lsan_without_voices": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "mana_tooltip_cases": 144,
+          "live_options_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "immediate_language_apply": true,
+          "same_language_preserves_subtitles": true,
+          "modal_screenshots": 96,
+          "gameplay_screenshots": 1,
+          "document_screenshots": 12,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "en",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 3824,
+            "redraw_comparisons": 11724,
+            "wheel_checks": 6960,
+            "multipage_documents": 708
+          }
+        },
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "mana_tooltip_cases": 144,
+          "live_options_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "immediate_language_apply": true,
+          "same_language_preserves_subtitles": true,
+          "modal_screenshots": 96,
+          "gameplay_screenshots": 1,
+          "document_screenshots": 12,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "cs",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 3824,
+            "redraw_comparisons": 11724,
+            "wheel_checks": 6960,
+            "multipage_documents": 708
+          }
+        }
+      ],
+      "verified_original_files": 54
+    },
+    "packaged_native_windows_with_bundled_voices": {
+      "status": "passed",
+      "processes": [
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "mana_tooltip_cases": 144,
+          "live_options_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "immediate_language_apply": true,
+          "same_language_preserves_subtitles": true,
+          "modal_screenshots": 96,
+          "gameplay_screenshots": 1,
+          "document_screenshots": 12,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "en",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 3824,
+            "redraw_comparisons": 11724,
+            "wheel_checks": 6960,
+            "multipage_documents": 708
+          }
+        },
+        {
+          "status": "passed",
+          "menu_cases": 32,
+          "mana_tooltip_cases": 144,
+          "live_options_cases": 32,
+          "text_overflows": 0,
+          "speech_save_roundtrip": true,
+          "voice_variants": 3,
+          "radio_clicks": 96,
+          "status_queue_refresh": true,
+          "immediate_language_apply": true,
+          "same_language_preserves_subtitles": true,
+          "modal_screenshots": 96,
+          "gameplay_screenshots": 1,
+          "document_screenshots": 12,
+          "document_spreads": 3824,
+          "placard_cases": 664,
+          "file_dialog_cases": 16,
+          "startup_language": "cs",
+          "startup_subtitles": false,
+          "document_rendering": {
+            "scripts": 185,
+            "page_spreads": 3824,
+            "redraw_comparisons": 11724,
+            "wheel_checks": 6960,
+            "multipage_documents": 708
+          }
+        }
+      ],
+      "verified_original_files": 54
+    },
+    "widescreen": {
+      "status": "passed",
+      "processes": 2,
+      "captures_per_process": 409,
+      "scope": "Existing widescreen, exploration, sidebar, inventory and save/load checks; live checkbox capture expectations updated."
+    },
+    "live_options": {
+      "cases_per_process": 32,
+      "matrix": [
+        "English/Czech",
+        "classic/wide",
+        "original/alternate sidebar",
+        "game/pregame Options",
+        "group/individual controls"
+      ],
+      "checks": [
+        "six consecutive aspect changes with current-framebuffer assertions and centered Options",
+        "floating inventory identity, clipping and lifecycle",
+        "sidebar geometry and immediate clock visibility",
+        "immediate Night palette compared against the original palette calculation",
+        "aggression, weapon and subtitles toggles",
+        "slider values, actor identity/position and display-only RNG preservation",
+        "closing Options preserves confirmed settings"
+      ],
+      "fixture_isolation": "Timed ambient-sound RNG draws are suppressed in the isolated live-settings fixture; original audio behavior is retained in gameplay. Inventory fixture save restoration resets activation RNG before checking presentation-only changes."
+    },
+    "cross_platform_capture_parity": {
+      "en": {
+        "ppm_matches": 340,
+        "portrait_buffers": 6,
+        "png_payload_matches": 109
+      },
+      "cs": {
+        "ppm_matches": 340,
+        "portrait_buffers": 6,
+        "png_payload_matches": 109
+      }
+    }
+  },
+  "reference": {
+    "incremental_pinned_build": "passed",
+    "fresh_run": "passed",
+    "native_processes_compared": [
+      "Linux classic first",
+      "Linux classic restart",
+      "packaged native Windows classic"
+    ],
+    "each_comparison": {
+      "images": 2,
+      "checkpoints": 4,
+      "original_chunks_per_save": 30,
+      "saves": 2
+    }
+  },
+  "original_files_unchanged": 54,
+  "older_release_zips_unchanged": 6,
+  "visual_review": [
+    "Czech classic/group and wide/group Options, Night preview and inventory behind the modal",
+    "Additional Czech original/alternate sidebar captures inspected at both widths"
+  ],
+  "catalog": {
+    "entries": 19023,
+    "missing": 0,
+    "invalid": 0,
+    "drafts": 4227,
+    "review_missing": 15598,
+    "review_invalid": 0,
+    "complete": false,
+    "note": "Existing linguistic completeness gate remains unmet; this preference/packaging change does not claim completed Czech review."
+  },
+  "limitations": [
+    "No full playthrough",
+    "No complete Czech linguistic/story-branch acceptance",
+    "No native MSVC/macOS builds in this turn",
+    "No physical-keyboard or manual hardware/audio validation; gameplay scenarios use SDL dummy backends",
+    "Final ZIP CRC/content/source audit and SHA-256 are recorded outside the embedded sources after packaging"
+  ],
+  "legacy_dist_intermediates": "Existing CPack staging and one unfinished temporary ZIP moved intact to .cache/dist-intermediates-0.1.47; six named releases and their checksums retained in dist."
+}

@@ -163,6 +163,8 @@ public:
 	void    select(uint16 val);
 	void    select(uint16 val, const Rect16 &rect);
 	void    setImages(void **images);
+	void    setLocalizedCaption(const char *source);
+	const char *caption() const { return _title; }
 	void    setImage(void *image);
 
 	void            draw();      // redraw the panel.

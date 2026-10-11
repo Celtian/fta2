@@ -335,6 +335,78 @@ ResName broNames[] = {
 	{ 'K', 'E', 'V', 0 }
 };
 
+// The original portrait names are part of the compressed artwork.
+class LocalizedNamePlate : public GfxCompImage {
+	void drawClipped(gPort &port, const Point16 &offset, const Rect16 &clip) override {
+		void *image = getCurrentCompImage();
+		if (Native::language() == Native::Language::English || image == namePlateImages[2]) {
+			GfxCompImage::drawClipped(port, offset, clip);
+			return;
+		}
+		if (!image || !_extent.overlap(clip)) return;
+		gPixelMap stamp;
+		stamp._size = Point16(65, 15);
+		std::vector<byte> pixels(stamp.bytes(), 0);
+		stamp._data = pixels.data();
+		gPort temporary;
+		temporary.setMap(&stamp);
+		drawCompressedImage(temporary, Point16(0, 0), image);
+		// Keep the engraved lettering from the user's artwork, including its bold
+		// strokes. A UI font does not match these names. No extracted art is stored.
+		std::vector<byte> julian(stamp.bytes(), 0), phillip(stamp.bytes(), 0);
+		stamp._data = julian.data();
+		temporary.setMap(&stamp);
+		drawCompressedImage(temporary, Point16(0, 0), namePlateImages[0]);
+		stamp._data = phillip.data();
+		temporary.setMap(&stamp);
+		drawCompressedImage(temporary, Point16(0, 0), namePlateImages[1]);
+		stamp._data = pixels.data();
+		// Tile clear, textured pixels over the complete old text and its shadow.
+		// The last three rows also contain English lettering, not a bottom border.
+		const auto original = pixels;
+		for (int y = 3; y < 15; ++y)
+			for (int x = 10; x < 56; ++x)
+				pixels[y * 65 + x] = original[y * 65 + 56 + (x - 10) % 9];
+		struct Letter { bool fromPhillip; int x, width; bool acute = false, isF = false; };
+		const Letter julianLetters[] = {
+			{false, 15, 6}, {false, 22, 6}, {false, 29, 3},
+			{false, 34, 2}, {false, 38, 6, true}, {false, 46, 6}
+		};
+		const Letter filipLetters[] = {
+			{true, 14, 6, false, true}, {true, 30, 2}, {true, 34, 3},
+			{true, 44, 2}, {true, 48, 6}
+		};
+		const bool first = image == namePlateImages[0];
+		const Letter *letters = first ? julianLetters : filipLetters;
+		const int count = first ? ARRAYSIZE(julianLetters) : ARRAYSIZE(filipLetters);
+		int width = -2;
+		for (int i = 0; i < count; ++i) width += letters[i].width + 2;
+		// Paint the three original shadow tones before the white foreground.
+		for (int layer = 3; layer >= 0; --layer) {
+			int destination = (65 - width) / 2;
+			const byte color = layer == 3 ? 17 : layer == 2 ? 19 : layer == 1 ? 24 : 10;
+			for (int i = 0; i < count; ++i) {
+				const auto &letter = letters[i];
+				const auto &source = letter.fromPhillip ? phillip : julian;
+				for (int y = 2; y < 13; ++y) {
+					for (int x = 0; x < letter.width; ++x) {
+						bool ink = source[y * 65 + letter.x + x] == 10;
+						// P supplies F's stem and crossbars; remove its bowl sides.
+						if (letter.isF && (y == 5 || y == 6) && x >= 2) ink = false;
+						if (letter.acute && ((y == 2 && x >= 4) || (y == 3 && x >= 3 && x <= 4))) ink = true;
+						const int dx = destination + x - layer, dy = y + layer;
+						if (ink && dx >= 2 && dx < 64 && dy < 15) pixels[dy * 65 + dx] = color;
+					}
+				}
+				destination += letter.width + 2;
+			}
+		}
+		port.bltPixels(stamp, 0, 0, _extent.x - offset.x, _extent.y - offset.y, 65, 15);
+	}
+public:
+	using GfxCompImage::GfxCompImage;
+};
+
 const uint32 containerGroupID = MKTAG('C', 'O', 'N', 'T');
 
 
@@ -574,6 +646,7 @@ CPlaqText::CPlaqText(gPanelList     &list,
                      int16         ident,
                      AppFunc       *cmd)
 	: gControl(list, box, msg, ident, cmd) {
+	msg = Native::ui(msg);
 	if (strlen(msg) < kBufSize) {
 		Native::strcpy_s(_lineBuf, msg);
 	} else {
@@ -581,10 +654,19 @@ CPlaqText::CPlaqText(gPanelList     &list,
 	}
 
 	_textFacePal     = pal;
-	_buttonFont      = font;
+	_buttonFont      = Native::localizedFont(font, Native::language());
 	_textRect        = box;
 	_textPosition    = textPos;
 	_oldFont         = nullptr;
+	if (!strchr(msg, '\n'))
+		Native::checkTextFit(msg, _buttonFont, box.width - 2, box.height, 0, "plaque");
+}
+
+void CPlaqText::setLocalizedCaption(const char *source, gFont *originalFont) {
+	const char *text = Native::ui(source, true);
+	Native::strlcpy(_lineBuf, text, kBufSize);
+	_buttonFont = Native::localizedFont(originalFont, Native::language());
+	Native::checkTextFit(text, _buttonFont, _extent.width - 2, _extent.height, 0, "plaque");
 }
 
 void CPlaqText::enable(bool abled) {
@@ -626,7 +708,7 @@ void CPlaqText::drawClipped(gPort &port,
 			_textRect.y -= offset.y;
 
 
-			writePlaqText(port, _textRect, _buttonFont, _textPosition, _textFacePal, _selected, _lineBuf);
+			writePlaqText(port, _textRect, _buttonFont, _textPosition, _textFacePal, _selected, "%s", _lineBuf);
 		}
 	}
 }
@@ -693,16 +775,16 @@ void CPortrait::ORset(uint16 brotherID, PortraitType type) { // brotherID = post
 }
 
 void CPortrait::getStateString(char buf[], int8 size, uint16 brotherID) {
-	static char asleepStr[]         = ASLEEP_STATE;
-	static char paralysedStr[]      = PARALY_STATE;
-	static char blindStr[]          = BLIND_STATE ;
-	static char afraidStr[]         = AFRAID_STATE;
-	static char angryStr[]          = ANGRY_STATE ;
-	static char badlyWoundedStr[]   = BADWND_STATE;
-	static char hurtStr[]           = HURT_STATE  ;
-	static char poisonedStr[]       = POISON_STATE;
-	static char diseasedStr[]       = DISEAS_STATE;
-	static char normalStr[]         = NORMAL_STATE;
+	const char *asleepStr         = ASLEEP_STATE;
+	const char *paralysedStr      = PARALY_STATE;
+	const char *blindStr          = BLIND_STATE ;
+	const char *afraidStr         = AFRAID_STATE;
+	const char *angryStr          = ANGRY_STATE ;
+	const char *badlyWoundedStr   = BADWND_STATE;
+	const char *hurtStr           = HURT_STATE  ;
+	const char *poisonedStr       = POISON_STATE;
+	const char *diseasedStr       = DISEAS_STATE;
+	const char *normalStr         = NORMAL_STATE;
 	static char commaStr[]          = ", ";
 
 	PlayerActor     *pa = getPlayerActorAddress(brotherID);
@@ -776,34 +858,39 @@ CStatusLine::CStatusLine(gPanelList         &list,
 
 	_lineDisplayed = false;
 	_queueHead = _queueTail = 0;
+	_statusFont = font;
 
 	for (int i = 0; i < ARRAYSIZE(_lineQueue); i++) {
-		_lineQueue[i].text = nullptr;
 		_lineQueue[i].frameTime = 0;
 	}
 	_waitAlarm._basetime = _waitAlarm._duration = 0;
 	_minWaitAlarm._basetime = _minWaitAlarm._duration = 0;
 }
 
-CStatusLine::~CStatusLine() {
-	while (_queueTail != _queueHead) {
-		assert(_lineQueue[_queueTail].text != nullptr);
-
-		delete[] _lineQueue[_queueTail].text;
-		_queueTail = bump(_queueTail);
-	}
-}
+CStatusLine::~CStatusLine() = default;
 
 void CStatusLine::setLine(char *msg, uint32 frameTime) { // frametime def
+	setLocalizedLine(Native::LocalizedMessage::text({}, msg), frameTime);
+}
+
+void CStatusLine::setLocalizedLine(const Native::LocalizedMessage &message, uint32 frameTime) {
 	uint8       newHead = bump(_queueHead);
 
 	if (newHead != _queueTail) {
-		size_t      msgLen = strlen(msg);
-
-		_lineQueue[_queueHead].text = new char[msgLen + 1];
-		Native::strcpy_s(_lineQueue[_queueHead].text, msgLen + 1, msg);
 		_lineQueue[_queueHead].frameTime = frameTime;
+		_lineQueue[_queueHead].message = message;
 		_queueHead = newHead;
+	}
+}
+
+void CStatusLine::refreshLanguage() {
+	_buttonFont = Native::localizedFont(_statusFont, Native::language());
+	if (_lineDisplayed) {
+		const Native::String text = _displayedMessage.render(Native::language());
+		if (text.size() >= kBufSize)
+			Native::reportTextOverflow("status text buffer", text.size(), 1, kBufSize - 1, 1);
+		Native::strlcpy(_lineBuf, text.c_str(), kBufSize);
+		_window.update(_extent);
 	}
 }
 
@@ -826,12 +913,16 @@ void CStatusLine::experationCheck() {
 		_minWaitAlarm.set(_lineQueue[_queueTail].frameTime / 5);
 
 		// copy up to the buffer's size in chars
-		Native::strlcpy(_lineBuf, _lineQueue[_queueTail].text,kBufSize);
+		_displayedMessage = _lineQueue[_queueTail].message;
+		_buttonFont = Native::localizedFont(_statusFont, Native::language());
+		const Native::String text = _displayedMessage.render(Native::language());
+		if (text.size() >= kBufSize)
+			Native::reportTextOverflow("status text buffer", text.size(), 1, kBufSize - 1, 1);
+		Native::strlcpy(_lineBuf, text.c_str(), kBufSize);
 		_lineBuf[kBufSize - 1] = '\0';
 
-		//  free the queue text buffer
-		delete[] _lineQueue[_queueTail].text;
-		_lineQueue[_queueTail].text = nullptr;
+		// Release the owned inputs after copying the active message.
+		_lineQueue[_queueTail].message = {};
 
 		//  bump the queue tail
 		_queueTail = bump(_queueTail);
@@ -847,9 +938,9 @@ void CStatusLine::clear() {
 	enable(false);
 	_window.update(_extent);
 	_lineDisplayed = false;
+	_displayedMessage = {};
 	while (_queueTail != _queueHead) {
-		delete[] _lineQueue[_queueTail].text;
-		_lineQueue[_queueTail].text = nullptr;
+		_lineQueue[_queueTail].message = {};
 		_queueTail = bump(_queueTail);
 	}
 
@@ -1622,6 +1713,12 @@ void writePlaqText(gPort            &port,
 	va_start(argptr, msg);
 	cnt = Native::vsprintf_s(lineBuf, msg, argptr);
 	va_end(argptr);
+	if (cnt >= (int)sizeof(lineBuf)) {
+		if (Native::language() == Native::Language::Czech)
+			Native::reportTextOverflow("embossed text buffer", cnt, 1, sizeof(lineBuf) - 1, 1);
+		cnt = strlen(lineBuf);
+	}
+	Native::checkTextFit(lineBuf, font, r.width, r.height, kTextStyleOutline, "embossed text");
 
 	SAVE_GPORT_STATE(port);
 	port.setMode(kDrawModeMatte);
@@ -1876,7 +1973,7 @@ void SetupUserControls() {
 		                              bandingImag, kNumBtnImages, brotherIDs[n], cmdBand);
 
 		// name plates that go under the portraits
-		namePlates[n]  = new GfxCompImage(*trioControls, views[n][index++],
+		namePlates[n]  = new LocalizedNamePlate(*trioControls, views[n][index++],
 		                              namePlateImages[n], 0, nullptr);
 
 		// the frames for the name plates
@@ -1908,7 +2005,7 @@ void SetupUserControls() {
 	                              bandingImag, kNumBtnImages, kUiIndiv, cmdBand);
 
 	// name plates that go under the portraits
-	indivNamePlate  = new GfxCompImage(*indivControls, views[0][index++],
+	indivNamePlate  = new LocalizedNamePlate(*indivControls, views[0][index++],
 	                             namePlateImages[0], 0, nullptr);
 
 	// the frames for the name plates
@@ -2824,27 +2921,27 @@ APPFUNC(cmdManaInd) {
 
 			switch (manaType) {
 			case 0:
-				Native::sprintf_s(textBuffer, "%s %d/%d", "Red Mana:", curMana, baseMana);
+				Native::sprintf_s(textBuffer, "%s %d/%d", RED_MANA, curMana, baseMana);
 				break;
 
 			case 1:
-				Native::sprintf_s(textBuffer, "%s %d/%d", "Orange Mana:", curMana, baseMana);
+				Native::sprintf_s(textBuffer, "%s %d/%d", ORANGE_MANA, curMana, baseMana);
 				break;
 
 			case 2:
-				Native::sprintf_s(textBuffer, "%s %d/%d", "Yellow Mana:", curMana, baseMana);
+				Native::sprintf_s(textBuffer, "%s %d/%d", YELLOW_MANA, curMana, baseMana);
 				break;
 
 			case 3:
-				Native::sprintf_s(textBuffer, "%s %d/%d", "Green Mana:", curMana, baseMana);
+				Native::sprintf_s(textBuffer, "%s %d/%d", GREEN_MANA, curMana, baseMana);
 				break;
 
 			case 4:
-				Native::sprintf_s(textBuffer, "%s %d/%d", "Blue Mana:", curMana, baseMana);
+				Native::sprintf_s(textBuffer, "%s %d/%d", BLUE_MANA, curMana, baseMana);
 				break;
 
 			case 5:
-				Native::sprintf_s(textBuffer, "%s %d/%d", "Purple Mana:", curMana, baseMana);
+				Native::sprintf_s(textBuffer, "%s %d/%d", VIOLET_MANA, curMana, baseMana);
 				break;
 
 			case -1:
@@ -3001,8 +3098,8 @@ void gEnchantmentDisplay::pointerMove(gPanelMessage &msg) {
 					char    buf[128];
 
 					if (_iconFlags[i] == 255)
-						Native::sprintf_s(buf, "%s", enchantmentNames[i]);
-					else Native::sprintf_s(buf, "%s : %d", enchantmentNames[i], _iconFlags[i]);
+					Native::sprintf_s(buf, "%s", Native::ui(enchantmentNames[i], true));
+				else Native::sprintf_s(buf, "%s : %d", Native::ui(enchantmentNames[i], true), _iconFlags[i]);
 					g_vm->_mouseInfo->setText(buf);
 					return;
 				}
@@ -3278,17 +3375,15 @@ bool isBrotherDead(PlayerActorID brotherID) {
 	return (getPlayerActorAddress(brotherID)->getActor()->isDead());
 }
 
-void StatusMsg(const char *msg, ...) { // frametime def
-	va_list         argptr;
-	char            buffer[128];
+void StatusMsg(const Native::LocalizedMessage &message) {
+	if (StatusLine) StatusLine->setLocalizedLine(message, 500);
+}
 
-	if (StatusLine) {
-		va_start(argptr, msg);
-		Native::vsprintf_s(buffer, msg, argptr);
-		va_end(argptr);
-
-		StatusLine->setLine(buffer, 500);
-	}
+void StatusMsg(const char *format, std::initializer_list<Native::LocalizedMessage> arguments) {
+	auto message = Native::LocalizedMessage::ui(format);
+	message.arguments = arguments;
+	message.formatted = true;
+	StatusMsg(message);
 }
 
 } // end of namespace Saga2

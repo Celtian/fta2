@@ -51,7 +51,7 @@
 void drawMainDisplay();
 
 #define MONOLOG(s) {debugC(2, kDebugScripts, "cfunc: " #s );}
-#define OBJLOG(s) {debugC(2, kDebugScripts, "cfunc: [%s]." #s , (((ObjectData *)thisThread->_thisObject)->obj)->objName() );}
+#define OBJLOG(s) {debugC(2, kDebugScripts, "cfunc: [%s]." #s , (((ObjectData *)thisThread->_thisObject)->obj)->originalName() );}
 
 namespace Saga2 {
 
@@ -72,11 +72,13 @@ inline char *STRING(int strNum) {
 //	SPrintf-like formatting of strings, except that it works on
 //	SAGA arglists.
 
-int stringf(char *buffer, long maxlen, int formatStr, int16 *args) {
-	char        *fmt = STRING(formatStr);
+int stringf(char *buffer, long maxlen, int formatStr, int16 *args,
+            Native::Language language = Native::Language::English) {
+	const char *fmt = thisThread->displayString(formatStr, language);
 	char        *bufEnd = buffer + maxlen - 1;
-	char        dbuf[16],             // temp buffer for digits
-	            *dptr;
+	char        dbuf[16];             // temp buffer for digits
+	const char *dptr;
+	bool truncated = false;
 
 	//  While there is room in the buffer
 	while (buffer < bufEnd && *fmt != '\0') {
@@ -90,6 +92,7 @@ int stringf(char *buffer, long maxlen, int formatStr, int16 *args) {
 				for (dptr = dbuf; *dptr && buffer < bufEnd;) {
 					*buffer++ = *dptr++;
 				}
+				truncated |= *dptr != '\0';
 			} else if (fmt[1] == 'x') { //  If it's %x
 				//  Convert numeric argument to string
 				snprintf(dbuf, 15, "%x", *args++);
@@ -98,18 +101,21 @@ int stringf(char *buffer, long maxlen, int formatStr, int16 *args) {
 				for (dptr = dbuf; *dptr && buffer < bufEnd;) {
 					*buffer++ = *dptr++;
 				}
+				truncated |= *dptr != '\0';
 			} else if (fmt[1] == 's') { //  If it's %s
 				//  Obtain SAGA string, copy to buffer (if it fits)
-				for (dptr = STRING(*args++); *dptr && buffer < bufEnd;) {
+				for (dptr = thisThread->displayString(*args++, language); *dptr && buffer < bufEnd;) {
 					*buffer++ = *dptr++;
 				}
+				truncated |= *dptr != '\0';
 			} else if (fmt[1] == 'n') { //  If it's %n (object name)
 				GameObject  *obj = GameObject::objectAddress(*args++);
 
 				//  Obtain SAGA string, copy to buffer (if it fits)
-				for (const char *dptr1 = obj->objName(); *dptr1 && buffer < bufEnd;) {
-					*buffer++ = *dptr1++;
+				for (dptr = Native::translateKey(Native::String::format("name:%u", obj->objectNameIndex()), obj->originalName(), language); *dptr && buffer < bufEnd;) {
+					*buffer++ = *dptr++;
 				}
+				truncated |= *dptr != '\0';
 			} else {
 				//  Write the character after the '%' to the buffer
 				*buffer++ = fmt[1];
@@ -118,6 +124,8 @@ int stringf(char *buffer, long maxlen, int formatStr, int16 *args) {
 		} else *buffer++ = *fmt++;
 	}
 
+	if (language == Native::Language::Czech && (*fmt || truncated))
+		Native::reportTextOverflow("formatted script buffer", maxlen, 1, maxlen - 1, 1);
 	*buffer++ = '\0';
 
 	//  Return the number of characters written to the buffer
@@ -518,7 +526,7 @@ int16 scriptActorSay(int16 *args) {
 		char        *speechText = STRING(args[i + 1]);
 
 		debugC(2, kDebugScripts, "Speech Text: - %s", speechText);
-		sp->append(speechText, sampleNum);
+		sp->append(speechText, sampleNum, thisThread->displayString(args[i + 1], sp->textLanguage()));
 	}
 
 	//  If we're ready to activate the speech
@@ -554,7 +562,9 @@ int16 scriptActorSayText(int16 *args) {
 	if (sp == nullptr) return 0;
 
 	stringf(buffer, sizeof buffer, args[0], &args[1]);
-	sp->append(buffer, 0);
+	char translated[512];
+	stringf(translated, sizeof translated, args[0], &args[1], sp->textLanguage());
+	sp->append(buffer, 0, translated);
 	return 1;
 }
 
@@ -2703,7 +2713,7 @@ int16 scriptWriteMessage(int16 *args) {
 	MONOLOG(WriteMessage);
 	char        buffer[256];
 
-	stringf(buffer, sizeof buffer, args[1], &args[2]);
+	stringf(buffer, sizeof buffer, args[1], &args[2], Native::language());
 
 	WriteStatusF(args[0], buffer);
 	return 0;
@@ -2715,11 +2725,22 @@ int16 scriptWriteMessage(int16 *args) {
 
 int16 scriptStatus(int16 *args) {
 	MONOLOG(Status);
-	char        buffer[256];
-
-	stringf(buffer, sizeof buffer, args[0], &args[1]);
-
-	StatusMsg(buffer);
+	auto message = thisThread->captureDisplayString(args[0]);
+	message.formatted = true;
+	int16 *argument = &args[1];
+	for (size_t index = 0; index < message.original.size(); ++index) {
+		if (message.original[index] != '%' || index + 1 >= message.original.size()) continue;
+		const char type = message.original[++index];
+		if (type == 'd' || type == 'x')
+			message.arguments.push_back(Native::LocalizedMessage::number(*argument++));
+		else if (type == 's')
+			message.arguments.push_back(thisThread->captureDisplayString(*argument++));
+		else if (type == 'n') {
+			auto *object = GameObject::objectAddress(*argument++);
+			message.arguments.push_back(Native::LocalizedMessage::name(object->objectNameIndex(), object->originalName()));
+		}
+	}
+	StatusMsg(message);
 	return 0;
 }
 
@@ -2753,7 +2774,7 @@ int16 scriptErrorDialog(int16 *args) {
 	MONOLOG(ErrorDialog);
 	char        buffer[512];
 
-	stringf(buffer, sizeof buffer, args[1], &args[2]);
+	stringf(buffer, sizeof buffer, args[1], &args[2], Native::language());
 
 //	WriteStatusF( 1, buffer );
 	return 0;
@@ -2767,9 +2788,9 @@ int16 scriptMessageDialog(int16 *args) {
 	MONOLOG(MessageDialog);
 	//stringf( buffer, sizeof buffer, args[1], &args[2] );
 
-	userDialog(STRING(args[0]),
-	           STRING(args[1]),
-	           args[2] ? STRING(args[2]) : nullptr,
+	userDialog(const_cast<char *>(thisThread->displayString(args[0], Native::language())),
+	           const_cast<char *>(thisThread->displayString(args[1], Native::language())),
+	           args[2] ? const_cast<char *>(thisThread->displayString(args[2], Native::language())) : nullptr,
 	           nullptr,
 	           nullptr);
 
@@ -2785,11 +2806,11 @@ int16 scriptChoiceDialog(int16 *args) {
 	MONOLOG(ChoiceDialog);
 	//stringf( buffer, sizeof buffer, args[1], &args[2] );
 
-	userDialog(STRING(args[0]),
-	           STRING(args[1]),
-	           args[2] ? STRING(args[2]) : nullptr,
-	           args[3] ? STRING(args[3]) : nullptr,
-	           args[4] ? STRING(args[4]) : nullptr);
+	userDialog(const_cast<char *>(thisThread->displayString(args[0], Native::language())),
+	           const_cast<char *>(thisThread->displayString(args[1], Native::language())),
+	           args[2] ? const_cast<char *>(thisThread->displayString(args[2], Native::language())) : nullptr,
+	           args[3] ? const_cast<char *>(thisThread->displayString(args[3], Native::language())) : nullptr,
+	           args[4] ? const_cast<char *>(thisThread->displayString(args[4], Native::language())) : nullptr);
 
 //	WriteStatusF( 1, buffer );
 	return 0;
@@ -2810,7 +2831,7 @@ int16 scriptPlacard(int16 *args) {
 	MONOLOG(Placard);
 	char        buffer[256];
 
-	stringf(buffer, sizeof buffer, args[1], &args[2]);
+	stringf(buffer, sizeof buffer, args[1], &args[2], Native::language());
 
 	placardWindow(args[0], buffer);    // plaq type, text
 
@@ -3152,7 +3173,7 @@ int16 scriptAppendBookText(int16 *args) {
 	MONOLOG(AppendBookText);
 	//  If optional 4th parameter is present, then set actor facing
 	for (int i = 0; i < thisThread->_argCount; i++) {
-		char        *bookText = STRING(args[i]);
+		char        *bookText = const_cast<char *>(thisThread->displayString(args[i], Native::language()));
 
 		appendBookText(bookText);
 	}
@@ -3168,7 +3189,7 @@ int16 scriptAppendScrollTextF(int16 *args) {
 	MONOLOG(AppendScrollTextF);
 	char        buffer[256];
 
-	stringf(buffer, sizeof buffer, args[0], &args[1]);
+	stringf(buffer, sizeof buffer, args[0], &args[1], Native::language());
 
 	appendBookText(buffer);
 
@@ -3183,7 +3204,7 @@ int16 scriptAppendScrollText(int16 *args) {
 	MONOLOG(AppendScrollText);
 	//  If optional 4th parameter is present, then set actor facing
 	for (int i = 0; i < thisThread->_argCount; i++) {
-		char        *ScrollText = STRING(args[i]);
+		char        *ScrollText = const_cast<char *>(thisThread->displayString(args[i], Native::language()));
 
 		appendBookText(ScrollText);
 	}
@@ -3199,7 +3220,7 @@ int16 scriptAppendBookTextF(int16 *args) {
 	MONOLOG(AppendBookTextF);
 	char        buffer[256];
 
-	stringf(buffer, sizeof buffer, args[0], &args[1]);
+	stringf(buffer, sizeof buffer, args[0], &args[1], Native::language());
 
 	appendBookText(buffer);
 

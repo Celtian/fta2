@@ -25,6 +25,7 @@
 
 #ifndef SAGA2_SPEECH_H
 #define SAGA2_SPEECH_H
+#include "platform/localization.h"
 
 #include "saga2/objects.h"
 
@@ -94,6 +95,9 @@ private:
 	int16               _speechFlags;        // flags from speaking
 	uint32              _sampleID[MAX_SAMPLES];// voice sound sample ID
 	char                _speechBuffer[512];// longest possible speech
+	Native::Language _textLanguage = Native::Language::English;
+	Native::String _displayBuffer;
+	char *displayBuffer() { return _displayBuffer.empty() ? _speechBuffer : _displayBuffer.data(); }
 
 public:
 	int16               _selectedButton;     // which button was hit
@@ -120,6 +124,7 @@ private:
 	void remove();                   //  Remove from active list
 
 public:
+	~Speech() { delete[] _speechImage._data; }
 
 	enum SpeechFlags {
 		kSpNoAnimate     = (1 << 0),         //  Don't animate actor
@@ -133,7 +138,8 @@ public:
 	void dispose();
 
 	//  Append text and samples to speech
-	bool append(char *text, int32 sampID);
+	bool append(char *text, int32 sampID, const char *translated = nullptr);
+	Native::Language textLanguage() const { return _textLanguage; }
 
 	//  Move speech to active list
 	bool activate();
@@ -212,6 +218,8 @@ public:
 	}
 
 	void remove(Speech *p);
+	void saveLocalization(Native::OutSaveFile *out);
+	void loadLocalization(Native::InSaveFile *in, uint32 size);
 };
 
 extern SpeechTaskList &speechList;

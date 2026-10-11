@@ -415,11 +415,11 @@ int16 gPort::drawClippedString(
 	//  of the clip.
 
 	while (len > 0) {
-		int16       drawchar = *s,
+		int16       drawchar = (uint8)*s,
 		            charwidth;
 
 		if (drawchar == '_' && underbar) {
-			drawchar = s[1];
+			drawchar = (uint8)s[1];
 			charwidth   = _font->charKern[drawchar]
 			              + _font->charSpace[drawchar] + _textSpacing;
 
@@ -445,7 +445,7 @@ int16 gPort::drawClippedString(
 	//  the right edge of the clip.
 
 	for (clipLen = 0; clipLen < len; clipLen++) {
-		int16       drawchar = s[clipLen];
+		int16       drawchar = (uint8)s[clipLen];
 
 		if (drawchar == '_' && underbar)
 			continue;
@@ -572,7 +572,7 @@ int16 gPort::drawClippedString(
 
 //	penMove += clipWidth;
 	for (clipLen = 0; clipLen < len; clipLen++) {
-		int16       drawchar = s[clipLen];
+		int16       drawchar = (uint8)s[clipLen];
 
 		if (drawchar == '_' && underbar)
 			continue;
@@ -764,6 +764,7 @@ void gPort::drawTextInBox(
 **********************************************************************
 */
 int16 TextWidth(gFont *font, const char *s, int16 length, int16 styles) {
+	font = Native::localizedFont(font, Native::language());
 	int16           count = 0;
 
 	if (length < 0)

@@ -300,6 +300,8 @@ void setNewText(char *text) {
 	//  Compute the size of the text bitmap
 	textImage->_size.y = mainFont->height + 2;
 	textImage->_size.x = TextWidth(mainFont, text, -1, 0) + 2;
+	Native::checkTextFit(text, mainFont, Native::displayLayout().screenWidth - 10,
+	                     textImage->_size.y, kTextStyleOutline, "cursor tooltip");
 
 	//  Allocate a new buffer for the text image bitmap
 	int16 textImageBytes = textImage->bytes();

@@ -26,6 +26,8 @@
 #ifndef SAGA2_LOCALIZE_H
 #define SAGA2_LOCALIZE_H
 
+#include "platform/localization.h"
+
 namespace Saga2 {
 
 #define ALLOCATION_ERROR    "Required allocation failed"
@@ -43,88 +45,88 @@ namespace Saga2 {
 #define HOUR22_TIME         "evening"
 
 
-#define IDEAS_MENTAL        "Ideas"
-#define SPELL_MENTAL        "Spells"
-#define SKILL_MENTAL        "Skills"
+#define IDEAS_MENTAL        Native::ui("Ideas", true)
+#define SPELL_MENTAL        Native::ui("Spells", true)
+#define SKILL_MENTAL        Native::ui("Skills", true)
 
-#define CLOSE_MOUSE         "Close"
-#define SCROLL_MOUSE        "Scroll Inventory"
+#define CLOSE_MOUSE         Native::ui("Close", true)
+#define SCROLL_MOUSE        Native::ui("Scroll Inventory", true)
 
-#define ASLEEP_STATE        "Asleep"
-#define PARALY_STATE        "Paralysed"
-#define BLIND_STATE         "Blind"
-#define AFRAID_STATE        "Afraid"
-#define ANGRY_STATE         "Angry"
-#define BADWND_STATE        "Badly Wounded"
-#define HURT_STATE          "Hurt"
-#define POISON_STATE        "Poisoned"
-#define DISEAS_STATE        "Diseased"
-#define NORMAL_STATE        "Normal"
-#define DEAD_STATE          "Dead"
+#define ASLEEP_STATE        Native::ui("Asleep", true)
+#define PARALY_STATE        Native::ui("Paralysed", true)
+#define BLIND_STATE         Native::ui("Blind", true)
+#define AFRAID_STATE        Native::ui("Afraid", true)
+#define ANGRY_STATE         Native::ui("Angry", true)
+#define BADWND_STATE        Native::ui("Badly Wounded", true)
+#define HURT_STATE          Native::ui("Hurt", true)
+#define POISON_STATE        Native::ui("Poisoned", true)
+#define DISEAS_STATE        Native::ui("Diseased", true)
+#define NORMAL_STATE        Native::ui("Normal", true)
+#define DEAD_STATE          Native::ui("Dead", true)
 
-#define JULIAN_BROSTATE     "Julian is: "
-#define PHILLIP_BROSTATE    "Phillip is: "
-#define KEVIN_BROSTATE      "Kevin is: "
+#define JULIAN_BROSTATE     Native::ui("Julian is: ", true)
+#define PHILLIP_BROSTATE    Native::ui("Phillip is: ", true)
+#define KEVIN_BROSTATE      Native::ui("Kevin is: ", true)
 
 // FIXME: Spelling incorrect. Agression should be Aggression. Fixing changes game data and thus may cause issues
-#define ON_AGRESS           "Agression: On"
+#define ON_AGRESS           Native::ui("Agression: On", true)
 // FIXME: Spelling incorrect. Agression should be Aggression. Fixing changes game data and thus may cause issues
-#define OFF_AGRESS          "Agression: Off"
+#define OFF_AGRESS          Native::ui("Agression: Off", true)
 
-#define NO_ARMOR            "No Armor Worn"
-#define DESC_ARMOR          "Absorb:%d, Reduce:/%d, Defense:+%d"
+#define NO_ARMOR            Native::ui("No Armor Worn", true)
+#define DESC_ARMOR          Native::ui("Absorb:%d, Reduce:/%d, Defense:+%d", true)
 
-#define ON_CENTER           "Center: On"
-#define OFF_CENTER          "Center: Off"
+#define ON_CENTER           Native::ui("Center: On", true)
+#define OFF_CENTER          Native::ui("Center: Off", true)
 
-#define ON_BANDED           "Banding: On"
-#define OFF_BANDED          "Banding: Off"
+#define ON_BANDED           Native::ui("Banding: On", true)
+#define OFF_BANDED          Native::ui("Banding: Off", true)
 
-#define OPTIONS_PANEL       "Options Panel"
+#define OPTIONS_PANEL       Native::ui("Options Panel", true)
 
-#define HEALTH_HINT         "Health:"
-#define WEIGHT_HINT         "Weight:"
-#define GOLD_HINT           "Gold:"
-#define BULK_HINT           "Bulk:"
-#define UNK_WEIGHT_HINT     "N/A"
-#define UNK_BULK_HINT       "N/A"
+#define HEALTH_HINT         Native::ui("Health:", true)
+#define WEIGHT_HINT         Native::ui("Weight:", true)
+#define GOLD_HINT           Native::ui("Gold:", true)
+#define BULK_HINT           Native::ui("Bulk:", true)
+#define UNK_WEIGHT_HINT     Native::ui("N/A", true)
+#define UNK_BULK_HINT       Native::ui("N/A", true)
 
-#define RED_MANA            "Red Mana:"
-#define ORANGE_MANA         "Orange Mana:"
-#define YELLOW_MANA         "Yellow Mana:"
-#define GREEN_MANA          "Green Mana:"
-#define BLUE_MANA           "Blue Mana:"
-#define VIOLET_MANA         "Purple Mana:"
+#define RED_MANA            Native::ui("Red Mana:", true)
+#define ORANGE_MANA         Native::ui("Orange Mana:", true)
+#define YELLOW_MANA         Native::ui("Yellow Mana:", true)
+#define GREEN_MANA          Native::ui("Green Mana:", true)
+#define BLUE_MANA           Native::ui("Blue Mana:", true)
+#define VIOLET_MANA         Native::ui("Purple Mana:", true)
 
 
 #define DOS_CMDLINE         "Syntax : FTA2 \n"
 #define WIN_CMDLINE         "Syntax : FTA2 \n"
 
-#define SINGLE_CHARGE       "%s, %d Charge"
-#define MULTI_CHARGE        "%s, %d Charges"
+#define SINGLE_CHARGE       Native::ui("%s, %d Charge", true)
+#define MULTI_CHARGE        Native::ui("%s, %d Charges", true)
 
-#define PLURAL_DESC         "%d %ss"
+#define PLURAL_DESC         Native::ui("%d %ss", true)
 
-#define IDEAS_INVENT        "Mental Inventory: Ideas"
-#define SPELL_INVENT        "Mental Inventory: Spells"
-#define SKILL_INVENT        "Mental Inventory: Skills"
+#define IDEAS_INVENT        Native::ui("Mental Inventory: Ideas", true)
+#define SPELL_INVENT        Native::ui("Mental Inventory: Spells", true)
+#define SKILL_INVENT        Native::ui("Mental Inventory: Skills", true)
 
-#define ERROR_HEADING       "Error"
-#define ERROR_OK_BUTTON     "OK"
-#define ERROR_RE_BUTTON     "_Retry"
-#define ERROR_CA_BUTTON     "_Cancel"
-#define ERROR_YE_BUTTON     "_Yes"
-#define ERROR_NO_BUTTON     "_No"
+#define ERROR_HEADING       Native::ui("Error", true)
+#define ERROR_OK_BUTTON     Native::ui("OK", true)
+#define ERROR_RE_BUTTON     Native::ui("_Retry", true)
+#define ERROR_CA_BUTTON     Native::ui("_Cancel", true)
+#define ERROR_YE_BUTTON     Native::ui("_Yes", true)
+#define ERROR_NO_BUTTON     Native::ui("_No", true)
 
-#define ARCHERY_SKILL       "archery skill"
-#define SWORD_SKILL         "swordcraft skill"
-#define SHIELD_SKILL        "shieldcraft skill"
-#define BLUDGEON_SKILL      "bludgeon skill"
-#define DEAD_SKILL          ""
-#define SPELL_SKILL         "spellcraft"
-#define DEAD2_SKILL         ""
-#define AGILITY_SKILL       "agility"
-#define BRAWN_SKILL         "brawn"
+#define ARCHERY_SKILL       Native::ui("archery skill", true)
+#define SWORD_SKILL         Native::ui("swordcraft skill", true)
+#define SHIELD_SKILL        Native::ui("shieldcraft skill", true)
+#define BLUDGEON_SKILL      Native::ui("bludgeon skill", true)
+#define DEAD_SKILL          Native::ui("", true)
+#define SPELL_SKILL         Native::ui("spellcraft", true)
+#define DEAD2_SKILL         Native::ui("", true)
+#define AGILITY_SKILL       Native::ui("agility", true)
+#define BRAWN_SKILL         Native::ui("brawn", true)
 
 #define SKILL_STATUS         "%s's %s has increased."
 #define VITALITY_STATUS      "%s's vitality has increased."

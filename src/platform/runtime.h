@@ -424,7 +424,8 @@ enum EventType {
     EVENT_KEYDOWN,
     EVENT_QUIT,
     EVENT_MOUSEWHEEL,
-    EVENT_FOCUSLOST
+    EVENT_FOCUSLOST,
+    EVENT_SCREENSHOT
 };
 enum {
     KBD_SHIFT = 1,
@@ -453,6 +454,7 @@ struct Event {
     EventType type = EVENT_INVALID;
     Point mouse;
     float wheelY = 0;
+    bool screenshotSaved = false, screenshotInUserDirectory = false;
     struct {
         int ascii = 0, keycode = 0, flags = 0;
     } kbd;
@@ -569,6 +571,7 @@ class Platform {
     int _mouseX = 0, _mouseY = 0;
     int _automaticWidth = 0, _automaticHeight = 0;
     bool _customWindowSize = false;
+    bool _presented = false;
     void observeWindowSize();
     void applyAutomaticWindowSize();
     void refreshMousePosition();
@@ -579,6 +582,7 @@ class Platform {
     uint64 virtualMicros = 0;
     TimerManager timers;
     SaveFileManager saves;
+    Path screenshotBaseDirectory;
     Platform();
     ~Platform();
     void initGraphics(int, int);

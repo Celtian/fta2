@@ -26,6 +26,8 @@
 #ifndef SAGA2_GDRAW_H
 #define SAGA2_GDRAW_H
 
+#include "platform/localization.h"
+
 #include "saga2/rect.h"
 
 namespace Saga2 {
@@ -394,8 +396,8 @@ public:
 
 	//  Text rendering functions
 
-	void setFont(gFont *newFont) {
-		_font = newFont;
+	void setFont(gFont *newFont, bool localize = true) {
+		_font = localize ? Native::localizedFont(newFont, Native::language()) : newFont;
 	}
 	void setTextSpacing(int16 fs) {
 		_textSpacing = fs;

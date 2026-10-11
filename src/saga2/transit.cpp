@@ -31,6 +31,8 @@
 #include "saga2/calendar.h"
 #include "saga2/modal.h"
 #include "saga2/display.h"
+#include "saga2/intrface.h"
+#include "saga2/uidialog.h"
 
 namespace Saga2 {
 
@@ -55,12 +57,14 @@ bool isModalMode() {
 }
 
 void dayNightUpdate() {
-	// do nothing while in modal mode
-	if (isModalMode()) {
+	// Options previews its Night setting; other modals keep the palette paused.
+	if (isModalMode() && !isOptionsWindow(ModalWindow::_current)) {
 		return;
 	}
 
-	audioEnvironmentSetDaytime(isDayTime());
+	// Preview only the palette; modal settings must not select new ambient music.
+	if (!isModalMode())
+		audioEnvironmentSetDaytime(isDayTime());
 
 	uint32 lightLevel = g_vm->_calendar->lightLevel(MAX_LIGHT);
 
@@ -76,7 +80,8 @@ void dayNightUpdate() {
 		    MAX_LIGHT);
 
 		if (g_vm->_currentMapNum == 0)
-			g_vm->_pal->beginFade(&g_vm->_pal->_newPalette, 100);
+			g_vm->_pal->beginFade(&g_vm->_pal->_newPalette,
+			                      isOptionsWindow(ModalWindow::_current) ? 0 : 100);
 	}
 
 	if (!g_vm->_pal->updatePalette()) {

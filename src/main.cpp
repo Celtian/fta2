@@ -13,7 +13,7 @@ static int runGame(int argc, char** argv) {
     try {
         Native::Path data, saves, voice;
         bool probe = false;
-        bool widescreenProbe = false, voiceProbe = false;
+        bool widescreenProbe = false, voiceProbe = false, localizationProbe = false;
         int deathActor = 0;
         int smokeFrames = 260;
         Native::Path probeOutput;
@@ -50,6 +50,10 @@ static int runGame(int argc, char** argv) {
                 widescreenProbe = true;
                 continue;
             }
+            if (arg == "--smoke-localization") {
+                localizationProbe = true;
+                continue;
+            }
             if (arg == "--smoke-frames" && i + 1 < argc) {
                 smokeFrames = std::stoi(argv[++i]);
                 if (smokeFrames < 260 || smokeFrames > 1000000)
@@ -76,6 +80,8 @@ static int runGame(int argc, char** argv) {
             throw std::runtime_error("--smoke-voices requires --smoke-test");
         if (widescreenProbe && !probe)
             throw std::runtime_error("--smoke-widescreen requires --smoke-test PATH");
+        if (localizationProbe && !probe)
+            throw std::runtime_error("--smoke-localization requires --smoke-test PATH");
         if (saves.empty()) {
             char* p = SDL_GetPrefPath("fta2-native", "fta2-native");
             if (!p)
@@ -148,6 +154,7 @@ static int runGame(int argc, char** argv) {
         Native::Platform platform;
         platform.saves.directory = saves;
         if (probe) {
+            platform.screenshotBaseDirectory = probeOutput / "application";
             ConfMan.setBool("native_probe", true);
             ConfMan.setInt("random_seed", 42);
             Native::requireSeparateOutput(Native::dataDirectory, probeOutput);
@@ -157,6 +164,8 @@ static int runGame(int argc, char** argv) {
                 Native::configureVoiceProbe(probeOutput);
             else if (widescreenProbe)
                 Native::configureWidescreenProbe(probeOutput);
+            else if (localizationProbe)
+                Native::configureLocalizationProbe(probeOutput);
             else
                 Native::configureSmokeProbe(probeOutput, smokeFrames);
             platform.deterministic = true;
