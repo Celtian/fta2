@@ -1,8 +1,50 @@
-# Community Edition alpha 0.1.48 validation status
+# Community Edition alpha 0.0.1 validation status
 
 The result is a standalone C++20 engine using SDL 3.4.18. It was built and run on Linux and the actual Windows host with the original DOS data, without DOSBox or the ScummVM framework. **This is a development alpha; a complete playthrough of the port has not yet been demonstrated.** Version 0.1.33 aligns the Options right column, removes the obsolete fallback notice and consolidates each release into one ZIP with embedded corresponding sources; local Windows releases also include verified English voices. Version 0.1.32 enables separately verified original English CD voices while retaining the supported DOS profile and unvoiced fallback. Version 0.1.31 moves Night below Speech Text in Options and fixes live speech-channel volume synchronization. Version 0.1.30 tones down empty-slot numbers to muted warm gray while retaining the thin dark outline for readability. Version 0.1.29 improves empty-slot number contrast with pale digits and a thin dark outline. Version 0.1.28 adds physical-container wheel scrolling, subtle empty-slot numbers and an optional saved game-time HUD. Version 0.1.27 adds the same J/P/K diamond to mental inventories, identifying the window's actor independently of selection. Version 0.1.26 restores the diamond carrier marker in a larger size with J/P/K initials. Version 0.1.25 makes the container-carrier marker more visible with a broad colored J/P/K plaque and original-font initials. Version 0.1.24 identifies the actual carrier of open physical containers with an original-palette gemstone and English hover tooltip, independently of sidebar layout. Version 0.1.23 clears visible and delayed inventory hover text when closing windows with Escape. Version 0.1.22 joins the optional gold, weight and volume medallions into one continuous decorative strip. Version 0.1.21 anchors default Ideas/Spells/Skills windows to the active sidebar while preserving remembered custom positions. Version 0.1.20 gives the coin counter the complete original circular gold bezel, a bronze interior, light gold digits and an exact live hover tooltip. Version 0.1.19 aligns the optional sidebar controls to a uniform grid, scales the composite HP artwork and gives the coin counter original gold decoration. Version 0.1.18 adds coin artwork and per-brother mental controls in group view under New layout. Version 0.1.17 adds an optional individual sidebar layout with mental controls beside HP and a carried-gold counter. It also fixes ready-inventory positioning after loading in widescreen. Version 0.1.16 fixes immediate selected-state redraws of compressed sidebar buttons in widescreen. Version 0.1.15 makes automatic window sizes follow the active display mode and adds isolated per-brother exploration verification without changing the original reveal rules. Version 0.1.14 aligns Widescreen below Night and restores the original checkbox dimensions and compact Options height. Version 0.1.13 adds optional widescreen rendering with a wider map and the original sidebar size. Version 0.1.12 adds G/Shift+G to use the selected brother's carried map through its original script, including maps in closed or nested bags. Version 0.1.11 makes Escape close the frontmost container before opening Options. Version 0.1.10 adds mouse-wheel page navigation to vertical scrolls and parchment. Version 0.1.9 fixes Credits page-arrow updates and cursor restoration on close. Version 0.1.8 restores the Speech Text toggle and remembered preference while retaining readable unvoiced dialogue. Version 0.1.7 fixes the Options load empty state, restores the visible mandatory Speech Text checkbox and recovers the original Credits script. Version 0.1.6 adds a Hot Keys overview to Options and implements the M music toggle. It retains the numeric keypad support introduced in 0.1.5. It retains the borderless fullscreen and Alt+Enter window switching introduced in 0.1.4; the extended stability and sanitizer results below were recorded on 0.1.0.
 
 The reference is a separate SAGA2 build at revision `1a3e816afd5ddc41cc2a5c51a5da292e6d61758c`, modified only by the supplied reference patches. Successful startup with DOS resources was verified before separating the engine. The missing `FTA2WIN.EXE` dependency was resolved by extracting the actual DOS resources.
+
+## README, version reset and GitHub Releases in 0.0.1
+
+Community Edition numbering restarts at 0.0.1 through the shared CMake version,
+including CLI/About and package filenames. Earlier release packages and their
+historical validation records remain unchanged. The README now uses emoji
+headings, download/control tables and one explicitly requested 854 × 480 gameplay
+preview. Its original detailed content remains in [the player guide](player-guide.md).
+The preview was visually inspected; original artwork keeps its copyright and is
+included only in sources, without a loose runtime installation.
+
+Branch/PR CI and version-tag releases share one reusable desktop build workflow.
+The release gate requires an exact CMake/tag match, successful builds/tests on all
+three configured runners, matching source ZIPs, minimal player layouts and all
+three platform assets. Publication generates SHA256SUMS and creates a prerelease
+using contents-write permission only in its final job. Public assets exclude
+proprietary data/voices/saves; local complete Windows packages are not selected.
+Existing release assets are never overwritten. See [release instructions](releases.md).
+
+Linux Release and Zig Windows x64 builds succeed. Both CTest suites pass **12/12**;
+Windows C++ tests execute on the Windows host, with Python checks on Linux.
+The new release suite has eleven synthetic cases covering exact tags, ambiguous
+build output, all-platform/checksum gates, unexpected/private assets, missing
+licences, source tampering/version mismatch and filename/root mismatch. The
+existing twenty packaging tests also pass. Actionlint 1.7.12 validates all three
+workflows; YAML and local documentation links were checked separately.
+
+Real Linux and Windows engine ZIPs were assembled with corresponding sources and
+passed the new public asset/CRC/source-manifest audits and checksum generation.
+The extracted Linux root launcher reports Community Edition 0.0.1 from an
+unrelated working directory in a path containing spaces and Czech characters.
+The 54 original installation files and all five existing dist files remain
+byte-identical. A final source-content audit is kept under .cache/ with the
+packaging intermediates and validation logs.
+
+No remote workflow, tag push or GitHub publication was performed in this change.
+No macOS build/execution or new MSVC validation is claimed; macOS package layout
+is tested synthetically and configured in CI. Gameplay integrations, reference
+comparison and sanitizers were not rerun for documentation, version and release
+automation changes; their previous results remain below. Manual hardware/audio
+checks, complete translation review and a full playthrough remain pending.
+Development-alpha status is retained.
 
 ## Community Edition identity and player packages in 0.1.48
 

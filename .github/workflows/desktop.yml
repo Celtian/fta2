@@ -1,0 +1,66 @@
+name: 📦 Reusable desktop packages
+
+on:
+  workflow_call:
+    inputs:
+      release-tag:
+        description: Optional release tag to verify against CMake
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  desktop:
+    name: 📦 ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            name: linux-x64
+          - os: windows-2022
+            name: windows-x64
+          - os: macos-14
+            name: macos-universal
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: 🗜️ Checkout
+        uses: actions/checkout@v4
+      - name: 🔎 Verify version
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ inputs.release-tag }}
+        run: python3 tools/release.py version --tag "$RELEASE_TAG"
+      - name: 🛠️ Install Linux desktop development libraries
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxi-dev libxfixes-dev libxss-dev libxtst-dev libasound2-dev libpulse-dev libwayland-dev libxkbcommon-dev libegl1-mesa-dev libdecor-0-dev
+      - name: ⚙️ Configure
+        shell: bash
+        run: |
+          args=()
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
+            args+=("-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64")
+          fi
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release "${args[@]}"
+      - name: 🛠️ Build
+        run: cmake --build build --config Release --parallel 3
+      - name: 🧪 Test without proprietary game data
+        run: ctest --test-dir build -C Release --output-on-failure
+      - name: 📦 Package engine and corresponding sources
+        shell: bash
+        run: |
+          cpack --config build/CPackConfig.cmake -C Release -B .cache/packages
+          cpack --config build/CPackSourceConfig.cmake -B .cache/packages
+      - name: 🔎 Assemble and audit public player package
+        run: python3 tools/release.py bundle --packages .cache/packages --output artifacts
+      - name: 📤 Upload player ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: fta2-ce-${{ matrix.name }}
+          path: artifacts/fta2-ce-*.zip
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14

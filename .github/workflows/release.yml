@@ -1,0 +1,66 @@
+name: 🚀 GitHub release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  version:
+    name: 🔎 Verify release tag
+    runs-on: ubuntu-22.04
+    steps:
+      - name: 🗜️ Checkout
+        uses: actions/checkout@v4
+      - name: 🔎 Require a tag matching CMake
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          if [[ "$GITHUB_REF" != refs/tags/* ]]; then
+            echo 'Select an existing version tag when running this workflow manually.' >&2
+            exit 1
+          fi
+          python3 tools/release.py version --tag "$RELEASE_TAG"
+
+  desktop:
+    name: 🧪 Validate & Package
+    needs: version
+    uses: ./.github/workflows/desktop.yml
+    with:
+      release-tag: ${{ github.ref_name }}
+
+  publish:
+    name: 🚀 Publish development alpha
+    needs: desktop
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - name: 🗜️ Checkout
+        uses: actions/checkout@v4
+      - name: 📥 Download all desktop packages
+        uses: actions/download-artifact@v4
+        with:
+          pattern: fta2-ce-*
+          path: artifacts
+          merge-multiple: true
+      - name: 🔎 Audit packages and generate SHA-256 checksums
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: python3 tools/release.py checksums --assets artifacts --tag "$RELEASE_TAG" --all-platforms
+      - name: 🚀 Create GitHub prerelease with downloads
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          gh release create "$RELEASE_TAG" artifacts/*.zip artifacts/SHA256SUMS \
+            --repo "$GITHUB_REPOSITORY" --verify-tag --prerelease \
+            --title "🧚 Community Edition $RELEASE_TAG — development alpha" \
+            --generate-notes --notes-file packaging/RELEASE-NOTES.md
